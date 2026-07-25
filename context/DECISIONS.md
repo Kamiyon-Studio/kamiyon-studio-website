@@ -193,3 +193,24 @@ graphify update .
 - `getCmsImageUrl` only returns `next/image`-allowlisted hosts (media CDN / local paths) so non-image URLs (e.g. itch.io pages) do not crash
 
 **Consequences:** Dataset `kamiyon` seeded (42 docs, 2026-07-24). Requires `SANITY_API_WRITE_TOKEN` (Editor). Re-run safe via `createOrReplace`. See [`deploy-runbook.md`](./deploy-runbook.md) seed section.
+
+---
+
+## ADR-012 — Cloudflare Web Analytics via manual beacon (2026-07-26)
+
+**Status:** Accepted
+
+**Context:** T14 required the only sanctioned analytics (essential context §3/§11 — Cloudflare Web Analytics, no GA4) without hurting the LCP/INP budget. Cloudflare offers automatic snippet injection for proxied zones, but the apex is not yet cut over (WS4b) and staging runs on `*.workers.dev`, which cannot be auto-injected. Only one beacon may render per page.
+
+**Decision:**
+
+- **Manual embed**, not Cloudflare automatic injection — one snippet per page, identical on staging and production, and versioned in the repo. Automatic injection must stay off in the dashboard.
+- Load with `next/script` `strategy="afterInteractive"` from the root layout, so the beacon never blocks hydration or LCP.
+- Split the decision from the rendering: pure `resolveCloudflareBeacon` in `lib/analytics/cloudflare-web-analytics.ts`; `components/analytics/CloudflareWebAnalytics.tsx` only renders. Keeps the unit tests browser-free and the modules small.
+- **Fail closed and silent:** render `null` (no beacon, no console output) when the token is blank, or when `APP_ENV=local` / `NODE_ENV=development` — matching the dev check already used by `app/api/media/upload/route.ts`.
+- Token comes from `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` only, read via **static** `process.env` access (ADR-009 precedent). Never hardcoded.
+- Because public vars are inlined at build time, the token is supplied per environment at **build**: `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN_{STAGING,PRODUCTION}` GitHub Actions variables (already wired in `.github/workflows/deploy.yml`), or `.env.local` for local deploys. `wrangler.jsonc` carries an empty slot in both envs for parity/documentation, not as the enablement path.
+- `spa: true` so App Router client navigations count as page views.
+- **No CSP change:** the repo ships no `Content-Security-Policy` (no `headers()` in `next.config.ts`, no middleware; `public/_headers` sets cache headers only). Required directives are documented for whenever a CSP is introduced.
+
+**Consequences:** Analytics is inert until an operator creates the Cloudflare sites and sets the build variables — see [`analytics-setup.md`](./analytics-setup.md) for the non-technical walkthrough. Rotating or changing a token requires a rebuild, not just a Worker var edit. Staging and production need separate site tokens (different apex domains).

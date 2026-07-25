@@ -126,7 +126,7 @@ Batch S (CMS seed — done 2026-07-24):
 1. ~~**WS1** — Hero scroll bounce: first intent must scroll; stabilize tip × (QA-002/009/010)~~ **Done**
 2. ~~**WS2** — Re-QA logo disappear/click~~ **Done** (QA-003 frosted chrome; QA-004 N/R as hit bug)
 3. ~~**WS4a** — Staging webhook + Studio R2 origin + API smoke~~ **Done** (see deploy-runbook)
-4. **WS6 (optional)** — Blog UI (T9) / CF Analytics (T14)
+4. **WS6 (optional)** — Blog UI (T9) / ~~CF Analytics (T14)~~ **T14 done 2026-07-26** — beacon + dev/no-token off switch (ADR-012); operator must set `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN_{STAGING,PRODUCTION}` per [`analytics-setup.md`](./analytics-setup.md)
 
 ### Batch 2
 
@@ -145,15 +145,33 @@ Batch S (CMS seed — done 2026-07-24):
 
 ## Open Questions
 
-- [ ] **`/news` route** — deferred
-- [ ] **Press Kit** — deferred
-- [ ] **Portfolio taxonomy filters** — deferred
-- [ ] **README motto conflict** — update docs README to Create. Play. Inspire.?
+Only genuinely pending decisions live here. Decided-but-unscheduled work is under **Deferred** below; settled items are under **Resolved**.
+
+- [ ] **Resend from-address / `CONTACT_TO_EMAIL`** — Plan locked 2026-07-26: send as `Kamiyon Studio <noreply@send.kamiyonstudio.com>` (dedicated sending subdomain keeps transactional reputation off the apex); `CONTACT_TO_EMAIL=kamiyonstudio@gmail.com` (already `PUBLIC_EMAIL`); add Cloudflare Email Routing so `hello@kamiyonstudio.com` forwards to that Gmail. Never send as `gmail.com` — Resend requires a verified domain and it fails DMARC.  
+  Remaining before WS5: verify the subdomain in Resend (DKIM + SPF), add apex DMARC at `p=none` with `rua`, add `CONTACT_FROM_EMAIL` to `.env.example`, keep `RESEND_API_KEY` a Worker **secret**. Reply-to = visitor address on the studio notification, `PUBLIC_EMAIL` on the visitor confirmation.  
+  **Sequencing:** zone is already on Cloudflare and currently has **no MX / SPF / DMARC**, so this is independent of WS4b and nothing conflicts. Domain verification is the long-lead step — start it **before** WS4b.
+- [ ] **Retire Google Form when T8 ships?** — Recommendation: no hard cutover. Native form becomes primary; keep the Form as a secondary fallback until end-to-end delivery is verified (studio inbox + visitor confirmation + spam placement) over ~2 weeks or several genuine submissions, since the native path depends on Resend being up. Retirement is not just deleting a constant: `INTERIM_CONTACT_FORM_URL` is referenced in `lib/config/navigation.ts`, `lib/cms/fallbacks/{home,site-settings}.ts`, `lib/site-settings/shell-props.ts` and ~6 test files, and seeded Sanity docs may still carry it in `ctaHref` (see `QA-Report.md`) — budget a dataset patch/reseed in WS5.
+
+---
+
+## Deferred — decided, not scheduled
+
+| Item | Decision | Revisit trigger |
+| --- | --- | --- |
+| **Press Kit** (`/pres`) | Vision item per [`ai-workflow-rules.md`](./ai-workflow-rules.md) — out of v1. Interim need is served manually: brand assets in `docs/assets/` + `PUBLIC_EMAIL`. | First real press inquiry, or first product launch |
+| **Portfolio taxonomy filters** | Approach locked: client-side chips over the existing `caseStudy.industry` field, reusing the `CommunityFeed` + `lib/community/filter-by-type` pattern (chips derived only from values present). No new routes, no schema change, no CMS migration. | ≥6 real (non-placeholder) case studies across ≥3 industries |
+
+Portfolio currently holds **1** case study, `isPlaceholder: true` — chips over a single placeholder card would read as broken, which is why filters wait on content rather than engineering.
+
+---
+
+## Resolved (formerly open)
+
+- [x] **`/news` route** — **Won't build.** `/blog` (T9) is the announcements surface; its own metadata already reads "News and updates from Kamiyon Studio." `/news` originated in the superseded `website-plan/` v2.0 IA and never shipped, so no redirect is needed.
+- [x] **README motto conflict** — Fixed 2026-07-26: `docs/README.md` now reads **Create. Play. Inspire.**, matching `docs/company/overview.md`, `docs/company/mission-vision.md`, the branding docs, root `README.md`, and `SITE_MOTTO`. No code impact (nothing read the old string).
 - [x] **R2 public CDN hostname** — `media.kamiyonstudio.com` / `media-staging.kamiyonstudio.com` (active)
 - [x] **Hosted Studio hostname** — `kamiyon.sanity.studio` live; env bake-in fixed (ADR-009)
-- [x] **Interim contact** — Google Form URL (wire in repo; QA-001 = Forms settings)
-- [ ] **Resend from-address / CONTACT_TO_EMAIL** — confirm production inbox before WS5
-- [ ] **Retire Google Form** when T8 ships? (product call at WS5)
+- [x] **Interim contact** — Google Form URL (wired in repo; QA-001 = Forms settings)
 
 ---
 

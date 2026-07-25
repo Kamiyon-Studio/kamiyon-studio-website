@@ -28,15 +28,15 @@ describe("buildPageMetadata", () => {
     });
   });
 
-  it("falls back to the site-wide generated OG/Twitter images when no CMS ogImage is set", () => {
+  it("omits images when no CMS ogImage is set so Next injects the generated hashed OG route", () => {
     const metadata = buildPageMetadata({
       title: "Home",
       description: "Home page.",
       path: "/",
     });
 
-    expect(metadata.openGraph?.images).toEqual([{ url: "/opengraph-image" }]);
-    expect(metadata.twitter?.images).toEqual(["/twitter-image"]);
+    expect(metadata.openGraph?.images).toBeUndefined();
+    expect(metadata.twitter?.images).toBeUndefined();
   });
 
   it("sets robots noindex when noIndex is true (e.g. the 404 page)", () => {
