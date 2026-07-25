@@ -77,7 +77,7 @@ Batch S (CMS seed — done 2026-07-24):
 | **WS2** | Re-QA logo on kinetic; fix if repro | `sterling-gate-kinetic-navigation*`, `SiteHeader*` | Soft: WS1 if tip steals clicks | **Done** — QA-003 fixed (frosted logo chrome on dark hero); QA-004 cannot repro (hits OK; tip stacking owned by WS1) |
 | **WS3** | Same-route → scroll; wire Google Form CTA | nav helpers, footer, contact CTAs, `lib/config/navigation`, channels/fallbacks | WS1/WS2 soft; answers locked | **Done** — same-route `SameRouteLink` + helpers; interim Google Form as primary CTA |
 | **WS4a** | Staging webhook + Studio API origin / R2 smoke | CF/Sanity ops, `deploy-runbook` | — | **Done** |
-| **WS4b** | Apex/www → prod Worker; pause Vercel | DNS + prod env | WS4a green | Ready (after Batch 1 polish) |
+| **WS4b** | Apex/www → prod Worker; pause Vercel | DNS + prod env | WS4a green | **Preflight done** 2026-07-26 — ordered runbook + gap list in [`deploy-runbook.md`](./deploy-runbook.md); prod Worker not created yet |
 | **WS5** | T8 Resend native form | contact API + UI | Inbox decision; prod after WS4b | Later |
 | **WS6** | T9 blog UI / T14 CF Analytics | blog routes, analytics snippet | — | Optional parallel |
 | **WS7** | T15 E2E expansion | `e2e/*` | WS3 + WS5 | Later |
@@ -134,7 +134,7 @@ Batch S (CMS seed — done 2026-07-24):
 
 ### Batch 3–4
 
-6. **WS4b** — Prod Worker; attach `kamiyonstudio.com` + `www`; pause Vercel; prod CORS + webhook
+6. **WS4b** — Prod Worker; attach `kamiyonstudio.com` + `www`; pause Vercel; prod CORS + webhook — preflight audited 2026-07-26 (see [`deploy-runbook.md`](./deploy-runbook.md) “WS4b — Production cutover”); execution needs operator DNS/Sanity/Vercel access
 7. **WS5** — T8 Resend form (after `CONTACT_TO_EMAIL` confirmed)
 8. **WS7** — Expanded E2E (T15); retire CardNav-era smoke comments
 9. **GitHub Actions** — Confirm `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` for `staging`/`main`
@@ -174,6 +174,10 @@ Portfolio currently holds **1** case study, `isPlaceholder: true` — chips over
 - [x] **Interim contact** — Google Form URL (wired in repo; QA-001 = Forms settings)
 
 ---
+
+## Recent polish (2026-07-26)
+
+- **Pink chrome glow CTAs (ADR-013):** `--border-default` → sakura tint; new `GlowingShadow` shell on primary `Button` only; kinetic nav toggle → icon-only two-bar hamburger (frosted chrome kept).
 
 ## Recent polish (2026-07-24)
 

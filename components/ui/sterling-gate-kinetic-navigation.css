@@ -81,12 +81,14 @@
 .sterling-gate .nav-close-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
   border: 1px solid color-mix(in srgb, var(--sg-ink) 12%, transparent);
   background: color-mix(in srgb, var(--sg-surface) 88%, transparent);
   color: var(--sg-ink);
   border-radius: var(--radius-pill, 9999px);
-  padding: 0.55rem 0.9rem 0.55rem 1.1rem;
+  padding: 0.65rem;
   cursor: pointer;
   backdrop-filter: blur(10px);
   transition: border-color 0.2s var(--sg-ease), background 0.2s var(--sg-ease);
@@ -98,31 +100,51 @@
   outline: none;
 }
 
-.sterling-gate .menu-button-text {
-  position: relative;
-  overflow: hidden;
-  height: 1.25em;
-  min-width: 3.5rem;
-}
-
-.sterling-gate .menu-button-text .p-large {
-  margin: 0;
-  line-height: 1.25;
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-
-.sterling-gate .icon-wrap {
-  width: 1rem;
+.sterling-gate .nav-hamburger {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 5px;
+  width: 1.25rem;
   height: 1rem;
-  display: grid;
-  place-items: center;
 }
 
-.sterling-gate .menu-button-icon {
-  width: 0.9rem;
-  height: 0.9rem;
+.sterling-gate .nav-hamburger-line {
   display: block;
+  height: 2px;
+  background-color: currentColor;
+  border-radius: 9999px;
+  transition:
+    transform 0.25s var(--sg-ease),
+    opacity 0.2s var(--sg-ease),
+    width 0.25s var(--sg-ease);
+  transform-origin: 50% 50%;
+}
+
+.sterling-gate .nav-hamburger-line--long {
+  width: 1.25rem;
+}
+
+.sterling-gate .nav-hamburger-line--short {
+  width: 0.85rem;
+}
+
+.sterling-gate .nav-close-btn.open .nav-hamburger {
+  align-items: center;
+}
+
+.sterling-gate .nav-close-btn.open .nav-hamburger-line--long,
+.sterling-gate .nav-close-btn.open .nav-hamburger-line--short {
+  width: 1.1rem;
+}
+
+.sterling-gate .nav-close-btn.open .nav-hamburger-line:first-child {
+  transform: translateY(3.5px) rotate(45deg);
+}
+
+.sterling-gate .nav-close-btn.open .nav-hamburger-line:last-child {
+  transform: translateY(-3.5px) rotate(-45deg);
 }
 
 .sterling-gate .fullscreen-menu-container {

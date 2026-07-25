@@ -214,3 +214,19 @@ graphify update .
 - **No CSP change:** the repo ships no `Content-Security-Policy` (no `headers()` in `next.config.ts`, no middleware; `public/_headers` sets cache headers only). Required directives are documented for whenever a CSP is introduced.
 
 **Consequences:** Analytics is inert until an operator creates the Cloudflare sites and sets the build variables — see [`analytics-setup.md`](./analytics-setup.md) for the non-technical walkthrough. Rotating or changing a token requires a rebuild, not just a Worker var edit. Staging and production need separate site tokens (different apex domains).
+
+---
+
+## ADR-013 — Pink chrome glow CTAs + sakura borders (2026-07-26)
+
+**Status:** Accepted
+
+**Context:** Primary CTAs and default borders needed a cohesive sakura chrome treatment without violating AA text-on-accent (charcoal on `#FF7998`, not white-on-pink).
+
+**Decision:**
+
+- **`--border-default`** uses a subtle sakura tint (`rgba(255, 121, 152, 0.22)`) site-wide; `--color-border` continues to alias it.
+- **Primary `Button` only** wraps its interactive control in `GlowingShadow` — a presentational shell with locked pink-red hue animation (~330°→380° / 50° rotate band). Secondary and ghost variants unchanged.
+- **Kinetic nav toggle** is icon-only (two-bar hamburger → X via CSS); frosted chrome retained; no "Menu"/"Close" text labels.
+
+**Consequences:** Glow is product-locked for primary CTAs. Do not extend to secondary/ghost or add full-spectrum hue spins without design review.

@@ -140,6 +140,17 @@ describe("SterlingGateKineticNavigation", () => {
     expect(home).toHaveClass("nav-logo-row");
   });
 
+  it("renders a two-bar hamburger icon without Menu/Close text labels", () => {
+    const { container } = render(
+      <SterlingGateKineticNavigation navItems={navItems} siteName="Kamiyon Studio" />,
+    );
+
+    expect(container.querySelector(".nav-hamburger-line--long")).toBeInTheDocument();
+    expect(container.querySelector(".nav-hamburger-line--short")).toBeInTheDocument();
+    expect(screen.queryByText("Menu")).not.toBeInTheDocument();
+    expect(screen.queryByText("Close")).not.toBeInTheDocument();
+  });
+
   it("styles the logo row with a frosted surface so the wordmark stays readable on dark heroes", () => {
     const css = readFileSync(cssPath, "utf8");
     const logoRule = css.match(
