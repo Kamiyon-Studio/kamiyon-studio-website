@@ -206,6 +206,7 @@ graphify update .
 
 - **Manual embed**, not Cloudflare automatic injection — one snippet per page, identical on staging and production, and versioned in the repo. Automatic injection must stay off in the dashboard.
 - Load with `next/script` `strategy="afterInteractive"` from the root layout, so the beacon never blocks hydration or LCP.
+- Emit `type="module"` — Cloudflare requires it on manual embeds so legacy browsers skip the beacon instead of throwing a syntax error (keeps the console clean).
 - Split the decision from the rendering: pure `resolveCloudflareBeacon` in `lib/analytics/cloudflare-web-analytics.ts`; `components/analytics/CloudflareWebAnalytics.tsx` only renders. Keeps the unit tests browser-free and the modules small.
 - **Fail closed and silent:** render `null` (no beacon, no console output) when the token is blank, or when `APP_ENV=local` / `NODE_ENV=development` — matching the dev check already used by `app/api/media/upload/route.ts`.
 - Token comes from `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` only, read via **static** `process.env` access (ADR-009 precedent). Never hardcoded.

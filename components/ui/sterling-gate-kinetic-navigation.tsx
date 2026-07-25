@@ -5,6 +5,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { CustomEase } from "gsap/CustomEase";
 
 import { SameRouteLink } from "@/components/ui/SameRouteLink";
+import { useNavTheme } from "@/hooks/useNavTheme";
 import { gsap } from "@/lib/gsap";
 import { prefersReducedMotion } from "@/lib/motion/reduced-motion";
 
@@ -137,6 +138,9 @@ export function SterlingGateKineticNavigation({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
   const menuId = useId();
+  const navTheme = useNavTheme({
+    forcedTheme: isMenuOpen ? "light" : null,
+  });
 
   useEffect(() => {
     setReduceMotion(prefersReducedMotion());
@@ -307,7 +311,7 @@ export function SterlingGateKineticNavigation({
   const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <div className="sterling-gate" ref={containerRef}>
+    <div className="sterling-gate" ref={containerRef} data-nav-theme={navTheme}>
       <div className="site-header-wrapper">
         <header className="header">
           <div className="container is--full">
@@ -338,8 +342,9 @@ export function SterlingGateKineticNavigation({
                   aria-label={isMenuOpen ? "Close menu" : "Open menu"}
                 >
                   <span className="nav-hamburger" aria-hidden="true">
-                    <span className="nav-hamburger-line nav-hamburger-line--long" />
-                    <span className="nav-hamburger-line nav-hamburger-line--short" />
+                    <span className="nav-hamburger-line" />
+                    <span className="nav-hamburger-line" />
+                    <span className="nav-hamburger-line" />
                   </span>
                 </button>
               </div>

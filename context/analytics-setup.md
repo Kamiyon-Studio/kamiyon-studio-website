@@ -41,7 +41,8 @@ Each one gives you a different token.
 8. Paste what you copied into a plain text note. It looks like this:
 
    ```html
-   <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+   <script type="module"
+     src="https://static.cloudflareinsights.com/beacon.min.js"
      data-cf-beacon='{"token": "abc123def456abc123def456abc12345"}'></script>
    ```
 
@@ -133,6 +134,11 @@ If nothing appears after ~15 minutes:
 - Off switch is `resolveCloudflareBeacon` returning `null` — blank token, or
   `APP_ENV=local` / `NODE_ENV=development`.
 - `spa: true` is set so App Router client-side navigations report as page views.
+- `type="module"` is required by Cloudflare for manual embeds — it stops legacy
+  browsers from throwing a syntax error on the beacon.
+- Cloudflare matches the reporting hostname by suffix, so the `kamiyonstudio.com`
+  token also covers `www.` and any subdomain. Staging is a different apex
+  (`*.workers.dev`) and therefore needs its own site + token.
 - **CSP:** the repo currently ships **no** `Content-Security-Policy` (no
   `headers()` in `next.config.ts`, no middleware, and `public/_headers` only sets
   cache headers), so no CSP change was required. If a CSP is added later, the

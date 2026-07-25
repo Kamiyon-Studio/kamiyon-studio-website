@@ -29,6 +29,7 @@ export function ProjectsBento({ caseStudies }: ProjectsBentoProps) {
   return (
     <section
       id="home-projects"
+      data-nav-theme="light"
       className="scroll-mt-4 bg-[var(--bg-primary)] py-16 md:py-24"
     >
       <Container>

@@ -56,5 +56,6 @@ describe("CloudflareWebAnalytics", () => {
     expect(script?.getAttribute("data-cf-beacon")).toBe(
       JSON.stringify({ token: "test-cf-token", spa: true }),
     );
+    expect(script?.getAttribute("type")).toBe("module");
   });
 });

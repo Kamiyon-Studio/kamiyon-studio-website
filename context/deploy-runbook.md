@@ -184,6 +184,8 @@ After Wave 4, point `SANITY_STUDIO_API_ORIGIN` at production (`https://kamiyonst
 ## WS4b — Production cutover
 
 > Preflight audit run 2026-07-26 (read-only). Nothing in production was changed. Steps below are ordered; each is tagged **[agent]** (a tool/CI can run it) or **[human]** (needs dashboard / registrar / account access).
+>
+> **Operator handing the DNS steps to a non-engineer?** [`dns-cutover-guide.md`](./dns-cutover-guide.md) walks the **[human]** steps (TTL, domain attach, `www` redirect, rollback, API-token minting) click by click in plain language.
 
 ### Preflight snapshot (verified 2026-07-26)
 

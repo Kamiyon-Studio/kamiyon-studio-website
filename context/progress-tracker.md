@@ -85,6 +85,8 @@ Batch S (CMS seed — done 2026-07-24):
 
 **Conflict edge:** Hero tip `z-20` vs header logo clicks — WS1 owns tip stacking; WS2 re-tests logo after.
 
+**WS4b handoff:** Preflight complete (2026-07-26). The production Worker does not exist yet, so cutover is **create-then-attach**, not a swap. Operator-facing dashboard steps (TTL, domain attach, rollback): [`dns-cutover-guide.md`](./dns-cutover-guide.md); engineer sequence: [`deploy-runbook.md`](./deploy-runbook.md).
+
 ---
 
 ## Current Goal
@@ -134,7 +136,7 @@ Batch S (CMS seed — done 2026-07-24):
 
 ### Batch 3–4
 
-6. **WS4b** — Prod Worker; attach `kamiyonstudio.com` + `www`; pause Vercel; prod CORS + webhook — preflight audited 2026-07-26 (see [`deploy-runbook.md`](./deploy-runbook.md) “WS4b — Production cutover”); execution needs operator DNS/Sanity/Vercel access
+6. **WS4b** — Prod Worker; attach `kamiyonstudio.com` + `www`; pause Vercel; prod CORS + webhook — preflight audited 2026-07-26 (see [`deploy-runbook.md`](./deploy-runbook.md) “WS4b — Production cutover”, operator steps in [`dns-cutover-guide.md`](./dns-cutover-guide.md)); execution needs operator DNS/Sanity/Vercel access
 7. **WS5** — T8 Resend form (after `CONTACT_TO_EMAIL` confirmed)
 8. **WS7** — Expanded E2E (T15); retire CardNav-era smoke comments
 9. **GitHub Actions** — Confirm `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` for `staging`/`main`

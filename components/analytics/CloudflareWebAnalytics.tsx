@@ -23,7 +23,9 @@ export function CloudflareWebAnalytics({
 
   return (
     <Script
-      defer
+      // Cloudflare requires `type="module"` on manual embeds so the beacon is
+      // skipped (instead of throwing) in legacy browsers such as IE11.
+      type="module"
       src={beacon.src}
       strategy="afterInteractive"
       data-cf-beacon={beacon.config}

@@ -14,14 +14,21 @@ import "./ScrollStack.css";
 export type ScrollStackItemProps = {
   itemClassName?: string;
   children: ReactNode;
+  "data-nav-theme"?: "light" | "dark";
 };
 
 export function ScrollStackItem({
   children,
   itemClassName = "",
+  "data-nav-theme": navTheme,
 }: ScrollStackItemProps) {
   return (
-    <div className={`scroll-stack-card ${itemClassName}`.trim()}>{children}</div>
+    <div
+      className={`scroll-stack-card ${itemClassName}`.trim()}
+      data-nav-theme={navTheme}
+    >
+      {children}
+    </div>
   );
 }
 
