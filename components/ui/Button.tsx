@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 
 import { isExternalHref } from "@/lib/navigation/same-route-scroll";
 
+import { GlowingShadow } from "./glowing-shadow";
+
 type ButtonVariant = "primary" | "secondary" | "ghost";
 
 type ButtonBaseProps = {
@@ -40,6 +42,14 @@ function isMailOrTel(href: string): boolean {
   return /^(mailto:|tel:)/i.test(href.trim());
 }
 
+function wrapPrimaryVariant(content: ReactNode, variant: ButtonVariant): ReactNode {
+  if (variant === "primary") {
+    return <GlowingShadow>{content}</GlowingShadow>;
+  }
+
+  return content;
+}
+
 export function Button({
   children,
   variant = "primary",
@@ -52,7 +62,7 @@ export function Button({
     if (isExternalHref(props.href)) {
       const openInNewTab = !isMailOrTel(props.href);
 
-      return (
+      return wrapPrimaryVariant(
         <a
           href={props.href}
           className={classes}
@@ -61,26 +71,29 @@ export function Button({
             : {})}
         >
           {children}
-        </a>
+        </a>,
+        variant,
       );
     }
 
-    return (
+    return wrapPrimaryVariant(
       <Link href={props.href} className={classes}>
         {children}
-      </Link>
+      </Link>,
+      variant,
     );
   }
 
   const buttonProps = props as ButtonAsButton;
 
-  return (
+  return wrapPrimaryVariant(
     <button
       type={buttonProps.type ?? "button"}
       onClick={buttonProps.onClick}
       className={classes}
     >
       {children}
-    </button>
+    </button>,
+    variant,
   );
 }

@@ -26,9 +26,26 @@ describe("CloudflareWebAnalytics", () => {
     expect(container.querySelector("script")).toBeNull();
   });
 
+  it("renders nothing in development even when a token is set", () => {
+    const { container, rerender } = render(
+      <CloudflareWebAnalytics token="test-cf-token" nodeEnv="development" />,
+    );
+
+    expect(container.querySelector("script")).toBeNull();
+
+    rerender(
+      <CloudflareWebAnalytics token="test-cf-token" appEnv="local" />,
+    );
+    expect(container.querySelector("script")).toBeNull();
+  });
+
   it("injects the Cloudflare beacon when a token is set", () => {
     const { container } = render(
-      <CloudflareWebAnalytics token="test-cf-token" />,
+      <CloudflareWebAnalytics
+        token="test-cf-token"
+        appEnv="production"
+        nodeEnv="production"
+      />,
     );
 
     const script = container.querySelector("script");
@@ -39,5 +56,6 @@ describe("CloudflareWebAnalytics", () => {
     expect(script?.getAttribute("data-cf-beacon")).toBe(
       JSON.stringify({ token: "test-cf-token", spa: true }),
     );
+    expect(script?.getAttribute("type")).toBe("module");
   });
 });

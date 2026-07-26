@@ -1,12 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import { CustomEase } from "gsap/CustomEase";
 
 import { SameRouteLink } from "@/components/ui/SameRouteLink";
+import { useNavTheme } from "@/hooks/useNavTheme";
 import { gsap } from "@/lib/gsap";
-import { prefersReducedMotion } from "@/lib/motion/reduced-motion";
+import {
+  prefersReducedMotion,
+  REDUCED_MOTION_QUERY,
+} from "@/lib/motion/reduced-motion";
+
+function subscribeReducedMotion(onStoreChange: () => void) {
+  const mediaQuery = window.matchMedia(REDUCED_MOTION_QUERY);
+  mediaQuery.addEventListener("change", onStoreChange);
+  return () => mediaQuery.removeEventListener("change", onStoreChange);
+}
 
 import "./sterling-gate-kinetic-navigation.css";
 
@@ -135,12 +145,15 @@ export function SterlingGateKineticNavigation({
 }: SterlingGateKineticNavigationProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [reduceMotion, setReduceMotion] = useState(false);
+  const reduceMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    prefersReducedMotion,
+    () => false,
+  );
   const menuId = useId();
-
-  useEffect(() => {
-    setReduceMotion(prefersReducedMotion());
-  }, []);
+  const navTheme = useNavTheme({
+    forcedTheme: isMenuOpen ? "light" : null,
+  });
 
   useEffect(() => {
     if (!containerRef.current || reduceMotion) {
@@ -223,9 +236,6 @@ export function SterlingGateKineticNavigation({
     const bgPanels = root.querySelectorAll(".backdrop-layer");
     const menuLinks = root.querySelectorAll(".nav-link");
     const fadeTargets = root.querySelectorAll("[data-menu-fade]");
-    const menuButton = root.querySelector(".nav-close-btn");
-    const menuButtonTexts = menuButton?.querySelectorAll("p");
-    const menuButtonIcon = menuButton?.querySelector(".menu-button-icon");
 
     if (!navWrap || !menu || !overlay) {
       return;
@@ -256,12 +266,6 @@ export function SterlingGateKineticNavigation({
       if (isMenuOpen) {
         navWrap.setAttribute("data-nav", "open");
         tl.set(navWrap, { display: "block" }).set(menu, { xPercent: 0 }, "<");
-        if (menuButtonTexts && menuButtonTexts.length > 0) {
-          tl.fromTo(menuButtonTexts, { yPercent: 0 }, { yPercent: -100, stagger: 0.2 });
-        }
-        if (menuButtonIcon) {
-          tl.fromTo(menuButtonIcon, { rotate: 0 }, { rotate: 315 }, "<");
-        }
         tl.fromTo(overlay, { autoAlpha: 0 }, { autoAlpha: 1 }, "<")
           .fromTo(
             bgPanels,
@@ -287,12 +291,6 @@ export function SterlingGateKineticNavigation({
       } else {
         navWrap.setAttribute("data-nav", "closed");
         tl.to(overlay, { autoAlpha: 0 }).to(menu, { xPercent: 120 }, "<");
-        if (menuButtonTexts && menuButtonTexts.length > 0) {
-          tl.to(menuButtonTexts, { yPercent: 0 }, "<");
-        }
-        if (menuButtonIcon) {
-          tl.to(menuButtonIcon, { rotate: 0 }, "<");
-        }
         tl.set(navWrap, { display: "none" });
       }
     }, containerRef);
@@ -322,7 +320,7 @@ export function SterlingGateKineticNavigation({
   const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <div className="sterling-gate" ref={containerRef}>
+    <div className="sterling-gate" ref={containerRef} data-nav-theme={navTheme}>
       <div className="site-header-wrapper">
         <header className="header">
           <div className="container is--full">
@@ -346,34 +344,17 @@ export function SterlingGateKineticNavigation({
               <div className="nav-row__right">
                 <button
                   type="button"
-                  className="nav-close-btn"
+                  className={`nav-close-btn${isMenuOpen ? " open" : ""}`.trim()}
                   onClick={toggleMenu}
                   aria-expanded={isMenuOpen}
                   aria-controls={menuId}
                   aria-label={isMenuOpen ? "Close menu" : "Open menu"}
                 >
-                  <div className="menu-button-text">
-                    <p className="p-large">Menu</p>
-                    <p className="p-large">Close</p>
-                  </div>
-                  <div className="icon-wrap" aria-hidden="true">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="100%"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      className="menu-button-icon"
-                    >
-                      <path
-                        d="M7.33333 16L7.33333 -3.2055e-07L8.66667 -3.78832e-07L8.66667 16L7.33333 16Z"
-                        fill="currentColor"
-                      />
-                      <path
-                        d="M16 8.66667L-2.62269e-07 8.66667L-3.78832e-07 7.33333L16 7.33333L16 8.66667Z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                  </div>
+                  <span className="nav-hamburger" aria-hidden="true">
+                    <span className="nav-hamburger-line" />
+                    <span className="nav-hamburger-line" />
+                    <span className="nav-hamburger-line" />
+                  </span>
                 </button>
               </div>
             </nav>

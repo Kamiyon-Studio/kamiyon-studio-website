@@ -28,6 +28,7 @@ export function HeroOpening({ hero: _hero }: HeroOpeningProps) {
     <section
       id="home-hero"
       ref={rootRef}
+      data-nav-theme="dark"
       className="relative min-h-[100svh] scroll-mt-0 overflow-hidden bg-[var(--color-charcoal)]"
       aria-label="Studio opening"
     >

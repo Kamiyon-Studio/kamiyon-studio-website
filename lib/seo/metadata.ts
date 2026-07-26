@@ -18,8 +18,11 @@ type BuildPageMetadataOptions = {
  * export in `app/**` should go through this so canonical URLs and
  * OpenGraph/Twitter fields stay consistent across the site (Phase 9).
  *
- * Falls back to the site-wide generated image (`app/opengraph-image.tsx` /
- * `app/twitter-image.tsx`) when a route has no CMS `seo.ogImage`.
+ * With no CMS `seo.ogImage`, `images` is omitted: the generated
+ * `opengraph-image.tsx` / `twitter-image.tsx` routes are served at a hashed
+ * path (`/opengraph-image-<hash>`), so hardcoding the unhashed path here only
+ * emits a 404 URL. Next injects the hashed URL for `/` itself; nested routes
+ * currently ship no image until they carry a CMS `ogImage`.
  */
 export function buildPageMetadata({
   title,
@@ -41,13 +44,13 @@ export function buildPageMetadata({
       url: path,
       siteName: SITE_NAME,
       type: "website",
-      images: [{ url: cmsOgImageUrl ?? "/opengraph-image" }],
+      ...(cmsOgImageUrl ? { images: [{ url: cmsOgImageUrl }] } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [cmsOgImageUrl ?? "/twitter-image"],
+      ...(cmsOgImageUrl ? { images: [cmsOgImageUrl] } : {}),
     },
   };
 }

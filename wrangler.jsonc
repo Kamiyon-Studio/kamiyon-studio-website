@@ -8,6 +8,18 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS",
   },
+  // Top level targets the same Worker name as `env.production`, so keep its vars
+  // identical: a bare `wrangler deploy` (no `--env`) must not overwrite production
+  // without APP_ENV / NEXT_PRIVATE_MINIMAL_MODE.
+  "vars": {
+    "APP_ENV": "production",
+    "NEXT_PUBLIC_SITE_URL": "https://kamiyonstudio.com",
+    "NEXT_PUBLIC_R2_PUBLIC_BASE_URL": "https://media.kamiyonstudio.com",
+    "NEXT_PUBLIC_SANITY_PROJECT_ID": "c6ej1xoj",
+    "NEXT_PUBLIC_SANITY_DATASET": "kamiyon",
+    "NEXT_PUBLIC_SANITY_STUDIO_URL": "https://kamiyon.sanity.studio",
+    "NEXT_PRIVATE_MINIMAL_MODE": "1",
+  },
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
@@ -37,6 +49,10 @@
         "NEXT_PUBLIC_SANITY_PROJECT_ID": "c6ej1xoj",
         "NEXT_PUBLIC_SANITY_DATASET": "kamiyon",
         "NEXT_PUBLIC_SANITY_STUDIO_URL": "https://kamiyon.sanity.studio",
+        // T14 Cloudflare Web Analytics site tag — empty = beacon disabled.
+        // Public vars inline at build time, so also set it for the build that
+        // produces this deploy. See context/analytics-setup.md.
+        "NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN": "",
         // Skip Next getMiddlewareManifest() dynamic require (Workers 500s without this)
         "NEXT_PRIVATE_MINIMAL_MODE": "1",
       },
@@ -67,6 +83,10 @@
         "NEXT_PUBLIC_SANITY_PROJECT_ID": "c6ej1xoj",
         "NEXT_PUBLIC_SANITY_DATASET": "kamiyon",
         "NEXT_PUBLIC_SANITY_STUDIO_URL": "https://kamiyon.sanity.studio",
+        // T14 Cloudflare Web Analytics site tag — empty = beacon disabled.
+        // Public vars inline at build time, so also set it for the build that
+        // produces this deploy. See context/analytics-setup.md.
+        "NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN": "",
         "NEXT_PRIVATE_MINIMAL_MODE": "1",
       },
       "services": [
