@@ -40,9 +40,9 @@ already correct.
 2. Someone technical must first create the new production Worker and confirm it works at
    its temporary address:
    <https://kamiyon-studio-website.limosnerosherwin.workers.dev>
-3. **As of 2026-07-26 that Worker does not exist yet.** Do not begin step 4 below until
-   somebody confirms that temporary address opens the Kamiyon Studio home page. Steps 1–3
-   are safe to do at any time.
+3. **That Worker now exists and was checked on 2026-07-26**: the home page, project pages,
+   the `/studio` redirect and the image and content plumbing all responded correctly at the
+   temporary address. Step 4 is your own confirmation of the same thing on the day.
 4. Set aside a quiet window. The switch itself takes about ten minutes, but the schedule
    below includes deliberate waiting periods.
 
@@ -114,6 +114,13 @@ should open that project's page.
 
 **If you do not see that, stop here** and tell the developer. Attaching the domain to a
 broken Worker is what takes the live site down.
+
+One harmless exception: if the page never loads at all — a spinner and then a timeout,
+rather than an error message from the site — try again on a different network, such as a
+phone on mobile data. That address was confirmed working on 2026-07-26, and some home
+internet connections cannot reach the particular Cloudflare address it hands out. A timeout
+on one network only is a network problem, not a broken site; anything else (an error page,
+a blank page, missing content) is a real stop.
 
 **Risk:** none. This is the go/no-go check.
 
@@ -279,6 +286,9 @@ would only need steps 1–4, 8 and 10 from this guide.
 ## Notes for developers
 
 - Technical sequence, smoke commands, and the Worker-level rollback: [`deploy-runbook.md`](./deploy-runbook.md) “WS4b — Production cutover”.
+- The production Worker is deployed and its `SANITY_REVALIDATE_SECRET` / `MEDIA_UPLOAD_SECRET`
+  are already set (verified 2026-07-26), so no secret work is needed on cutover day — only
+  the Sanity webhook header and the Studio re-bake must reuse the same values.
 - Status and ownership: [`progress-tracker.md`](./progress-tracker.md) (WS4b).
 - The canonical host is the apex only (`lib/seo/site-url.ts`); `robots.txt` and
   `sitemap.xml` are prerendered, so a build without `NEXT_PUBLIC_SITE_URL` and

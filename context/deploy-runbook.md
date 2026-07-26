@@ -191,8 +191,8 @@ After Wave 4, point `SANITY_STUDIO_API_ORIGIN` at production (`https://kamiyonst
 
 | Check | Result |
 | --- | --- |
-| Production Worker `kamiyon-studio-website` | **Does not exist yet** (`wrangler deployments list --env production` → “Worker does not exist”) |
-| Production Worker secrets | None (no Worker); staging has `MEDIA_UPLOAD_SECRET`, `SANITY_REVALIDATE_SECRET` |
+| Production Worker `kamiyon-studio-website` | Did not exist at preflight; **created and verified 2026-07-26** — see *Production Worker live* below |
+| Production Worker secrets | None at preflight; **both set 2026-07-26** (`MEDIA_UPLOAD_SECRET`, `SANITY_REVALIDATE_SECRET`) |
 | R2 buckets | `kamiyon-media-prod`, `kamiyon-next-cache-prod`, `kamiyon-media-staging`, `kamiyon-next-cache-staging` all exist |
 | Zone nameservers | `cheryl.ns.cloudflare.com` / `sonny.ns.cloudflare.com` → DNS is edited **in Cloudflare**, not at the registrar |
 | Apex `kamiyonstudio.com` today | `A 216.198.79.1`, `A 64.29.17.1` (Vercel, DNS-only) → `308` redirect to `www` |
@@ -204,6 +204,38 @@ After Wave 4, point `SANITY_STUDIO_API_ORIGIN` at production (`https://kamiyonst
 | Staging Worker build | Older than `test` HEAD — it still renders the pre-allowlist itch.io image. Re-deploy staging before using it as the “known good” reference. |
 
 Canonical direction **flips** at cutover: today apex → `www`; after cutover `www` → apex (code treats the apex as the only canonical host — `lib/seo/site-url.ts`).
+
+### Production Worker live (2026-07-26)
+
+Deployed from branch `test` at commit `03a3e25` (plus the analytics `type="module"` tweak) with `pnpm deploy:prod`-equivalent commands. No domain is attached, so this is a private verification surface until step 6.
+
+| Item | Value |
+| --- | --- |
+| Worker | `kamiyon-studio-website` (env `production`) |
+| Temporary URL | `https://kamiyon-studio-website.limosnerosherwin.workers.dev` |
+| Upload size | ~2.17 MiB gzip (under the Workers Free 3 MiB limit) |
+| Secrets | `MEDIA_UPLOAD_SECRET`, `SANITY_REVALIDATE_SECRET` — set, and confirmed to survive a redeploy |
+| Bindings | `ASSETS`, `WORKER_SELF_REFERENCE` → self, `MEDIA_BUCKET` → `kamiyon-media-prod`, `NEXT_INC_CACHE_R2_BUCKET` → `kamiyon-next-cache-prod` |
+
+Smoke results on the `workers.dev` host:
+
+| Check | Result |
+| --- | --- |
+| `/` | `200`, `<title>Kamiyon Studio</title>`, no error boundary, no `localhost` references |
+| `/portfolio/eclipse` | `200`, title `Eclipse \| Kamiyon Studio`, canonical `https://kamiyonstudio.com/portfolio/eclipse` |
+| `/studio` | `307` → `https://kamiyon.sanity.studio/` |
+| `/opengraph-image-4usi79` | `200 image/png` (~20 KB); home `og:image` points at the same hashed path on the apex |
+| `/robots.txt` | `Allow: /`, `Host: kamiyonstudio.com`, `Sitemap: https://kamiyonstudio.com/sitemap.xml` — no `Disallow: /`, no `localhost`, no `workers.dev` |
+| `/api/revalidate` (no token / bad token) | `401` both — not `503`, so the Worker secret is live |
+| `/api/media/upload` (no token) | `401` |
+| `media.kamiyonstudio.com` | Test object `PUT` to `kamiyon-media-prod` served `200 image/png` over the CDN, and through `/_next/image` (allowlist OK); object deleted afterwards |
+| Analytics beacon | Absent, as expected — `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` is still empty (T14 token is a build var) |
+| `workers.dev` crawlability | Crawlable (`robots.txt` says `Allow: /`). Fine now; it becomes a duplicate origin once the apex is live — step 9 |
+
+Two operational gotchas found while deploying:
+
+- **Secrets before the first deploy do not stick.** `wrangler secret put` against a Worker that does not exist yet silently creates a placeholder Worker; the first real `opennextjs-cloudflare deploy` replaces it and drops those secrets (`/api/revalidate` then returns `503`). Deploy first, then `secret put`, then re-check for `401`. Secrets set on an existing Worker do survive later deploys.
+- **`populate-cache` can 503.** Writing the incremental cache to `kamiyon-next-cache-prod` failed with repeated `503 Service Unavailable` at the default concurrency and aborted the deploy before upload. `pnpm exec opennextjs-cloudflare deploy --env production --cacheChunkSize 5` completed. Also note the `workers.dev` hostname can resolve to a Cloudflare range some ISPs cannot reach; `curl --resolve <host>:443:<ip>` with an address from `Resolve-DnsName` is a quick way to tell a local network problem from a broken deploy.
 
 ### Build-time vs runtime env (read before deploying)
 
@@ -221,8 +253,8 @@ Bindings are identical to staging except the bucket names: `ASSETS`, `WORKER_SEL
 
 ### Gaps that must close before DNS is touched
 
-- [ ] Production Worker deployed and green on `https://kamiyon-studio-website.limosnerosherwin.workers.dev`
-- [ ] Prod Worker secrets `SANITY_REVALIDATE_SECRET` + `MEDIA_UPLOAD_SECRET` set (otherwise `/api/revalidate` and `/api/media/upload` return `503`)
+- [x] Production Worker deployed and green on `https://kamiyon-studio-website.limosnerosherwin.workers.dev` (2026-07-26)
+- [x] Prod Worker secrets `SANITY_REVALIDATE_SECRET` + `MEDIA_UPLOAD_SECRET` set (2026-07-26; both endpoints answer `401`, not `503`)
 - [ ] GitHub secrets `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` confirmed (Actions deploys `main` → production)
 - [ ] Sanity CORS includes `https://kamiyonstudio.com` (+ `www` if it will be attached)
 - [ ] Production revalidate webhook created with `Authorization: Bearer <prod SANITY_REVALIDATE_SECRET>`
@@ -256,9 +288,9 @@ $env:NEXT_PUBLIC_SANITY_STUDIO_URL = "https://kamiyon.sanity.studio"
 pnpm deploy:prod
 ```
 
-Confirm the upload stays under the Workers Free **3 MiB** gzip limit (staging was ~2.17 MiB).
+Confirm the upload stays under the Workers Free **3 MiB** gzip limit (staging was ~2.17 MiB). If the run dies in *Populating remote R2 incremental cache* with repeated `503`s, re-run the deploy half only, at lower concurrency: `pnpm exec opennextjs-cloudflare deploy --env production --cacheChunkSize 5`.
 
-**4. [human/agent] Set production Worker secrets** (Worker must exist first; each `put` creates a new version — no redeploy needed). Values come from the operator; never echo them into logs or docs.
+**4. [human/agent] Set production Worker secrets** — **after** step 3, never before: `secret put` against a missing Worker creates a placeholder that the first real deploy overwrites, taking the secrets with it. Each `put` creates a new version, so no redeploy is needed. Values come from the operator; never echo them into logs or docs.
 
 ```powershell
 pnpm exec wrangler secret put SANITY_REVALIDATE_SECRET --env production
@@ -344,8 +376,8 @@ Also confirm by eye: home renders CMS content (not only fallbacks), `/studio` la
 - [x] Redeploy Studio with `SANITY_STUDIO_API_ORIGIN` for R2 uploads; API smoke upload OK
 - [x] WS4b preflight audit (2026-07-26) — inventory, gap list, ordered runbook above
 - [ ] Optional: confirm R2 upload from Studio UI (r2Asset input) after hard-refresh
-- [ ] Refresh staging from `test`, then deploy prod Worker
-- [ ] Prod Worker secrets set; smoke on `*.workers.dev`
+- [ ] Refresh staging from `test`
+- [x] Deploy prod Worker; secrets set; smoke on `*.workers.dev` (2026-07-26 — see *Production Worker live*)
 - [ ] Attach `kamiyonstudio.com` + `www`
 - [ ] Point Sanity CORS + webhook URLs at production
 - [ ] Set prod `NEXT_PUBLIC_SITE_URL=https://kamiyonstudio.com` at **build** time (public vars are inlined)
