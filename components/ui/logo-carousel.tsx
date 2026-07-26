@@ -117,9 +117,9 @@ export function AnimatedCarousel({
     };
   }, [api, current, autoPlay, autoPlayInterval]);
 
-  const logoItems =
+  const logoItems: LogoItem[] =
     logos?.map(normalizeLogo) ??
-    Array.from({ length: logoCount }, (_, index) => ({
+    Array.from({ length: logoCount }, (_, index): LogoItem => ({
       label: `Logo ${index + 1}`,
     }));
 
