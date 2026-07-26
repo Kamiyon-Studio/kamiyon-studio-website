@@ -43,7 +43,6 @@ export function useNavTheme(options: UseNavThemeOptions = {}): NavTheme {
 
     const elements = getObservedThemeElements();
     if (elements.length === 0) {
-      setTheme("light");
       return;
     }
 

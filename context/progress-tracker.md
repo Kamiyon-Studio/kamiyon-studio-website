@@ -180,7 +180,9 @@ Portfolio currently holds **1** case study, `isPlaceholder: true` — chips over
 
 ## Recent polish (2026-07-26)
 
-- **Pink chrome glow CTAs (ADR-013):** `--border-default` → sakura tint; new `GlowingShadow` shell on primary `Button` only; kinetic nav toggle → icon-only two-bar hamburger (frosted chrome kept).
+- **Adaptive nav contrast (ADR-015):** `useNavTheme` + `[data-nav-theme]` on homepage bands; transparent logo/button chrome; 3-line burger → X; menu open forces light ink; pink logo mark unchanged.
+- **Multilayer parallax (ADR-014):** Osmo-style `ParallaxScrolling` UI on `/motion-lab` only — native scroll + GSAP scrub (no Lenis); local `/assets/*` layers; co-located CSS; Motion Lab footer/hero copy updated off Lenis.
+- **Pink chrome glow CTAs (ADR-013):** `--border-default` → sakura tint; new `GlowingShadow` shell on primary `Button` only; kinetic nav toggle icon-only (frosted chrome removed in ADR-015).
 
 ## Recent polish (2026-07-24)
 

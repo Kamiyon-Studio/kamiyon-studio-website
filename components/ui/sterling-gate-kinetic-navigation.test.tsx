@@ -17,15 +17,35 @@ type IOCallback = IntersectionObserverCallback;
 
 const observeMock = vi.fn();
 const disconnectMock = vi.fn();
-let ioCallback: IOCallback | null = null;
+let navThemeCallback: IOCallback | null = null;
 
+/**
+ * Local ratio-driven mock — the global vitest.setup.ts IO stub always reports
+ * intersectionRatio: 1 for every target, which would make "dark wins" vacuous
+ * when both dark and light bands are present (document order + equal ratios).
+ *
+ * Callback capture is deferred to observe(): next/image may construct its own
+ * IntersectionObserver after useNavTheme, and last-constructor-wins would point
+ * fireIntersection at the wrong listener.
+ */
 class MockIntersectionObserver {
-  observe = observeMock;
   disconnect = disconnectMock;
   unobserve = vi.fn();
+  private readonly callback: IOCallback;
 
-  constructor(callback: IOCallback, _options?: IntersectionObserverInit) {
-    ioCallback = callback;
+  constructor(callback: IOCallback) {
+    this.callback = callback;
+  }
+
+  observe(target: Element) {
+    observeMock(target);
+    if (
+      target instanceof HTMLElement &&
+      target.hasAttribute("data-nav-theme") &&
+      !target.classList.contains("sterling-gate")
+    ) {
+      navThemeCallback = this.callback;
+    }
   }
 }
 
@@ -70,8 +90,12 @@ const navItems = [
 function fireIntersection(
   entries: Array<{ target: Element; intersectionRatio: number }>,
 ) {
+  if (!navThemeCallback) {
+    throw new Error("Expected useNavTheme IntersectionObserver callback");
+  }
+
   act(() => {
-    ioCallback?.(
+    navThemeCallback?.(
       entries.map(({ target, intersectionRatio }) => ({
         target,
         intersectionRatio,
@@ -96,7 +120,7 @@ function observedTarget(id: string): Element {
 
 describe("SterlingGateKineticNavigation", () => {
   beforeEach(() => {
-    ioCallback = null;
+    navThemeCallback = null;
     observeMock.mockClear();
     disconnectMock.mockClear();
     vi.stubGlobal("IntersectionObserver", MockIntersectionObserver);
@@ -242,7 +266,7 @@ describe("SterlingGateKineticNavigation", () => {
     expect(buttonBody).not.toMatch(/backdrop-filter:/);
   });
 
-  it("sets data-nav-theme on the root from IntersectionObserver sections", async () => {
+  it("flips data-nav-theme from dark to light by competing intersection ratios", async () => {
     const { container } = render(
       <SterlingGateKineticNavigation navItems={navItems} siteName="Kamiyon Studio" />,
     );
@@ -250,6 +274,7 @@ describe("SterlingGateKineticNavigation", () => {
     const root = container.querySelector(".sterling-gate");
     expect(root).toHaveAttribute("data-nav-theme", "light");
     expect(observeMock).toHaveBeenCalled();
+    expect(navThemeCallback).toBeTypeOf("function");
 
     fireIntersection([
       { target: observedTarget("home-hero"), intersectionRatio: 0.85 },
@@ -258,6 +283,15 @@ describe("SterlingGateKineticNavigation", () => {
 
     await waitFor(() => {
       expect(root).toHaveAttribute("data-nav-theme", "dark");
+    });
+
+    fireIntersection([
+      { target: observedTarget("home-hero"), intersectionRatio: 0.05 },
+      { target: observedTarget("home-partners"), intersectionRatio: 0.9 },
+    ]);
+
+    await waitFor(() => {
+      expect(root).toHaveAttribute("data-nav-theme", "light");
     });
   });
 

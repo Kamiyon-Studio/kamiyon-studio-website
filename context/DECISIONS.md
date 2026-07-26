@@ -231,3 +231,39 @@ graphify update .
 - **Kinetic nav toggle** is icon-only (two-bar hamburger → X via CSS); frosted chrome retained; no "Menu"/"Close" text labels.
 
 **Consequences:** Glow is product-locked for primary CTAs. Do not extend to secondary/ghost or add full-spectrum hue spins without design review.
+
+---
+
+## ADR-014 — Multilayer parallax demo on Motion Lab (no Lenis) (2026-07-26)
+
+**Status:** Accepted
+
+**Context:** An Osmo-style multilayer parallax UI paste assumed in-component Lenis + GSAP installs. The site already has GSAP/`ScrollTrigger` and intentionally uses native scroll via `GsapScrollProvider` (ADR-001: Lenis is not a production target).
+
+**Decision:**
+
+- Ship `ParallaxScrolling` at `components/ui/parallax-scrolling.{tsx,css}` with co-located CSS (ScrollStack pattern).
+- Wire animation through `useGsapContext` + `createScrollTriggerDefaults` + `gsap.matchMedia()` (`GSAP_ALLOW_MOTION` / `GSAP_REDUCE_MOTION`); skip scrub on coarse pointers (same as `useParallax`).
+- **Do not** install or bootstrap Lenis inside the component; **do not** call `ScrollTrigger.getAll().forEach(st => st.kill())`.
+- Mount **only** on `/motion-lab` — do not replace homepage `HeroOpening` parallax.
+- Use local `/assets/*` images only (no Unsplash / Osmo CDN).
+
+**Consequences:** Motion Lab is the sandbox for the Osmo multilayer demo. Production homepage keeps the lighter `useParallax` hook.
+
+---
+
+## ADR-015 — Adaptive nav contrast via section theme markers (2026-07-26)
+
+**Status:** Accepted
+
+**Context:** After ADR-013 frosted the logo chrome for dark-hero readability, the product direction shifted to transparent nav chrome with ink that adapts to the section behind the fixed header band.
+
+**Decision:**
+
+- **`useNavTheme`** (`hooks/useNavTheme.ts`) observes `[data-nav-theme]` bands with `IntersectionObserver` (`rootMargin: "-72px 0px 0px 0px"`); highest `intersectionRatio` wins; fallback `"light"`. Skip nodes inside `.sterling-gate` to avoid feedback.
+- **Homepage markers:** outer `<section>` bands tagged `light|dark`; Services stack cards also carry `dark` when pinned.
+- **Nav root** mirrors the winning band on `.sterling-gate[data-nav-theme]`; CSS flips `--sg-ink` to `--color-ivory` when `"dark"`. Pink `/logo.svg` mark is unchanged.
+- **Menu open** forces `"light"` ink (overlay is light).
+- **Chrome:** remove frosted pill from `.nav-logo-row` / `.nav-close-btn`; classic 3-line burger → X.
+
+**Consequences:** Section authors must tag new homepage bands. Non-home routes default to light ink until markers are added. GSAP fullscreen menu timeline unchanged.

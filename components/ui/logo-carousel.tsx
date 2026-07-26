@@ -180,7 +180,7 @@ export function AnimatedCarousel({
                     >
                       <div
                         className={cn(
-                          "group flex min-h-16 min-w-[10rem] items-center justify-center rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--bg-surface)] px-6 py-4 text-sm font-medium uppercase tracking-wide text-[var(--text-muted)] shadow-[var(--shadow-sm)] transition-colors hover:bg-[var(--bg-secondary)] md:min-w-[12rem]",
+                          "group flex min-h-16 min-w-[10rem] items-center justify-center border-0 bg-transparent px-6 py-4 text-sm font-medium uppercase tracking-wide text-[var(--text-muted)] shadow-none md:min-w-[12rem]",
                           logoContainerWidth,
                           logoContainerHeight,
                           logoClassName,

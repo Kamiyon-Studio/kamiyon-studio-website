@@ -8,6 +8,7 @@ import { AnimatedSection } from "@/components/animation/AnimatedSection";
 import { AnimatedText } from "@/components/animation/AnimatedText";
 import { MotionButton } from "@/components/animation/MotionButton";
 import { Container } from "@/components/ui/Container";
+import { ParallaxScrolling } from "@/components/ui/parallax-scrolling";
 import { WordPullUp } from "@/components/ui/WordPullUp";
 import { useGsapContext } from "@/hooks/useGsapContext";
 import { useHeroAnimation } from "@/hooks/useHeroAnimation";
@@ -25,7 +26,7 @@ const DEMO_CARDS = [
   { title: "Reveal", body: "Viewport fade-up via AnimatedSection." },
   { title: "Stagger", body: "Children enter with a shared stagger." },
   { title: "Parallax", body: "Scrubbed motion on fine pointers." },
-  { title: "Lenis", body: "Smooth scroll paired with ScrollTrigger." },
+  { title: "Native scroll", body: "Window scroll synced to ScrollTrigger." },
 ] as const;
 
 function MotionLabHero() {
@@ -47,7 +48,7 @@ function MotionLabHero() {
           data-hero-headline
           className="max-w-3xl font-display text-4xl font-bold tracking-tight text-[var(--text-primary)] sm:text-5xl lg:text-6xl"
         >
-          Developer demo for GSAP, ScrollTrigger, and Lenis.
+          Developer demo for GSAP, ScrollTrigger, and native scroll.
         </h1>
         <p className="max-w-xl text-base text-[var(--text-muted)] sm:text-lg">
           Not a marketing page — a sandbox that exercises the shared animation
@@ -247,6 +248,38 @@ export function MotionLabClient() {
         </Container>
       </AnimatedSection>
 
+      <section
+        id="multilayer-parallax"
+        className="border-t border-[var(--border-default)]"
+        aria-labelledby="multilayer-parallax-heading"
+      >
+        <Container className="py-20">
+          <h2
+            id="multilayer-parallax-heading"
+            className="font-display text-3xl font-bold tracking-tight"
+          >
+            Multilayer parallax
+          </h2>
+          <p className="mt-3 max-w-2xl text-[var(--text-muted)]">
+            Osmo-style stacked layers scrubbed to native document scroll (no
+            Lenis). Fine pointer only; static under reduced motion.
+          </p>
+          <p className="mt-2 text-sm text-[var(--text-muted)]">
+            Pattern adapted from{" "}
+            <a
+              href="https://osmo.supply/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-[var(--text-primary)]"
+            >
+              Osmo
+            </a>
+            .
+          </p>
+        </Container>
+        <ParallaxScrolling title="Kamiyon" />
+      </section>
+
       <AnimatedSection className="border-t border-[var(--border-default)] py-20">
         <Container>
           <h2 className="font-display text-3xl font-bold tracking-tight">
@@ -275,9 +308,9 @@ export function MotionLabClient() {
       <footer className="border-t border-[var(--border-default)] py-10">
         <Container>
           <p className="text-sm text-[var(--text-muted)]">
-            Smooth scrolling is provided site-wide by Lenis (disabled when
-            prefers-reduced-motion is set). This route is intentionally omitted
-            from PRIMARY_NAV_ITEMS.
+            Scrolling uses the browser&apos;s native scroll; ScrollTrigger syncs
+            via GsapScrollProvider (disabled when prefers-reduced-motion is
+            set). This route is intentionally omitted from PRIMARY_NAV_ITEMS.
           </p>
         </Container>
       </footer>

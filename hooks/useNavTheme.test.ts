@@ -83,6 +83,15 @@ describe("useNavTheme", () => {
     expect(observe).toHaveBeenCalledWith(byId("services-card"));
   });
 
+  it("stays on light when the page has no themed bands", () => {
+    document.body.innerHTML = "<section id='untagged'></section>";
+
+    const { result } = renderHook(() => useNavTheme());
+
+    expect(result.current).toBe("light");
+    expect(observe).not.toHaveBeenCalled();
+  });
+
   it("applies the default header-band rootMargin", () => {
     renderHook(() => useNavTheme());
 
