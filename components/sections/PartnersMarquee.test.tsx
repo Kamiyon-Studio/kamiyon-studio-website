@@ -1,36 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { PARTNER_PLACEHOLDERS } from "@/lib/home/partner-placeholders";
 import { PartnersMarquee } from "./PartnersMarquee";
-
-vi.mock("embla-carousel-react", () => {
-  const api = {
-    selectedScrollSnap: () => 0,
-    scrollSnapList: () => [0],
-    scrollTo: vi.fn(),
-    scrollNext: vi.fn(),
-    scrollPrev: vi.fn(),
-    canScrollPrev: () => false,
-    canScrollNext: () => false,
-    on: vi.fn(),
-    off: vi.fn(),
-  };
-
-  return {
-    default: () => [vi.fn(), api],
-  };
-});
-
-beforeAll(() => {
-  class ResizeObserverStub {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  }
-
-  vi.stubGlobal("ResizeObserver", ResizeObserverStub);
-});
 
 describe("PARTNER_PLACEHOLDERS", () => {
   it("defines 6–8 static placeholder slots with honest labels", () => {
@@ -46,11 +18,11 @@ describe("PARTNER_PLACEHOLDERS", () => {
 });
 
 describe("PartnersMarquee", () => {
-  it("renders each partner placeholder slot once in the logo carousel", () => {
+  it("renders each partner slot twice for a seamless infinite loop", () => {
     render(<PartnersMarquee />);
 
     expect(screen.getAllByText("Partner placeholder")).toHaveLength(
-      PARTNER_PLACEHOLDERS.length
+      PARTNER_PLACEHOLDERS.length * 2
     );
   });
 
@@ -68,13 +40,11 @@ describe("PartnersMarquee", () => {
       />,
     );
 
-    const images = screen.getAllByRole("img", { name: "Acme logo" });
-    expect(images).toHaveLength(1);
+    const images = screen.getAllByRole("img", { name: "Acme logo", hidden: true });
+    expect(images).toHaveLength(2);
     expect(images[0]?.getAttribute("src")).toContain(
       encodeURIComponent("https://media.kamiyonstudio.com/partners/acme.png"),
     );
-    expect(images[0]?.className).toMatch(/grayscale/);
-    expect(images[0]?.className).toMatch(/group-hover:grayscale-0/);
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
     expect(screen.queryByText("Acme")).not.toBeInTheDocument();
   });
@@ -101,10 +71,35 @@ describe("PartnersMarquee", () => {
     expect(screen.getByRole("region", { name: "Partner logos" })).toBeInTheDocument();
   });
 
-  it("exposes the partners carousel track for layout targeting", () => {
+  it("marks the duplicate track as aria-hidden for assistive tech", () => {
     render(<PartnersMarquee />);
 
-    expect(screen.getByTestId("partners-marquee-track")).toBeInTheDocument();
-    expect(screen.getByTestId("logo-carousel")).toBeInTheDocument();
+    const lists = screen.getAllByRole("list", { hidden: true });
+    expect(lists).toHaveLength(2);
+    expect(lists[1]).toHaveAttribute("aria-hidden", "true");
+  });
+
+  it("exposes a focusable marquee region that pauses on hover or focus", () => {
+    render(<PartnersMarquee />);
+
+    const marquee = screen.getByTestId("partners-marquee-track");
+    expect(marquee).toHaveAttribute("tabindex", "0");
+  });
+
+  it("ships CSS that disables animation under prefers-reduced-motion", () => {
+    const { container } = render(<PartnersMarquee />);
+    const style = container.querySelector("style");
+
+    expect(style?.textContent).toMatch(/prefers-reduced-motion:\s*reduce/);
+    expect(style?.textContent).toMatch(/animation:\s*none/);
+  });
+
+  it("ships CSS that pauses the loop on hover and focus-within", () => {
+    const { container } = render(<PartnersMarquee />);
+    const style = container.querySelector("style");
+
+    expect(style?.textContent).toMatch(/:hover/);
+    expect(style?.textContent).toMatch(/:focus-within/);
+    expect(style?.textContent).toMatch(/animation-play-state:\s*paused/);
   });
 });

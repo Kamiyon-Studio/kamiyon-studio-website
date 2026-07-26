@@ -93,7 +93,7 @@
   /* TODO(TBD): --accent-dark → var(--color-indigo) once hex confirmed */
 
   /* -- Borders ----------------------------------------------------------- */
-  --border-default: rgba(255, 121, 152, 0.22);
+  --border-default: rgba(26, 26, 26, 0.12);
 
   /* -- Type scale — desktop reference values (Part 6) --------------------
      xs = caption/small  sm = nav/small  base = body  lg = body-large

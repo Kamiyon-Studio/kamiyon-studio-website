@@ -27,7 +27,6 @@ export function HomeContact({
   return (
     <section
       id="home-contact"
-      data-nav-theme="light"
       aria-labelledby="home-contact-heading"
       className="scroll-mt-4 bg-[var(--bg-primary)] py-16 md:py-24"
     >

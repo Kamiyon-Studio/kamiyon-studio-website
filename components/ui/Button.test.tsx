@@ -54,21 +54,4 @@ describe("Button", () => {
       expect(screen.getByRole("button", { name: variant })).toBeInTheDocument();
     }
   );
-
-  it("wraps primary CTAs in the glowing shadow shell", () => {
-    const { container } = render(<Button variant="primary">Get in touch</Button>);
-
-    expect(container.querySelector(".glowing-shadow")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Get in touch" })).toHaveClass("bg-sakura");
-  });
-
-  it("does not wrap secondary or ghost variants in the glowing shadow shell", () => {
-    const { container: secondaryContainer } = render(
-      <Button variant="secondary">Learn more</Button>,
-    );
-    expect(secondaryContainer.querySelector(".glowing-shadow")).not.toBeInTheDocument();
-
-    const { container: ghostContainer } = render(<Button variant="ghost">Skip</Button>);
-    expect(ghostContainer.querySelector(".glowing-shadow")).not.toBeInTheDocument();
-  });
 });

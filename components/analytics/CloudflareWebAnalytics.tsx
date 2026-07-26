@@ -1,34 +1,33 @@
 import Script from "next/script";
 
-import {
-  resolveCloudflareBeacon,
-  type CloudflareBeaconEnv,
-} from "@/lib/analytics/cloudflare-web-analytics";
+const BEACON_SRC = "https://static.cloudflareinsights.com/beacon.min.js";
+
+type CloudflareWebAnalyticsProps = {
+  /**
+   * Optional override for tests. Production usage omits this and reads
+   * `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN`.
+   */
+  token?: string | null;
+};
 
 /**
- * Cloudflare Web Analytics beacon (T14). Renders nothing without a site token
- * or in development, so local dev and previews stay clean and silent.
- * Props exist for tests; production reads env — see `context/analytics-setup.md`.
+ * Cloudflare Web Analytics beacon (T14). Injects only when a site token is
+ * present so local/dev builds stay clean without the env var.
  */
 export function CloudflareWebAnalytics({
   token = process.env.NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN,
-  appEnv = process.env.APP_ENV,
-  nodeEnv = process.env.NODE_ENV,
-}: CloudflareBeaconEnv = {}) {
-  const beacon = resolveCloudflareBeacon({ token, appEnv, nodeEnv });
-
-  if (!beacon) {
+}: CloudflareWebAnalyticsProps = {}) {
+  const resolved = token?.trim();
+  if (!resolved) {
     return null;
   }
 
   return (
     <Script
-      // Cloudflare requires `type="module"` on manual embeds so the beacon is
-      // skipped (instead of throwing) in legacy browsers such as IE11.
-      type="module"
-      src={beacon.src}
+      defer
+      src={BEACON_SRC}
       strategy="afterInteractive"
-      data-cf-beacon={beacon.config}
+      data-cf-beacon={JSON.stringify({ token: resolved, spa: true })}
     />
   );
 }

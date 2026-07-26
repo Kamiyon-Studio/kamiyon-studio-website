@@ -47,7 +47,7 @@ Today, Kamiyon provides professional creative and technical services to organiza
 
 # Motto
 
-> **Create. Play. Inspire.**
+> **Play. Question. Create.**
 
 ---
 

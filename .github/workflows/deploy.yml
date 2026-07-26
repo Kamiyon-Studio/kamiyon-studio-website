@@ -7,9 +7,6 @@
 # Optional GitHub Actions variables / secrets for build-time Next.js env
 # (see context/deploy-runbook.md): APP_ENV, NEXT_PUBLIC_SITE_URL,
 # NEXT_PUBLIC_R2_PUBLIC_BASE_URL, NEXT_PUBLIC_SANITY_*, etc.
-# `NEXT_PUBLIC_*` is inlined at build time and robots.txt/sitemap.xml are
-# prerendered, so each has a literal default: an unset repo variable would
-# otherwise bake `http://localhost:3000` and ship `Disallow: /` to production.
 #
 # Triggers:
 #   push → staging branch → pnpm deploy:staging (wrangler --env staging)
@@ -84,10 +81,10 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           APP_ENV: ${{ vars.APP_ENV_STAGING || 'staging' }}
-          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL_STAGING || 'https://kamiyon-studio-website-staging.limosnerosherwin.workers.dev' }}
-          NEXT_PUBLIC_R2_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_R2_PUBLIC_BASE_URL_STAGING || 'https://media-staging.kamiyonstudio.com' }}
-          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ vars.NEXT_PUBLIC_SANITY_PROJECT_ID || 'c6ej1xoj' }}
-          NEXT_PUBLIC_SANITY_DATASET: ${{ vars.NEXT_PUBLIC_SANITY_DATASET || 'kamiyon' }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL_STAGING }}
+          NEXT_PUBLIC_R2_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_R2_PUBLIC_BASE_URL_STAGING }}
+          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ vars.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+          NEXT_PUBLIC_SANITY_DATASET: ${{ vars.NEXT_PUBLIC_SANITY_DATASET }}
           NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN: ${{ vars.NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN_STAGING }}
 
       - name: Deploy production
@@ -97,8 +94,8 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           APP_ENV: ${{ vars.APP_ENV_PRODUCTION || 'production' }}
-          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL_PRODUCTION || 'https://kamiyonstudio.com' }}
-          NEXT_PUBLIC_R2_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_R2_PUBLIC_BASE_URL_PRODUCTION || 'https://media.kamiyonstudio.com' }}
-          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ vars.NEXT_PUBLIC_SANITY_PROJECT_ID || 'c6ej1xoj' }}
-          NEXT_PUBLIC_SANITY_DATASET: ${{ vars.NEXT_PUBLIC_SANITY_DATASET || 'kamiyon' }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL_PRODUCTION }}
+          NEXT_PUBLIC_R2_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_R2_PUBLIC_BASE_URL_PRODUCTION }}
+          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ vars.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+          NEXT_PUBLIC_SANITY_DATASET: ${{ vars.NEXT_PUBLIC_SANITY_DATASET }}
           NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN: ${{ vars.NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN_PRODUCTION }}

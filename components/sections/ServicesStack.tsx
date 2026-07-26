@@ -32,7 +32,6 @@ export function ServicesStack({ slides }: ServicesStackProps) {
   return (
     <section
       id="home-services"
-      data-nav-theme="light"
       aria-labelledby={sectionId}
       className="scroll-mt-4 bg-[var(--bg-primary)] py-16 md:py-24"
     >
@@ -63,11 +62,7 @@ export function ServicesStack({ slides }: ServicesStackProps) {
           rotationAmount={0}
         >
           {slides.map((slide) => (
-            <ScrollStackItem
-              key={slide.id}
-              itemClassName={cardClassName}
-              data-nav-theme="dark"
-            >
+            <ScrollStackItem key={slide.id} itemClassName={cardClassName}>
               <p className="text-sm font-semibold uppercase tracking-wide text-[var(--color-gold)]">
                 {slide.eyebrow}
               </p>
