@@ -8,9 +8,9 @@ vi.mock("@/lib/cms/image", () => ({
   getCmsImageUrl: vi.fn(() => null),
 }));
 
-vi.mock("@/components/ui/expand-on-hover", () => ({
-  HoverExpand: ({ members }: { members: TeamMember[] }) => (
-    <div data-testid="hover-expand">
+vi.mock("@/components/ui/interactive-selector", () => ({
+  InteractiveSelector: ({ members }: { members: TeamMember[] }) => (
+    <div data-testid="interactive-selector">
       {members.map((member) => (
         <span key={member._id ?? member.name}>{member.name}</span>
       ))}
@@ -43,10 +43,10 @@ const members: TeamMember[] = [
 ];
 
 describe("TeamGrid", () => {
-  it("renders HoverExpand with team members", () => {
+  it("renders InteractiveSelector with team members", () => {
     render(<TeamGrid teamMembers={members} />);
 
-    expect(screen.getByTestId("hover-expand")).toBeInTheDocument();
+    expect(screen.getByTestId("interactive-selector")).toBeInTheDocument();
     expect(screen.getByText("Jane Dela Cruz")).toBeInTheDocument();
     expect(screen.getByText("Founder")).toBeInTheDocument();
     expect(screen.getByText("Sam Reyes")).toBeInTheDocument();

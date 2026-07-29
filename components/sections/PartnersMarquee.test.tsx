@@ -71,10 +71,10 @@ describe("PartnersMarquee", () => {
       encodeURIComponent("https://media.kamiyonstudio.com/partners/acme.png"),
     );
     expect(images[0]?.className).toMatch(/grayscale/);
-    expect(images[0]?.className).toMatch(/group-hover:grayscale-0/);
-    expect(images[0]?.className).toMatch(/h-14/);
-    expect(images[0]?.className).toMatch(/md:h-16/);
-    expect(images[0]?.className).toMatch(/lg:h-20/);
+    expect(images[0]?.className).toMatch(/group-hover\/logo:grayscale-0/);
+    expect(images[0]?.className).toMatch(/h-\[2\.625rem\]/);
+    expect(images[0]?.className).toMatch(/md:h-12/);
+    expect(images[0]?.className).toMatch(/lg:h-\[3\.75rem\]/);
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
     expect(screen.queryByText("Acme")).not.toBeInTheDocument();
   });
@@ -181,6 +181,6 @@ describe("PartnersMarquee", () => {
     );
     expect(toneClasses).not.toMatch(/invert|brightness/);
     expect(image?.className).toMatch(/grayscale/);
-    expect(image?.className).toMatch(/group-hover:grayscale-0/);
+    expect(image?.className).toMatch(/group-hover\/logo:grayscale-0/);
   });
 });

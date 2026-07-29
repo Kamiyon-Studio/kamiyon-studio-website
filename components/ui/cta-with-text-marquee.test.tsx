@@ -23,6 +23,18 @@ const items: VerticalMarqueeItem[] = [
   },
 ];
 
+const itemsWithImages: VerticalMarqueeItem[] = [
+  {
+    id: "game-development",
+    label: "Game Development",
+    href: "/services/game-development",
+    images: [
+      { src: "/img-front.jpg", alt: "Game dev front" },
+      { src: "/img-back.jpg", alt: "Game dev back" },
+    ],
+  },
+];
+
 const baseProps = {
   eyebrow: "Services",
   heading: "What we build",
@@ -94,12 +106,25 @@ describe("CTAWithVerticalMarquee", () => {
     });
   });
 
+  it("uses font-black on service rows (bold, not font-light)", () => {
+    const { container } = render(<CTAWithVerticalMarquee {...baseProps} />);
+
+    expect(container.querySelector(".font-black")).toBeInTheDocument();
+    expect(container.querySelector(".font-light")).not.toBeInTheDocument();
+  });
+
   it("keeps duplicate marquee track non-interactive", () => {
     const { container } = render(<CTAWithVerticalMarquee {...baseProps} />);
 
-    const hiddenTrack = container.querySelector('[aria-hidden="true"]');
-    expect(hiddenTrack).toBeTruthy();
-    expect(hiddenTrack?.querySelectorAll("a")).toHaveLength(0);
+    // Second animated track is aria-hidden for screen readers
+    const trackDivs = container.querySelectorAll(
+      ".animate-marquee-vertical[aria-hidden='true']",
+    );
+    expect(trackDivs.length).toBeGreaterThanOrEqual(1);
+    // None of the clone nodes should be focusable links
+    trackDivs.forEach((track) => {
+      expect(track.querySelectorAll("a")).toHaveLength(0);
+    });
   });
 
   it("renders a static link list when prefers-reduced-motion is set", () => {
@@ -112,6 +137,45 @@ describe("CTAWithVerticalMarquee", () => {
       expect(
         screen.getByRole("link", { name: item.label }),
       ).toHaveAttribute("href", item.href);
+    });
+  });
+
+  describe("with images", () => {
+    it("renders service row as a link when item has images", () => {
+      render(
+        <CTAWithVerticalMarquee {...baseProps} items={itemsWithImages} />,
+      );
+
+      const link = screen.getByRole("link", { name: "Game Development" });
+      expect(link).toBeInTheDocument();
+      expect(link).toHaveAttribute("href", "/services/game-development");
+    });
+
+    it("renders images in the interactive track when item has images", () => {
+      const { container } = render(
+        <CTAWithVerticalMarquee {...baseProps} items={itemsWithImages} />,
+      );
+
+      // Images live inside the first (interactive) track only
+      const interactiveTrack = container.querySelector(
+        ".animate-marquee-vertical:not([aria-hidden])",
+      );
+      const imgs = interactiveTrack?.querySelectorAll("img") ?? [];
+      expect(imgs.length).toBe(2);
+      // DOM order: back (images[1]) then front (images[0])
+      expect(imgs[0]).toHaveAttribute("src", "/img-back.jpg");
+      expect(imgs[1]).toHaveAttribute("src", "/img-front.jpg");
+    });
+
+    it("keeps clone track image-free when decorative mode is used", () => {
+      const { container } = render(
+        <CTAWithVerticalMarquee {...baseProps} items={itemsWithImages} />,
+      );
+
+      const cloneTrack = container.querySelector(
+        ".animate-marquee-vertical[aria-hidden='true']",
+      );
+      expect(cloneTrack?.querySelectorAll("img")).toHaveLength(0);
     });
   });
 });

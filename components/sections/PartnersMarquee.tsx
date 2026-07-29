@@ -19,8 +19,9 @@ type PartnersMarqueeProps = {
   layout?: "section" | "band";
 };
 
+/** ~3/4 of the prior h-14 / md:h-16 / lg:h-20 sizes. */
 const PARTNER_LOGO_IMAGE_CLASS =
-  "h-14 w-auto max-w-[10rem] md:h-16 md:max-w-[12rem] lg:h-20 lg:max-w-[14rem]";
+  "h-[2.625rem] w-auto max-w-[7.5rem] md:h-12 md:max-w-[9rem] lg:h-[3.75rem] lg:max-w-[10.5rem]";
 
 export function PartnersMarquee({
   eyebrow,
@@ -67,7 +68,6 @@ export function PartnersMarquee({
           <LogoMarquee
             logos={logos}
             speed={40}
-            pauseOnHover
             logoImageClassName={PARTNER_LOGO_IMAGE_CLASS}
           />
         </div>

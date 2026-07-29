@@ -63,15 +63,15 @@ describe("LogoMarquee", () => {
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
 
-  it("desaturates logos by default and restores color on hover/focus", () => {
+  it("desaturates logos by default and restores color only on that logo hover/focus", () => {
     render(<LogoMarquee logos={logos} />);
 
     const image = screen.getAllByRole("img", { name: "Acme logo" })[0];
     expect(image?.className).toMatch(/grayscale/);
-    expect(image?.className).toMatch(/group-hover:grayscale-0|hover:grayscale-0/);
-    expect(image?.className).toMatch(
-      /group-focus-within:grayscale-0|focus-within:grayscale-0|focus-visible:grayscale-0/,
-    );
+    expect(image?.className).toMatch(/group-hover\/logo:grayscale-0/);
+    expect(image?.className).toMatch(/group-focus-within\/logo:grayscale-0/);
+    // Unnamed group-hover would colorize every logo when the track is hovered.
+    expect(image?.className).not.toMatch(/\bgroup-hover:grayscale-0\b/);
   });
 
   it("duplicates the track for a continuous loop and hides the clone", () => {
@@ -106,13 +106,23 @@ describe("LogoMarquee", () => {
     render(
       <LogoMarquee
         logos={logos}
-        logoImageClassName="h-14 md:h-16 lg:h-20"
+        logoImageClassName="h-[2.625rem] md:h-12 lg:h-[3.75rem]"
       />,
     );
 
     const image = screen.getAllByRole("img", { name: "Acme logo" })[0];
-    expect(image?.className).toMatch(/h-14/);
-    expect(image?.className).toMatch(/md:h-16/);
-    expect(image?.className).toMatch(/lg:h-20/);
+    expect(image?.className).toMatch(/h-\[2\.625rem\]/);
+    expect(image?.className).toMatch(/md:h-12/);
+    expect(image?.className).toMatch(/lg:h-\[3\.75rem\]/);
+  });
+
+  it("does not pause the whole track on hover by default", () => {
+    render(<LogoMarquee logos={logos} />);
+
+    const root = screen.getByTestId("logo-marquee");
+    expect(root.className).not.toMatch(/group\/track/);
+    expect(
+      root.querySelector(".animate-marquee-horizontal")?.className,
+    ).not.toMatch(/animation-play-state:paused/);
   });
 });

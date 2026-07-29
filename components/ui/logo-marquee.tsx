@@ -57,24 +57,24 @@ function LogoCell({
 
   return (
     <div
-      className="group flex shrink-0 items-center justify-center px-6 py-2 md:px-8 lg:px-10"
+      className="group/logo flex shrink-0 items-center justify-center px-5 py-2 md:px-6 lg:px-8"
       tabIndex={interactive && logoUrl ? 0 : undefined}
     >
       {logoUrl ? (
         <Image
           src={logoUrl}
           alt={logo.alt}
-          width={200}
-          height={80}
+          width={150}
+          height={60}
           className={cn(
-            "w-auto max-w-[10rem] object-contain opacity-70 grayscale transition-[filter,opacity] duration-300",
-            "group-hover:opacity-100 group-hover:grayscale-0",
-            "group-focus-within:opacity-100 group-focus-within:grayscale-0",
-            logoImageClassName ?? "h-14 md:h-16 lg:h-20",
+            "w-auto max-w-[7.5rem] object-contain opacity-70 grayscale transition-[filter,opacity] duration-300",
+            "group-hover/logo:opacity-100 group-hover/logo:grayscale-0",
+            "group-focus-within/logo:opacity-100 group-focus-within/logo:grayscale-0",
+            logoImageClassName ?? "h-[2.625rem] md:h-12 lg:h-[3.75rem]",
           )}
         />
       ) : (
-        <span className="text-xs font-medium tracking-wide text-[var(--text-muted)] uppercase opacity-70 transition-opacity duration-300 group-hover:opacity-100 md:text-sm">
+        <span className="text-xs font-medium tracking-wide text-[var(--text-muted)] uppercase opacity-70 transition-opacity duration-300 group-hover/logo:opacity-100 md:text-sm">
           {logo.label}
         </span>
       )}
@@ -108,7 +108,7 @@ function LogoRow({
 export function LogoMarquee({
   logos,
   speed = 40,
-  pauseOnHover = true,
+  pauseOnHover = false,
   className,
   logoImageClassName,
 }: LogoMarqueeProps) {
@@ -131,13 +131,17 @@ export function LogoMarquee({
 
   const trackClassName = cn(
     "flex w-max animate-marquee-horizontal motion-reduce:animate-none",
-    pauseOnHover && "group-hover:[animation-play-state:paused]",
+    pauseOnHover && "group-hover/track:[animation-play-state:paused]",
   );
 
   return (
     <div
       data-testid="logo-marquee"
-      className={cn("group overflow-hidden", className)}
+      className={cn(
+        "overflow-hidden",
+        pauseOnHover && "group/track",
+        className,
+      )}
       style={
         {
           "--duration": `${speed}s`,

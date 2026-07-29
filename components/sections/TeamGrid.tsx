@@ -1,5 +1,5 @@
 import { Container } from "@/components/ui/Container";
-import { HoverExpand } from "@/components/ui/expand-on-hover";
+import { InteractiveSelector } from "@/components/ui/interactive-selector";
 import type { TeamMember } from "@/lib/cms/types";
 
 type TeamGridProps = {
@@ -23,7 +23,7 @@ export function TeamGrid({ teamIntro, teamMembers }: TeamGridProps) {
         </div>
 
         <div className="mt-10 flex justify-center">
-          <HoverExpand members={teamMembers} />
+          <InteractiveSelector members={teamMembers} />
         </div>
       </Container>
     </section>

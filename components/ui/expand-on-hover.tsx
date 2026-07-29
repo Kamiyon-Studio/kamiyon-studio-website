@@ -213,7 +213,7 @@ function TeamSocialLink({ link }: { link: SocialLink }) {
   );
 }
 
-/** Demo shell kept for local previews; production uses TeamGrid → HoverExpand. */
+/** Demo shell kept for local previews; production team strip is InteractiveSelector via TeamGrid. */
 export function Skiper52({ members }: { members: TeamMember[] }) {
   return (
     <div className="flex h-full w-full items-center justify-center overflow-hidden">
