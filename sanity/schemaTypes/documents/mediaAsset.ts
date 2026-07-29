@@ -5,6 +5,7 @@ export const mediaAsset = defineType({
   name: "mediaAsset",
   title: "Media Asset",
   type: "document",
+  readOnly: () => true,
   fields: [
     defineField({ name: "title", title: "Title", type: "string", validation: (r) => r.required() }),
     defineField({

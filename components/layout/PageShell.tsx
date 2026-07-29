@@ -1,7 +1,14 @@
 import type { ReactNode } from "react";
 
 import { CinematicFooter } from "@/components/ui/motion-footer";
+import {
+  portfolioItemsFallback,
+  resolveWithFallback,
+  servicesFallback,
+} from "@/lib/cms/fallbacks";
+import { getPortfolioItems, getServices } from "@/lib/cms/queries";
 import { getSiteSettingsContent } from "@/lib/cms/site-settings-content";
+import { buildNavItemsWithDropdowns } from "@/lib/config/nav-dropdowns";
 import { buildShellNavProps } from "@/lib/site-settings/shell-props";
 
 import { SiteHeader } from "./SiteHeader";
@@ -11,7 +18,18 @@ type PageShellProps = {
 };
 
 export async function PageShell({ children }: PageShellProps) {
-  const shellProps = buildShellNavProps(await getSiteSettingsContent());
+  const [settings, services, portfolioItems] = await Promise.all([
+    getSiteSettingsContent(),
+    getServices(),
+    getPortfolioItems(),
+  ]);
+
+  const shellProps = buildShellNavProps(settings);
+  const navItems = buildNavItemsWithDropdowns({
+    navItems: shellProps.navItems,
+    services: resolveWithFallback(services, servicesFallback),
+    portfolioItems: resolveWithFallback(portfolioItems, portfolioItemsFallback),
+  });
 
   return (
     <>
@@ -26,7 +44,7 @@ export async function PageShell({ children }: PageShellProps) {
         aria-hidden="true"
       />
       <SiteHeader
-        navItems={shellProps.navItems}
+        navItems={navItems}
         contactCta={shellProps.contactCta}
         siteName={shellProps.siteName}
         socialLinks={shellProps.socialLinks}

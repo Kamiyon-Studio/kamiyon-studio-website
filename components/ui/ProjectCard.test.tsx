@@ -9,11 +9,12 @@ vi.mock("@/lib/cms/image", () => ({
 }));
 
 const baseCaseStudy: CaseStudy = {
-  _type: "caseStudy",
+  _type: "portfolio",
   title: "Sample Client Project — Placeholder",
   slug: { current: "sample-client-project-placeholder" },
   clientName: "TBD",
   industry: "Education",
+  serviceType: "game-development",
   challenge: "A generic challenge summary.",
   solution: "A generic solution summary.",
   impact: "A generic impact summary.",
@@ -68,5 +69,31 @@ describe("ProjectCard", () => {
     render(<ProjectCard caseStudy={{ ...baseCaseStudy, isPlaceholder: false }} />);
 
     expect(screen.queryByText("Placeholder")).not.toBeInTheDocument();
+  });
+
+  it("renders the Gate 0 service label for a known serviceType", async () => {
+    const { getCmsImageUrl } = await import("@/lib/cms/image");
+    vi.mocked(getCmsImageUrl).mockReturnValue(null);
+
+    render(
+      <ProjectCard
+        caseStudy={{ ...baseCaseStudy, serviceType: "product-development" }}
+      />
+    );
+
+    expect(screen.getByText("Product Development")).toBeInTheDocument();
+    expect(screen.queryByText("Education")).not.toBeInTheDocument();
+  });
+
+  it("does not render stale old service titles when serviceType is unknown", async () => {
+    const { getCmsImageUrl } = await import("@/lib/cms/image");
+    vi.mocked(getCmsImageUrl).mockReturnValue(null);
+
+    render(
+      <ProjectCard caseStudy={{ ...baseCaseStudy, serviceType: "mvp-development" }} />
+    );
+
+    expect(screen.queryByText("MVP Development")).not.toBeInTheDocument();
+    expect(screen.queryByText("Education")).not.toBeInTheDocument();
   });
 });

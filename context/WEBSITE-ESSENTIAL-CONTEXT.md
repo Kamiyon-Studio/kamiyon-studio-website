@@ -67,7 +67,7 @@ It intentionally **excludes** company-wide material that is not needed to build 
 | Seed | `pnpm sanity:seed` from `lib/cms/fallbacks` (+ partners/blog stubs); Studio for R2 media refine (ADR-011) |
 | Contact | **Interim:** Google Form CTA + external links; **Target (T8):** in-app form via **Resend** |
 | Blog | Authors, categories, tags, featured image, SEO, Portable Text, reading time, published/updated dates, related posts |
-| Primary nav | Home, About, Services, **Products**, Portfolio, **Community**, Blog, Contact |
+| Primary nav | Home, About, Services, Portfolio, Blog, Contact (+ separate “Get in touch” CTA) |
 | Motion (main site) | **GSAP only** (remove Framer Motion + Lenis from production routes) |
 | Motion Lab | Keep `/motion-lab` in production; **`noindex`**; public animation showcase |
 | Brand colors | Primary `#FF7998` · Secondary `#E9C080` · Black `#201013` · White `#F8F8F8` |
@@ -184,27 +184,24 @@ Do **not** rely on “redeploy on every content change.”
 | --- | --- | --- |
 | `/` | Home | index |
 | `/about` | Story, values, team, culture | index |
-| `/services` · `/services/[slug]` | Services | index |
-| `/products` · `/products/[slug]` | Original IP | index |
-| `/portfolio` · `/portfolio/[slug]` | Case studies | index |
-| `/community` | Community feed | index |
+| `/services` · `/services/[slug]` | Five Gate 0 services | index |
+| `/portfolio` · `/portfolio/[slug]` | Portfolio / client work | index |
 | `/blog` · `/blog/[slug]` | Blog | index |
-| `/contact` | Form + external channels | index |
+| `/contact` | Channels + interim form CTA | index |
 | `/studio` | Sanity Studio (editors) | **noindex** |
 | `/motion-lab` | Animation experiments showcase | **noindex** |
+| `/products` · `/community` | **Archived** — permanent redirect → `/` | n/a |
 
-### Primary navigation (locked)
+### Primary navigation (locked 2026-07-29)
 
 1. Home  
 2. About  
-3. Services  
-4. **Products**  
-5. Portfolio  
-6. **Community**  
-7. Blog  
-8. Contact  
+3. Services (dropdown from published services)  
+4. Portfolio (dropdown from published portfolio items)  
+5. Blog  
+6. Contact  
 
-*(Repo nav updated 2026-07-21 — Products + Community visible.)*
+Separate chrome CTA: **Get in touch** → interim Google Form URL (unchanged).
 
 ### Sanity document map
 
@@ -214,27 +211,23 @@ Do **not** rely on “redeploy on every content change.”
 | `homePage` | Singleton | Hero, mission, featured work, highlights, CTA |
 | `aboutPage` | Singleton | Story, values, culture |
 | `contactPage` | Singleton | Intro, channels, FAQ, form settings copy |
-| `teamMember` | Document | Order, role, R2 photo ref, `isPlaceholder` |
-| `serviceCategory` | Document | Slug |
-| `service` | Document | Category, industries, body |
-| `product` | Document | Status, media refs, slug |
-| `caseStudy` | Document | Challenge / solution / impact, gallery, featured |
-| `communityItem` | Document | Type, date, body |
-| `author` | Document | Name, bio, avatar R2 ref, slug |
-| `category` | Document | Blog category title + slug |
-| `tag` | Document | Blog tag title + slug |
-| `post` | Document | Full blog model (below) |
-| `r2Asset` (or object) | Object/doc | `url` / `key`, alt, dimensions, mime — **no binary in Sanity** |
+| `teamMember` | Document | Order, role, R2 photo, `socialLinks[]`, `isPlaceholder` |
+| `service` | Document | Flat Gate 0 five; `tagline` + `capabilities` (no category) |
+| `portfolio` | Document | Challenge / solution / impact, `serviceType`, gallery, featured |
+| `partner` | Document | Home marquee |
+| `post` | Document | Authors → `teamMember`; categories/tags as string taxonomies |
+| `r2Asset` (or object) | Object/doc | `url` / `key`, alt — **no binary in Sanity** |
 | Shared | Objects | `seoMetadata`, `cta`, `socialLink`, portable text |
+| **Archive (readOnly)** | Documents | `product`, `communityItem`, `caseStudy`, `serviceCategory`, `category`, `tag`, `author`, `mediaAsset` — kept registered; never delete existing docs |
 
 ### Blog `post` fields (required)
 
 | Field | Notes |
 | --- | --- |
 | Title, slug | Required |
-| Authors | Refs → `author` |
-| Categories | Refs → `category` |
-| Tags | Refs → `tag` |
+| Authors | Refs → `teamMember` |
+| Categories | String array (`options.list` from `POST_CATEGORIES`) |
+| Tags | String array (`options.list` from `POST_TAGS`) |
 | Featured image | R2 media reference |
 | Body | Portable Text (expand subset for blog: links, lists as needed) |
 | SEO | `seoMetadata` object |
@@ -250,7 +243,11 @@ Do **not** rely on “redeploy on every content change.”
 
 ### Stable `lib/cms` public API
 
-Preserve: `getSiteSettings`, `getHomePage`, `getAboutPage`, `getContactPage`, `getTeamMembers`, `getServiceCategories`, `getServices`, `getServiceBySlug`, `getProducts`, `getProductBySlug`, `getCaseStudies`, `getCaseStudyBySlug`, `getCommunityItems`, blog getters (`getPosts`, `getPostBySlug`, …), `resolveWithFallback`, `getMediaUrl` (R2).
+Preserve: `getSiteSettings`, `getHomePage`, `getAboutPage`, `getContactPage`, `getTeamMembers`, `getServices`, `getServiceBySlug`, `getPortfolioItems`, `getPortfolioItemBySlug`, blog getters (`getPosts`, `getPostBySlug`, …), `resolveWithFallback`, `getMediaUrl` (R2).
+
+Archived / legacy (still exported for archive routes or transitional callers): `getProducts`, `getProductBySlug`, `getCommunityItems`. (`getServiceCategories` removed — flat five services, ADR-016.)
+
+Taxonomy constants: `SERVICE_CATEGORIES` / `POST_CATEGORIES` / `POST_TAGS` in `lib/cms/taxonomies.ts` (Studio `options.list` + title lookup).
 
 ---
 

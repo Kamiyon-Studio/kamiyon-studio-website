@@ -43,9 +43,9 @@ export const featuredWork = defineType({
     }),
     defineField({
       name: "featuredCaseStudies",
-      title: "Featured case studies",
+      title: "Featured portfolio items",
       type: "array",
-      of: [{ type: "reference", to: [{ type: "caseStudy" }] }],
+      of: [{ type: "reference", to: [{ type: "portfolio" }] }],
     }),
   ],
 });

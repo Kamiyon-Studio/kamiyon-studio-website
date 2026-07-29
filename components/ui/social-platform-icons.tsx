@@ -11,7 +11,10 @@ export type SocialPlatformIconName =
   | "email"
   | "itch"
   | "youtube"
-  | "x";
+  | "x"
+  | "instagram"
+  | "tiktok"
+  | "github";
 
 export type SocialPlatformIconProps = {
   platform: SocialPlatformIconName;
@@ -28,6 +31,9 @@ export const SOCIAL_PLATFORM_LABELS: Record<SocialPlatformIconName, string> = {
   itch: "itch.io",
   youtube: "YouTube",
   x: "X",
+  instagram: "Instagram",
+  tiktok: "TikTok",
+  github: "GitHub",
 };
 
 type IconGlyphProps = {
@@ -136,6 +142,56 @@ function XIcon({ className, size }: IconGlyphProps) {
   );
 }
 
+function InstagramIcon({ className, size }: IconGlyphProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M12 7.2A4.8 4.8 0 1 0 16.8 12 4.8 4.8 0 0 0 12 7.2zm0 7.9A3.1 3.1 0 1 1 15.1 12 3.1 3.1 0 0 1 12 15.1z" />
+      <path d="M17.5 2.5h-11A4 4 0 0 0 2.5 6.5v11a4 4 0 0 0 4 4h11a4 4 0 0 0 4-4v-11a4 4 0 0 0-4-4zm2.3 15a2.3 2.3 0 0 1-2.3 2.3h-11A2.3 2.3 0 0 1 4.2 17.5v-11A2.3 2.3 0 0 1 6.5 4.2h11A2.3 2.3 0 0 1 19.8 6.5z" />
+      <circle cx="17.3" cy="6.7" r="1.1" />
+    </svg>
+  );
+}
+
+function TikTokIcon({ className, size }: IconGlyphProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M19.6 7.4a6.3 6.3 0 0 1-3.7-1.2v7.3a5.5 5.5 0 1 1-4.7-5.4v2.5a3 3 0 1 0 2.1 2.9V2.5h2.6a3.7 3.7 0 0 0 3.7 3.7z" />
+    </svg>
+  );
+}
+
+function GitHubIcon({ className, size }: IconGlyphProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.2-3.4-1.2-.4-1.1-1.1-1.4-1.1-1.4-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.2-.3-4.6-1.1-4.6-5a3.9 3.9 0 0 1 1-2.7c-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.8 1a9.6 9.6 0 0 1 5 0c2-.1 2.8-1 2.8-1 .5 1.4.2 2.4.1 2.7a3.9 3.9 0 0 1 1 2.7c0 3.9-2.3 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10 10 0 0 0 12 2z" />
+    </svg>
+  );
+}
+
 const PLATFORM_ICONS: Record<
   SocialPlatformIconName,
   (props: IconGlyphProps) => JSX.Element
@@ -146,6 +202,9 @@ const PLATFORM_ICONS: Record<
   itch: ItchIcon,
   youtube: YouTubeIcon,
   x: XIcon,
+  instagram: InstagramIcon,
+  tiktok: TikTokIcon,
+  github: GitHubIcon,
 };
 
 export function SocialPlatformIcon({

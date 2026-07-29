@@ -1,15 +1,12 @@
 /**
  * Pure blog seed builders: locked constants → Sanity createOrReplace docs.
- * No network; no media fields. Ordered for WS8d upsert.
- *
- * Owns blog documents only (WS8c). Core builders stay in buildCoreSeedDocuments().
+ * Authors reference teamMember; categories/tags are string taxonomy values.
  */
 
 import { arrayKey, toReference, toSlug } from "../helpers";
+import { teamMemberId } from "../ids";
 import {
   BLOG_SEED_IDS,
-  blogAuthorSeed,
-  blogCategorySeed,
   blogPostSeed,
   blogTagSeeds,
 } from "../seed-data.blog";
@@ -32,33 +29,8 @@ function paragraphBlock(index: number, text: string): SanityPortableBlock {
   };
 }
 
-export function buildBlogAuthorDocument(): SeedDocument {
-  return {
-    _id: BLOG_SEED_IDS.author,
-    _type: "author",
-    name: blogAuthorSeed.name,
-    slug: toSlug(blogAuthorSeed.slug),
-    bio: blogAuthorSeed.bio,
-  };
-}
-
-export function buildBlogCategoryDocument(): SeedDocument {
-  return {
-    _id: BLOG_SEED_IDS.category,
-    _type: "category",
-    title: blogCategorySeed.title,
-    slug: toSlug(blogCategorySeed.slug),
-  };
-}
-
-export function buildBlogTagDocuments(): SeedDocument[] {
-  return blogTagSeeds.map((tag) => ({
-    _id: tag.id,
-    _type: "tag",
-    title: tag.title,
-    slug: toSlug(tag.slug),
-  }));
-}
+/** Default byline author — first team member (CEO). */
+const DEFAULT_AUTHOR_ID = teamMemberId("Sherwin Limosnero");
 
 export function buildBlogPostDocument(): SeedDocument {
   const body = blogPostSeed.bodyParagraphs.map((text, index) =>
@@ -70,12 +42,9 @@ export function buildBlogPostDocument(): SeedDocument {
     _type: "post",
     title: blogPostSeed.title,
     slug: toSlug(blogPostSeed.slug),
-    authors: [toReference(BLOG_SEED_IDS.author, "author-kamiyon-studio")],
-    categories: [toReference(BLOG_SEED_IDS.category, "category-updates")],
-    tags: [
-      toReference(BLOG_SEED_IDS.tagComingSoon, "tag-coming-soon"),
-      toReference(BLOG_SEED_IDS.tagAnnouncement, "tag-announcement"),
-    ],
+    authors: [toReference(DEFAULT_AUTHOR_ID, "author-team-member")],
+    categories: ["updates"],
+    tags: blogTagSeeds.map((tag) => tag.slug),
     body,
     seo: {
       title: blogPostSeed.seo.title,
@@ -88,19 +57,44 @@ export function buildBlogPostDocument(): SeedDocument {
 }
 
 /**
- * Ordered blog upsert list for WS8d:
- * author → category → tags → post (post refs require prior docs).
+ * Ordered blog upsert list: post only (taxonomy strings + teamMember author).
+ * Archived author/category/tag docs are not seeded.
  */
 export function buildBlogSeedDocuments(): SeedDocument[] {
-  return [
-    buildBlogAuthorDocument(),
-    buildBlogCategoryDocument(),
-    ...buildBlogTagDocuments(),
-    buildBlogPostDocument(),
-  ];
+  return [buildBlogPostDocument()];
 }
 
-/** Stable `_id` list for dry-run / CLI logging (WS8d). */
+/** Stable `_id` list for dry-run / CLI logging. */
 export function listBlogSeedDocumentIds(): string[] {
   return buildBlogSeedDocuments().map((doc) => doc._id);
+}
+
+/** @deprecated Archived — author docs are no longer seeded. */
+export function buildBlogAuthorDocument(): SeedDocument {
+  return {
+    _id: BLOG_SEED_IDS.author,
+    _type: "author",
+    name: "Kamiyon Studio",
+    slug: toSlug("kamiyon-studio"),
+  };
+}
+
+/** @deprecated Archived — category docs are no longer seeded. */
+export function buildBlogCategoryDocument(): SeedDocument {
+  return {
+    _id: BLOG_SEED_IDS.category,
+    _type: "category",
+    title: "Updates",
+    slug: toSlug("updates"),
+  };
+}
+
+/** @deprecated Archived — tag docs are no longer seeded. */
+export function buildBlogTagDocuments(): SeedDocument[] {
+  return blogTagSeeds.map((tag) => ({
+    _id: tag.id,
+    _type: "tag",
+    title: tag.title,
+    slug: toSlug(tag.slug),
+  }));
 }

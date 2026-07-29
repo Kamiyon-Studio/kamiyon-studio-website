@@ -58,7 +58,10 @@ export type SocialPlatform =
   | "email"
   | "itch"
   | "youtube"
-  | "x";
+  | "x"
+  | "instagram"
+  | "tiktok"
+  | "github";
 
 export type SocialLink = {
   platform: SocialPlatform;
@@ -198,12 +201,14 @@ export type TeamMember = {
   role: string;
   bio: string;
   photo?: CmsImage;
+  socialLinks: SocialLink[];
   order: number;
   isPlaceholder: boolean;
 };
 
-/** Spec 04 — serviceCategory, service */
+/** Spec 04 — serviceCategory (deprecated Gate 0; flat five services) */
 
+/** @deprecated Gate 0 — categories removed from public IA / seed; kept for WS-A/D transition. */
 export type ServiceCategory = {
   _type: "serviceCategory";
   title: string;
@@ -212,16 +217,18 @@ export type ServiceCategory = {
   order: number;
 };
 
-/** GROQ projects category ref → categorySlug */
+/**
+ * Flat service document (ADR-016 / Gate 0).
+ * `tagline` + `capabilities` replace category grouping and `outcomes`.
+ */
 export type Service = {
   _type: "service";
   title: string;
   slug: Slug;
-  categorySlug: string;
+  tagline: string;
   summary: string;
   body: PortableTextBlock[];
-  outcomes: string[];
-  relatedIndustries: string[];
+  capabilities: string[];
   icon?: string;
   order: number;
   isPlaceholder: boolean;
@@ -265,14 +272,16 @@ export type Product = {
   seo: SeoMetadata;
 };
 
-/** Spec 05 — caseStudy */
+/** Spec 05 — portfolio (replaces caseStudy) */
 
-export type CaseStudy = {
-  _type: "caseStudy";
+export type Portfolio = {
+  _type: "portfolio";
   title: string;
   slug: Slug;
   clientName: string;
   industry: string;
+  /** Service category value from SERVICE_CATEGORIES. */
+  serviceType: string;
   challenge: string;
   solution: string;
   impact: string;
@@ -284,6 +293,9 @@ export type CaseStudy = {
   publishedAt?: string;
   seo: SeoMetadata;
 };
+
+/** @deprecated Use Portfolio — kept for transitional UI prop aliases. */
+export type CaseStudy = Portfolio;
 
 /** Spec 05 — partner (home marquee) */
 
@@ -327,6 +339,7 @@ export type CommunityItem = {
 
 /** Spec 07 — blog */
 
+/** @deprecated Archived — posts now reference teamMember authors. */
 export type Author = {
   _type: "author";
   name: string;
@@ -335,14 +348,14 @@ export type Author = {
   avatar?: CmsImage;
 };
 
+/** Blog taxonomy title/slug shape (titles looked up from POST_CATEGORIES). */
 export type BlogCategory = {
-  _type: "category";
   title: string;
   slug: Slug;
 };
 
+/** Blog tag title/slug shape (titles looked up from POST_TAGS). */
 export type BlogTag = {
-  _type: "tag";
   title: string;
   slug: Slug;
 };
@@ -351,7 +364,7 @@ export type Post = {
   _type: "post";
   title: string;
   slug: Slug;
-  authors: Author[];
+  authors: TeamMember[];
   categories: BlogCategory[];
   tags: BlogTag[];
   featuredImage?: CmsImage;

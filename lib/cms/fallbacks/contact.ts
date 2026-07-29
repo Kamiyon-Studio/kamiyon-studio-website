@@ -18,12 +18,12 @@ export const contactPageFallback: ContactPage = {
     {
       question: "What does Kamiyon Studio do?",
       answer:
-        "Kamiyon develops both original products and client solutions, including game development, gamification, web development, mobile development, UI/UX design, AI integration, blockchain integration, MVP development, creative consultation, and interactive educational experiences.",
+        "Kamiyon develops original products and client solutions across five offerings: Game Development, Product Development, UI & Design, Branding, and Community & Events. Capabilities inside those offerings include MVP builds, web and mobile applications, AI-powered features, and educational experiences.",
     },
     {
       question: "Does Kamiyon Studio only develop games?",
       answer:
-        "No. Game development is one part of our multidisciplinary expertise. We also develop educational platforms, gamified applications, websites, mobile applications, MVPs, interactive digital experiences, and creative technology solutions.",
+        "No. Game Development is our flagship offering, but we also ship digital products, UI and design work, branding systems, and community programs — including educational platforms and interactive experiences.",
     },
     {
       question: "What industries does Kamiyon work with?",
@@ -31,10 +31,11 @@ export const contactPageFallback: ContactPage = {
         "Our primary focus includes education, Web3, startups, businesses, government, and nonprofit organizations. We welcome opportunities from any industry where interactive technology can create meaningful value.",
     },
     {
-      question: "Does Kamiyon Studio provide consultation?",
+      question: "Does Kamiyon Studio provide advisory support?",
       answer:
-        "Yes. Consultation is part of our service offerings. We begin by understanding the client's goals before recommending technologies or implementation strategies.",
+        "Yes. Advisory conversations are part of how we engage — we start by understanding goals before recommending approaches or implementation strategies. Advisory work is folded into engagements, not a standalone service.",
     },
+
     {
       question: "What original products has Kamiyon created?",
       answer:

@@ -1,6 +1,15 @@
+"use client";
+
+import { useMemo, useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { ProjectCard } from "@/components/ui/ProjectCard";
+import { ServiceFilter } from "@/components/ui/ServiceFilter";
 import type { CaseStudy } from "@/lib/cms/types";
+import {
+  filterPortfolioByService,
+  getAvailableServices,
+  type PortfolioServiceFilterValue,
+} from "@/lib/portfolio/filter-by-service";
 import { EmptyState } from "./EmptyState";
 
 type PortfolioListingProps = {
@@ -8,6 +17,17 @@ type PortfolioListingProps = {
 };
 
 export function PortfolioListing({ caseStudies }: PortfolioListingProps) {
+  const availableServices = useMemo(
+    () => getAvailableServices(caseStudies),
+    [caseStudies]
+  );
+  const [activeService, setActiveService] =
+    useState<PortfolioServiceFilterValue>("all");
+  const filteredCaseStudies = useMemo(
+    () => filterPortfolioByService(caseStudies, activeService),
+    [caseStudies, activeService]
+  );
+
   return (
     <section className="bg-[var(--bg-primary)] py-16 md:py-24">
       <Container>
@@ -21,16 +41,30 @@ export function PortfolioListing({ caseStudies }: PortfolioListingProps) {
           </p>
         </div>
 
-        {caseStudies.length > 0 ? (
+        {availableServices.length > 0 ? (
+          <div className="mt-8">
+            <ServiceFilter
+              services={availableServices}
+              activeService={activeService}
+              onSelect={setActiveService}
+            />
+          </div>
+        ) : null}
+
+        {filteredCaseStudies.length > 0 ? (
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {caseStudies.map((caseStudy) => (
+            {filteredCaseStudies.map((caseStudy) => (
               <ProjectCard key={caseStudy.slug.current} caseStudy={caseStudy} />
             ))}
           </div>
         ) : (
           <div className="mt-10">
             <EmptyState
-              message="Projects coming soon."
+              message={
+                caseStudies.length > 0
+                  ? "No projects match this filter yet."
+                  : "Projects coming soon."
+              }
               backHref="/"
               backLabel="Back to home"
             />

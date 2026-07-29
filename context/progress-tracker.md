@@ -17,6 +17,46 @@ When a task/phase is marked complete:
 
 ## Current Phase
 
+### IA consolidation + Sanity cleanup (2026-07-29) — implemented, uncommitted
+
+**Plan:** `.claude/plans/6-page-ia-consolidation-sanity-cleanup.plan.md` · **ADR:** ADR-017
+
+| Phase | Status |
+| --- | --- |
+| 1 Taxonomy constants | Done (`lib/cms/taxonomies.ts`, Gate 0 five + blog strings) |
+| 2 Sanity schema / Archive desk | Done (`portfolio`, readOnly archived types) |
+| 3 lib/cms + seed rewrite | Done (portfolio getters; archived types not seeded) |
+| 4 IA routes / redirects / sitemap | Done (`_archive/`, 301 → `/`) |
+| 5 Nav dropdowns | Done (Services + Portfolio from CMS) |
+| 6 Tests / e2e smoke | Updated |
+| 7 Docs | Done (this tracker + DECISIONS + essential §7) |
+| 8 Commit | **Not done** — left for human review |
+
+### Services refactor — Gate 3 PASS_WITH_NOTES (2026-07-29)
+
+**Artifact:** [`gate0-services-taxonomy.md`](./gate0-services-taxonomy.md) · **ADR:** ADR-016 (+ Gate 1 live-remap + Gate 3 closeout) in [`DECISIONS.md`](./DECISIONS.md)
+
+| Gate / stream | Status | Notes |
+| --- | --- | --- |
+| **Gate 0** | **READY** | Taxonomy, remap, redirects, ownership, removals locked |
+| **WS-A** Schema & Studio | **Done** | Flat five `service`; Studio structure; schema extract |
+| **WS-B** Content canonical | **Done** | Types, fallbacks, seed builders for five services |
+| **WS-C** Migration script | **Done (dry-run only)** | Matrix + 29 tests; live dry-run passed; **APPLIED=NO** |
+| **Gate 1** | **READY** | `schema.json` regenerated; Service contracts green; live remaps folded into Gate 0 artifact |
+| **WS-D** GROQ / mappers | **Done** | Flat service GROQ / fetchers / `mapService` + canonical sort; GROQ slug list derived from `SERVICE_CATEGORIES` |
+| **WS-E** Services frontend | **Done** | Flat listing/detail; tagline + capabilities; no category chrome |
+| **WS-F** Portfolio filters | **Done** | Client chips + service-type linking over five slugs |
+| **WS-G** Redirects / SEO | **Done** | Gate 0 + live remap paths in `next.config`; sitemap uses `getServices` |
+| **Gate 2** | **READY** | Shared wiring verified; **no `--apply` run** |
+| **WS-H** Dead-code cleanup | **Done** | Removed category stubs; FAQ/about copy aligned to five offerings |
+| **Gate 3** | **PASS_WITH_NOTES** | Vitest **614/614**; Playwright **18/18** (fresh build); migrate security PASS; `--apply` still awaiting human |
+
+**Hard rules:** No live/prod CMS `--apply` without human dry-run sign-off. Optional `--apply` is ready for **non-prod only** after human approval. Unknown slugs outside Gate 0 + live extensions → STOP.
+
+**Gate 3 apply note:** WS-C migrate `--apply` was **not** executed. Awaiting human dry-run sign-off before any non-prod dataset mutation. Production mutation remains forbidden. Until apply, live dataset may still contain legacy service docs; app code filters to the canonical five via GROQ + mappers + fallbacks.
+
+---
+
 **Phase E — Wave 3 verified (2026-07-24):** Staging Worker + hosted Studio confirmed working. **Wave 4 (apex DNS cutover) is next**, run **in parallel** with QA polish streams (see below).
 
 | Surface | URL | Status |
@@ -38,6 +78,7 @@ When a task/phase is marked complete:
 | Topic | Decision |
 | --- | --- |
 | Interim contact CTA | External [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSeIefAWJu5FP9pwljLFz1wSUxU2ybR3--GdylUYUBsGHH0yaw/viewform) (linked button) |
+| Google Form CTA after T8 | **Retain** — “Get in touch” / chrome button stays on the Google Form; do not retire or re-point `INTERIM_CONTACT_FORM_URL` when native Resend form ships |
 | QA-001 | Out of app scope — Google Forms confirmation settings |
 | Same-route nav | Smooth-scroll to top / target section |
 | Scroll tip | Keep bounce UX; first scroll must count |
@@ -92,9 +133,9 @@ Batch S (CMS seed — done 2026-07-24):
 
 ## Current Goal
 
-1. Batch 1 polish streams done (WS0/WS1/WS2/WS4a). Batch 2 WS3 done.  
-2. Optional: WS6 (blog UI / CF Analytics) in parallel.  
-3. Next serial: **WS4b** apex DNS cutover → then WS5/WS7.
+1. **Services refactor:** Gate 3 **PASS_WITH_NOTES**. Human may approve **non-prod** WS-C `--apply` to prune legacy CMS docs.  
+2. Ops (parallel): **WS4b** apex DNS cutover → then WS5/WS7.  
+3. Optional: WS6 blog UI (T9); T14 analytics already done.
 
 ---
 
@@ -123,6 +164,17 @@ Batch S (CMS seed — done 2026-07-24):
 ---
 
 ## Next Up (resume here)
+
+### Services refactor (Gate 3 closed)
+
+0. ~~**Gate 0** — Taxonomy, remap, redirects, ownership~~ **READY** — [`gate0-services-taxonomy.md`](./gate0-services-taxonomy.md) · ADR-016  
+1. ~~**WS-A ∥ WS-B ∥ WS-C** — Schema/Studio · fallbacks/seed · migration dry-run~~ **Done** (C: dry-run only, APPLIED=NO)  
+2. ~~**Gate 1** — Types/contracts → unlock WS-D/E/F/G~~ **READY** — schema extract + live remap fold-in  
+3. ~~**WS-D ∥ WS-E ∥ WS-F ∥ WS-G** — GROQ/mappers · services UI · portfolio filters · redirects/SEO~~ **Done**  
+4. ~~**Gate 2** — Shared wiring + full unit suite~~ **READY** (2026-07-29) — **`--apply` not run**  
+5. ~~**WS-H** — Dead code / knip cleanup for old services taxonomy leftovers~~ **Done** (2026-07-29)  
+6. ~~**Gate 3** — E2E / final review~~ **PASS_WITH_NOTES** (2026-07-29) — vitest 614/614; Playwright 18/18; migrate security PASS; apply still human-gated  
+7. **Human:** optional non-prod `migrate-services --apply` after dry-run sign-off (prod still forbidden)
 
 ### Batch 1 (parallel)
 
@@ -153,7 +205,6 @@ Only genuinely pending decisions live here. Decided-but-unscheduled work is unde
 - [ ] **Resend from-address / `CONTACT_TO_EMAIL`** — Plan locked 2026-07-26: send as `Kamiyon Studio <noreply@send.kamiyonstudio.com>` (dedicated sending subdomain keeps transactional reputation off the apex); `CONTACT_TO_EMAIL=kamiyonstudio@gmail.com` (already `PUBLIC_EMAIL`); add Cloudflare Email Routing so `hello@kamiyonstudio.com` forwards to that Gmail. Never send as `gmail.com` — Resend requires a verified domain and it fails DMARC.  
   Remaining before WS5: verify the subdomain in Resend (DKIM + SPF), add apex DMARC at `p=none` with `rua`, add `CONTACT_FROM_EMAIL` to `.env.example`, keep `RESEND_API_KEY` a Worker **secret**. Reply-to = visitor address on the studio notification, `PUBLIC_EMAIL` on the visitor confirmation.  
   **Sequencing:** zone is already on Cloudflare and currently has **no MX / SPF / DMARC**, so this is independent of WS4b and nothing conflicts. Domain verification is the long-lead step — start it **before** WS4b.
-- [ ] **Retire Google Form when T8 ships?** — Recommendation: no hard cutover. Native form becomes primary; keep the Form as a secondary fallback until end-to-end delivery is verified (studio inbox + visitor confirmation + spam placement) over ~2 weeks or several genuine submissions, since the native path depends on Resend being up. Retirement is not just deleting a constant: `INTERIM_CONTACT_FORM_URL` is referenced in `lib/config/navigation.ts`, `lib/cms/fallbacks/{home,site-settings}.ts`, `lib/site-settings/shell-props.ts` and ~6 test files, and seeded Sanity docs may still carry it in `ctaHref` (see `QA-Report.md`) — budget a dataset patch/reseed in WS5.
 
 ---
 
@@ -175,6 +226,7 @@ Portfolio currently holds **1** case study, `isPlaceholder: true` — chips over
 - [x] **R2 public CDN hostname** — `media.kamiyonstudio.com` / `media-staging.kamiyonstudio.com` (active)
 - [x] **Hosted Studio hostname** — `kamiyon.sanity.studio` live; env bake-in fixed (ADR-009)
 - [x] **Interim contact** — Google Form URL (wired in repo; QA-001 = Forms settings)
+- [x] **Retire Google Form when T8 ships?** — **No.** Keep the Google Form as the chrome / “Get in touch” button CTA as-is (`INTERIM_CONTACT_FORM_URL` and seeded `ctaHref` stay). T8 Resend is an additional in-app path on `/contact` (or similar), not a replacement for that button. No WS5 cutover, dataset patch, or constant removal for the Form CTA.
 
 ---
 

@@ -11,11 +11,12 @@ function makeCaseStudy(overrides: Partial<CaseStudy> & { slug: string }): CaseSt
   const { slug, ...rest } = overrides;
 
   return {
-    _type: "caseStudy",
+    _type: "portfolio",
     title: "Case study",
     slug: { current: slug },
     clientName: "Client name coming soon",
     industry: "Interactive Experience",
+  serviceType: "game-development",
     challenge: "",
     solution: "",
     impact: "",

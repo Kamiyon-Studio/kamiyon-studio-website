@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 
+import { isServiceCategoryValue } from "@/lib/cms/taxonomies";
+
 import {
   isCrawlableProduction,
   PRODUCTION_CANONICAL_ORIGIN,
@@ -10,9 +12,7 @@ const STATIC_ROUTES = [
   "",
   "/about",
   "/services",
-  "/products",
   "/portfolio",
-  "/community",
   "/contact",
   "/blog",
 ] as const;
@@ -29,15 +29,19 @@ type SitemapSlugDoc = {
 
 export type BuildPublicSitemapEntriesInput = {
   siteUrl: string;
-  products: SitemapSlugDoc[];
   services: SitemapSlugDoc[];
-  caseStudies: SitemapSlugDoc[];
+  portfolioItems: SitemapSlugDoc[];
   /** Deployment env (`APP_ENV`); staging/preview/development always fail-closed. */
   appEnv?: string | null;
 };
 
 export function isSitemapIndexable(doc: { seo?: SitemapSeo }): boolean {
   return doc.seo?.noIndex !== true;
+}
+
+/** Gate 0 five-service slugs only — skip orphan / pre-migration CMS paths. */
+export function isSitemapServiceSlug(slug: string): boolean {
+  return isServiceCategoryValue(slug);
 }
 
 function toAbsoluteUrl(path: string): string {
@@ -48,9 +52,17 @@ function toAbsoluteUrl(path: string): string {
 
 function entryForSlug(
   pathPrefix: string,
-  doc: SitemapSlugDoc
+  doc: SitemapSlugDoc,
+  options?: { requireCanonicalServiceSlug?: boolean }
 ): MetadataRoute.Sitemap[number] | null {
   if (!isSitemapIndexable(doc) || !doc.slug.current) {
+    return null;
+  }
+
+  if (
+    options?.requireCanonicalServiceSlug &&
+    !isSitemapServiceSlug(doc.slug.current)
+  ) {
     return null;
   }
 
@@ -69,6 +81,7 @@ function entryForSlug(
  * Public indexable URLs only, always on the production canonical origin.
  * Non-crawlable deployments (preview/dev or non-canonical SITE_URL) get an
  * empty sitemap (robots already disallow all).
+ * Service detail URLs are limited to the Gate 0 five slugs (ADR-016).
  */
 export function buildPublicSitemapEntries(
   input: BuildPublicSitemapEntriesInput
@@ -83,22 +96,15 @@ export function buildPublicSitemapEntries(
     url: toAbsoluteUrl(path),
   }));
 
-  const productEntries = input.products
-    .map((product) => entryForSlug("/products", product))
-    .filter((entry): entry is MetadataRoute.Sitemap[number] => entry !== null);
-
   const serviceEntries = input.services
-    .map((service) => entryForSlug("/services", service))
+    .map((service) =>
+      entryForSlug("/services", service, { requireCanonicalServiceSlug: true })
+    )
     .filter((entry): entry is MetadataRoute.Sitemap[number] => entry !== null);
 
-  const caseStudyEntries = input.caseStudies
-    .map((caseStudy) => entryForSlug("/portfolio", caseStudy))
+  const portfolioEntries = input.portfolioItems
+    .map((item) => entryForSlug("/portfolio", item))
     .filter((entry): entry is MetadataRoute.Sitemap[number] => entry !== null);
 
-  return [
-    ...staticEntries,
-    ...productEntries,
-    ...serviceEntries,
-    ...caseStudyEntries,
-  ];
+  return [...staticEntries, ...serviceEntries, ...portfolioEntries];
 }

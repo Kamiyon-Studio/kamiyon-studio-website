@@ -1,4 +1,4 @@
-/** Accessible slide label for screen readers, e.g. "Slide 2 of 4: Software Development". */
+/** Accessible slide label for screen readers, e.g. "Slide 2 of 4: Game Development". */
 export function formatCarouselSlideLabel(
   index: number,
   total: number,

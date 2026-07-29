@@ -37,11 +37,12 @@ function makeCaseStudy(
 ): CaseStudy {
   const { slug, ...rest } = overrides;
   return {
-    _type: "caseStudy",
+    _type: "portfolio",
     title: "Case study",
     slug: { current: slug },
     clientName: "Client",
     industry: "Interactive",
+  serviceType: "game-development",
     challenge: "",
     solution: "",
     impact: "",

@@ -33,27 +33,42 @@ vi.mock("@/components/animation/AnimatedSection", () => ({
 
 import { ServicesStack, type ServiceStackSlide } from "./ServicesStack";
 
+/** Gate 0 five-service taxonomy fixtures (ADR-016). */
 const slides: ServiceStackSlide[] = [
   {
-    id: "interactive",
-    eyebrow: "Interactive Experience",
-    title: "Interactive Experience Development",
-    summary: "Games, learning experiences, simulations, and prototypes.",
-    exploreHref: "/services/interactive-experience-development",
+    id: "game-development",
+    eyebrow: "Services",
+    title: "Game Development",
+    summary: "Build immersive games that inspire, educate, and entertain.",
+    exploreHref: "/services/game-development",
   },
   {
-    id: "software",
-    eyebrow: "Software",
-    title: "Software Development",
-    summary: "Modern digital products with usability and scalability.",
-    exploreHref: "/services/software-development",
+    id: "product-development",
+    eyebrow: "Services",
+    title: "Product Development",
+    summary: "Transform ideas into modern digital products.",
+    exploreHref: "/services/product-development",
   },
   {
-    id: "creative",
-    eyebrow: "Creative",
-    title: "Creative & Design Services",
-    summary: "Multidisciplinary creative services for strong visual communication.",
-    exploreHref: "/services/creative-design-services",
+    id: "ui-design",
+    eyebrow: "Services",
+    title: "UI & Design",
+    summary: "Design experiences people love to use.",
+    exploreHref: "/services/ui-design",
+  },
+  {
+    id: "branding",
+    eyebrow: "Services",
+    title: "Branding",
+    summary: "Build memorable brands with purpose.",
+    exploreHref: "/services/branding",
+  },
+  {
+    id: "community-events",
+    eyebrow: "Services",
+    title: "Community & Events",
+    summary: "Grow communities through meaningful experiences.",
+    exploreHref: "/services/community-events",
   },
 ];
 

@@ -1,61 +1,93 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import type { Service, ServiceCategory } from "@/lib/cms/types";
+import type { Service } from "@/lib/cms/types";
 import { ServicesListing } from "./ServicesListing";
 
-const categories: ServiceCategory[] = [
-  {
-    _type: "serviceCategory",
-    title: "Interactive Experience Development",
-    slug: { current: "interactive-experience-development" },
-    description: "Games and interactive experiences.",
-    order: 1,
-  },
-  {
-    _type: "serviceCategory",
-    title: "Software Development",
-    slug: { current: "software-development" },
-    description: "Web and mobile apps.",
-    order: 2,
-  },
-];
+function makeService(overrides: Partial<Service> & Pick<Service, "title" | "order">): Service {
+  const slug =
+    overrides.slug?.current ??
+    overrides.title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
-const services: Service[] = [
-  {
+  return {
     _type: "service",
-    title: "Game Development",
-    slug: { current: "game-development" },
-    categorySlug: "interactive-experience-development",
-    summary: "Full-cycle game development.",
+    slug: { current: slug },
+    tagline: overrides.tagline ?? `${overrides.title} tagline`,
+    summary: overrides.summary ?? `${overrides.title} summary`,
     body: [],
-    outcomes: [],
-    relatedIndustries: ["Education"],
-    order: 1,
+    capabilities: overrides.capabilities ?? [],
     isPlaceholder: false,
     seo: { title: "", description: "" },
-  },
+    ...overrides,
+  };
+}
+
+const fiveServices: Service[] = [
+  makeService({
+    title: "Community & Events",
+    slug: { current: "community-events" },
+    tagline: "Grow communities through meaningful experiences.",
+    order: 5,
+  }),
+  makeService({
+    title: "Branding",
+    slug: { current: "branding" },
+    tagline: "Build memorable brands with purpose.",
+    order: 4,
+  }),
+  makeService({
+    title: "UI & Design",
+    slug: { current: "ui-design" },
+    tagline: "Design experiences people love to use.",
+    order: 3,
+  }),
+  makeService({
+    title: "Product Development",
+    slug: { current: "product-development" },
+    tagline: "Transform ideas into modern digital products.",
+    order: 2,
+  }),
+  makeService({
+    title: "Game Development",
+    slug: { current: "game-development" },
+    tagline: "Build immersive games that inspire, educate, and entertain.",
+    order: 1,
+  }),
 ];
 
 describe("ServicesListing", () => {
-  it("renders every category, even ones with zero matching services", () => {
-    render(<ServicesListing categories={categories} services={services} />);
+  it("renders a flat ordered list with Game Development first", () => {
+    render(<ServicesListing services={fiveServices} />);
 
-    expect(screen.getByText("Interactive Experience Development")).toBeInTheDocument();
-    expect(screen.getByText("Software Development")).toBeInTheDocument();
-    expect(screen.getByText("More services coming soon.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Services" })).toBeInTheDocument();
+    expect(screen.getByText(/creative technology studio/i)).toBeInTheDocument();
+
+    const links = screen.getAllByRole("link");
+    expect(links.map((link) => link.getAttribute("href"))).toEqual([
+      "/services/game-development",
+      "/services/product-development",
+      "/services/ui-design",
+      "/services/branding",
+      "/services/community-events",
+    ]);
   });
 
-  it("renders a service card for services matching a category", () => {
-    render(<ServicesListing categories={categories} services={services} />);
+  it("does not render obsolete category groupings or old offering names", () => {
+    render(<ServicesListing services={fiveServices} />);
 
-    expect(screen.getByText("Game Development")).toBeInTheDocument();
+    expect(screen.queryByText(/software development/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/interactive experience development/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/consulting & technical advisory/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/industries we work with/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2 })).not.toBeInTheDocument();
   });
 
-  it("renders the global industries callout from all services", () => {
-    render(<ServicesListing categories={categories} services={services} />);
+  it("surfaces Gate 0 taglines on each card", () => {
+    render(<ServicesListing services={fiveServices} />);
 
-    expect(screen.getByText("Industries we work with")).toBeInTheDocument();
-    expect(screen.getByText("Education")).toBeInTheDocument();
+    for (const service of fiveServices) {
+      const link = screen.getByRole("link", { name: new RegExp(service.title, "i") });
+      expect(within(link).getByText(service.tagline)).toBeInTheDocument();
+    }
   });
 });

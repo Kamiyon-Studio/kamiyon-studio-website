@@ -29,7 +29,11 @@ describe("tagsForSanityType", () => {
     expect(tagsForSanityType("homePage")).toEqual(["sanity", "homePage"]);
     expect(tagsForSanityType("aboutPage")).toEqual(["sanity", "aboutPage"]);
     expect(tagsForSanityType("contactPage")).toEqual(["sanity", "contactPage"]);
-    expect(tagsForSanityType("teamMember")).toEqual(["sanity", "teamMember"]);
+    expect(tagsForSanityType("teamMember")).toEqual([
+      "sanity",
+      "teamMember",
+      "post",
+    ]);
     expect(tagsForSanityType("serviceCategory")).toEqual([
       "sanity",
       "serviceCategory",
@@ -38,7 +42,7 @@ describe("tagsForSanityType", () => {
     expect(tagsForSanityType("partner")).toEqual(["sanity", "partner"]);
   });
 
-  it("adds slug-scoped tags for service, product, caseStudy, and post", () => {
+  it("adds slug-scoped tags for service, product, portfolio, and post", () => {
     expect(tagsForSanityType("service", "branding")).toEqual([
       "sanity",
       "service",
@@ -49,10 +53,14 @@ describe("tagsForSanityType", () => {
       "product",
       "product:game-a",
     ]);
+    expect(tagsForSanityType("portfolio", "acme")).toEqual([
+      "sanity",
+      "portfolio",
+      "portfolio:acme",
+    ]);
     expect(tagsForSanityType("caseStudy", "acme")).toEqual([
       "sanity",
-      "caseStudy",
-      "caseStudy:acme",
+      "portfolio",
     ]);
     expect(tagsForSanityType("post", "launch")).toEqual([
       "sanity",

@@ -8,6 +8,7 @@ import { contactPage } from "./documents/contactPage";
 import { homePage } from "./documents/homePage";
 import { mediaAsset } from "./documents/mediaAsset";
 import { partner } from "./documents/partner";
+import { portfolio } from "./documents/portfolio";
 import { product } from "./documents/product";
 import { service } from "./documents/service";
 import { serviceCategory } from "./documents/serviceCategory";
@@ -53,19 +54,20 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     homePage,
     aboutPage,
     contactPage,
-    // Collections
+    // Active collections
     teamMember,
-    serviceCategory,
     service,
+    portfolio,
+    partner,
+    post,
+    // Archived (readOnly — keep registered, never delete documents)
+    serviceCategory,
     product,
     caseStudy,
     communityItem,
-    partner,
     mediaAsset,
-    // Blog
     author,
     category,
     tag,
-    post,
   ],
 };

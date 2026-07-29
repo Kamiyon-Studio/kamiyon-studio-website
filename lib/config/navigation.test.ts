@@ -8,27 +8,25 @@ const EXPECTED_PRIMARY_NAV = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Services", href: "/services" },
-  { label: "Products", href: "/products" },
   { label: "Portfolio", href: "/portfolio" },
-  { label: "Community", href: "/community" },
   { label: "Blog", href: "/blog" },
   { label: "Contact", href: "/contact" },
 ] as const;
 
 describe("PRIMARY_NAV_ITEMS", () => {
-  it("lists all eight primary nav links in locked order", () => {
-    expect(PRIMARY_NAV_ITEMS).toHaveLength(8);
+  it("lists six primary nav links in locked order", () => {
+    expect(PRIMARY_NAV_ITEMS).toHaveLength(6);
     expect([...PRIMARY_NAV_ITEMS]).toEqual([...EXPECTED_PRIMARY_NAV]);
   });
 
-  it("includes Products and Community", () => {
+  it("excludes Products and Community from primary nav", () => {
     const labels = PRIMARY_NAV_ITEMS.map((item) => item.label);
     const hrefs = PRIMARY_NAV_ITEMS.map((item) => item.href);
 
-    expect(labels).toContain("Products");
-    expect(labels).toContain("Community");
-    expect(hrefs).toContain("/products");
-    expect(hrefs).toContain("/community");
+    expect(labels).not.toContain("Products");
+    expect(labels).not.toContain("Community");
+    expect(hrefs).not.toContain("/products");
+    expect(hrefs).not.toContain("/community");
   });
 
   it("keeps Contact as the in-app channels page", () => {

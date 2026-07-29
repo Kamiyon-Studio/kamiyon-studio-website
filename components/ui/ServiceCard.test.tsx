@@ -8,11 +8,10 @@ const baseService: Service = {
   _type: "service",
   title: "Game Development",
   slug: { current: "game-development" },
-  categorySlug: "interactive-experience-development",
+  tagline: "Build immersive games that inspire, educate, and entertain.",
   summary: "Full-cycle game development services.",
   body: [],
-  outcomes: [],
-  relatedIndustries: [],
+  capabilities: ["Full-cycle game development"],
   icon: "gamepad",
   order: 1,
   isPlaceholder: false,
@@ -30,6 +29,12 @@ describe("ServiceCard", () => {
     render(<ServiceCard service={baseService} />);
 
     expect(screen.getByText("🎮")).toBeInTheDocument();
+  });
+
+  it("renders the users glyph for Community & Events", () => {
+    render(<ServiceCard service={{ ...baseService, icon: "users" }} />);
+
+    expect(screen.getByText("👥")).toBeInTheDocument();
   });
 
   it("falls back to a generic glyph for an unrecognized icon key", () => {
@@ -50,10 +55,19 @@ describe("ServiceCard", () => {
     expect(screen.getByText("Placeholder")).toBeInTheDocument();
   });
 
-  it("renders title and summary", () => {
+  it("prefers tagline over summary for card positioning copy", () => {
     render(<ServiceCard service={baseService} />);
 
     expect(screen.getByText("Game Development")).toBeInTheDocument();
+    expect(
+      screen.getByText("Build immersive games that inspire, educate, and entertain."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Full-cycle game development services.")).not.toBeInTheDocument();
+  });
+
+  it("falls back to summary when tagline is empty", () => {
+    render(<ServiceCard service={{ ...baseService, tagline: "" }} />);
+
     expect(screen.getByText("Full-cycle game development services.")).toBeInTheDocument();
   });
 });

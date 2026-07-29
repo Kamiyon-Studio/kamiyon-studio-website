@@ -5,6 +5,7 @@ import {
   partnerId,
   productId,
   serviceCategoryId,
+  serviceId,
 } from "./ids";
 
 describe("seed ids (hyphen strategy)", () => {
@@ -18,5 +19,23 @@ describe("seed ids (hyphen strategy)", () => {
 
     expect(productId("eclipse")).not.toContain(".");
     expect(partnerId("partner-7")).not.toContain(".");
+  });
+
+  it("builds Gate 0 five-service IDs", () => {
+    expect(
+      [
+        "game-development",
+        "product-development",
+        "ui-design",
+        "branding",
+        "community-events",
+      ].map(serviceId),
+    ).toEqual([
+      "service-game-development",
+      "service-product-development",
+      "service-ui-design",
+      "service-branding",
+      "service-community-events",
+    ]);
   });
 });

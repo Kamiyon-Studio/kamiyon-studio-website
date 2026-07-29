@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/Badge";
 import { TiltedCard, marketingCardTiltProps } from "@/components/ui/TiltedCard";
 import { getCmsImageUrl } from "@/lib/cms/image";
 import type { CaseStudy } from "@/lib/cms/types";
+import { getPortfolioServiceLabel } from "@/lib/portfolio/service-labels";
 
 type ProjectCardProps = {
   caseStudy: CaseStudy;
@@ -11,6 +12,7 @@ type ProjectCardProps = {
 
 export function ProjectCard({ caseStudy }: ProjectCardProps) {
   const coverImageUrl = getCmsImageUrl(caseStudy.coverImage);
+  const serviceLabel = getPortfolioServiceLabel(caseStudy.serviceType);
 
   return (
     <TiltedCard {...marketingCardTiltProps}>
@@ -42,9 +44,11 @@ export function ProjectCard({ caseStudy }: ProjectCardProps) {
         </div>
 
         <div className="flex shrink-0 flex-1 flex-col p-6">
-          <p className="text-sm font-medium uppercase tracking-wide text-sakura-ink">
-            {caseStudy.industry}
-          </p>
+          {serviceLabel ? (
+            <p className="text-sm font-medium uppercase tracking-wide text-sakura-ink">
+              {serviceLabel}
+            </p>
+          ) : null}
           <h3 className="mt-2 line-clamp-2 font-display text-lg font-semibold text-[var(--text-primary)]">
             {caseStudy.title}
           </h3>

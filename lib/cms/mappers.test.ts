@@ -62,35 +62,79 @@ describe("mapHomePage", () => {
 });
 
 describe("mapService", () => {
-  it("keeps categorySlug from GROQ projection", () => {
+  it("maps tagline and capabilities from Gate 0 shape", () => {
     expect(
       mapService({
-        title: "Game Dev",
-        slug: { current: "game-dev" },
-        categorySlug: "games",
+        title: "Game Development",
+        slug: { current: "game-development" },
+        tagline: "Build games.",
         summary: "Summary",
         body: [],
-        outcomes: ["Ship"],
-        relatedIndustries: ["Education"],
+        capabilities: ["Prototyping"],
         order: 1,
         isPlaceholder: true,
-        seo: { title: "Game Dev", description: "Desc" },
+        seo: { title: "Game Development", description: "Desc" },
       }),
     ).toMatchObject({
-      categorySlug: "games",
-      outcomes: ["Ship"],
-      relatedIndustries: ["Education"],
+      _type: "service",
+      title: "Game Development",
+      slug: { current: "game-development" },
+      tagline: "Build games.",
+      capabilities: ["Prototyping"],
     });
+  });
+
+  it("ignores legacy outcomes/category fields and never maps them", () => {
+    const mapped = mapService({
+      title: "Branding",
+      slug: { current: "branding" },
+      tagline: "Build memorable brands with purpose.",
+      summary: "Summary",
+      body: [],
+      capabilities: ["Brand identity"],
+      outcomes: ["Legacy outcome"],
+      categorySlug: "creative-design-services",
+      category: { title: "Creative" },
+      relatedIndustries: ["education"],
+      order: 4,
+      isPlaceholder: true,
+      seo: { title: "Branding", description: "Desc" },
+    });
+
+    expect(mapped).toMatchObject({
+      tagline: "Build memorable brands with purpose.",
+      capabilities: ["Brand identity"],
+    });
+    expect(mapped).not.toHaveProperty("outcomes");
+    expect(mapped).not.toHaveProperty("category");
+    expect(mapped).not.toHaveProperty("categorySlug");
+    expect(mapped).not.toHaveProperty("relatedIndustries");
+  });
+
+  it("returns null for non-canonical service slugs", () => {
+    expect(
+      mapService({
+        title: "MVP Development",
+        slug: { current: "mvp-development" },
+        tagline: "Legacy",
+        summary: "Summary",
+        capabilities: ["MVP"],
+        order: 1,
+        isPlaceholder: true,
+        seo: { title: "MVP", description: "Desc" },
+      }),
+    ).toBeNull();
   });
 });
 
-describe("mapCaseStudy", () => {
+describe("mapPortfolio", () => {
   it("maps r2 cover and gallery assets", () => {
     const study = mapCaseStudy({
       title: "Case",
       slug: { current: "case" },
       clientName: "Client",
       industry: "Edu",
+      serviceType: "game-development",
       challenge: "C",
       solution: "S",
       impact: "I",
@@ -101,6 +145,7 @@ describe("mapCaseStudy", () => {
       seo: { title: "Case", description: "Desc" },
     });
 
+    expect(study?._type).toBe("portfolio");
     expect(study?.coverImage?.url).toBe("https://cdn.example.com/cover.png");
     expect(study?.gallery).toHaveLength(1);
     expect(study?.gallery[0]?.url).toBe("https://cdn.example.com/g1.png");
@@ -112,14 +157,23 @@ describe("mapPost", () => {
     expect(mapPost({ title: "Draft", slug: { current: "draft" } })).toBeNull();
   });
 
-  it("maps authors, related slugs, and inline images", () => {
+  it("maps teamMember authors, string taxonomies, and inline images", () => {
     const post = mapPost({
       title: "Hello",
       slug: { current: "hello" },
       publishedAt: "2026-07-21T00:00:00.000Z",
-      authors: [{ name: "Ada", slug: { current: "ada" } }],
-      categories: [{ title: "News", slug: { current: "news" } }],
-      tags: [{ title: "Launch", slug: { current: "launch" } }],
+      authors: [
+        {
+          name: "Ada",
+          role: "CEO",
+          bio: "Bio",
+          order: 1,
+          isPlaceholder: false,
+          socialLinks: [],
+        },
+      ],
+      categories: ["updates"],
+      tags: ["coming-soon", "announcement"],
       body: [
         { _type: "block", children: [{ _type: "span", text: "Hi" }] },
         {
@@ -134,7 +188,12 @@ describe("mapPost", () => {
 
     expect(post).toMatchObject({
       _type: "post",
-      authors: [{ _type: "author", name: "Ada", slug: { current: "ada" } }],
+      authors: [{ _type: "teamMember", name: "Ada", role: "CEO" }],
+      categories: [{ title: "Updates", slug: { current: "updates" } }],
+      tags: [
+        { title: "Coming soon", slug: { current: "coming-soon" } },
+        { title: "Announcement", slug: { current: "announcement" } },
+      ],
       relatedPostSlugs: ["other"],
       body: [
         { _type: "block" },

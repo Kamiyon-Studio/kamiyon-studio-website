@@ -267,3 +267,84 @@ graphify update .
 - **Chrome:** remove frosted pill from `.nav-logo-row` / `.nav-close-btn`; classic 3-line burger → X.
 
 **Consequences:** Section authors must tag new homepage bands. Non-home routes default to light ink until markers are added. GSAP fullscreen menu timeline unchanged.
+
+---
+
+## ADR-016 — Five-service taxonomy & flat CMS shape (Gate 0) (2026-07-29)
+
+**Status:** Accepted (Gate 0)
+
+**Context:** Services IA was fragmented (10 placeholder services + 4 categories) and read as a generic software agency. Product brief (2026-07-29) locked five outcome-based offerings; parallel workstreams need a frozen taxonomy, remap matrix, redirects, and ownership before schema/seed/migration fan-out.
+
+**Decision:**
+
+- Exactly **five** top-level services, fixed order: Game Development (`game-development`) → Product Development (`product-development`) → UI & Design (`ui-design`) → Branding (`branding`) → Community & Events (`community-events`).
+- Copy, taglines, descriptions, and capabilities are those in the product brief (recorded in [`gate0-services-taxonomy.md`](./gate0-services-taxonomy.md)).
+- **Flat `service` documents** — deprecate/remove `serviceCategory` from public IA / seed / Studio emphasis; capabilities replace `outcomes`; add `tagline`.
+- Remap + redirects for old slugs per Gate 0 matrix (merges into Product/Game; `ui-ux-design` → `ui-design`; delete `creative-services` / `blockchain-solutions` / `consultation` with index redirects).
+- Removed standalone offerings: Creative Direction, Creative Services, UI/UX Design, Web/Mobile Development, AI Integration, Blockchain Solutions, Gamification, Consultation, Consulting & Technical Advisory, MVP as standalone, category labels as top-level services.
+- Future AI/blockchain/DevOps/consulting = capabilities inside the five — never new top-level services.
+- Preserve all case studies/clients; no service↔caseStudy refs exist today to reassign.
+- CMS migration apply only after Gate 2 + human dry-run approval; WS-C dry-run only until then.
+
+**Consequences:** WS-A/B/C may start in parallel (C dry-run only). WS-D–G wait for Gate 1. Integrator owns shared Gate 0/1/2 docs and wiring; exclusive paths in [`gate0-services-taxonomy.md`](./gate0-services-taxonomy.md) §6.
+
+### ADR-016 addendum — Live remap extensions (Gate 1) (2026-07-29)
+
+**Status:** Accepted (Gate 1)
+
+**Context:** WS-C dry-run against dataset `kamiyon` found UUID-backed service/category docs outside the Gate 0 seed inventory. Human-approved; encoded in `scripts/sanity/migrate-services/matrix.ts` as `LIVE_SERVICE_REMAP_EXTENSIONS` / `LIVE_CATEGORY_SLUGS_TO_DELETE`.
+
+**Decision:** Fold the following into the Gate 0 artifact (no invented targets beyond these):
+
+| Old service slug | Action | New slug |
+| --- | --- | --- |
+| `community-growth-management` | merge | `community-events` |
+| `creative-direction-branding` | merge | `branding` |
+| `game-dev` | merge | `game-development` |
+
+Extra category docs to delete (with Gate 0 ×4): `community-building`, `creative-direction`, `game-development` (category, not the service).
+
+WS-G redirects for the three live service slugs: `/services/<old>` → corresponding five-service path.
+
+**Consequences:** Migration matrix = Gate 0 + these extensions. Still **no** `--apply` until Gate 2 + human sign-off. Gate 1 unlocks WS-D ∥ WS-E ∥ WS-F ∥ WS-G.
+
+---
+
+## ADR-017 — Six-page IA + Sanity archive / portfolio rename (2026-07-29)
+
+**Status:** Accepted
+
+**Context:** Primary nav still advertised Products + Community while content was placeholder-only; taxonomy docs (`serviceCategory` / blog `category`/`tag`/`author`) duplicated constants; `caseStudy` naming mismatched the public `/portfolio` IA. Dataset remains seedable placeholder content.
+
+**Decision:**
+
+- Primary nav is **six pages**: Home, About, Services, Portfolio, Blog, Contact. **Get in touch** stays a separate CTA on the interim Google Form URL.
+- `/products` and `/community` move under `app/(frontend)/_archive/` and **301 redirect to `/`**.
+- Sanity types `product`, `communityItem`, `caseStudy`, `serviceCategory`, `category`, `tag`, `author`, `mediaAsset` stay registered as **readOnly** under a collapsed Studio **Archive** group — never delete documents.
+- New active type **`portfolio`** (from caseStudy) with `serviceType` dropdown aligned to Gate 0 service slugs; home featured refs target `portfolio`.
+- Blog `post.authors` → `teamMember`; categories/tags → string `options.list` from `lib/cms/taxonomies.ts`.
+- Public CMS getters rename `getCaseStudies*` → `getPortfolioItems*` (documented break of the prior §7 API list).
+- Re-seed (not migrate) for placeholder dataset; `teamMember.socialLinks` seeds as `[]`.
+
+**Consequences:** Sitemap drops products/community; nav dropdowns derive from published services/portfolio; Gate 0 flat services remain the active service model (ADR-016).
+
+---
+
+## ADR-016 closeout — Gate 3 integration (2026-07-29)
+
+**Status:** Accepted (Gate 3 PASS_WITH_NOTES)
+
+**Context:** Workstreams A–H and Gates 0–2 complete. Integrator ran verify + e2e + focused code/security review before closing the five-service refactor. CMS migrate `--apply` was deliberately not run.
+
+**Decision / findings:**
+
+- **Verify:** Vitest **614/614** pass. `tsc --noEmit` still reports pre-existing errors in unrelated test fixtures (media/revalidate/TeamMember mocks, etc.) — not Gate 3 blockers.
+- **E2E:** Playwright smoke **18/18** after fresh build. Critical paths covered: `/services`, five detail slugs, portfolio, `/services/ui-ux-design` → `ui-design`. Nav assertions updated so “Community & Events” is not confused with retired top-level `/community`.
+- **Code review:** No CRITICAL. One HIGH fixed in-gate: `CANONICAL_SERVICE_SLUGS_GROQ` now derived from `SERVICE_CATEGORIES` (was a hardcoded fourth copy).
+- **Security (migrate-services):** PASS — dry-run default; protected datasets (`kamiyon`/`production`/`prod`) require `--allow-prod`; write token required for apply; no secret logging.
+- **Acceptance:** Exactly five services in app order game → product → ui-design → branding → community-events; removed offerings absent as standalone public offerings; redirects present; live CMS may still hold legacy docs until human `--apply`.
+
+**Consequences:** App is Gate-3 green without dataset mutation. Next human step: non-prod dry-run sign-off then optional `--apply`. Production CMS mutation remains forbidden.
+
+---

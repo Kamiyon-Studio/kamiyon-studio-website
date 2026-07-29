@@ -8,31 +8,34 @@ const baseService: Service = {
   _type: "service",
   title: "Game Development",
   slug: { current: "game-development" },
-  categorySlug: "interactive-experience-development",
+  tagline: "Build immersive games.",
   summary: "",
   body: [],
-  outcomes: ["Playable prototype", "Production-ready build"],
-  relatedIndustries: ["Education", "Web3"],
+  capabilities: ["Playable prototype", "Production-ready build"],
   order: 1,
   isPlaceholder: false,
   seo: { title: "", description: "" },
 };
 
 describe("ServiceSidebar", () => {
-  it("renders outcomes and related industries when present", () => {
+  it("renders capabilities when present", () => {
     render(<ServiceSidebar service={baseService} />);
 
-    expect(screen.getByText("What you gain")).toBeInTheDocument();
+    expect(screen.getByText("Capabilities")).toBeInTheDocument();
     expect(screen.getByText("Playable prototype")).toBeInTheDocument();
-    expect(screen.getByText("Related industries")).toBeInTheDocument();
-    expect(screen.getByText("Education")).toBeInTheDocument();
+    expect(screen.getByText("Production-ready build")).toBeInTheDocument();
   });
 
-  it("hides the outcomes/industries sections when empty", () => {
-    render(<ServiceSidebar service={{ ...baseService, outcomes: [], relatedIndustries: [] }} />);
+  it("does not repeat the tagline (shown in ServiceDetail header)", () => {
+    render(<ServiceSidebar service={baseService} />);
 
-    expect(screen.queryByText("What you gain")).not.toBeInTheDocument();
-    expect(screen.queryByText("Related industries")).not.toBeInTheDocument();
+    expect(screen.queryByText("Build immersive games.")).not.toBeInTheDocument();
+  });
+
+  it("hides the capabilities section when empty", () => {
+    render(<ServiceSidebar service={{ ...baseService, capabilities: [] }} />);
+
+    expect(screen.queryByText("Capabilities")).not.toBeInTheDocument();
   });
 
   it("always renders the interim Google Form contact CTA", () => {

@@ -23,6 +23,7 @@ import "./sterling-gate-kinetic-navigation.css";
 export type SterlingGateNavItem = {
   label: string;
   href: string;
+  children?: readonly { label: string; href: string }[];
 };
 
 export type SterlingGateKineticNavigationProps = {
@@ -390,6 +391,21 @@ export function SterlingGateKineticNavigation({
                       </p>
                       <div className="nav-link-hover-bg" aria-hidden="true" />
                     </SameRouteLink>
+                    {item.children && item.children.length > 0 ? (
+                      <ul className="menu-sublist" data-menu-fade="">
+                        {item.children.map((child) => (
+                          <li key={`${child.href}-${child.label}`}>
+                            <SameRouteLink
+                              href={child.href}
+                              className="nav-sublink"
+                              onNavigate={closeMenu}
+                            >
+                              {child.label}
+                            </SameRouteLink>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
                   </li>
                 ))}
               </ul>

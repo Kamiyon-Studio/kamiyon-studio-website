@@ -9,11 +9,12 @@ vi.mock("@/lib/cms/image", () => ({
 }));
 
 const baseCaseStudy: CaseStudyType = {
-  _type: "caseStudy",
+  _type: "portfolio",
   title: "Sample Client Project — Placeholder",
   slug: { current: "sample-client-project-placeholder" },
   clientName: "TBD",
   industry: "Education",
+  serviceType: "game-development",
   challenge: "A generic challenge.",
   solution: "A generic solution.",
   impact: "A generic impact.",

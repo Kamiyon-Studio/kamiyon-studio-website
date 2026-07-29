@@ -1,5 +1,7 @@
 import { defineQuery } from "next-sanity";
 
+import { SERVICE_CATEGORIES } from "./taxonomies";
+
 const r2AssetProjection = /* groq */ `{
   url,
   key,
@@ -15,18 +17,15 @@ const seoProjection = /* groq */ `{
   ogImage ${r2AssetProjection}
 }`;
 
-const authorProjection = /* groq */ `{
+const teamMemberProjection = /* groq */ `{
   _type,
   name,
-  slug,
+  role,
   bio,
-  avatar ${r2AssetProjection}
-}`;
-
-const blogTaxonomyProjection = /* groq */ `{
-  _type,
-  title,
-  slug
+  photo ${r2AssetProjection},
+  socialLinks[]{ platform, url, label, isPlaceholder },
+  order,
+  isPlaceholder
 }`;
 
 export const siteSettingsQuery = defineQuery(/* groq */ `
@@ -118,31 +117,26 @@ export const teamMembersQuery = defineQuery(/* groq */ `
     role,
     bio,
     photo ${r2AssetProjection},
+    socialLinks[]{ platform, url, label, isPlaceholder },
     order,
     isPlaceholder
   }
 `);
 
-export const serviceCategoriesQuery = defineQuery(/* groq */ `
-  *[_type == "serviceCategory"] | order(order asc) {
-    _type,
-    title,
-    slug,
-    description,
-    order
-  }
-`);
+/** Gate 0 / ADR-016 — derived from SERVICE_CATEGORIES (single source of truth). */
+const CANONICAL_SERVICE_SLUGS_GROQ = JSON.stringify(
+  SERVICE_CATEGORIES.map((c) => c.value),
+);
 
 export const servicesQuery = defineQuery(/* groq */ `
-  *[_type == "service"] | order(order asc) {
+  *[_type == "service" && slug.current in ${CANONICAL_SERVICE_SLUGS_GROQ}] | order(order asc) {
     _type,
     title,
     slug,
-    "categorySlug": category->slug.current,
+    tagline,
     summary,
     body,
-    outcomes,
-    relatedIndustries,
+    capabilities,
     icon,
     order,
     isPlaceholder,
@@ -151,15 +145,14 @@ export const servicesQuery = defineQuery(/* groq */ `
 `);
 
 export const serviceBySlugQuery = defineQuery(/* groq */ `
-  *[_type == "service" && slug.current == $slug][0]{
+  *[_type == "service" && slug.current == $slug && slug.current in ${CANONICAL_SERVICE_SLUGS_GROQ}][0]{
     _type,
     title,
     slug,
-    "categorySlug": category->slug.current,
+    tagline,
     summary,
     body,
-    outcomes,
-    relatedIndustries,
+    capabilities,
     icon,
     order,
     isPlaceholder,
@@ -221,13 +214,14 @@ export const productBySlugQuery = defineQuery(/* groq */ `
   }
 `);
 
-export const caseStudiesQuery = defineQuery(/* groq */ `
-  *[_type == "caseStudy"] | order(coalesce(publishedAt, _createdAt) desc) {
+export const portfolioItemsQuery = defineQuery(/* groq */ `
+  *[_type == "portfolio"] | order(coalesce(publishedAt, _createdAt) desc) {
     _type,
     title,
     slug,
     clientName,
     industry,
+    serviceType,
     challenge,
     solution,
     impact,
@@ -241,13 +235,14 @@ export const caseStudiesQuery = defineQuery(/* groq */ `
   }
 `);
 
-export const caseStudyBySlugQuery = defineQuery(/* groq */ `
-  *[_type == "caseStudy" && slug.current == $slug][0]{
+export const portfolioItemBySlugQuery = defineQuery(/* groq */ `
+  *[_type == "portfolio" && slug.current == $slug][0]{
     _type,
     title,
     slug,
     clientName,
     industry,
+    serviceType,
     challenge,
     solution,
     impact,
@@ -295,9 +290,9 @@ export const postsQuery = defineQuery(/* groq */ `
     _type,
     title,
     slug,
-    authors[]-> ${authorProjection},
-    categories[]-> ${blogTaxonomyProjection},
-    tags[]-> ${blogTaxonomyProjection},
+    authors[]-> ${teamMemberProjection},
+    categories,
+    tags,
     featuredImage ${r2AssetProjection},
     body,
     seo ${seoProjection},
@@ -313,9 +308,9 @@ export const postBySlugQuery = defineQuery(/* groq */ `
     _type,
     title,
     slug,
-    authors[]-> ${authorProjection},
-    categories[]-> ${blogTaxonomyProjection},
-    tags[]-> ${blogTaxonomyProjection},
+    authors[]-> ${teamMemberProjection},
+    categories,
+    tags,
     featuredImage ${r2AssetProjection},
     body,
     seo ${seoProjection},

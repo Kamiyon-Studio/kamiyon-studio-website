@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { SANITY_DOCUMENT_TYPES, SANITY_OBJECT_TYPES } from "./constants";
+import {
+  CANONICAL_SERVICE_SLUGS,
+  CANONICAL_SERVICES,
+  SANITY_ARCHIVED_TYPES,
+  SANITY_DOCUMENT_TYPES,
+  SANITY_OBJECT_TYPES,
+} from "./constants";
 
 describe("sanity schema constants", () => {
   it("lists all required document types from essential context §7", () => {
@@ -13,6 +19,7 @@ describe("sanity schema constants", () => {
       "serviceCategory",
       "service",
       "product",
+      "portfolio",
       "caseStudy",
       "communityItem",
       "partner",
@@ -21,6 +28,30 @@ describe("sanity schema constants", () => {
       "category",
       "tag",
       "post",
+    ]);
+  });
+
+  it("lists archived types under SANITY_ARCHIVED_TYPES", () => {
+    expect(SANITY_ARCHIVED_TYPES).toEqual([
+      "product",
+      "communityItem",
+      "caseStudy",
+      "serviceCategory",
+      "category",
+      "tag",
+      "author",
+      "mediaAsset",
+    ]);
+  });
+
+  it("defines Gate 0 canonical services (exactly five, fixed order)", () => {
+    expect(CANONICAL_SERVICES).toHaveLength(5);
+    expect(CANONICAL_SERVICE_SLUGS).toEqual([
+      "game-development",
+      "product-development",
+      "ui-design",
+      "branding",
+      "community-events",
     ]);
   });
 

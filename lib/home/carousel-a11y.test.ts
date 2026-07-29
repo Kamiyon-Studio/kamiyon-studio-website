@@ -9,14 +9,14 @@ import {
 
 describe("formatCarouselSlideLabel", () => {
   it("formats a 1-based slide label with title", () => {
-    expect(formatCarouselSlideLabel(0, 4, "Software Development")).toBe(
-      "Slide 1 of 4: Software Development"
+    expect(formatCarouselSlideLabel(0, 4, "Game Development")).toBe(
+      "Slide 1 of 4: Game Development"
     );
   });
 
   it("uses the correct index for middle slides", () => {
-    expect(formatCarouselSlideLabel(2, 5, "Creative & Design Services")).toBe(
-      "Slide 3 of 5: Creative & Design Services"
+    expect(formatCarouselSlideLabel(2, 5, "Product Development")).toBe(
+      "Slide 3 of 5: Product Development"
     );
   });
 });

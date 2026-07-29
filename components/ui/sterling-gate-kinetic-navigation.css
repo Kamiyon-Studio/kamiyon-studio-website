@@ -228,6 +228,29 @@
   gap: 0.15rem;
 }
 
+.sterling-gate .menu-sublist {
+  list-style: none;
+  margin: 0.25rem 0 0.65rem 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sterling-gate .nav-sublink {
+  display: inline-block;
+  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+  font-weight: 500;
+  color: color-mix(in srgb, var(--sg-ink) 72%, transparent);
+  text-decoration: none;
+  transition: color 0.2s var(--sg-ease);
+}
+
+.sterling-gate .nav-sublink:hover,
+.sterling-gate .nav-sublink:focus-visible {
+  color: var(--sg-ink);
+}
+
 .sterling-gate .nav-link {
   position: relative;
   display: block;
