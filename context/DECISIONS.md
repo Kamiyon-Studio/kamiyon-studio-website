@@ -368,3 +368,94 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 
 ---
 
+## ADR-019 — Contact header hardening + media upload MIME/size caps (2026-07-29)
+
+**Status:** Accepted
+
+**Context:** Security review (`context/security-review-contact-api-2026-07-29.md`) found one High (CRLF/header injection via contact `name` into email subject) and two Mediums on authenticated media upload (client MIME trust; no size cap before buffering). Plan: `.claude/plans/security-remediation-contact-media.plan.md`.
+
+**Decision:**
+
+### Contact (ship blocker)
+
+- Reject C0 controls, DEL, and Unicode line/paragraph separators (`U+2028`/`U+2029`) in `name` and `email` at validation (`lib/contact/sanitize.ts` + `validate.ts`). Friendly 400 errors; zero Resend calls.
+- Do **not** C0-filter `message` (newlines are legitimate body content).
+- Defense-in-depth: `sanitizeHeaderValue` on studio `subject` and `replyTo` in `send.ts` even if send is called with unvalidated input.
+
+### Media upload (follow-up, same remediation pass)
+
+- Explicit allowlist: `image/png`, `image/jpeg`, `image/webp`, `image/gif`, `image/avif` (`lib/cms/media-upload-policy.ts`). Reject others with **415**.
+- Cap uploads at **10 MiB** (`MAX_UPLOAD_BYTES`): reject oversized `Content-Length` with **413** before `formData()`; reject oversized `file.size` before `arrayBuffer()`.
+- Auth remains first (**401** before 413/415). CORS preserved on error envelopes.
+
+### Accepted Lows (revisit triggers)
+
+| Tradeoff | Revisit when |
+| --- | --- |
+| Per-isolate in-memory rate limit (not shared across Workers) | Sustained spam across many isolates / need Durable Object or KV counter |
+| No CAPTCHA (honeypot + rate limit only) | Measurable bot spam on `/api/contact` |
+| `message` keeps newlines (body-only; not a header) | Provider treats body like headers (unlikely with Resend text) |
+| Filename extension not forced to match MIME | Abuse of extension vs content-type on CDN; add magic-byte sniff if needed |
+
+**Consequences:** Contact form is safe to ship from a header-injection standpoint once Vitest + staging gate pass. Media Studio uploads of SVG/HTML are blocked; oversize payloads fail early. Magic-byte sniff left optional (plan B5).
+
+---
+
+## ADR-020 — Interactive FAQ accordion replaces Skeleton Accordion on `/contact` (2026-07-29)
+
+**Status:** Accepted (Wave 1 — parallel with WS-A; SHAs soft until A+B land)
+
+**Context:** Design request to replace the Skeleton-based FAQ accordion on `/contact` with a numbered, spring-animated interactive accordion (zero-padded numbers, spring height reveal, hover underline, `+` → `×` indicator). Plan: `.claude/plans/contact-faq-interactive-accordion.plan.md`. CMS FAQ content, `id="faq"`, and FAQPage JSON-LD stay unchanged.
+
+**Decision:**
+
+- Own client primitive `components/ui/InteractiveAccordion.tsx` (PascalCase; matches export name) on **`motion/react`** — existing `motion` dependency; **not** `framer-motion`.
+- `ContactFAQ` maps `FaqItem[]` → `InteractiveAccordionItem[]` and consumes the new primitive; Skeleton `components/ui/Accordion.tsx` wrapper is **retired** after that migration (delete in WS-C, not a re-export shim).
+- Single-open, collapsible, first item open by default (parity with current Accordion).
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| Collapsed panel bodies unmount (content absent from DOM/AT when closed) | FAQ SEO rides on FAQPage JSON-LD in `contact/page.tsx`, which is untouched |
+| Number + open/close indicator are decorative (`aria-hidden`) | Accessible name of each trigger is the question `title` only |
+| No arrow-key roving tabindex | APG-optional; Tab / Enter / Space on native buttons is enough for v1 |
+
+**Consequences:**
+
+- Documented **exception** to `ui-context.md` “prefer Skeleton primitives wrapped in `components/ui/*`” — FAQ uses a custom motion primitive instead.
+- `motion` is the **second** client animation engine alongside GSAP (already used via `text-roll` / `logo-carousel`; no new package).
+- See `ui-context.md` Motion / FAQ row for the pattern pointer.
+
+---
+
+## ADR-021 — Home services vertical marquee replaces ScrollStack cards (2026-07-29)
+
+**Status:** Accepted
+
+**Context:** Design request to replace the homepage `ServicesStack` ScrollStack card carousel with a vertical text-marquee CTA. Each marquee row must be the navigational control to `/services/{slug}`. Plan: `.claude/plans/home-services-vertical-marquee.plan.md`. Gate 0 five-service taxonomy (ADR-016) and CMS fetch stay unchanged.
+
+**Decision:**
+
+- Client primitive `components/ui/cta-with-text-marquee.tsx` (`CTAWithVerticalMarquee` + `VerticalMarquee`) driven by CSS `@keyframes marquee-vertical` / `fade-in-up` in `app/globals.css`.
+- `ServicesStack` maps `ServiceStackSlide[]` → `VerticalMarqueeItem[]` (`id` / `label` / `href`); left band keeps “What we build” + View all services / Get in touch.
+- Loop duplicate track uses a non-interactive `clone` (spans) so Tab order has one link per service.
+- `prefers-reduced-motion: reduce` → static vertical link list (no infinite animation).
+- `ScrollStack` left in tree (optional hygiene); not required for ship.
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| Per-service summary no longer shown on home cards | Detail lives on `/services/[slug]`; marquee is discovery, not synopsis |
+| Center-fade opacity via rAF | Matches reference motion; cleaned up on unmount; disabled under reduced motion |
+| No `min-h-screen` shell from the reference demo | Mid-page section must not dominate homepage scroll |
+
+**Consequences:**
+
+- Home services motion pattern documented in `ui-context.md`.
+- Homepage `page.tsx` mapper (`toServiceStackSlides`) unchanged.
+- See plan Wave 1–3 for multitask ownership.
+
+---
+

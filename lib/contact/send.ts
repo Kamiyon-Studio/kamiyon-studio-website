@@ -1,4 +1,5 @@
 import { PUBLIC_EMAIL } from "./channels";
+import { sanitizeHeaderValue } from "./sanitize";
 import type { ContactFormFields } from "./validate";
 
 export type SendContactEmailsInput = {
@@ -65,12 +66,15 @@ export async function sendContactEmails(
 ): Promise<SendContactEmailsResult> {
   const client = createClient(input.apiKey);
 
+  const subject = sanitizeHeaderValue(`Contact: ${input.fields.name}`);
+  const replyTo = sanitizeHeaderValue(input.fields.email);
+
   const studio = await client.emails.send({
     from: input.fromEmail,
     to: [input.toEmail],
-    subject: `Contact: ${input.fields.name}`,
+    subject,
     text: buildStudioNotificationText(input.fields),
-    replyTo: input.fields.email,
+    replyTo,
   });
 
   if (studio.error) {

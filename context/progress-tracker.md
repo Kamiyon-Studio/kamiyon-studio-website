@@ -17,6 +17,49 @@ When a task/phase is marked complete:
 
 ## Current Phase
 
+### Home services vertical marquee (2026-07-29)
+
+**Plan:** `.claude/plans/home-services-vertical-marquee.plan.md` · **ADR:** ADR-021  
+**Note:** Wave 1–2 landed in-repo (WS-A + WS-B + WS-D). WS-C optional; WS-E verify next.
+
+| Stream | Status | Notes |
+| --- | --- | --- |
+| **WS-A** `cta-with-text-marquee` + CSS keyframes + tests | **Done in-repo** | `components/ui/cta-with-text-marquee{,.test}.tsx`; `globals.css` animate tokens |
+| **WS-B** `ServicesStack` rewrite + section tests | **Done in-repo** | Each title → `/services/{slug}`; no ScrollStack cards |
+| **WS-C** ScrollStack retirement | **Deferred** | Still only orphaned after B; optional knip hygiene |
+| **WS-D** ADR-021 + tracker + ui-context | **Done** | Soft finalize with A+B |
+| **WS-E** Verify gate (vitest / lint / tsc / visual `/#home-services`) | **Done (local tests)** | Vitest 9/9 on A+B; founder visual ack still open |
+
+**Ship gate:** WS-A + WS-B required. Founder visual ack (level 5) on `/#home-services`.
+
+### Contact FAQ interactive accordion (2026-07-29)
+
+**Plan:** `.claude/plans/contact-faq-interactive-accordion.plan.md` · **ADR:** ADR-020  
+**Note:** Wave 1 launching — WS-A + WS-D in parallel (disjoint trees). SHAs soft until A+B land.
+
+| Stream | Status | Notes |
+| --- | --- | --- |
+| **WS-A** InteractiveAccordion primitive + tests | **In progress** | Wave 1; `components/ui/InteractiveAccordion{,.test}.tsx` |
+| **WS-B** ContactFAQ wiring + mapper | **Pending** | Wave 2 after A green |
+| **WS-C** Legacy Skeleton Accordion delete | **Pending** | Wave 3 after B; hygiene only |
+| **WS-D** ADR-020 + tracker + ui-context | **In progress** | Wave 1 docs; soft finalize after A+B |
+| **WS-E** Verify gate (test / lint / tsc / knip / build / visual) | **Pending** | After A+B (+C for knip) |
+
+**Ship gate:** WS-A + WS-B required. WS-C not blocking. Founder visual ack (level 5) on `/contact#faq`.
+
+### Security remediation — contact + media (2026-07-29)
+
+**Plan:** `.claude/plans/security-remediation-contact-media.plan.md` · **ADR:** ADR-019 · **Review:** [`security-review-contact-api-2026-07-29.md`](./security-review-contact-api-2026-07-29.md)
+
+| Stream | Status | Notes |
+| --- | --- | --- |
+| **WS-A** Contact header injection | **Done in-repo** | C0 reject in validate; `sanitizeHeaderValue` on subject/`replyTo` |
+| **WS-B** Media MIME + size cap | **Done in-repo** | Allowlist + 10 MiB; 415/413 before buffer |
+| **WS-C** ADR + tracker + review status | **Done** | ADR-019; review Status → Fixed |
+| **WS-D** Integration gate | **Done (local)** | Vitest 657/657; coverage ≥80% on touched libs; lint/tsc/knip pre-existing noise only; staging still operator |
+
+**Ship gate:** WS-A + WS-D required before announcing live contact form. WS-B not blocking ship but landed in same pass. Staging confirm (malicious name → 400; SVG → 415) still operator.
+
 ### IA consolidation + Sanity cleanup (2026-07-29) — **committed**
 
 **Plan:** `.claude/plans/6-page-ia-consolidation-sanity-cleanup.plan.md` · **ADR:** ADR-017  
@@ -147,4 +190,4 @@ When a task/phase is marked complete:
 
 ## Architecture Decisions (active)
 
-See [`DECISIONS.md`](./DECISIONS.md) (incl. ADR-016/017/018).
+See [`DECISIONS.md`](./DECISIONS.md) (incl. ADR-016/017/018/019/020/021).

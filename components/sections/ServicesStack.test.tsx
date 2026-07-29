@@ -1,35 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
-
-vi.mock("@/components/ui/WordPullUp", () => ({
-  WordPullUp: ({
-    words,
-    as: Tag = "h1",
-    id,
-    className,
-  }: {
-    words: string;
-    as?: keyof HTMLElementTagNameMap;
-    id?: string;
-    className?: string;
-  }) => (
-    <Tag id={id} className={className}>
-      {words}
-    </Tag>
-  ),
-}));
-
-vi.mock("@/components/animation/AnimatedSection", () => ({
-  AnimatedSection: ({
-    children,
-    as: Tag = "div",
-    className,
-  }: {
-    children: React.ReactNode;
-    as?: keyof HTMLElementTagNameMap;
-    className?: string;
-  }) => <Tag className={className}>{children}</Tag>,
-}));
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ServicesStack, type ServiceStackSlide } from "./ServicesStack";
 
@@ -72,46 +42,70 @@ const slides: ServiceStackSlide[] = [
   },
 ];
 
+function mockMatchMedia(matches: boolean) {
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: vi.fn().mockImplementation((query: string) => ({
+      matches,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+}
+
 describe("ServicesStack", () => {
+  beforeEach(() => {
+    mockMatchMedia(false);
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation(() => 1);
+    vi.spyOn(window, "cancelAnimationFrame").mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("renders nothing when slides is empty", () => {
     const { container } = render(<ServicesStack slides={[]} />);
 
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("renders section heading and all service cards", () => {
+  it("renders section heading and service title links", () => {
     render(<ServicesStack slides={slides} />);
 
     expect(
-      screen.getByRole("heading", { level: 2, name: "What we build" })
+      screen.getByRole("heading", { level: 2, name: "What we build" }),
     ).toBeInTheDocument();
 
     slides.forEach((slide) => {
-      expect(
-        screen.getByRole("heading", { level: 3, name: slide.title })
-      ).toBeInTheDocument();
-      expect(screen.getByText(slide.summary)).toBeInTheDocument();
+      const links = screen.getAllByRole("link", { name: slide.title });
+      expect(links).toHaveLength(1);
+      expect(links[0]).toHaveAttribute("href", slide.exploreHref);
     });
   });
 
-  it("renders an Explore link for each service", () => {
-    render(<ServicesStack slides={slides} />);
-
-    const exploreLinks = screen.getAllByRole("link", { name: "Explore" });
-    expect(exploreLinks).toHaveLength(slides.length);
-    exploreLinks.forEach((link, index) => {
-      expect(link).toHaveAttribute("href", slides[index].exploreHref);
-    });
-  });
-
-  it("uses ScrollStack window-scroll mode for page-flow stacking", () => {
+  it("does not render legacy Explore buttons or ScrollStack cards", () => {
     const { container } = render(<ServicesStack slides={slides} />);
 
+    expect(screen.queryByRole("link", { name: "Explore" })).not.toBeInTheDocument();
+    expect(container.querySelector(".scroll-stack-scroller--window")).toBeNull();
+    expect(container.querySelectorAll(".scroll-stack-card")).toHaveLength(0);
+  });
+
+  it("exposes View all services and Get in touch CTAs", () => {
+    render(<ServicesStack slides={slides} />);
+
     expect(
-      container.querySelector(".scroll-stack-scroller--window")
-    ).toBeInTheDocument();
-    expect(container.querySelectorAll(".scroll-stack-card")).toHaveLength(
-      slides.length
+      screen.getByRole("link", { name: "View all services" }),
+    ).toHaveAttribute("href", "/services");
+    expect(screen.getByRole("link", { name: "Get in touch" })).toHaveAttribute(
+      "href",
+      "/contact",
     );
   });
 });

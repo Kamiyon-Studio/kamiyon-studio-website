@@ -49,4 +49,57 @@ describe("validateContactPayload", () => {
 
     expect(result).toEqual({ ok: true, spam: true });
   });
+
+  it("rejects names with control characters / CRLF injection", () => {
+    const result = validateContactPayload({
+      name: "Ada\r\nBcc: attacker@evil.com",
+      email: "ada@example.com",
+      message: "Hello from the Analytical Engine.",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toMatch(/invalid characters/i);
+    }
+  });
+
+  it("rejects emails with C0 control characters", () => {
+    const result = validateContactPayload({
+      name: "Ada Lovelace",
+      email: "ada\u0000@example.com",
+      message: "Hello from the Analytical Engine.",
+    });
+
+    expect(result.ok).toBe(false);
+  });
+
+  it("accepts international names", () => {
+    const result = validateContactPayload({
+      name: "Adá 上田",
+      email: "ada@example.com",
+      message: "Hello from the Analytical Engine.",
+    });
+
+    expect(result).toEqual({
+      ok: true,
+      data: {
+        name: "Adá 上田",
+        email: "ada@example.com",
+        message: "Hello from the Analytical Engine.",
+      },
+    });
+  });
+
+  it("allows newlines in message body", () => {
+    const result = validateContactPayload({
+      name: "Ada Lovelace",
+      email: "ada@example.com",
+      message: "Line one.\nLine two.\nLine three.",
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok && !result.spam) {
+      expect(result.data.message).toContain("\n");
+    }
+  });
 });

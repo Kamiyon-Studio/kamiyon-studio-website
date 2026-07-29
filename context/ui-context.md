@@ -10,6 +10,7 @@ Kamiyon Studio's website is a **warm, premium marketing site** — not a dark te
 - **Kamiyon tokens** in `app/globals.css` remain the **brand source of truth** (`--color-sakura`, `--bg-*`, `--text-*`, radii).
 - Active theme: `data-theme="kamiyon"` on `<html>` (custom theme in `app/themes/kamiyon.css`). Light-only; no theme switcher.
 - New UI: prefer Skeleton primitives wrapped in `components/ui/*` adapters so call sites keep consuming `var(--token)` and public APIs stay stable.
+- **Exception (ADR-020):** Contact FAQ uses `components/ui/InteractiveAccordion` (own state + `motion/react` springs) instead of the Skeleton Accordion wrapper — numbered interactive pattern on `/contact#faq` only.
 
 > **Locked website tokens:** see [`WEBSITE-ESSENTIAL-CONTEXT.md`](./WEBSITE-ESSENTIAL-CONTEXT.md) §8 — that file wins on conflicts.
 
@@ -178,7 +179,7 @@ Marketing site patterns — full-width heroes, constrained content columns.
 
 | Page | Layout |
 | --- | --- |
-| Home | Full-width hero (indigo or ivory) → mission band → featured grid → highlights → CTA banner |
+| Home | Full-width hero → partners marquee → projects bento → **services vertical marquee** (`/#home-services`, ADR-021) → contact CTA |
 | About | Hero → story sections (alternating) → values grid → team grid → culture closing |
 | Services | Intro → category groups → service card grid → industries callout → CTA |
 | Products | Intro → product card grid → detail: hero media + features + goals |
@@ -210,6 +211,8 @@ Animations should communicate delight, not distraction:
 | Section / page headings (`h1`–`h2`) | Word pull-up stagger on scroll into view | `components/ui/WordPullUp` |
 | Body copy, eyebrows, supporting text | Fade + slight rise on scroll | `AnimatedSection` / `useFadeIn` |
 | Full-bleed opening hero brand | Character split (GSAP) — special case | `components/ui/SplitText` in `HeroOpening` |
+| Contact FAQ accordion | Numbered spring height reveal (`motion/react`); single-open | `components/ui/InteractiveAccordion` (ADR-020) |
+| Home services discovery | Vertical text marquee; each row is a link to `/services/{slug}`; static list under reduced motion | `components/ui/cta-with-text-marquee` via `ServicesStack` (ADR-021) |
 
 Do not wrap an entire section in `AnimatedSection` when the heading should pull up independently — animate the heading with `WordPullUp` and fade the remaining copy/content separately.
 

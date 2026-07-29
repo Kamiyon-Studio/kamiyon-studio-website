@@ -65,4 +65,56 @@ describe("contact send helpers", () => {
 
     expect(result).toEqual({ ok: false, error: "Failed to deliver message." });
   });
+
+  it("sanitizes CRLF in name so subject cannot inject headers", async () => {
+    const send = vi.fn().mockResolvedValue({ data: { id: "1" }, error: null });
+    const client: ResendLike = { emails: { send } };
+
+    await sendContactEmails(
+      {
+        apiKey: "re_test",
+        fromEmail: "Kamiyon Studio <noreply@send.kamiyonstudio.com>",
+        toEmail: PUBLIC_EMAIL,
+        fields: {
+          name: "Ada\r\nBcc: attacker@evil.com",
+          email: "ada@example.com",
+          message: "Hello from the Analytical Engine.",
+        },
+      },
+      () => client,
+    );
+
+    const studioArgs = send.mock.calls[0]![0] as {
+      subject: string;
+      replyTo?: string;
+    };
+    // Control chars stripped — "Bcc:" may remain as literal subject text,
+    // but cannot form a separate header line without \r/\n.
+    expect(studioArgs.subject).not.toMatch(/[\r\n]/);
+    expect(studioArgs.subject).toBe("Contact: Ada Bcc: attacker@evil.com");
+    expect(studioArgs.replyTo).toBe("ada@example.com");
+    expect(studioArgs.replyTo).not.toMatch(/[\r\n]/);
+  });
+
+  it("sanitizes control characters in replyTo email", async () => {
+    const send = vi.fn().mockResolvedValue({ data: { id: "1" }, error: null });
+
+    await sendContactEmails(
+      {
+        apiKey: "re_test",
+        fromEmail: "Kamiyon Studio <noreply@send.kamiyonstudio.com>",
+        toEmail: PUBLIC_EMAIL,
+        fields: {
+          name: "Ada Lovelace",
+          email: "ada\r\n@example.com",
+          message: "Hello from the Analytical Engine.",
+        },
+      },
+      () => ({ emails: { send } }),
+    );
+
+    const studioArgs = send.mock.calls[0]![0] as { replyTo?: string };
+    expect(studioArgs.replyTo).toBeDefined();
+    expect(studioArgs.replyTo).not.toMatch(/[\r\n]/);
+  });
 });

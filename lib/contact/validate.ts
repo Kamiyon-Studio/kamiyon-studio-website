@@ -1,3 +1,5 @@
+import { hasControlCharacters } from "./sanitize";
+
 export type ContactFormFields = {
   name: string;
   email: string;
@@ -46,8 +48,22 @@ export function validateContactPayload(
     return { ok: false, error: "Please provide your name." };
   }
 
+  if (hasControlCharacters(name)) {
+    return {
+      ok: false,
+      error: "Name contains invalid characters. Please remove line breaks and special control characters.",
+    };
+  }
+
   if (!email || email.length > MAX_EMAIL || !EMAIL_RE.test(email)) {
     return { ok: false, error: "Please provide a valid email address." };
+  }
+
+  if (hasControlCharacters(email)) {
+    return {
+      ok: false,
+      error: "Email contains invalid characters. Please use a standard email address.",
+    };
   }
 
   if (!message || message.length < MIN_MESSAGE) {
