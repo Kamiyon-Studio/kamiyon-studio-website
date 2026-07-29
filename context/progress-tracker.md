@@ -17,6 +17,23 @@ When a task/phase is marked complete:
 
 ## Current Phase
 
+### About milestone timeline + cumulative roster (2026-07-30)
+
+**Plan:** `.claude/plans/about-timeline-sabotage-style.plan.md` · **ADR:** ADR-025  
+**Note:** Waves 1–3 landed in-repo (WS-A–E). WS-F docs; WS-G verify next.
+
+| Stream | Status | Notes |
+| --- | --- | --- |
+| **WS-A** `lib/timeline` contract + roster/years pure logic | **Done** | Types frozen; 15 unit tests green |
+| **WS-B** Sanity schema + GROQ + mappers + fallbacks + seed | **Done** | `entryType` / `images[]` / `teamMember`; legacy `image` read path |
+| **WS-C** Entry card + media frame + spine CSS | **Done** | Embla multi-image; read-more; DOM contract attrs |
+| **WS-D** Sticky aside + scroll-spy + cumulative roster hooks | **Done** | Reversible roster; IO only (no GSAP) |
+| **WS-E** Timeline orchestrator + StoryTimeline + About page | **Done** | `TimelineEntryV2`; xl grid; year chips below xl |
+| **WS-F** ADR-025 + tracker + ui-context + plan | **Done** | ADR Accepted; layout/motion rows updated |
+| **WS-G** Verify gate (vitest / lint / tsc / smoke) | **Done (local tests)** | Focused 71/71; full 761/761; lint clean on touched; tsc clean on our paths. Global branch cov 73.61% pre-existing (`media.ts` etc.). E2E smoke deferred (no server). |
+
+**Ship gate:** Agent ownership **PASS** (A–G local). Remaining: founder visual ack (level 5) on `/about#timeline`; operator join dates for real `teamJoin` seed content (news-only fallback until then); optional E2E smoke when a local/staging server is up.
+
 ### About values hover-expand strip (2026-07-30)
 
 **Plan:** `.claude/plans/values-expand-on-hover.plan.md` · **ADR:** ADR-024  
@@ -45,6 +62,20 @@ When a task/phase is marked complete:
 | Production site | https://kamiyonstudio.com | Still on Vercel until WS4b |
 
 **Source of truth:** [`WEBSITE-ESSENTIAL-CONTEXT.md`](./WEBSITE-ESSENTIAL-CONTEXT.md) · [`DECISIONS.md`](./DECISIONS.md) · [`deploy-runbook.md`](./deploy-runbook.md) · [`QA-Report.md`](./QA-Report.md)
+
+### Home partners continuous logo marquee (2026-07-30)
+
+**Plan:** `.claude/plans/home-partners-continuous-marquee.plan.md` · **ADR:** ADR-026  
+**Note:** Wave 1–3 landed in-repo (WS-A + WS-B + WS-C). Extends ADR-023 band; CMS unchanged.
+
+| Stream | Status | Notes |
+| --- | --- | --- |
+| **WS-A** `logo-marquee` + horizontal CSS keyframes + tests | **Done in-repo** | `components/ui/logo-marquee{,.test}.tsx`; `globals.css` `--animate-marquee-horizontal` |
+| **WS-B** `PartnersMarquee` rewrite + section tests | **Done in-repo** | Continuous loop; larger logos; grayscale→color on hover/focus; drops Embla |
+| **WS-C** ADR-026 + tracker + ui-context | **Done** | Soft finalize with A+B |
+| **WS-D** Verify gate (vitest / visual `/#home-partners`) | **Done (local tests)** | Vitest 26/26 on logo-marquee + PartnersMarquee + HeroOpening; founder visual ack still open |
+
+**Ship gate:** WS-A + WS-B required. Founder visual ack (level 5) on `/#home-partners`.
 
 ### Home hero + partners combined opening (2026-07-30)
 
@@ -221,4 +252,4 @@ When a task/phase is marked complete:
 
 ## Architecture Decisions (active)
 
-See [`DECISIONS.md`](./DECISIONS.md) (incl. ADR-016/017/018/019/020/021/022/023/024).
+See [`DECISIONS.md`](./DECISIONS.md) (incl. ADR-016/017/018/019/020/021/022/023/024/025).

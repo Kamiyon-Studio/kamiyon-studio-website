@@ -283,6 +283,13 @@
   transform: rotate(180deg);
 }
 
+.sterling-gate .menu-sublist-panel {
+  overflow: hidden;
+  height: 0;
+  opacity: 0;
+  visibility: hidden;
+}
+
 .sterling-gate .menu-sublist {
   list-style: none;
   margin: 0.35rem 0 0.85rem 1.25rem;
@@ -290,10 +297,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
-}
-
-.sterling-gate .menu-sublist[hidden] {
-  display: none;
 }
 
 .sterling-gate .nav-sublink {
@@ -387,7 +390,8 @@
   .sterling-gate .nav-link-hover-bg,
   .sterling-gate .nav-close-btn,
   .sterling-gate .nav-logo-row,
-  .sterling-gate .nav-hamburger-line {
+  .sterling-gate .nav-hamburger-line,
+  .sterling-gate .menu-dropdown-chevron {
     transition: none;
   }
 }

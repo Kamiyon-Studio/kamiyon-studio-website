@@ -1,9 +1,10 @@
 import { Timeline, type TimelineEntry } from "@/components/ui/timeline";
+import type { TimelineEntryV2 } from "@/lib/timeline";
 
 export type StoryTimelineProps = {
   heading: string;
   summary: string;
-  entries: TimelineEntry[];
+  entries: TimelineEntryV2[];
 };
 
 /**
@@ -20,3 +21,5 @@ export function StoryTimeline({ heading, summary, entries }: StoryTimelineProps)
     />
   );
 }
+
+export type { TimelineEntry };

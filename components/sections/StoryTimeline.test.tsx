@@ -10,22 +10,27 @@ vi.mock("next/image", () => ({
   },
 }));
 
+vi.mock("embla-carousel-react", () => ({
+  default: () => [vi.fn(), null],
+}));
+
 vi.mock("@/hooks/useGsapContext", () => ({
   useGsapContext: () => undefined,
 }));
 
 import { StoryTimeline } from "./StoryTimeline";
-import type { TimelineEntry } from "@/components/ui/timeline";
+import type { TimelineEntryV2 } from "@/lib/timeline";
 
-const sample: TimelineEntry[] = [
+const sample: TimelineEntryV2[] = [
   {
     key: "founded",
+    entryType: "news",
     year: "2024",
     dateLabel: "March 2024",
     date: "2024-03-01",
     title: "Studio founded",
     body: "Kamiyon Studio began.",
-    image: { src: "/assets/background.jpg", alt: "Founding" },
+    images: [{ src: "/assets/background.jpg", alt: "Founding" }],
   },
 ];
 

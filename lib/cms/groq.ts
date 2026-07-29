@@ -92,12 +92,15 @@ export const aboutPageQuery = defineQuery(/* groq */ `
     timelineSummary,
     timelineEntries[]{
       _key,
+      entryType,
       year,
       dateLabel,
       date,
       title,
       body,
-      image ${r2AssetProjection}
+      images[] ${r2AssetProjection},
+      image ${r2AssetProjection},
+      teamMember->{ _id, name, role, photo ${r2AssetProjection} }
     },
     mission,
     vision,

@@ -1,9 +1,16 @@
 "use client";
 
-import Image from "next/image";
-import { useRef, type JSX } from "react";
+import { useCallback, useEffect, useRef, useState, type JSX } from "react";
 
+import { useCumulativeRoster } from "@/hooks/useCumulativeRoster";
 import { useGsapContext } from "@/hooks/useGsapContext";
+import { useTimelineScrollSpy } from "@/hooks/useTimelineScrollSpy";
+import {
+  activeYearFromEntryKey,
+  buildYearRail,
+  type TimelineEntryV2,
+  type YearRailItem,
+} from "@/lib/timeline";
 import {
   createScrollTriggerDefaults,
   gsap,
@@ -12,36 +19,23 @@ import {
 } from "@/lib/gsap";
 import { cn } from "@/lib/utils";
 
+import { TimelineAside } from "./timeline-aside";
+import { TimelineEntryCard } from "./timeline-entry-card";
 import "./timeline.css";
 
-// Contract — do not diverge across streams
-export type TimelineEntry = {
-  key: string;
-  year: string; // required YYYY; powers the year rail
-  dateLabel: string; // editor-facing display, e.g. "March 2024"
-  date?: string; // optional ISO date for semantic <time dateTime>
-  title: string;
-  body: string;
-  image: { src: string; alt: string; width?: number; height?: number };
-};
-// Card side is derived from array order; year is editorial data, never a layout field.
+/** @deprecated Prefer `TimelineEntryV2` from `@/lib/timeline`. Soft landing re-export. */
+export type TimelineEntry = TimelineEntryV2;
 
 export type TimelineProps = {
   heading: string;
   summary: string;
-  entries: TimelineEntry[];
+  entries: TimelineEntryV2[];
   className?: string;
   id?: string;
 };
 
-function uniqueYears(entries: TimelineEntry[]): string[] {
-  const years: string[] = [];
-  for (const entry of entries) {
-    if (!years.includes(entry.year)) {
-      years.push(entry.year);
-    }
-  }
-  return years;
+function entryAnchorId(sectionId: string, entryKey: string): string {
+  return `${sectionId}-entry-${entryKey}`;
 }
 
 export function Timeline({
@@ -52,8 +46,36 @@ export function Timeline({
   id = "timeline",
 }: TimelineProps): JSX.Element {
   const rootRef = useRef<HTMLElement | null>(null);
-  const years = uniqueYears(entries);
+  const trackRef = useRef<HTMLDivElement | null>(null);
   const hasEntries = entries.length > 0;
+  const entryKeys = entries.map((entry) => entry.key);
+  const rail = buildYearRail(entries);
+
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReduceMotion(media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
+
+  const activeEntryKey = useTimelineScrollSpy({
+    rootRef: trackRef,
+    entryKeys,
+    disabled: reduceMotion || !hasEntries,
+  });
+
+  const activeYear = reduceMotion
+    ? (rail[0]?.year ?? null)
+    : activeYearFromEntryKey(rail, activeEntryKey);
+
+  const roster = useCumulativeRoster({
+    rootRef: trackRef,
+    entries,
+    revealAll: reduceMotion,
+  });
 
   useGsapContext(
     rootRef,
@@ -92,6 +114,17 @@ export function Timeline({
     [hasEntries, entries.length],
   );
 
+  const onYearSelect = useCallback(
+    (item: YearRailItem) => {
+      const target = document.getElementById(entryAnchorId(id, item.firstEntryKey));
+      target?.scrollIntoView({
+        behavior: reduceMotion ? "auto" : "smooth",
+        block: "center",
+      });
+    },
+    [id, reduceMotion],
+  );
+
   return (
     <section
       ref={rootRef}
@@ -125,105 +158,64 @@ export function Timeline({
             Milestones will appear here as they are published.
           </div>
         ) : (
-          <div className="relative mt-14 lg:mt-20">
-            <div
-              data-timeline-track
-              className="relative mx-auto max-w-5xl xl:pr-28"
+          <>
+            <nav
+              aria-label="Timeline years"
+              className="mt-8 flex flex-wrap justify-center gap-2 xl:hidden"
+              data-testid="timeline-year-chips"
             >
-              <div
-                className="pointer-events-none absolute top-0 bottom-0 left-4 w-px bg-[var(--color-ivory)]/15 md:left-1/2 md:-translate-x-1/2"
-                aria-hidden="true"
-              >
+              {rail.map((item) => (
+                <button
+                  key={item.year}
+                  type="button"
+                  className={cn(
+                    "min-h-11 rounded-md border border-[var(--color-ivory)]/20 px-3 font-display text-sm font-semibold tracking-wide text-[var(--color-ivory)]/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-sakura)]",
+                    item.year === activeYear &&
+                      "border-[var(--color-sakura)] text-[var(--color-ivory)] underline decoration-[var(--color-sakura)] underline-offset-4",
+                  )}
+                  aria-current={item.year === activeYear ? "true" : undefined}
+                  onClick={() => onYearSelect(item)}
+                >
+                  {item.year}
+                </button>
+              ))}
+            </nav>
+
+            <div className="relative mt-10 grid grid-cols-1 gap-10 xl:mt-16 xl:grid-cols-[minmax(0,1fr)_11rem] xl:gap-14 lg:mt-14">
+              <div ref={trackRef} data-timeline-track className="relative min-w-0">
                 <div
-                  data-timeline-progress
-                  className="h-full w-full origin-top scale-y-0 bg-[var(--color-ivory)]/55"
-                />
-              </div>
+                  className="pointer-events-none absolute top-0 bottom-0 left-4 w-px bg-[var(--color-ivory)]/15 md:left-1/2 md:-translate-x-1/2"
+                  aria-hidden="true"
+                >
+                  <div
+                    data-timeline-progress
+                    className="h-full w-full origin-top scale-y-0 bg-[var(--color-ivory)]/55"
+                  />
+                </div>
 
-              <ol className="relative m-0 list-none space-y-14 p-0 md:space-y-20">
-                {entries.map((entry, index) => {
-                  const side = index % 2 === 0 ? "left" : "right";
-                  return (
-                    <li
-                      key={entry.key}
-                      data-timeline-side={side}
-                      className="relative pl-10 md:pl-0"
-                    >
-                      <span
-                        className="absolute top-2 left-2.5 h-3 w-3 -translate-x-1/2 rounded-full border border-[var(--color-ivory)]/40 bg-[var(--color-charcoal)] md:left-1/2"
-                        aria-hidden="true"
+                <ol className="relative m-0 list-none space-y-14 p-0 md:space-y-20">
+                  {entries.map((entry, index) => {
+                    const side = index % 2 === 0 ? "left" : "right";
+                    return (
+                      <TimelineEntryCard
+                        key={entry.key}
+                        entry={entry}
+                        side={side}
+                        anchorId={entryAnchorId(id, entry.key)}
                       />
-
-                      <p
-                        data-testid={`timeline-year-inline-${entry.key}`}
-                        className="mb-3 font-display text-sm font-semibold tracking-[0.18em] text-[var(--color-ivory)]/55 uppercase xl:hidden"
-                      >
-                        {entry.year}
-                      </p>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 md:gap-10">
-                        <article
-                          className={cn(
-                            "min-w-0",
-                            side === "left"
-                              ? "md:col-start-1 md:pr-8 md:text-right"
-                              : "md:col-start-2 md:pl-8 md:text-left",
-                          )}
-                        >
-                          <p className="text-sm font-medium tracking-wide text-[var(--color-ivory)]/60">
-                            {entry.date ? (
-                              <time dateTime={entry.date}>{entry.dateLabel}</time>
-                            ) : (
-                              <span>{entry.dateLabel}</span>
-                            )}
-                          </p>
-                          <h3 className="mt-2 font-display text-xl font-semibold md:text-2xl">
-                            {entry.title}
-                          </h3>
-                          <p className="mt-3 text-base leading-relaxed text-[var(--color-ivory)]/75">
-                            {entry.body}
-                          </p>
-                          {entry.image.src ? (
-                            <div
-                              className={cn(
-                                "relative mt-5 aspect-[16/10] w-full max-w-md overflow-hidden bg-[var(--color-charcoal)]",
-                                side === "left" && "md:ml-auto",
-                              )}
-                            >
-                              <Image
-                                src={entry.image.src}
-                                alt={entry.image.alt}
-                                fill
-                                sizes="(max-width: 768px) 100vw, 28rem"
-                                className="object-cover"
-                              />
-                            </div>
-                          ) : null}
-                        </article>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
-
-            <aside
-              data-testid="timeline-year-rail"
-              className="pointer-events-none absolute top-0 right-0 hidden h-full w-24 xl:block"
-              aria-label="Years"
-            >
-              <div className="sticky top-1/3 space-y-6 text-right">
-                {years.map((year) => (
-                  <p
-                    key={year}
-                    className="font-display text-2xl font-bold tracking-tight text-[var(--color-ivory)]/35"
-                  >
-                    {year}
-                  </p>
-                ))}
+                    );
+                  })}
+                </ol>
               </div>
-            </aside>
-          </div>
+
+              <TimelineAside
+                rail={rail}
+                activeYear={activeYear}
+                roster={roster}
+                onYearSelect={onYearSelect}
+              />
+            </div>
+          </>
         )}
       </div>
     </section>

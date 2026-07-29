@@ -6,7 +6,7 @@ import { SINGLETON_IDS } from "../ids";
 import type { SeedDocument } from "../types";
 
 export function buildAboutPageDocument(
-  source: AboutPage = aboutPageFallback
+  source: AboutPage = aboutPageFallback,
 ): SeedDocument {
   return {
     _id: SINGLETON_IDS.aboutPage,
@@ -20,22 +20,27 @@ export function buildAboutPageDocument(
     })),
     timelineHeading: source.timelineHeading,
     timelineSummary: source.timelineSummary,
-    // Seed from aboutPageFallback milestones (2024–2027); images use r2Asset url/key when present.
     timelineEntries: source.timelineEntries.map((entry, index) => ({
       _type: "storyTimelineEntry",
       _key: entry.key || arrayKey("timeline", index),
+      entryType: entry.entryType,
       year: entry.year,
       dateLabel: entry.dateLabel,
       ...(entry.date ? { date: entry.date } : {}),
       title: entry.title,
       body: entry.body,
-      ...(entry.image
+      images: entry.images.map((image, imageIndex) => ({
+        _type: "r2Asset",
+        _key: image._key || arrayKey(`timeline-img-${index}`, imageIndex),
+        ...(image.url ? { url: image.url } : {}),
+        ...(image.key ? { key: image.key } : {}),
+        ...(image.alt != null ? { alt: image.alt } : {}),
+      })),
+      ...(entry.teamMember
         ? {
-            image: {
-              _type: "r2Asset",
-              ...(entry.image.url ? { url: entry.image.url } : {}),
-              ...(entry.image.key ? { key: entry.image.key } : {}),
-              ...(entry.image.alt != null ? { alt: entry.image.alt } : {}),
+            teamMember: {
+              _type: "reference",
+              _ref: entry.teamMember.id,
             },
           }
         : {}),

@@ -8,7 +8,6 @@ import { StoryTimeline } from "@/components/sections/StoryTimeline";
 import { TeamGrid } from "@/components/sections/TeamGrid";
 import { ValuesGrid } from "@/components/sections/ValuesGrid";
 import { VisionBand } from "@/components/sections/VisionBand";
-import type { TimelineEntry } from "@/components/ui/timeline";
 import {
   aboutPageFallback,
   resolveWithFallback,
@@ -17,6 +16,7 @@ import {
 import { getCmsImageUrl } from "@/lib/cms/image";
 import { getAboutPage, getTeamMembers } from "@/lib/cms/queries";
 import type { StoryTimelineEntry } from "@/lib/cms/types";
+import type { TimelineEntryV2, TimelineImage } from "@/lib/timeline";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 async function getAboutPageContent() {
@@ -31,25 +31,50 @@ async function getAboutPageContent() {
   };
 }
 
-function toTimelineEntries(entries: StoryTimelineEntry[]): TimelineEntry[] {
+function toTimelineImage(
+  image: { url?: string; key?: string; alt?: string | null } | undefined,
+  fallbackAlt: string,
+): TimelineImage | null {
+  const src = getCmsImageUrl(image);
+  if (!src) {
+    return null;
+  }
+  return {
+    src,
+    alt: image?.alt?.trim() || fallbackAlt,
+  };
+}
+
+function toTimelineEntries(entries: StoryTimelineEntry[]): TimelineEntryV2[] {
   return entries.flatMap((entry) => {
-    const src = getCmsImageUrl(entry.image);
-    if (!src) {
+    const images = entry.images
+      .map((image) => toTimelineImage(image, entry.title))
+      .filter((image): image is TimelineImage => image !== null);
+
+    if (images.length === 0) {
       return [];
     }
+
+    const rosterMember = entry.teamMember
+      ? {
+          id: entry.teamMember.id,
+          name: entry.teamMember.name,
+          role: entry.teamMember.role,
+          photo: toTimelineImage(entry.teamMember.photo, entry.teamMember.name),
+        }
+      : undefined;
 
     return [
       {
         key: entry.key,
+        entryType: entry.entryType,
         year: entry.year,
         dateLabel: entry.dateLabel,
         ...(entry.date ? { date: entry.date } : {}),
         title: entry.title,
         body: entry.body,
-        image: {
-          src,
-          alt: entry.image?.alt?.trim() || entry.title,
-        },
+        images,
+        ...(rosterMember ? { rosterMember } : {}),
       },
     ];
   });

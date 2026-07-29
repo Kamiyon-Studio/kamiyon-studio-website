@@ -1,5 +1,5 @@
 import { createElement } from "react";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { matchMediaAddMock, setMock, toMock } = vi.hoisted(() => {
@@ -15,6 +15,10 @@ vi.mock("next/image", () => ({
     void _ignoredFill;
     return createElement("img", rest);
   },
+}));
+
+vi.mock("embla-carousel-react", () => ({
+  default: () => [vi.fn(), null],
 }));
 
 vi.mock("@/lib/gsap", () => ({
@@ -41,33 +45,57 @@ vi.mock("@/hooks/useGsapContext", () => ({
   },
 }));
 
-import { Timeline, type TimelineEntry } from "./timeline";
+import type { TimelineEntryV2 } from "@/lib/timeline";
 
-const entries: TimelineEntry[] = [
+import { Timeline } from "./timeline";
+
+const entries: TimelineEntryV2[] = [
   {
     key: "founded",
+    entryType: "news",
     year: "2024",
     dateLabel: "March 2024",
     date: "2024-03-01",
     title: "Studio founded",
     body: "Kamiyon Studio began in Biñan.",
-    image: { src: "/assets/background.jpg", alt: "Studio founding" },
+    images: [{ src: "/assets/background.jpg", alt: "Studio founding" }],
   },
   {
     key: "next",
+    entryType: "news",
     year: "2025",
     dateLabel: "2025",
     title: "Next chapter",
     body: "Building original IP.",
-    image: { src: "/assets/logo.svg", alt: "Kamiyon mark" },
+    images: [{ src: "/assets/logo.svg", alt: "Kamiyon mark" }],
   },
   {
     key: "same-year",
+    entryType: "news",
     year: "2025",
     dateLabel: "Late 2025",
     title: "Same year milestone",
     body: "Another beat in 2025.",
-    image: { src: "/assets/background.jpg", alt: "Milestone" },
+    images: [{ src: "/assets/background.jpg", alt: "Milestone" }],
+  },
+];
+
+const mixedEntries: TimelineEntryV2[] = [
+  ...entries.slice(0, 1),
+  {
+    key: "join-alice",
+    entryType: "teamJoin",
+    year: "2025",
+    dateLabel: "June 2025",
+    title: "Alice joins the team!",
+    body: "Welcome Alice.",
+    images: [{ src: "/assets/logo.svg", alt: "Alice" }],
+    rosterMember: {
+      id: "alice",
+      name: "Alice Example",
+      role: "Designer",
+      photo: null,
+    },
   },
 ];
 
@@ -76,6 +104,7 @@ describe("Timeline", () => {
     matchMediaAddMock.mockClear();
     setMock.mockClear();
     toMock.mockClear();
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
   });
 
   it("renders heading, summary, cards, semantic dates, and images", () => {
@@ -88,11 +117,11 @@ describe("Timeline", () => {
     expect(screen.getByRole("heading", { level: 3, name: "Studio founded" })).toBeInTheDocument();
     expect(screen.getByText("Kamiyon Studio began in Biñan.")).toBeInTheDocument();
 
-    const dated = screen.getByText("March 2024");
-    expect(dated.tagName).toBe("TIME");
-    expect(dated).toHaveAttribute("dateTime", "2024-03-01");
+    const dated = document.querySelector('time[dateTime="2024-03-01"]');
+    expect(dated).toBeInTheDocument();
+    expect(dated).toHaveTextContent("March 2024");
 
-    expect(screen.getByText("Late 2025")).toBeInTheDocument();
+    expect(screen.getAllByText("Late 2025").length).toBeGreaterThan(0);
     expect(screen.getByAltText("Studio founding")).toHaveAttribute("src", "/assets/background.jpg");
   });
 
@@ -106,14 +135,14 @@ describe("Timeline", () => {
 
     const rail = screen.getByTestId("timeline-year-rail");
     expect(rail).toHaveClass("xl:block");
-    expect(rail.querySelectorAll("p")).toHaveLength(2);
+    expect(rail.querySelectorAll("button")).toHaveLength(2);
     expect(rail).toHaveTextContent("2024");
     expect(rail).toHaveTextContent("2025");
 
     expect(screen.getByTestId("timeline-year-inline-founded")).toHaveClass("xl:hidden");
   });
 
-  it("marks decorative line and dots as aria-hidden", () => {
+  it("marks decorative line as aria-hidden", () => {
     const { container } = render(
       <Timeline heading="Our journey" summary="" entries={entries} />,
     );
@@ -146,5 +175,31 @@ describe("Timeline", () => {
       "(prefers-reduced-motion: no-preference)",
       expect.any(Function),
     );
+  });
+
+  it("scrolls to the first entry of a year when a rail button is clicked", () => {
+    render(
+      <Timeline heading="Our journey" summary="" entries={entries} />,
+    );
+
+    fireEvent.click(screen.getByTestId("timeline-year-rail").querySelector("button")!);
+    expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalled();
+  });
+
+  it("renders an empty roster for news-only entries and cells for mixed sets", () => {
+    const { rerender } = render(
+      <Timeline heading="Our journey" summary="" entries={entries} />,
+    );
+
+    expect(
+      screen.getByText("The team grows as the story unfolds."),
+    ).toBeInTheDocument();
+
+    rerender(
+      <Timeline heading="Our journey" summary="" entries={mixedEntries} />,
+    );
+
+    // Global IntersectionObserver stub reports intersecting → roster fills.
+    expect(screen.getByLabelText(/Alice Example/)).toBeInTheDocument();
   });
 });

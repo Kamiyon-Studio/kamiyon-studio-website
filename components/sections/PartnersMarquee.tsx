@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatedCarousel } from "@/components/ui/logo-carousel";
+import { LogoMarquee } from "@/components/ui/logo-marquee";
 import { Container } from "@/components/ui/Container";
 import {
   PARTNER_PLACEHOLDERS,
@@ -13,11 +13,14 @@ type PartnersMarqueeEyebrow = "Trusted by" | "Clients";
 type PartnersMarqueeProps = {
   eyebrow?: PartnersMarqueeEyebrow;
   partners?: PartnerPlaceholder[];
-  /** Heading surface tone (logos keep original color). Default `onLight`. */
+  /** Heading surface tone (logos use grayscale → color on hover). Default `onLight`. */
   tone?: "onLight" | "onDark";
   /** Standalone section vs compact hero band. Default `section`. */
   layout?: "section" | "band";
 };
+
+const PARTNER_LOGO_IMAGE_CLASS =
+  "h-14 w-auto max-w-[10rem] md:h-16 md:max-w-[12rem] lg:h-20 lg:max-w-[14rem]";
 
 export function PartnersMarquee({
   eyebrow,
@@ -29,6 +32,7 @@ export function PartnersMarquee({
   const showEyebrow = Boolean(eyebrow);
   const sectionLabel = eyebrow ?? "Partner logos";
   const logos = partners.map((partner) => ({
+    id: partner.id,
     src: partner.logoUrl,
     alt: partner.logoAlt?.trim() || partner.label,
     label: partner.label,
@@ -60,22 +64,11 @@ export function PartnersMarquee({
           className={showEyebrow ? "mt-6" : undefined}
           data-testid="partners-marquee-track"
         >
-          <AnimatedCarousel
+          <LogoMarquee
             logos={logos}
-            autoPlay
-            autoPlayInterval={4000}
-            itemsPerViewMobile={2}
-            itemsPerViewDesktop={4}
-            itemGap="md"
-            logoContainerWidth="w-full"
-            logoContainerHeight="h-auto"
-            logoContainerMinWidth="min-w-0"
-            logoImageWidth="w-auto"
-            logoImageHeight="h-10"
-            padding="py-0"
-            containerClassName="bg-transparent"
-            contentClassName="w-full"
-            carouselClassName="partners-logo-carousel"
+            speed={40}
+            pauseOnHover
+            logoImageClassName={PARTNER_LOGO_IMAGE_CLASS}
           />
         </div>
       </Container>

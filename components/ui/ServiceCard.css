@@ -1,0 +1,148 @@
+/* Sabotage-style horizontal service banners — slanted copy panel on the right. */
+
+.service-banner {
+  position: relative;
+  display: block;
+  min-height: clamp(16rem, 28vw, 22rem);
+  overflow: hidden;
+  background-color: var(--color-charcoal);
+  color: var(--color-ivory);
+  text-decoration: none;
+  isolation: isolate;
+}
+
+.service-banner:focus-visible {
+  outline: 2px solid var(--color-sakura-ink);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+.service-banner__media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.service-banner__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 42%,
+    color-mix(in srgb, var(--color-charcoal) 55%, transparent) 62%,
+    color-mix(in srgb, var(--color-charcoal) 82%, transparent) 100%
+  );
+  pointer-events: none;
+}
+
+.service-banner__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.service-banner__copy {
+  display: flex;
+  width: min(42rem, 58%);
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1.25rem, 4vw, 3.5rem);
+  text-align: right;
+  background: color-mix(in srgb, var(--color-charcoal) 78%, transparent);
+  clip-path: polygon(14% 0, 100% 0, 100% 100%, 0 100%);
+  backdrop-filter: blur(2px);
+}
+
+.service-banner__title {
+  margin: 0;
+  max-width: 22ch;
+  font-family: var(--font-geologica), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(1.75rem, 3.2vw, 2.75rem);
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--color-ivory);
+}
+
+.service-banner__description {
+  margin: 0;
+  max-width: 36ch;
+  font-family: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(0.875rem, 1.2vw, 1rem);
+  font-weight: 400;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--color-ivory) 82%, transparent);
+}
+
+.service-banner__cta {
+  margin-top: 0.5rem;
+  font-family: var(--font-geologica), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-sakura-ink);
+  transition: color 200ms ease, letter-spacing 200ms ease;
+}
+
+.service-banner:hover .service-banner__cta,
+.service-banner:focus-visible .service-banner__cta {
+  color: var(--color-sakura);
+  letter-spacing: 0.18em;
+}
+
+@media (max-width: 767px) {
+  .service-banner {
+    min-height: 18rem;
+  }
+
+  .service-banner__media::after {
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      transparent 28%,
+      color-mix(in srgb, var(--color-charcoal) 45%, transparent) 55%,
+      color-mix(in srgb, var(--color-charcoal) 88%, transparent) 100%
+    );
+  }
+
+  .service-banner__overlay {
+    align-items: flex-end;
+  }
+
+  .service-banner__copy {
+    width: 100%;
+    align-items: flex-start;
+    text-align: left;
+    padding: 1.5rem 1.25rem 1.75rem;
+    background: color-mix(in srgb, var(--color-charcoal) 82%, transparent);
+    clip-path: polygon(0 12%, 100% 0, 100% 100%, 0 100%);
+  }
+
+  .service-banner__title {
+    max-width: none;
+  }
+
+  .service-banner__description {
+    max-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .service-banner__media img,
+  .service-banner__cta {
+    transition: none !important;
+  }
+
+  .service-banner:hover .service-banner__media img {
+    transform: none;
+  }
+}

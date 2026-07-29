@@ -546,3 +546,65 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 
 ---
 
+## ADR-025 — About timeline entry types + cumulative roster aside (2026-07-30)
+
+**Status:** Accepted (WS-A–G local PASS — vitest full suite green; founder visual sign-off pending)
+
+**Context:** About `/about#timeline` used a single monolith (`components/ui/timeline.tsx`) with news-only milestones, a singular required image, and a static year rail with no active state or roster. Operator wants a Sabotage-Studio *layout language* (alternating cards, centre spine, bordered frames, sticky right panel with year rail + live roster) adapted to Kamiyon brand tokens — not a clone.
+
+**Decision:**
+
+- Frozen UI contract in `lib/timeline/**` (`TimelineEntryV2`, `buildCumulativeRoster`, `buildYearRail`) — framework-free so CMS, cards, and aside can share it without cycles.
+- Two entry types: `news` | `teamJoin`. `teamJoin` **must** reference a Sanity `teamMember`; roster cells use that member’s photo + name (initials when photo missing).
+- Cumulative roster is **reversible** by default (scroll-up removes later joins); `TeamGrid` remains the canonical always-complete team list. Roster starts empty.
+- CMS: `images: r2Asset[]` (min 1); legacy singular `image` kept hidden/read-only with a mapper read path during migration. Embla only when `images.length > 1`.
+- Motion split: GSAP keeps the spine `scaleY` scrub; year spy + roster use `IntersectionObserver` only. Aside pins with CSS `position: sticky` (never `fixed`).
+- `prefers-reduced-motion: reduce` reveals the full roster and first year active with no scroll gating.
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| Kamiyon tokens over Sabotage grayscale/crown overlays | Brand first; reference is IA/layout only |
+| Reversible roster vs monotonic “history” | Panel reads as “the studio as of this point”; monotonic is a hook flag if needed later |
+| Legacy `image` read path kept temporarily | Published docs stay valid mid-migration; hygiene removal deferred |
+| Compact year chips below `xl`; roster omitted on small screens | Avoids cramming three zones; `TeamGrid` already carries the full team |
+
+**Consequences:**
+
+- New: `lib/timeline/**`, `timeline-entry-card` / `timeline-entry-media` / `timeline-aside`, `useTimelineScrollSpy`, `useCumulativeRoster`.
+- `Timeline` becomes an orchestrator; `StoryTimeline` + About `toTimelineEntries` consume `TimelineEntryV2`.
+- Sanity `storyTimelineEntry` gains `entryType`, `teamMember`, `images[]`; seed emits the new shape.
+- Plan: `.claude/plans/about-timeline-sabotage-style.plan.md` · tracker WS-A–G.
+
+---
+
+## ADR-026 — Home partners continuous logo marquee (2026-07-30)
+
+**Status:** Accepted (WS-A–D landed; local vitest green)
+
+**Context:** Homepage partners band (`PartnersMarquee` under the combined hero opening, ADR-023) used Embla `AnimatedCarousel` with small full-color logos and stepped autoplay. Canon and operator intent call for a continuous horizontal strip, larger logos, and grayscale idle → full color on hover.
+
+**Decision:**
+
+- New client primitive `components/ui/logo-marquee.tsx` — CSS infinite horizontal marquee (`--animate-marquee-horizontal` / `@keyframes marquee-horizontal` translating `-50%` over a duplicated track).
+- `PartnersMarquee` swaps Embla for `LogoMarquee`; section API (`layout`, `tone`, eyebrow, `#home-partners`) unchanged.
+- Logo treatment: larger heights (`h-14 md:h-16 lg:h-20`), `grayscale` + muted opacity at rest, full color/opacity on `group-hover` / `group-focus-within`; pause animation on track hover.
+- `prefers-reduced-motion: reduce` → static single row, no clone.
+- CMS / `PARTNER_PLACEHOLDERS` / partner document shape unchanged. `logo-carousel.tsx` retained (not deleted in this ADR).
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| CSS marquee vs Embla loop | Continuous motion matches “marquee” product language; avoids snap/basis layout fighting logo sizes |
+| Grayscale idle (canon §2) | Trust strip stays quiet under brand; color on hover rewards attention |
+| Keep `AnimatedCarousel` | Out of scope hygiene; partners no longer consumes it |
+
+**Consequences:**
+
+- Home partners line in `ui-context.md` notes continuous marquee + desaturate hover.
+- Plan: `.claude/plans/home-partners-continuous-marquee.plan.md` · tracker WS-A–D.
+
+---
+

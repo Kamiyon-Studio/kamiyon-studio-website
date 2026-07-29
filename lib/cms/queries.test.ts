@@ -43,8 +43,10 @@ describe("About Story Timeline GROQ", () => {
     expect(aboutPageQuery).toContain("timelineSummary");
     expect(aboutPageQuery).toContain("timelineEntries[]");
     expect(aboutPageQuery).toMatch(
-      /timelineEntries\[\]\s*\{\s*_key,\s*year,\s*dateLabel,\s*date,\s*title,\s*body,/,
+      /timelineEntries\[\]\s*\{\s*_key,\s*entryType,\s*year,\s*dateLabel,\s*date,\s*title,\s*body,/,
     );
+    expect(aboutPageQuery).toContain("images[]");
+    expect(aboutPageQuery).toContain("teamMember->");
     expect(aboutPageQuery).toMatch(
       /image\s*\{\s*url,\s*key,\s*alt,\s*caption,\s*_key\s*\}/,
     );

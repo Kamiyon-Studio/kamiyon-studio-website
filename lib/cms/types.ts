@@ -156,19 +156,30 @@ export type CoreValue = {
   description: string;
 };
 
+/** Resolved team member for a timeline join entry (aside roster cell). */
+export type CmsTimelineRosterMember = {
+  id: string; // teamMember _id, or name-derived slug fallback
+  name: string;
+  role: string;
+  photo?: CmsImage;
+};
+
 /**
  * CMS story timeline entry.
- * Gate 1 maps `image` (CmsImage) → UI TimelineEntry.image `{ src, alt, width?, height? }`.
- * Contract fields: key, year (YYYY), dateLabel, optional date (ISO), title, body, image.
+ * Maps to UI `TimelineEntryV2` via `toTimelineEntries` on the About page.
+ * Contract: key, entryType, year (YYYY), dateLabel, optional date (ISO), title, body,
+ * images (always length >= 1 post-map), optional teamMember for teamJoin.
  */
 export type StoryTimelineEntry = {
   key: string;
+  entryType: "news" | "teamJoin";
   year: string;
   dateLabel: string;
   date?: string;
   title: string;
   body: string;
-  image?: CmsImage;
+  images: CmsImage[];
+  teamMember?: CmsTimelineRosterMember;
 };
 
 export type AboutPage = {

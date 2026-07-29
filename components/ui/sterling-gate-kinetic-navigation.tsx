@@ -322,6 +322,87 @@ export function SterlingGateKineticNavigation({
   }, [isMenuOpen, reduceMotion]);
 
   useEffect(() => {
+    if (!containerRef.current) {
+      return;
+    }
+
+    const root = containerRef.current;
+    const panels = root.querySelectorAll<HTMLElement>("[data-dropdown-panel]");
+
+    panels.forEach((panel) => {
+      const href = panel.getAttribute("data-dropdown-panel");
+      const open = openDropdownHref === href;
+      const links = panel.querySelectorAll<HTMLElement>(".nav-sublink");
+
+      gsap.killTweensOf([panel, links]);
+
+      if (reduceMotion) {
+        gsap.set(panel, {
+          height: open ? "auto" : 0,
+          overflow: "hidden",
+          autoAlpha: open ? 1 : 0,
+        });
+        gsap.set(links, { clearProps: "transform", autoAlpha: open ? 1 : 0, y: 0 });
+        return;
+      }
+
+      ensureCustomEase();
+
+      if (open) {
+        gsap.set(panel, { overflow: "hidden", autoAlpha: 1 });
+        gsap.fromTo(
+          panel,
+          { height: 0 },
+          {
+            height: "auto",
+            duration: 0.45,
+            ease: "main",
+            overwrite: "auto",
+          },
+        );
+        gsap.fromTo(
+          links,
+          { y: 10, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.35,
+            stagger: 0.055,
+            delay: 0.06,
+            ease: "power2.out",
+            overwrite: "auto",
+          },
+        );
+        return;
+      }
+
+      const currentHeight = panel.getBoundingClientRect().height;
+      if (currentHeight < 1) {
+        gsap.set(panel, { height: 0, overflow: "hidden", autoAlpha: 0 });
+        gsap.set(links, { autoAlpha: 0, y: 8 });
+        return;
+      }
+
+      gsap.to(links, {
+        y: -6,
+        autoAlpha: 0,
+        duration: 0.18,
+        stagger: 0.03,
+        ease: "power2.in",
+        overwrite: "auto",
+      });
+      gsap.to(panel, {
+        height: 0,
+        autoAlpha: 0,
+        duration: 0.35,
+        delay: 0.04,
+        ease: "power2.in",
+        overwrite: "auto",
+      });
+    });
+  }, [openDropdownHref, reduceMotion]);
+
+  useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === "Escape" && isMenuOpen) {
         setIsMenuOpen(false);
@@ -455,25 +536,27 @@ export function SterlingGateKineticNavigation({
                         ) : null}
                       </div>
                       {hasChildren && item.children ? (
-                        <ul
+                        <div
                           id={sublistId}
-                          className="menu-sublist"
-                          data-menu-fade=""
-                          hidden={!isDropdownOpen}
+                          className={`menu-sublist-panel${isDropdownOpen ? " is-open" : ""}`.trim()}
+                          data-dropdown-panel={item.href}
+                          aria-hidden={!isDropdownOpen}
                         >
-                          {item.children.map((child) => (
-                            <li key={`${child.href}-${child.label}`}>
-                              <SameRouteLink
-                                href={child.href}
-                                className="nav-sublink"
-                                onNavigate={closeMenu}
-                                tabIndex={isDropdownOpen ? undefined : -1}
-                              >
-                                {child.label}
-                              </SameRouteLink>
-                            </li>
-                          ))}
-                        </ul>
+                          <ul className="menu-sublist" data-menu-fade="">
+                            {item.children.map((child) => (
+                              <li key={`${child.href}-${child.label}`}>
+                                <SameRouteLink
+                                  href={child.href}
+                                  className="nav-sublink"
+                                  onNavigate={closeMenu}
+                                  tabIndex={isDropdownOpen ? undefined : -1}
+                                >
+                                  {child.label}
+                                </SameRouteLink>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       ) : null}
                     </li>
                   );

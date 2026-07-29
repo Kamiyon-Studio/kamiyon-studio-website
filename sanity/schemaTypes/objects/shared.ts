@@ -10,11 +10,64 @@ export const storySection = defineType({
   ],
 });
 
+function validateR2ImageAsset(value: unknown): true | string {
+  if (!value || typeof value !== "object") {
+    return "Image is required";
+  }
+  const asset = value as {
+    url?: unknown;
+    key?: unknown;
+    mimeType?: unknown;
+  };
+  const url = typeof asset.url === "string" ? asset.url.trim() : "";
+  const key = typeof asset.key === "string" ? asset.key.trim() : "";
+  if (!url && !key) {
+    return "Image URL or R2 key is required";
+  }
+  if (
+    typeof asset.mimeType === "string" &&
+    asset.mimeType.trim() &&
+    !asset.mimeType.trim().toLowerCase().startsWith("image/")
+  ) {
+    return "Timeline entries require an image asset";
+  }
+  return true;
+}
+
 export const storyTimelineEntry = defineType({
   name: "storyTimelineEntry",
   title: "Story timeline entry",
   type: "object",
   fields: [
+    defineField({
+      name: "entryType",
+      title: "Entry type",
+      type: "string",
+      options: {
+        list: [
+          { title: "News / milestone", value: "news" },
+          { title: "Team member joins", value: "teamJoin" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "news",
+      validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "teamMember",
+      title: "Team member",
+      type: "reference",
+      to: [{ type: "teamMember" }],
+      hidden: ({ parent }) => parent?.entryType !== "teamJoin",
+      validation: (r) =>
+        r.custom((value, context) => {
+          const parent = context.parent as { entryType?: string } | undefined;
+          if (parent?.entryType === "teamJoin" && !value) {
+            return "Team member is required for join milestones";
+          }
+          return true;
+        }),
+    }),
     defineField({
       name: "year",
       title: "Year",
@@ -41,37 +94,42 @@ export const storyTimelineEntry = defineType({
     defineField({ name: "title", title: "Title", type: "string", validation: (r) => r.required() }),
     defineField({ name: "body", title: "Body", type: "text", validation: (r) => r.required() }),
     defineField({
+      name: "images",
+      title: "Images",
+      type: "array",
+      of: [
+        {
+          type: "r2Asset",
+          validation: (r) => r.custom(validateR2ImageAsset),
+        },
+      ],
+      validation: (r) => r.required().min(1),
+    }),
+    defineField({
       name: "image",
-      title: "Image",
+      title: "Image (deprecated)",
       type: "r2Asset",
-      validation: (r) =>
-        r.required().custom((value) => {
-          if (!value || typeof value !== "object") {
-            return "Image is required";
-          }
-          const asset = value as {
-            url?: unknown;
-            key?: unknown;
-            mimeType?: unknown;
-          };
-          const url = typeof asset.url === "string" ? asset.url.trim() : "";
-          const key = typeof asset.key === "string" ? asset.key.trim() : "";
-          if (!url && !key) {
-            return "Image URL or R2 key is required";
-          }
-          if (
-            typeof asset.mimeType === "string" &&
-            asset.mimeType.trim() &&
-            !asset.mimeType.trim().toLowerCase().startsWith("image/")
-          ) {
-            return "Timeline entries require an image asset";
-          }
-          return true;
-        }),
+      hidden: true,
+      readOnly: true,
+      description:
+        "Legacy singular image — kept for published documents during migration. Prefer Images.",
     }),
   ],
   preview: {
-    select: { title: "title", subtitle: "dateLabel" },
+    select: {
+      title: "title",
+      subtitle: "dateLabel",
+      media: "images.0",
+      entryType: "entryType",
+    },
+    prepare({ title, subtitle, media, entryType }) {
+      const isJoin = entryType === "teamJoin";
+      return {
+        title: isJoin ? `👤 ${title ?? "Untitled"}` : (title ?? "Untitled"),
+        subtitle,
+        media,
+      };
+    },
   },
 });
 

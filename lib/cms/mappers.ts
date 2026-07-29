@@ -241,6 +241,43 @@ export function mapHomePage(doc: unknown): HomePage | null {
   };
 }
 
+function rosterIdFromName(name: string): string {
+  const slug = name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return slug || "member";
+}
+
+function mapTimelineRosterMember(
+  value: unknown,
+): StoryTimelineEntry["teamMember"] | undefined {
+  const row = asRecord(value);
+  if (!row) {
+    return undefined;
+  }
+
+  const name = asString(row.name).trim();
+  if (!name) {
+    return undefined;
+  }
+
+  const id =
+    typeof row._id === "string" && row._id.trim()
+      ? row._id.trim()
+      : rosterIdFromName(name);
+  const role = asString(row.role).trim();
+  const photo = mapR2AssetToCmsImage(row.photo as R2AssetRef | null | undefined);
+
+  return {
+    id,
+    name,
+    role,
+    ...(photo ? { photo } : {}),
+  };
+}
+
 function mapStoryTimelineEntry(
   value: unknown,
   index: number,
@@ -259,6 +296,36 @@ function mapStoryTimelineEntry(
     return null;
   }
 
+  const rawType = asString(item.entryType).trim();
+  const entryType: StoryTimelineEntry["entryType"] =
+    rawType === "teamJoin" ? "teamJoin" : "news";
+
+  const imagesFromArray = Array.isArray(item.images)
+    ? item.images
+        .map((asset) => mapR2AssetToCmsImage(asset as R2AssetRef | null | undefined))
+        .filter((image): image is NonNullable<typeof image> => image !== undefined)
+    : [];
+
+  const legacyImage = mapR2AssetToCmsImage(item.image as R2AssetRef | null | undefined);
+  const images =
+    imagesFromArray.length > 0
+      ? imagesFromArray
+      : legacyImage
+        ? [legacyImage]
+        : [];
+
+  if (images.length === 0) {
+    return null;
+  }
+
+  let teamMember: StoryTimelineEntry["teamMember"] | undefined;
+  if (entryType === "teamJoin") {
+    teamMember = mapTimelineRosterMember(item.teamMember);
+    if (!teamMember) {
+      return null;
+    }
+  }
+
   const key =
     typeof item._key === "string" && item._key.trim()
       ? item._key
@@ -267,12 +334,14 @@ function mapStoryTimelineEntry(
 
   return {
     key,
+    entryType,
     year,
     dateLabel,
     ...(date ? { date } : {}),
     title,
     body,
-    image: mapR2AssetToCmsImage(item.image as R2AssetRef | null | undefined),
+    images,
+    ...(teamMember ? { teamMember } : {}),
   };
 }
 

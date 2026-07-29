@@ -1,36 +1,24 @@
 import { render, screen } from "@testing-library/react";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PARTNER_PLACEHOLDERS } from "@/lib/home/partner-placeholders";
 import { PartnersMarquee } from "./PartnersMarquee";
 
-vi.mock("embla-carousel-react", () => {
-  const api = {
-    selectedScrollSnap: () => 0,
-    scrollSnapList: () => [0],
-    scrollTo: vi.fn(),
-    scrollNext: vi.fn(),
-    scrollPrev: vi.fn(),
-    canScrollPrev: () => false,
-    canScrollNext: () => false,
-    on: vi.fn(),
-    off: vi.fn(),
-  };
-
-  return {
-    default: () => [vi.fn(), api],
-  };
-});
-
-beforeAll(() => {
-  class ResizeObserverStub {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  }
-
-  vi.stubGlobal("ResizeObserver", ResizeObserverStub);
-});
+function mockMatchMedia(matches: boolean) {
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: vi.fn().mockImplementation((query: string) => ({
+      matches,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+}
 
 describe("PARTNER_PLACEHOLDERS", () => {
   it("defines 6–8 static placeholder slots with honest labels", () => {
@@ -46,15 +34,24 @@ describe("PARTNER_PLACEHOLDERS", () => {
 });
 
 describe("PartnersMarquee", () => {
-  it("renders each partner placeholder slot once in the logo carousel", () => {
+  beforeEach(() => {
+    mockMatchMedia(false);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("renders each partner placeholder slot in the continuous logo marquee", () => {
     render(<PartnersMarquee />);
 
-    expect(screen.getAllByText("Partner placeholder")).toHaveLength(
-      PARTNER_PLACEHOLDERS.length
+    // Primary track + aria-hidden clone both render labels.
+    expect(screen.getAllByText("Partner placeholder").length).toBeGreaterThanOrEqual(
+      PARTNER_PLACEHOLDERS.length,
     );
   });
 
-  it("renders partner logos as images without links or click actions", () => {
+  it("renders partner logos as larger desaturated images without links", () => {
     render(
       <PartnersMarquee
         partners={[
@@ -69,12 +66,15 @@ describe("PartnersMarquee", () => {
     );
 
     const images = screen.getAllByRole("img", { name: "Acme logo" });
-    expect(images).toHaveLength(1);
+    expect(images.length).toBeGreaterThanOrEqual(1);
     expect(images[0]?.getAttribute("src")).toContain(
       encodeURIComponent("https://media.kamiyonstudio.com/partners/acme.png"),
     );
-    expect(images[0]?.className).not.toMatch(/grayscale/);
-    expect(images[0]?.className).toMatch(/opacity-100/);
+    expect(images[0]?.className).toMatch(/grayscale/);
+    expect(images[0]?.className).toMatch(/group-hover:grayscale-0/);
+    expect(images[0]?.className).toMatch(/h-14/);
+    expect(images[0]?.className).toMatch(/md:h-16/);
+    expect(images[0]?.className).toMatch(/lg:h-20/);
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
     expect(screen.queryByText("Acme")).not.toBeInTheDocument();
   });
@@ -105,40 +105,17 @@ describe("PartnersMarquee", () => {
     expect(screen.getByRole("region", { name: "Partner logos" })).toBeInTheDocument();
   });
 
-  it("exposes the partners carousel track for layout targeting", () => {
+  it("exposes the partners continuous marquee track", () => {
     render(<PartnersMarquee />);
 
     expect(screen.getByTestId("partners-marquee-track")).toBeInTheDocument();
-    expect(screen.getByTestId("logo-carousel")).toBeInTheDocument();
+    expect(screen.getByTestId("logo-marquee")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("logo-marquee").querySelector(".animate-marquee-horizontal"),
+    ).not.toBeNull();
   });
 
-  it("uses 2/4 items-per-view with responsive slide gaps so logos never overlap", () => {
-    render(<PartnersMarquee />);
-
-    const slides = screen.getAllByRole("group");
-    expect(slides.length).toBeGreaterThan(0);
-    expect(slides[0]?.className).toMatch(/basis-1\/2/);
-    expect(slides[0]?.className).toMatch(/lg:basis-1\/4/);
-    expect(slides[0]?.className).toMatch(/pl-3/);
-    expect(slides[0]?.className).toMatch(/md:pl-4/);
-    expect(slides[0]?.className).toMatch(/lg:pl-6/);
-
-    const track = screen.getByTestId("partners-marquee-track");
-    const logoCell = track.querySelector(".group");
-    expect(logoCell).not.toBeNull();
-    expect(logoCell?.className).toMatch(/min-w-0/);
-    expect(logoCell?.className).not.toMatch(/min-w-\[10rem\]/);
-    expect(logoCell?.className).not.toMatch(/md:min-w-\[12rem\]/);
-
-    const carouselContent = screen
-      .getByTestId("logo-carousel")
-      .querySelector(".flex");
-    expect(carouselContent?.className).toMatch(/-ml-3/);
-    expect(carouselContent?.className).toMatch(/md:-ml-4/);
-    expect(carouselContent?.className).toMatch(/lg:-ml-6/);
-  });
-
-  it("keeps Container horizontal padding and avoids double-padding the carousel inset", () => {
+  it("keeps Container horizontal padding without Embla slide-basis layout", () => {
     render(<PartnersMarquee />);
 
     const section = screen.getByRole("region", { name: "Partner logos" });
@@ -147,12 +124,8 @@ describe("PartnersMarquee", () => {
     expect(container?.className).toMatch(/\bsm:px-6\b/);
     expect(container?.className).toMatch(/\blg:px-8\b/);
 
-    const track = screen.getByTestId("partners-marquee-track");
-    const doublePaddedInset = Array.from(track.querySelectorAll("*")).find(
-      (el) =>
-        /\bcontainer\b/.test(el.className) && /\bpx-4\b/.test(el.className),
-    );
-    expect(doublePaddedInset).toBeUndefined();
+    expect(screen.queryByTestId("logo-carousel")).not.toBeInTheDocument();
+    expect(screen.queryByRole("group")).not.toBeInTheDocument();
   });
 
   it("defaults to section layout on light: secondary background, large padding, light nav theme", () => {
@@ -187,7 +160,7 @@ describe("PartnersMarquee", () => {
     expect(screen.getByRole("region", { name: "Trusted by" })).toBeInTheDocument();
   });
 
-  it("keeps partner logos in original color without invert overlay", () => {
+  it("keeps partner logos without invert overlay while using grayscale idle treatment", () => {
     render(
       <PartnersMarquee
         tone="onDark"
@@ -202,11 +175,12 @@ describe("PartnersMarquee", () => {
       />,
     );
 
-    const image = screen.getByRole("img", { name: "Acme logo" });
-    const toneClasses = [image.className, image.parentElement?.className ?? ""].join(
+    const image = screen.getAllByRole("img", { name: "Acme logo" })[0];
+    const toneClasses = [image?.className ?? "", image?.parentElement?.className ?? ""].join(
       " ",
     );
     expect(toneClasses).not.toMatch(/invert|brightness/);
-    expect(image.className).not.toMatch(/grayscale/);
+    expect(image?.className).toMatch(/grayscale/);
+    expect(image?.className).toMatch(/group-hover:grayscale-0/);
   });
 });

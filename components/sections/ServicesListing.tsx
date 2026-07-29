@@ -6,26 +6,24 @@ type ServicesListingProps = {
   services: Service[];
 };
 
-/** Flat Gate 0 listing — five services ordered by `order`, no category groups. */
+/** Flat Gate 0 listing — five service banners in a padded content column. */
 export function ServicesListing({ services }: ServicesListingProps) {
   const ordered = [...services].sort((a, b) => a.order - b.order);
 
   return (
-    <section className="bg-[var(--bg-primary)] py-16 md:py-24">
+    <section
+      className="bg-[var(--bg-primary)] pb-16 pt-8 md:pb-24 md:pt-10"
+      aria-label="Service offerings"
+    >
       <Container>
-        <div className="max-w-[680px]">
-          <h1 className="font-display text-3xl font-bold text-[var(--text-primary)] md:text-4xl">
-            Services
-          </h1>
-          <p className="mt-4 text-base text-[var(--text-secondary)] md:text-lg">
-            A creative technology studio — games first. Five offerings spanning
-            immersive games, digital products, design, branding, and community.
-          </p>
-        </div>
-
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {ordered.map((service) => (
-            <ServiceCard key={service.slug.current} service={service} />
+        <div className="mx-auto flex max-w-5xl flex-col gap-5 md:gap-6">
+          {ordered.map((service, index) => (
+            <ServiceCard
+              key={service.slug.current}
+              service={service}
+              priority={index === 0}
+              className="rounded-[var(--radius-card)] shadow-[var(--shadow-sm)]"
+            />
           ))}
         </div>
       </Container>

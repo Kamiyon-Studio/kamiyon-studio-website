@@ -107,22 +107,18 @@ describe("mapAboutPage", () => {
       timelineEntries: [
         {
           key: "founded",
+          entryType: "news",
           year: "2024",
           dateLabel: "March 2024",
           date: "2024-03-01",
           title: "Studio founded",
           body: "Kamiyon Studio began.",
-          image: {
-            url: "https://media.kamiyonstudio.com/about/founded.jpg",
-            alt: "The founding team",
-          },
-        },
-        {
-          key: "timeline-1",
-          year: "2025",
-          dateLabel: "2025",
-          title: "A new chapter",
-          body: "The journey continued.",
+          images: [
+            {
+              url: "https://media.kamiyonstudio.com/about/founded.jpg",
+              alt: "The founding team",
+            },
+          ],
         },
       ],
       mission: "Mission",
@@ -145,6 +141,12 @@ describe("mapAboutPage", () => {
           dateLabel: "March 2024",
           title: "Studio founded",
           body: "Kamiyon Studio began.",
+          images: [
+            {
+              url: "https://media.kamiyonstudio.com/about/founded.jpg",
+              alt: "Founding",
+            },
+          ],
         },
         {
           _key: "missing-title",
@@ -152,18 +154,192 @@ describe("mapAboutPage", () => {
           dateLabel: "2025",
           title: " ",
           body: "Incomplete.",
+          images: [
+            {
+              url: "https://media.kamiyonstudio.com/about/other.jpg",
+              alt: "Other",
+            },
+          ],
         },
       ],
     });
 
-    expect(page?.timelineEntries).toEqual([
+    expect(page?.timelineEntries).toMatchObject([
       {
         key: "valid",
+        entryType: "news",
         year: "2024",
         dateLabel: "March 2024",
         title: "Studio founded",
         body: "Kamiyon Studio began.",
-        image: undefined,
+        images: [
+          {
+            url: "https://media.kamiyonstudio.com/about/founded.jpg",
+            alt: "Founding",
+          },
+        ],
+      },
+    ]);
+  });
+
+  it("defaults entryType to news and maps teamJoin with resolved member", () => {
+    const page = mapAboutPage({
+      title: "About",
+      mission: "Mission",
+      timelineEntries: [
+        {
+          _key: "news-1",
+          year: "2024",
+          dateLabel: "March 2024",
+          title: "Studio founded",
+          body: "Kamiyon Studio began.",
+          images: [
+            {
+              url: "https://media.kamiyonstudio.com/about/a.jpg",
+              alt: "A",
+            },
+          ],
+        },
+        {
+          _key: "join-1",
+          entryType: "teamJoin",
+          year: "2025",
+          dateLabel: "June 2025",
+          title: "Alice joins the team",
+          body: "Welcome Alice.",
+          images: [
+            {
+              url: "https://media.kamiyonstudio.com/about/b.jpg",
+              alt: "B",
+            },
+            {
+              url: "https://media.kamiyonstudio.com/about/c.jpg",
+              alt: "C",
+            },
+          ],
+          teamMember: {
+            _id: "teamMember.alice",
+            name: "Alice Example",
+            role: "Designer",
+            photo: {
+              url: "https://media.kamiyonstudio.com/team/alice.jpg",
+              alt: "Alice",
+            },
+          },
+        },
+      ],
+    });
+
+    expect(page?.timelineEntries).toMatchObject([
+      {
+        key: "news-1",
+        entryType: "news",
+        year: "2024",
+        dateLabel: "March 2024",
+        title: "Studio founded",
+        body: "Kamiyon Studio began.",
+        images: [
+          {
+            url: "https://media.kamiyonstudio.com/about/a.jpg",
+            alt: "A",
+          },
+        ],
+      },
+      {
+        key: "join-1",
+        entryType: "teamJoin",
+        year: "2025",
+        dateLabel: "June 2025",
+        title: "Alice joins the team",
+        body: "Welcome Alice.",
+        images: [
+          {
+            url: "https://media.kamiyonstudio.com/about/b.jpg",
+            alt: "B",
+          },
+          {
+            url: "https://media.kamiyonstudio.com/about/c.jpg",
+            alt: "C",
+          },
+        ],
+        teamMember: {
+          id: "teamMember.alice",
+          name: "Alice Example",
+          role: "Designer",
+          photo: {
+            url: "https://media.kamiyonstudio.com/team/alice.jpg",
+            alt: "Alice",
+          },
+        },
+      },
+    ]);
+  });
+
+  it("drops teamJoin without a resolvable member and entries with no images", () => {
+    const page = mapAboutPage({
+      title: "About",
+      mission: "Mission",
+      timelineEntries: [
+        {
+          _key: "orphan-join",
+          entryType: "teamJoin",
+          year: "2025",
+          dateLabel: "2025",
+          title: "Someone joins",
+          body: "Missing person.",
+          images: [
+            {
+              url: "https://media.kamiyonstudio.com/about/x.jpg",
+              alt: "X",
+            },
+          ],
+        },
+        {
+          _key: "no-images",
+          year: "2024",
+          dateLabel: "2024",
+          title: "No media",
+          body: "Dropped.",
+        },
+        {
+          _key: "slug-fallback",
+          entryType: "teamJoin",
+          year: "2026",
+          dateLabel: "2026",
+          title: "Bob joins",
+          body: "Welcome Bob.",
+          images: [
+            {
+              url: "https://media.kamiyonstudio.com/about/y.jpg",
+              alt: "Y",
+            },
+          ],
+          teamMember: {
+            name: "Bob Example",
+          },
+        },
+      ],
+    });
+
+    expect(page?.timelineEntries).toMatchObject([
+      {
+        key: "slug-fallback",
+        entryType: "teamJoin",
+        year: "2026",
+        dateLabel: "2026",
+        title: "Bob joins",
+        body: "Welcome Bob.",
+        images: [
+          {
+            url: "https://media.kamiyonstudio.com/about/y.jpg",
+            alt: "Y",
+          },
+        ],
+        teamMember: {
+          id: "bob-example",
+          name: "Bob Example",
+          role: "",
+        },
       },
     ]);
   });

@@ -1,8 +1,36 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import type { Service } from "@/lib/cms/types";
 import { ServiceCard } from "./ServiceCard";
+
+vi.mock("next/image", () => ({
+  default: ({
+    alt,
+    src,
+    fill: _fill,
+    priority,
+    sizes: _sizes,
+    className,
+    ...rest
+  }: {
+    alt: string;
+    src: string;
+    fill?: boolean;
+    priority?: boolean;
+    sizes?: string;
+    className?: string;
+  }) => (
+    // eslint-disable-next-line @next/next/no-img-element -- test mock
+    <img
+      alt={alt}
+      src={src}
+      className={className}
+      data-priority={priority ? "true" : undefined}
+      {...rest}
+    />
+  ),
+}));
 
 const baseService: Service = {
   _type: "service",
@@ -25,32 +53,18 @@ describe("ServiceCard", () => {
     expect(screen.getByRole("link")).toHaveAttribute("href", "/services/game-development");
   });
 
-  it("renders the mapped icon glyph for a known icon key", () => {
-    render(<ServiceCard service={baseService} />);
+  it("renders a full-bleed placeholder background image", () => {
+    const { container } = render(<ServiceCard service={baseService} />);
 
-    expect(screen.getByText("🎮")).toBeInTheDocument();
-  });
-
-  it("renders the users glyph for Community & Events", () => {
-    render(<ServiceCard service={{ ...baseService, icon: "users" }} />);
-
-    expect(screen.getByText("👥")).toBeInTheDocument();
-  });
-
-  it("falls back to a generic glyph for an unrecognized icon key", () => {
-    render(<ServiceCard service={{ ...baseService, icon: "not-a-real-icon" }} />);
-
-    expect(screen.getByText("✦")).toBeInTheDocument();
-  });
-
-  it("falls back to a generic glyph when no icon is set", () => {
-    render(<ServiceCard service={{ ...baseService, icon: undefined }} />);
-
-    expect(screen.getByText("✦")).toBeInTheDocument();
+    expect(container.querySelector('img[src="/assets/background.jpg"]')).toBeInTheDocument();
   });
 
   it("shows a Placeholder badge only when isPlaceholder is true", () => {
-    render(<ServiceCard service={{ ...baseService, isPlaceholder: true }} />);
+    const { rerender } = render(<ServiceCard service={baseService} />);
+
+    expect(screen.queryByText("Placeholder")).not.toBeInTheDocument();
+
+    rerender(<ServiceCard service={{ ...baseService, isPlaceholder: true }} />);
 
     expect(screen.getByText("Placeholder")).toBeInTheDocument();
   });
@@ -58,7 +72,7 @@ describe("ServiceCard", () => {
   it("prefers tagline over summary for card positioning copy", () => {
     render(<ServiceCard service={baseService} />);
 
-    expect(screen.getByText("Game Development")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Game Development" })).toBeInTheDocument();
     expect(
       screen.getByText("Build immersive games that inspire, educate, and entertain."),
     ).toBeInTheDocument();
@@ -69,5 +83,26 @@ describe("ServiceCard", () => {
     render(<ServiceCard service={{ ...baseService, tagline: "" }} />);
 
     expect(screen.getByText("Full-cycle game development services.")).toBeInTheDocument();
+  });
+
+  it("exposes a view-service call to action via the link name", () => {
+    render(<ServiceCard service={baseService} />);
+
+    expect(
+      screen.getByRole("link", { name: "Game Development — view service" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/view service/i)).toBeInTheDocument();
+  });
+
+  it("marks the first banner image as priority when requested", () => {
+    const { container, rerender } = render(
+      <ServiceCard service={baseService} priority />,
+    );
+
+    expect(container.querySelector("img")).toHaveAttribute("data-priority", "true");
+
+    rerender(<ServiceCard service={baseService} />);
+
+    expect(container.querySelector("img")).not.toHaveAttribute("data-priority");
   });
 });

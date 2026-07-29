@@ -66,6 +66,12 @@ test("About page renders cinematic hero, story, timeline, and lower sections", a
   const entryList = page.locator("#timeline ol");
   await expect(emptyState.or(entryList).first()).toBeVisible();
 
+  // Sticky year rail + roster aside exists in markup (hidden below xl).
+  if (await entryList.count()) {
+    await expect(page.getByTestId("timeline-year-rail")).toBeAttached();
+    await expect(page.getByTestId("timeline-roster")).toBeAttached();
+  }
+
   await page.locator("#values").scrollIntoViewIfNeeded();
   await expect(page.locator("#values")).toBeVisible();
   await page.locator("#team").scrollIntoViewIfNeeded();
