@@ -4,6 +4,13 @@
 
 Kamiyon Studio's website is a **warm, premium marketing site** — not a dark technical workspace. The visual language balances playful creativity with professional craftsmanship: bright White (`#F8F8F8`) backgrounds, Black (`#201013`) typography, Primary pink (`#FF7998`) accents, and Secondary gold (`#E9C080`) used sparingly.
 
+### Skeleton Labs + Kamiyon tokens
+
+- **Skeleton** (`@skeletonlabs/skeleton` / `skeleton-react`) is the **primitive layer** (Tailwind utilities + React compounds such as Accordion).
+- **Kamiyon tokens** in `app/globals.css` remain the **brand source of truth** (`--color-sakura`, `--bg-*`, `--text-*`, radii).
+- Active theme: `data-theme="kamiyon"` on `<html>` (custom theme in `app/themes/kamiyon.css`). Light-only; no theme switcher.
+- New UI: prefer Skeleton primitives wrapped in `components/ui/*` adapters so call sites keep consuming `var(--token)` and public APIs stay stable.
+
 > **Locked website tokens:** see [`WEBSITE-ESSENTIAL-CONTEXT.md`](./WEBSITE-ESSENTIAL-CONTEXT.md) §8 — that file wins on conflicts.
 
 Visitors should feel: professional, creative, approachable, trustworthy, innovative, educational.

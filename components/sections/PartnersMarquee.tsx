@@ -47,15 +47,17 @@ export function PartnersMarquee({
             logos={logos}
             autoPlay
             autoPlayInterval={4000}
-            itemsPerViewMobile={3}
-            itemsPerViewDesktop={5}
-            logoContainerWidth="w-auto"
+            itemsPerViewMobile={2}
+            itemsPerViewDesktop={4}
+            itemGap="md"
+            logoContainerWidth="w-full"
             logoContainerHeight="h-auto"
+            logoContainerMinWidth="min-w-0"
             logoImageWidth="w-auto"
             logoImageHeight="h-10"
             padding="py-0"
-            spacing="gap-0"
-            containerClassName="bg-transparent !px-0"
+            containerClassName="bg-transparent"
+            contentClassName="w-full"
             carouselClassName="partners-logo-carousel"
           />
         </div>

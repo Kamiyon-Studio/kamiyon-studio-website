@@ -71,4 +71,18 @@ describe("Button", () => {
     const { container: ghostContainer } = render(<Button variant="ghost">Skip</Button>);
     expect(ghostContainer.querySelector(".glowing-shadow")).not.toBeInTheDocument();
   });
+
+  it("uses Skeleton btn primitive classes under the hood", () => {
+    render(<Button>Click me</Button>);
+
+    expect(screen.getByRole("button", { name: "Click me" })).toHaveClass("btn");
+  });
+
+  it("renders mailto links without target=_blank", () => {
+    render(<Button href="mailto:hello@kamiyon.studio">Email us</Button>);
+
+    const link = screen.getByRole("link", { name: "Email us" });
+    expect(link).toHaveAttribute("href", "mailto:hello@kamiyon.studio");
+    expect(link).not.toHaveAttribute("target");
+  });
 });

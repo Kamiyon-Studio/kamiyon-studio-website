@@ -1,28 +1,36 @@
 @import "tailwindcss";
+@import "@skeletonlabs/skeleton";
+@import "@skeletonlabs/skeleton-react";
+@import "./themes/kamiyon.css";
 
 /*
  * Kamiyon Studio — Design Tokens
  * Phase 1: Design Foundation. Light mode only (v1, no dark mode).
  * Sources: context/ui-context.md · context/website-plan/06-DESIGN SYSTEM…
+ *
+ * Skeleton supplies shade scales (--color-primary-50…950, etc.) via kamiyon theme.
+ * Flat --color-primary / --color-secondary bridge to brand mid shades / sakura / gold
+ * so existing utilities (bg-sakura, footer color-mix) stay brand-correct.
  */
 
 /* -----------------------------------------------------------------------
    BRAND COLORS — registered as Tailwind color utilities.
    Creates: bg-sakura, text-sakura, border-sakura, etc.
-   Only confirmed hex values are set. TBD brand colors have comments only.
+   Prefer --color-sakura for brand fills; Skeleton shades live under *-50…950.
    ----------------------------------------------------------------------- */
 @theme {
-  --color-primary: #ff7998;
-  --color-secondary: #e9c080;
+  /* Brand hex anchors (do not collide with Skeleton --color-primary-500 etc.) */
+  --color-sakura: #ff7998;
+  --color-gold: #e9c080;
   --color-black: #201013;
   --color-white: #f8f8f8;
 
-  /* Alias — legacy sakura token name maps to locked primary */
-  --color-sakura: var(--color-primary);
+  /* Flat bridges → brand midpoints (Skeleton scales remain primary-50…950) */
+  --color-primary: var(--color-sakura);
+  --color-secondary: var(--color-gold);
 
   --color-ivory: var(--color-white);
   --color-charcoal: var(--color-black);
-  --color-gold: var(--color-secondary);
 
   /* WCAG AA ink for text/icons on light backgrounds (~5:1 vs white) */
   --color-sakura-ink: #c24a66;
@@ -119,10 +127,18 @@
 
 /* -----------------------------------------------------------------------
    BASE STYLES
+   Light lock: force light color-scheme so Skeleton light-dark() pairings
+   cannot flip marketing UI. No theme switcher in v1.
    ----------------------------------------------------------------------- */
+html {
+  color-scheme: light;
+}
+
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
+  /* Reassert Kamiyon body after Skeleton @base typography */
+  font-family: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Accessibility — focus visible on all interactive elements.

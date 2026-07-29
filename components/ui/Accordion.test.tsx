@@ -57,4 +57,13 @@ describe("Accordion", () => {
       "false"
     );
   });
+
+  it("exposes accordion triggers with aria-controls pointing at panels", () => {
+    render(<Accordion items={items} />);
+
+    const trigger = screen.getByRole("button", { name: items[0].question });
+    const panelId = trigger.getAttribute("aria-controls");
+    expect(panelId).toBeTruthy();
+    expect(document.getElementById(panelId!)).toHaveAttribute("role", "region");
+  });
 });

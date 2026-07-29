@@ -107,4 +107,47 @@ describe("PartnersMarquee", () => {
     expect(screen.getByTestId("partners-marquee-track")).toBeInTheDocument();
     expect(screen.getByTestId("logo-carousel")).toBeInTheDocument();
   });
+
+  it("uses 2/4 items-per-view with responsive slide gaps so logos never overlap", () => {
+    render(<PartnersMarquee />);
+
+    const slides = screen.getAllByRole("group");
+    expect(slides.length).toBeGreaterThan(0);
+    expect(slides[0]?.className).toMatch(/basis-1\/2/);
+    expect(slides[0]?.className).toMatch(/lg:basis-1\/4/);
+    expect(slides[0]?.className).toMatch(/pl-3/);
+    expect(slides[0]?.className).toMatch(/md:pl-4/);
+    expect(slides[0]?.className).toMatch(/lg:pl-6/);
+
+    const track = screen.getByTestId("partners-marquee-track");
+    const logoCell = track.querySelector(".group");
+    expect(logoCell).not.toBeNull();
+    expect(logoCell?.className).toMatch(/min-w-0/);
+    expect(logoCell?.className).not.toMatch(/min-w-\[10rem\]/);
+    expect(logoCell?.className).not.toMatch(/md:min-w-\[12rem\]/);
+
+    const carouselContent = screen
+      .getByTestId("logo-carousel")
+      .querySelector(".flex");
+    expect(carouselContent?.className).toMatch(/-ml-3/);
+    expect(carouselContent?.className).toMatch(/md:-ml-4/);
+    expect(carouselContent?.className).toMatch(/lg:-ml-6/);
+  });
+
+  it("keeps Container horizontal padding and avoids double-padding the carousel inset", () => {
+    render(<PartnersMarquee />);
+
+    const section = screen.getByRole("region", { name: "Partner logos" });
+    const container = section.firstElementChild;
+    expect(container?.className).toMatch(/\bpx-4\b/);
+    expect(container?.className).toMatch(/\bsm:px-6\b/);
+    expect(container?.className).toMatch(/\blg:px-8\b/);
+
+    const track = screen.getByTestId("partners-marquee-track");
+    const doublePaddedInset = Array.from(track.querySelectorAll("*")).find(
+      (el) =>
+        /\bcontainer\b/.test(el.className) && /\bpx-4\b/.test(el.className),
+    );
+    expect(doublePaddedInset).toBeUndefined();
+  });
 });

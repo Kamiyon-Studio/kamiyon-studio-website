@@ -27,16 +27,17 @@ type ButtonProps = ButtonAsButton | ButtonAsLink;
 
 const variantClasses: Record<ButtonVariant, string> = {
   // Dark text-on-accent (not white) — raw sakura fails AA contrast with white text.
+  // Skeleton preset-filled-primary-500 supplies structure; Kamiyon tokens keep brand look.
   primary:
-    "bg-sakura text-[var(--text-on-accent)] hover:opacity-90 focus-visible:outline-offset-2",
+    "preset-filled-primary-500 bg-sakura text-[var(--text-on-accent)] hover:opacity-90 focus-visible:outline-offset-2",
   secondary:
-    "border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]",
+    "preset-outlined-surface-200-800 border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]",
   ghost:
     "text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] hover:text-sakura-ink",
 };
 
 const baseClasses =
-  "inline-flex min-h-11 min-w-11 items-center justify-center rounded-[var(--radius-button)] px-5 py-2.5 text-sm font-medium transition-[opacity,background-color,color] duration-200 motion-reduce:transition-none";
+  "btn inline-flex min-h-11 min-w-11 items-center justify-center rounded-[var(--radius-button)] px-5 py-2.5 text-sm font-medium transition-[opacity,background-color,color] duration-200 motion-reduce:transition-none";
 
 function isMailOrTel(href: string): boolean {
   return /^(mailto:|tel:)/i.test(href.trim());

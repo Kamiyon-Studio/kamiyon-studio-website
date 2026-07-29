@@ -339,7 +339,6 @@ export function SterlingGateKineticNavigation({
                   className="nav-logo-mark"
                   priority
                 />
-                <span>{siteName}</span>
               </SameRouteLink>
               <div className="nav-row__right">
                 <button
