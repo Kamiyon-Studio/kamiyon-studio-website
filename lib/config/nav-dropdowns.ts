@@ -1,4 +1,4 @@
-import type { Portfolio, Service } from "@/lib/cms/types";
+import type { Service } from "@/lib/cms/types";
 
 export type NavDropdownChild = {
   label: string;
@@ -12,13 +12,13 @@ export type NavItemWithDropdown = {
 };
 
 /**
- * Build Services/Portfolio dropdown children from published CMS values.
- * Falls back to empty children when collections are empty (parent link still works).
+ * Attach Services dropdown children from published CMS values.
+ * Portfolio stays a standalone link (no children).
+ * Falls back to no children when services are empty (parent link still works).
  */
 export function buildNavItemsWithDropdowns(input: {
   navItems: readonly { label: string; href: string }[];
   services: readonly Service[];
-  portfolioItems: readonly Portfolio[];
 }): NavItemWithDropdown[] {
   const serviceChildren: NavDropdownChild[] = [...input.services]
     .sort((a, b) => a.order - b.order)
@@ -28,19 +28,9 @@ export function buildNavItemsWithDropdowns(input: {
       href: `/services/${service.slug.current}`,
     }));
 
-  const portfolioChildren: NavDropdownChild[] = input.portfolioItems
-    .filter((item) => item.slug.current)
-    .map((item) => ({
-      label: item.title,
-      href: `/portfolio/${item.slug.current}`,
-    }));
-
   return input.navItems.map((item) => {
     if (item.href === "/services" && serviceChildren.length > 0) {
       return { ...item, children: serviceChildren };
-    }
-    if (item.href === "/portfolio" && portfolioChildren.length > 0) {
-      return { ...item, children: portfolioChildren };
     }
     return { ...item };
   });

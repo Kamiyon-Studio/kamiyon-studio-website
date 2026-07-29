@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { Portfolio, Service } from "@/lib/cms/types";
+import type { Service } from "@/lib/cms/types";
 
 import { buildNavItemsWithDropdowns } from "./nav-dropdowns";
 
@@ -25,24 +25,6 @@ function makeService(overrides: Partial<Service> & Pick<Service, "title" | "orde
   };
 }
 
-function makePortfolio(title: string, slug: string): Portfolio {
-  return {
-    _type: "portfolio",
-    title,
-    slug: { current: slug },
-    clientName: "Client",
-    industry: "Games",
-    serviceType: "game-development",
-    challenge: "C",
-    solution: "S",
-    impact: "I",
-    gallery: [],
-    featured: false,
-    isPlaceholder: true,
-    seo: { title, description: "" },
-  };
-}
-
 describe("buildNavItemsWithDropdowns", () => {
   it("attaches ordered service children under Services", () => {
     const result = buildNavItemsWithDropdowns({
@@ -51,7 +33,6 @@ describe("buildNavItemsWithDropdowns", () => {
         makeService({ title: "Branding", order: 2 }),
         makeService({ title: "Game Development", order: 1 }),
       ],
-      portfolioItems: [],
     });
 
     const services = result.find((item) => item.href === "/services");
@@ -61,27 +42,23 @@ describe("buildNavItemsWithDropdowns", () => {
     ]);
   });
 
-  it("attaches portfolio children under Portfolio", () => {
+  it("keeps Portfolio as a standalone link without children", () => {
     const result = buildNavItemsWithDropdowns({
       navItems,
       services: [],
-      portfolioItems: [makePortfolio("Sample", "sample")],
     });
 
     const portfolio = result.find((item) => item.href === "/portfolio");
-    expect(portfolio?.children).toEqual([
-      { label: "Sample", href: "/portfolio/sample" },
-    ]);
+    expect(portfolio?.children).toBeUndefined();
+    expect(portfolio).toEqual({ label: "Portfolio", href: "/portfolio" });
   });
 
-  it("omits children when collections are empty", () => {
+  it("omits children when services collection is empty", () => {
     const result = buildNavItemsWithDropdowns({
       navItems,
       services: [],
-      portfolioItems: [],
     });
 
     expect(result.find((item) => item.href === "/services")?.children).toBeUndefined();
-    expect(result.find((item) => item.href === "/portfolio")?.children).toBeUndefined();
   });
 });

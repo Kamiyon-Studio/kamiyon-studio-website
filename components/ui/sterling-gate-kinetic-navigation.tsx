@@ -138,6 +138,27 @@ function AmbientShapes() {
   );
 }
 
+function DropdownChevron({ open }: { open: boolean }) {
+  return (
+    <svg
+      className={`menu-dropdown-chevron${open ? " is-open" : ""}`.trim()}
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M3.5 5.25L7 8.75L10.5 5.25"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function SterlingGateKineticNavigation({
   navItems,
   contactCta,
@@ -146,6 +167,7 @@ export function SterlingGateKineticNavigation({
 }: SterlingGateKineticNavigationProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [openDropdownHref, setOpenDropdownHref] = useState<string | null>(null);
   const reduceMotion = useSyncExternalStore(
     subscribeReducedMotion,
     prefersReducedMotion,
@@ -303,6 +325,7 @@ export function SterlingGateKineticNavigation({
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === "Escape" && isMenuOpen) {
         setIsMenuOpen(false);
+        setOpenDropdownHref(null);
       }
     };
 
@@ -317,8 +340,22 @@ export function SterlingGateKineticNavigation({
     };
   }, [isMenuOpen]);
 
-  const toggleMenu = () => setIsMenuOpen((open) => !open);
-  const closeMenu = () => setIsMenuOpen(false);
+  const toggleMenu = () => {
+    setIsMenuOpen((open) => {
+      if (open) {
+        setOpenDropdownHref(null);
+      }
+      return !open;
+    });
+  };
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+    setOpenDropdownHref(null);
+  };
+
+  const toggleDropdown = (href: string) => {
+    setOpenDropdownHref((current) => (current === href ? null : href));
+  };
 
   return (
     <div className="sterling-gate" ref={containerRef} data-nav-theme={navTheme}>
@@ -375,39 +412,72 @@ export function SterlingGateKineticNavigation({
 
             <div className="menu-content-wrapper">
               <ul className="menu-list">
-                {navItems.map((item, index) => (
-                  <li
-                    key={`${item.href}-${item.label}`}
-                    className="menu-list-item"
-                    data-shape={String((index % 5) + 1)}
-                  >
-                    <SameRouteLink
-                      href={item.href}
-                      className="nav-link w-inline-block"
-                      onNavigate={closeMenu}
+                {navItems.map((item, index) => {
+                  const hasChildren = Boolean(item.children && item.children.length > 0);
+                  const isDropdownOpen = openDropdownHref === item.href;
+                  const sublistId = `${menuId}-sub-${index}`;
+
+                  return (
+                    <li
+                      key={`${item.href}-${item.label}`}
+                      className="menu-list-item"
+                      data-shape={String((index % 5) + 1)}
                     >
-                      <p className="nav-link-text" data-menu-fade={index > 2 ? "" : undefined}>
-                        {item.label}
-                      </p>
-                      <div className="nav-link-hover-bg" aria-hidden="true" />
-                    </SameRouteLink>
-                    {item.children && item.children.length > 0 ? (
-                      <ul className="menu-sublist" data-menu-fade="">
-                        {item.children.map((child) => (
-                          <li key={`${child.href}-${child.label}`}>
-                            <SameRouteLink
-                              href={child.href}
-                              className="nav-sublink"
-                              onNavigate={closeMenu}
-                            >
-                              {child.label}
-                            </SameRouteLink>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : null}
-                  </li>
-                ))}
+                      <div className="menu-item-row">
+                        <SameRouteLink
+                          href={item.href}
+                          className="nav-link w-inline-block"
+                          onNavigate={closeMenu}
+                        >
+                          <p
+                            className="nav-link-text"
+                            data-menu-fade={index > 2 ? "" : undefined}
+                          >
+                            {item.label}
+                          </p>
+                          <div className="nav-link-hover-bg" aria-hidden="true" />
+                        </SameRouteLink>
+                        {hasChildren ? (
+                          <button
+                            type="button"
+                            className={`menu-dropdown-toggle${isDropdownOpen ? " is-open" : ""}`.trim()}
+                            aria-expanded={isDropdownOpen}
+                            aria-controls={sublistId}
+                            aria-label={
+                              isDropdownOpen
+                                ? `Collapse ${item.label}`
+                                : `Expand ${item.label}`
+                            }
+                            onClick={() => toggleDropdown(item.href)}
+                          >
+                            <DropdownChevron open={isDropdownOpen} />
+                          </button>
+                        ) : null}
+                      </div>
+                      {hasChildren && item.children ? (
+                        <ul
+                          id={sublistId}
+                          className="menu-sublist"
+                          data-menu-fade=""
+                          hidden={!isDropdownOpen}
+                        >
+                          {item.children.map((child) => (
+                            <li key={`${child.href}-${child.label}`}>
+                              <SameRouteLink
+                                href={child.href}
+                                className="nav-sublink"
+                                onNavigate={closeMenu}
+                                tabIndex={isDropdownOpen ? undefined : -1}
+                              >
+                                {child.label}
+                              </SameRouteLink>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </li>
+                  );
+                })}
               </ul>
               {contactCta ? (
                 <SameRouteLink

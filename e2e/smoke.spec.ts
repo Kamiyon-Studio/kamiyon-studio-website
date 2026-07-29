@@ -71,18 +71,29 @@ test("Get in touch CTA keeps the external Google Form URL", async ({ page }) => 
   await expect(cta).toHaveAttribute("href", /docs\.google\.com\/forms/);
 });
 
-test("Services and Portfolio nav dropdowns list CMS children", async ({ page }) => {
+test("Services nav dropdown lists CMS children; Portfolio is a standalone link", async ({ page }) => {
   await page.goto("/");
 
   await page.getByRole("navigation", { name: "Primary" }).getByRole("button", { name: /open menu/i }).click();
 
   const overlayNav = page.getByRole("navigation", { name: "Site sections" });
+
+  await overlayNav.getByRole("button", { name: /expand services/i }).click();
+
   const gameDev = overlayNav.getByRole("link", { name: "Game Development", exact: true });
   await expect(gameDev).toHaveCount(1);
   await expect(gameDev).toHaveAttribute("href", "/services/game-development");
+
+  await expect(overlayNav.getByRole("link", { name: "Portfolio" })).toHaveAttribute(
+    "href",
+    "/portfolio",
+  );
+  await expect(
+    overlayNav.getByRole("button", { name: /expand portfolio/i })
+  ).toHaveCount(0);
   await expect(
     overlayNav.getByRole("link", { name: "Sample Client Project — Placeholder" })
-  ).toBeVisible();
+  ).toHaveCount(0);
 });
 
 test("five canonical service detail pages render", async ({ page }) => {
