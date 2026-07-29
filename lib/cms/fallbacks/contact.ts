@@ -55,6 +55,6 @@ export const contactPageFallback: ContactPage = {
   seo: {
     title: "Contact Kamiyon Studio",
     description:
-      "Contact Kamiyon Studio through external channels for projects, partnerships, and interactive experience work.",
+      "Contact Kamiyon Studio by form or external channels for projects, partnerships, and interactive experience work.",
   },
 };

@@ -348,3 +348,23 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 **Consequences:** App is Gate-3 green without dataset mutation. Next human step: non-prod dry-run sign-off then optional `--apply`. Production CMS mutation remains forbidden.
 
 ---
+
+## ADR-018 — T8 Resend contact form on `/contact` (WS5) (2026-07-29)
+
+**Status:** Accepted
+
+**Context:** Plan locked 2026-07-26 for from/to addresses. Chrome “Get in touch” stays on the Google Form (ADR-010). Domain verification (DKIM/SPF/DMARC) is still operator work and independent of WS4b.
+
+**Decision:**
+
+- Add in-app form on `/contact` → `POST /api/contact` → **Resend** (studio inbox + visitor confirmation).
+- From: `Kamiyon Studio <noreply@send.kamiyonstudio.com>` (`CONTACT_FROM_EMAIL`); to: `CONTACT_TO_EMAIL` defaulting to `PUBLIC_EMAIL` (`kamiyonstudio@gmail.com`).
+- Studio mail `replyTo` = visitor; visitor confirmation `replyTo` = `PUBLIC_EMAIL`.
+- Missing `RESEND_API_KEY` → API **503** (“not configured”); form still renders and surfaces the error. No hardcoded secrets.
+- Honeypot (`company`) + in-memory IP rate limit (5 / 10 min per isolate).
+- `INTERIM_CONTACT_FORM_URL` / chrome CTA **unchanged**.
+
+**Consequences:** Form works locally/staging once `RESEND_API_KEY` + verified sending domain exist. Prod secrets after domain verify (+ preferably after WS4b). WS7 E2E expansion can cover the form next.
+
+---
+

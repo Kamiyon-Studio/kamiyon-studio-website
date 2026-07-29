@@ -13,8 +13,8 @@ export function ContactMethods({ channels, ctaNote }: ContactMethodsProps) {
         Ways to reach us
       </h2>
       <p className="mt-3 max-w-[560px] text-sm text-[var(--text-secondary)] md:text-base">
-        Kamiyon Studio does not use a contact form. Reach us directly through
-        any of the channels below.
+        Prefer a channel you already use? Reach us directly through any of the
+        options below — or use the message form on this page.
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">

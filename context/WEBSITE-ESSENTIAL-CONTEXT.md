@@ -65,7 +65,7 @@ It intentionally **excludes** company-wide material that is not needed to build 
 | Studio | **Hosted** at `https://kamiyon.sanity.studio` (ADR-007); `/studio` on Worker redirects |
 | Media | **All** images, videos, downloadables in **Cloudflare R2**; Sanity stores structured content + **media references** (URLs/keys) only |
 | Seed | `pnpm sanity:seed` from `lib/cms/fallbacks` (+ partners/blog stubs); Studio for R2 media refine (ADR-011) |
-| Contact | **Interim:** Google Form CTA + external links; **Target (T8):** in-app form via **Resend** |
+| Contact | **Chrome CTA:** Google Form (retained); **`/contact`:** in-app form via **Resend** (T8/ADR-018; env-gated) + external channels |
 | Blog | Authors, categories, tags, featured image, SEO, Portable Text, reading time, published/updated dates, related posts |
 | Primary nav | Home, About, Services, Portfolio, Blog, Contact (+ separate “Get in touch” CTA) |
 | Motion (main site) | **GSAP only** (remove Framer Motion + Lenis from production routes) |
@@ -319,12 +319,12 @@ Code-split GSAP; do not load it on pages with no animation.
 
 | Channel | Behavior |
 | --- | --- |
-| Interim primary CTA | External [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSeIefAWJu5FP9pwljLFz1wSUxU2ybR3--GdylUYUBsGHH0yaw/viewform) (linked button; wire in nav/CTA until T8) |
-| `/contact` page | Channels + mailto (`kamiyonstudio@gmail.com`); no in-app form until T8 |
-| Target (T8) | In-app form → API → **Resend** → studio inbox + visitor confirmation |
+| Chrome primary CTA | External [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSeIefAWJu5FP9pwljLFz1wSUxU2ybR3--GdylUYUBsGHH0yaw/viewform) — **retained** after T8 |
+| `/contact` page | In-app Resend form + channels + mailto (`kamiyonstudio@gmail.com`) |
+| T8 pipeline | Form → `POST /api/contact` → **Resend** → studio inbox + visitor confirmation (ADR-018) |
 | External links | Facebook, LinkedIn, public email (`mailto`), others from `siteSettings` |
-| Secrets | `RESEND_API_KEY` in Cloudflare env; never commit |
-| Validation (T8) | Server-side validate + rate limit; no PII in client logs |
+| Secrets | `RESEND_API_KEY` Worker secret; `CONTACT_FROM_EMAIL` / `CONTACT_TO_EMAIL` vars; never commit |
+| Validation (T8) | Server-side validate + honeypot + rate limit; no PII in client logs |
 | Same-route nav | In-app links: smooth-scroll to top / section (QA policy A, 2026-07-24) |
 
 ---
@@ -476,8 +476,9 @@ Decisions in §3 locked.
 | `SANITY_REVALIDATE_SECRET` | Webhook auth |
 | `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET` | Uploads + signed URLs |
 | `NEXT_PUBLIC_R2_PUBLIC_BASE_URL` | CDN/public media base |
-| `RESEND_API_KEY` | Contact form |
-| `CONTACT_TO_EMAIL` | Inbox recipient |
+| `RESEND_API_KEY` | Contact form (Worker **secret**) |
+| `CONTACT_TO_EMAIL` | Inbox recipient (default `kamiyonstudio@gmail.com`) |
+| `CONTACT_FROM_EMAIL` | Verified Resend from (`Kamiyon Studio <noreply@send.kamiyonstudio.com>`) |
 | `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` | Cloudflare Web Analytics (if required by snippet) |
 
 Never commit secrets. Document in `.env.example` during Phase D/E.

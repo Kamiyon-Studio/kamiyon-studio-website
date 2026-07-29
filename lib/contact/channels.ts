@@ -4,8 +4,8 @@ import type { ContactChannel, SocialLink } from "@/lib/cms/types";
 export const PUBLIC_EMAIL = "kamiyonstudio@gmail.com";
 
 /**
- * Interim primary contact CTA (ADR-010) until T8 Resend in-app form.
- * Linked button only — not an embed.
+ * Chrome / “Get in touch” primary CTA (ADR-010).
+ * Remains the Google Form after T8 — Resend form is an additional `/contact` path.
  */
 export const INTERIM_CONTACT_FORM_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSeIefAWJu5FP9pwljLFz1wSUxU2ybR3--GdylUYUBsGHH0yaw/viewform";
