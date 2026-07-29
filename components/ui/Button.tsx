@@ -49,12 +49,12 @@ const variantPresets: Record<
   >
 > = {
   primary: {
-    tint: "#201013",
+    tint: "#FF7998",
     tintOpacity: 0.94,
     blur: 0,
-    textColor: "#f8f8f8",
-    lineColor: "#ff7998",
-    baseColor: "#5a3038",
+    textColor: "#201013",
+    lineColor: "#ffffff",
+    baseColor: "#c24a66",
     intensity: 1.1,
     shineSize: 10,
     shineFade: 40,

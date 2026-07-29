@@ -6,6 +6,8 @@ import { MotionButton } from "./MotionButton";
 describe("MotionButton", () => {
   beforeEach(() => {
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(null);
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation(() => 1);
+    vi.spyOn(window, "cancelAnimationFrame").mockImplementation(() => undefined);
   });
 
   afterEach(() => {

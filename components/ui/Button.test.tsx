@@ -129,8 +129,8 @@ describe("Button", () => {
     render(<Button variant="primary">Get in touch</Button>);
 
     expect(screen.getByRole("button", { name: "Get in touch" })).toHaveStyle({
-      "--sb-tint": "#201013",
-      "--sb-text-color": "#f8f8f8",
+      "--sb-tint": "#FF7998",
+      "--sb-text-color": "#201013",
     });
   });
 

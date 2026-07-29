@@ -14,7 +14,7 @@ type HeroOpeningProps = {
   hero: HomeHero;
 };
 
-const HERO_BACKGROUND = "/assets/background.png";
+const HERO_BACKGROUND = "/assets/background.jpg";
 
 /**
  * Full-bleed opening stage: brand title + motto over atmospheric background.

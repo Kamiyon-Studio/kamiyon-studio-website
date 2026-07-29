@@ -98,7 +98,7 @@ function ParallaxBand() {
     <div className="relative mt-10 h-64 overflow-hidden rounded-[var(--radius-card)] border border-[var(--border-default)]">
       <div ref={parallaxRef} className="absolute inset-[-20%] will-change-transform">
         <Image
-          src="/assets/background.png"
+          src="/assets/background.jpg"
           alt=""
           fill
           className="object-cover"
