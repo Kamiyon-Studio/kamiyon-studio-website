@@ -13,6 +13,7 @@ type SameRouteLinkProps = {
   href: string;
   children: ReactNode;
   className?: string;
+  tabIndex?: number;
   "aria-label"?: string;
   "data-menu-fade"?: string;
   /** Called after click handling (e.g. close overlay menu). */
@@ -30,6 +31,7 @@ export const SameRouteLink = forwardRef<HTMLAnchorElement, SameRouteLinkProps>(
       href,
       children,
       className,
+      tabIndex,
       onClick,
       onNavigate,
       "aria-label": ariaLabel,
@@ -47,6 +49,7 @@ export const SameRouteLink = forwardRef<HTMLAnchorElement, SameRouteLinkProps>(
           ref={ref}
           href={href}
           className={className}
+          tabIndex={tabIndex}
           aria-label={ariaLabel}
           data-menu-fade={dataMenuFade}
           {...(openInNewTab
@@ -67,6 +70,7 @@ export const SameRouteLink = forwardRef<HTMLAnchorElement, SameRouteLinkProps>(
         ref={ref}
         href={href}
         className={className}
+        tabIndex={tabIndex}
         aria-label={ariaLabel}
         data-menu-fade={dataMenuFade}
         onClick={(event) => {
