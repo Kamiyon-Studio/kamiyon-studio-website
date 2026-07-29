@@ -1,9 +1,11 @@
-import Link from "next/link";
-import type { ReactNode } from "react";
+"use client";
 
-import { isExternalHref } from "@/lib/navigation/same-route-scroll";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
-import { GlowingShadow } from "./glowing-shadow";
+import {
+  SpecularButton,
+  type SpecularButtonProps,
+} from "@/components/ui/SpecularButton";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";
 
@@ -11,90 +13,129 @@ type ButtonBaseProps = {
   children: ReactNode;
   variant?: ButtonVariant;
   className?: string;
+  size?: SpecularButtonProps["size"];
+  disabled?: boolean;
 };
 
 type ButtonAsButton = ButtonBaseProps & {
   href?: undefined;
   type?: "button" | "submit" | "reset";
-  onClick?: () => void;
+  onClick?: ComponentPropsWithoutRef<"button">["onClick"];
 };
 
 type ButtonAsLink = ButtonBaseProps & {
   href: string;
+  onClick?: ComponentPropsWithoutRef<"a">["onClick"];
 };
 
-type ButtonProps = ButtonAsButton | ButtonAsLink;
+export type ButtonProps = ButtonAsButton | ButtonAsLink;
 
-const variantClasses: Record<ButtonVariant, string> = {
-  // Dark text-on-accent (not white) — raw sakura fails AA contrast with white text.
-  // Skeleton preset-filled-primary-500 supplies structure; Kamiyon tokens keep brand look.
-  primary:
-    "preset-filled-primary-500 bg-sakura text-[var(--text-on-accent)] hover:opacity-90 focus-visible:outline-offset-2",
-  secondary:
-    "preset-outlined-surface-200-800 border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]",
-  ghost:
-    "text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] hover:text-sakura-ink",
+/** Brand-tuned SpecularButton presets — the project-standard CTA look. */
+const variantPresets: Record<
+  ButtonVariant,
+  Pick<
+    SpecularButtonProps,
+    | "tint"
+    | "tintOpacity"
+    | "blur"
+    | "textColor"
+    | "lineColor"
+    | "baseColor"
+    | "intensity"
+    | "shineSize"
+    | "shineFade"
+    | "thickness"
+    | "radius"
+  >
+> = {
+  primary: {
+    tint: "#201013",
+    tintOpacity: 0.94,
+    blur: 0,
+    textColor: "#f8f8f8",
+    lineColor: "#ff7998",
+    baseColor: "#5a3038",
+    intensity: 1.1,
+    shineSize: 10,
+    shineFade: 40,
+    thickness: 1,
+    radius: 16,
+  },
+  secondary: {
+    tint: "#ffffff",
+    tintOpacity: 0.88,
+    blur: 8,
+    textColor: "#201013",
+    lineColor: "#e9c080",
+    baseColor: "#c4a882",
+    intensity: 0.9,
+    shineSize: 12,
+    shineFade: 36,
+    thickness: 1,
+    radius: 16,
+  },
+  ghost: {
+    tint: "#201013",
+    tintOpacity: 0.04,
+    blur: 0,
+    textColor: "#201013",
+    lineColor: "#ff7998",
+    baseColor: "#c24a66",
+    intensity: 0.75,
+    shineSize: 12,
+    shineFade: 40,
+    thickness: 1,
+    radius: 16,
+  },
 };
 
-const baseClasses =
-  "btn inline-flex min-h-11 min-w-11 items-center justify-center rounded-[var(--radius-button)] px-5 py-2.5 text-sm font-medium transition-[opacity,background-color,color] duration-200 motion-reduce:transition-none";
-
-function isMailOrTel(href: string): boolean {
-  return /^(mailto:|tel:)/i.test(href.trim());
-}
-
-function wrapPrimaryVariant(content: ReactNode, variant: ButtonVariant): ReactNode {
-  if (variant === "primary") {
-    return <GlowingShadow>{content}</GlowingShadow>;
-  }
-
-  return content;
-}
-
+/**
+ * Project-standard button. SpecularButton (React Bits) with Kamiyon brand presets.
+ * Supports native button and link (`href`) modes.
+ */
 export function Button({
   children,
   variant = "primary",
   className = "",
+  size = "md",
+  disabled = false,
   ...props
 }: ButtonProps) {
-  const classes = `${baseClasses} ${variantClasses[variant]} ${className}`.trim();
+  const preset = variantPresets[variant];
+  const classes =
+    `specular-button--skin-${variant}${className ? ` ${className}` : ""}`.trim();
 
   if ("href" in props && props.href) {
-    if (isExternalHref(props.href)) {
-      const openInNewTab = !isMailOrTel(props.href);
-
-      return wrapPrimaryVariant(
-        <a
-          href={props.href}
-          className={classes}
-          {...(openInNewTab
-            ? { target: "_blank", rel: "noopener noreferrer" }
-            : {})}
-        >
-          {children}
-        </a>,
-        variant,
-      );
-    }
-
-    return wrapPrimaryVariant(
-      <Link href={props.href} className={classes}>
+    return (
+      <SpecularButton
+        href={props.href}
+        onClick={props.onClick}
+        size={size}
+        disabled={disabled}
+        className={classes}
+        followMouse
+        autoAnimate={false}
+        {...preset}
+      >
         {children}
-      </Link>,
-      variant,
+      </SpecularButton>
     );
   }
 
   const buttonProps = props as ButtonAsButton;
 
-  return wrapPrimaryVariant(
-    <button
+  return (
+    <SpecularButton
       type={buttonProps.type ?? "button"}
       onClick={buttonProps.onClick}
+      size={size}
+      disabled={disabled}
       className={classes}
+      followMouse
+      autoAnimate={false}
+      {...preset}
     >
       {children}
-    </button>,
-    variant,
+    </SpecularButton>
   );
 }

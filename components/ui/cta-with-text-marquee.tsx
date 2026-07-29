@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 export type VerticalMarqueeItem = {
@@ -188,26 +189,12 @@ export default function CTAWithVerticalMarquee({
               {body}
             </p>
             <div className="flex flex-wrap gap-4 animate-fade-in-up [animation-delay:600ms]">
-              <Link
-                href={primaryCta.href}
-                className="group relative overflow-hidden rounded-[var(--radius-button)] bg-foreground px-6 py-3 font-medium text-background transition-all duration-300 hover:scale-105 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:scale-100"
-              >
-                <span className="relative z-10">{primaryCta.label}</span>
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 translate-x-[-200%] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-[200%] motion-reduce:hidden"
-                />
-              </Link>
-              <Link
-                href={secondaryCta.href}
-                className="group relative overflow-hidden rounded-[var(--radius-button)] border border-border bg-[var(--bg-secondary)] px-6 py-3 font-medium text-foreground transition-all duration-300 hover:scale-105 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:scale-100"
-              >
-                <span className="relative z-10">{secondaryCta.label}</span>
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 translate-x-[-200%] bg-gradient-to-r from-transparent via-foreground/10 to-transparent transition-transform duration-700 group-hover:translate-x-[200%] motion-reduce:hidden"
-                />
-              </Link>
+              <Button href={primaryCta.href} variant="primary" size="lg">
+                {primaryCta.label}
+              </Button>
+              <Button href={secondaryCta.href} variant="secondary" size="lg">
+                {secondaryCta.label}
+              </Button>
             </div>
           </div>
 

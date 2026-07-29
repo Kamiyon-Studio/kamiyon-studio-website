@@ -35,17 +35,17 @@ When a task/phase is marked complete:
 ### Contact FAQ interactive accordion (2026-07-29)
 
 **Plan:** `.claude/plans/contact-faq-interactive-accordion.plan.md` · **ADR:** ADR-020  
-**Note:** Wave 1 launching — WS-A + WS-D in parallel (disjoint trees). SHAs soft until A+B land.
+**Note:** Agent workstreams A–E complete. FAQ ship gate **PASS** (15/15 vitest; Accordion deleted; `/contact#faq` HTML + 8-item JSON-LD). Pre-existing build/tsc/knip reds unrelated. **Wave 4:** founder visual sign-off pending.
 
 | Stream | Status | Notes |
 | --- | --- | --- |
-| **WS-A** InteractiveAccordion primitive + tests | **In progress** | Wave 1; `components/ui/InteractiveAccordion{,.test}.tsx` |
-| **WS-B** ContactFAQ wiring + mapper | **Pending** | Wave 2 after A green |
-| **WS-C** Legacy Skeleton Accordion delete | **Pending** | Wave 3 after B; hygiene only |
-| **WS-D** ADR-020 + tracker + ui-context | **In progress** | Wave 1 docs; soft finalize after A+B |
-| **WS-E** Verify gate (test / lint / tsc / knip / build / visual) | **Pending** | After A+B (+C for knip) |
+| **WS-A** InteractiveAccordion primitive + tests | **Completed** | `InteractiveAccordion.tsx` + 9 tests; R1 fallback: no AnimatePresence |
+| **WS-B** ContactFAQ wiring + mapper | **Completed** | ContactFAQ wired; 6/6 tests |
+| **WS-C** Legacy Skeleton Accordion delete | **Completed** | `Accordion.tsx` + `Accordion.test.tsx` deleted; ContactFAQ+InteractiveAccordion 15/15 green |
+| **WS-D** ADR-020 + tracker + ui-context | **Completed** | ADR-020 recorded; status refresh after A+B |
+| **WS-E** Verify gate (test / lint / tsc / knip / build / visual) | **Completed** | FAQ-scope PASS; pre-existing build/tsc/knip noise unrelated |
 
-**Ship gate:** WS-A + WS-B required. WS-C not blocking. Founder visual ack (level 5) on `/contact#faq`.
+**Ship gate:** Agent FAQ ownership **PASS**. Remaining: founder visual ack (level 5 / Wave 4) on `/contact#faq`.
 
 ### Security remediation — contact + media (2026-07-29)
 

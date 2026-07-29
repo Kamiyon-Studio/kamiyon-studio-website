@@ -403,7 +403,7 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 
 ## ADR-020 — Interactive FAQ accordion replaces Skeleton Accordion on `/contact` (2026-07-29)
 
-**Status:** Accepted (Wave 1 — parallel with WS-A; SHAs soft until A+B land)
+**Status:** Accepted (WS-A–E landed — FAQ verify gate PASS for FAQ scope; Skeleton Accordion retired; Wave 4 founder visual sign-off pending; SHAs soft until commit)
 
 **Context:** Design request to replace the Skeleton-based FAQ accordion on `/contact` with a numbered, spring-animated interactive accordion (zero-padded numbers, spring height reveal, hover underline, `+` → `×` indicator). Plan: `.claude/plans/contact-faq-interactive-accordion.plan.md`. CMS FAQ content, `id="faq"`, and FAQPage JSON-LD stay unchanged.
 

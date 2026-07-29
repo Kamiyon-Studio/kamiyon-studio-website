@@ -50,6 +50,7 @@ function mockMatchMedia(matches: boolean) {
 
 describe("CTAWithVerticalMarquee", () => {
   beforeEach(() => {
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(null);
     mockMatchMedia(false);
     vi.spyOn(window, "requestAnimationFrame").mockImplementation(() => 1);
     vi.spyOn(window, "cancelAnimationFrame").mockImplementation(() => undefined);
