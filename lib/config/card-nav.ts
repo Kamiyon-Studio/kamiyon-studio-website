@@ -17,12 +17,12 @@ export type CardNavItem = {
   links: CardNavLink[];
 };
 
-const CARD_TEXT = "var(--bg-primary)";
+const CARD_TEXT = "var(--color-ivory)";
 const CARD_BG_PRIMARY = "var(--color-charcoal)";
 const CARD_BG_SECONDARY =
-  "color-mix(in srgb, var(--color-charcoal) 88%, white)";
+  "color-mix(in srgb, var(--color-charcoal) 88%, var(--color-ivory))";
 const CARD_BG_TERTIARY =
-  "color-mix(in srgb, var(--color-charcoal) 78%, white)";
+  "color-mix(in srgb, var(--color-charcoal) 78%, var(--color-ivory))";
 
 /**
  * Maps shell nav into CardNav's 3-card model (About / Work / Contact).

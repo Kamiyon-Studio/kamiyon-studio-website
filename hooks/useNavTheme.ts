@@ -34,7 +34,7 @@ function getObservedThemeElements(): HTMLElement[] {
  */
 export function useNavTheme(options: UseNavThemeOptions = {}): NavTheme {
   const { rootMargin = DEFAULT_ROOT_MARGIN, forcedTheme = null } = options;
-  const [theme, setTheme] = useState<NavTheme>("light");
+  const [theme, setTheme] = useState<NavTheme>("dark");
 
   useEffect(() => {
     if (forcedTheme !== null) {
@@ -49,7 +49,7 @@ export function useNavTheme(options: UseNavThemeOptions = {}): NavTheme {
     const ratios = new Map<Element, number>();
 
     const pickWinner = () => {
-      let bestTheme: NavTheme = "light";
+      let bestTheme: NavTheme = "dark";
       let bestRatio = -1;
 
       for (const element of elements) {
@@ -67,7 +67,7 @@ export function useNavTheme(options: UseNavThemeOptions = {}): NavTheme {
         bestTheme = elementTheme;
       }
 
-      setTheme(bestRatio > 0 ? bestTheme : "light");
+      setTheme(bestRatio > 0 ? bestTheme : "dark");
     };
 
     const observer = new IntersectionObserver(

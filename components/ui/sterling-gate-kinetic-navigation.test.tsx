@@ -306,7 +306,7 @@ describe("SterlingGateKineticNavigation", () => {
     );
 
     const root = container.querySelector(".sterling-gate");
-    expect(root).toHaveAttribute("data-nav-theme", "light");
+    expect(root).toHaveAttribute("data-nav-theme", "dark");
     expect(observeMock).toHaveBeenCalled();
     expect(navThemeCallback).toBeTypeOf("function");
 
@@ -329,7 +329,7 @@ describe("SterlingGateKineticNavigation", () => {
     });
   });
 
-  it("forces light ink while the menu is open", async () => {
+  it("keeps light ink (ivory) while the menu is open", async () => {
     const user = userEvent.setup();
 
     const { container } = render(
@@ -346,7 +346,7 @@ describe("SterlingGateKineticNavigation", () => {
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
 
-    expect(root).toHaveAttribute("data-nav-theme", "light");
+    expect(root).toHaveAttribute("data-nav-theme", "dark");
   });
 
   it("renders a collapsible Services dropdown and standalone links without toggles", async () => {
@@ -401,9 +401,15 @@ describe("SterlingGateKineticNavigation", () => {
     );
   });
 
-  it("applies dark ink token when data-nav-theme is dark", () => {
+  it("applies dark ink by default and light ink when data-nav-theme is light", () => {
     const css = readFileSync(cssPath, "utf8");
 
+    expect(css).toMatch(
+      /\.sterling-gate\s*\{[^}]*--sg-ink:\s*var\(--color-ivory\);/s,
+    );
+    expect(css).toMatch(
+      /\.sterling-gate\[data-nav-theme="light"\]\s*\{\s*--sg-ink:\s*var\(--color-charcoal\);\s*\}/,
+    );
     expect(css).toMatch(
       /\.sterling-gate\[data-nav-theme="dark"\]\s*\{\s*--sg-ink:\s*var\(--color-ivory\);\s*\}/,
     );

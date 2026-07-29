@@ -28,7 +28,7 @@ export function ServicesStack({ slides }: ServicesStackProps) {
   return (
     <section
       id="home-services"
-      data-nav-theme="light"
+      data-nav-theme="dark"
       aria-labelledby={sectionId}
       className="scroll-mt-4 bg-[var(--bg-primary)] py-16 md:py-24"
     >

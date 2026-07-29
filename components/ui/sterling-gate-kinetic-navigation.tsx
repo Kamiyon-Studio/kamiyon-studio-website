@@ -175,7 +175,7 @@ export function SterlingGateKineticNavigation({
   );
   const menuId = useId();
   const navTheme = useNavTheme({
-    forcedTheme: isMenuOpen ? "light" : null,
+    forcedTheme: isMenuOpen ? "dark" : null,
   });
 
   useEffect(() => {

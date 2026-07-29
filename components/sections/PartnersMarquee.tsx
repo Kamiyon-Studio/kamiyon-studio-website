@@ -28,7 +28,7 @@ export function PartnersMarquee({
   return (
     <section
       id="home-partners"
-      data-nav-theme="light"
+      data-nav-theme="dark"
       className="scroll-mt-4 bg-[var(--bg-secondary)] py-12 md:py-16"
       aria-label={sectionLabel}
     >

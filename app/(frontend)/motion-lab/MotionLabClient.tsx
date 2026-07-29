@@ -35,7 +35,7 @@ function MotionLabHero() {
   return (
     <header
       ref={heroRef}
-      className="relative overflow-hidden border-b border-[var(--border-default)] bg-[linear-gradient(165deg,var(--color-ivory)_0%,#fff_45%,color-mix(in_srgb,var(--color-sakura)_12%,white)_100%)]"
+      className="relative overflow-hidden border-b border-[var(--border-default)] bg-[linear-gradient(165deg,var(--bg-primary)_0%,var(--bg-secondary)_45%,color-mix(in_srgb,var(--color-sakura)_18%,var(--bg-primary))_100%)]"
     >
       <Container className="flex min-h-[70vh] flex-col justify-center gap-6 py-20">
         <p

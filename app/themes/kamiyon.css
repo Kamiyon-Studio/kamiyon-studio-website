@@ -2,7 +2,7 @@
  * Kamiyon Studio — Skeleton custom theme
  * Active via data-theme="kamiyon" on <html>.
  * Brand midpoints: primary ≈ sakura #ff7998 @ 500, secondary ≈ gold #e9c080,
- * surface ≈ ivory (#f8f8f8) → charcoal (#201013).
+ * Dark-first: surface ≈ charcoal (#201013) with ivory text.
  * Primary fill contrast uses charcoal (AA), not white.
  */
 
@@ -13,7 +13,7 @@
 	/* Fonts — Geologica (display/UI) + Montserrat (body), loaded on <html> */
 	--typo-base--font-family: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
 	--typo-base--font-size: inherit;
-	--typo-base--color-light: #201013;
+	--typo-base--color-light: #f8f8f8;
 	--typo-base--color-dark: #f8f8f8;
 	--typo-base--line-height: inherit;
 	--typo-base--font-weight: normal;
@@ -88,7 +88,7 @@
 	--corner-shape-base: inherit;
 	--corner-shape-container: inherit;
 
-	--color-root-bg-light: #ffffff;
+	--color-root-bg-light: #201013;
 	--color-root-bg-dark: #201013;
 	--color-brand-light: var(--color-primary-500);
 	--color-brand-contrast-light: var(--color-primary-contrast-500);

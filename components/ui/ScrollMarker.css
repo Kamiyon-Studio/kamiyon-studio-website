@@ -24,22 +24,22 @@
   width: 0.2rem;
   height: 1.65rem;
   border-radius: 0.05rem;
-  background-color: #4a4a4a;
+  background-color: color-mix(in srgb, var(--color-ivory) 28%, transparent);
   transition: background-color 0.2s ease, opacity 0.2s ease;
 }
 
 .scroll-marker.is-active .scroll-marker__bar,
 .scroll-marker[aria-current="true"] .scroll-marker__bar {
-  background-color: #fff;
+  background-color: var(--color-ivory);
 }
 
 .scroll-marker:hover .scroll-marker__bar {
-  background-color: #8a8a8a;
+  background-color: color-mix(in srgb, var(--color-ivory) 55%, transparent);
 }
 
 .scroll-marker.is-active:hover .scroll-marker__bar,
 .scroll-marker[aria-current="true"]:hover .scroll-marker__bar {
-  background-color: #fff;
+  background-color: var(--color-ivory);
 }
 
 .scroll-marker:focus-visible {
