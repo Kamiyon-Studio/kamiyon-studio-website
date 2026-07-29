@@ -4,7 +4,11 @@ import { SterlingGateKineticNavigation } from "@/components/ui/sterling-gate-kin
 import type { NavItem, NavSocialLink } from "@/lib/config/navigation";
 
 type SiteHeaderProps = {
-  navItems: readonly NavItem[];
+  navItems: readonly {
+    label: string;
+    href: string;
+    children?: readonly { label: string; href: string }[];
+  }[];
   contactCta: NavItem;
   siteName: string;
   /** Kept for shell/footer API parity; kinetic nav uses primary routes + CTA. */

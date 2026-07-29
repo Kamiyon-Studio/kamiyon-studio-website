@@ -1,0 +1,278 @@
+/*
+ * Kamiyon Studio — Skeleton custom theme
+ * Active via data-theme="kamiyon" on <html>.
+ * Brand midpoints: primary ≈ sakura #ff7998 @ 500, secondary ≈ gold #e9c080,
+ * Dark-first: surface ≈ charcoal (#201013) with ivory text.
+ * Primary fill contrast uses charcoal (AA), not white.
+ */
+
+[data-theme='kamiyon'] {
+	--spacing: 0.25rem;
+	--text-scaling: 1;
+
+	/* Fonts — Geologica (display/UI) + Montserrat (body), loaded on <html> */
+	--typo-base--font-family: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+	--typo-base--font-size: inherit;
+	--typo-base--color-light: #f8f8f8;
+	--typo-base--color-dark: #f8f8f8;
+	--typo-base--line-height: inherit;
+	--typo-base--font-weight: normal;
+	--typo-base--font-style: normal;
+	--typo-base--letter-spacing: 0em;
+	--typo-base--font-stretch: inherit;
+	--typo-base--font-kerning: inherit;
+	--typo-base--text-shadow: inherit;
+	--typo-base--word-spacing: inherit;
+	--typo-base--hyphens: inherit;
+	--typo-base--text-transform: inherit;
+
+	--typo-heading--font-family: var(--font-geologica), ui-sans-serif, system-ui, sans-serif;
+	--typo-heading--color-light: inherit;
+	--typo-heading--color-dark: inherit;
+	--typo-heading--font-weight: 600;
+	--typo-heading--font-style: normal;
+	--typo-heading--letter-spacing: inherit;
+	--typo-heading--font-stretch: inherit;
+	--typo-heading--font-kerning: inherit;
+	--typo-heading--text-shadow: inherit;
+	--typo-heading--word-spacing: inherit;
+	--typo-heading--hyphens: inherit;
+	--typo-heading--text-transform: inherit;
+
+	/* Anchors inherit marketing link styles (not forced sakura) */
+	--typo-anchor--font-family: inherit;
+	--typo-anchor--font-size: inherit;
+	--typo-anchor--color-light: inherit;
+	--typo-anchor--color-dark: inherit;
+	--typo-anchor--line-height: inherit;
+	--typo-anchor--font-weight: inherit;
+	--typo-anchor--font-style: inherit;
+	--typo-anchor--letter-spacing: inherit;
+	--typo-anchor--font-stretch: inherit;
+	--typo-anchor--font-kerning: inherit;
+	--typo-anchor--text-shadow: inherit;
+	--typo-anchor--word-spacing: inherit;
+	--typo-anchor--hyphens: inherit;
+	--typo-anchor--text-transform: inherit;
+	--typo-anchor--text-decoration-line: none;
+	--typo-anchor--text-decoration-color: inherit;
+	--typo-anchor--text-decoration-style: inherit;
+	--typo-anchor--text-decoration-thickness: inherit;
+	--typo-anchor--text-underline-offset: inherit;
+	--typo-anchor--text-underline-position: inherit;
+	--typo-anchor--hover--text-decoration-line: underline;
+	--typo-anchor--hover--text-decoration-color: inherit;
+	--typo-anchor--hover--text-decoration-style: inherit;
+	--typo-anchor--hover--text-decoration-thickness: inherit;
+	--typo-anchor--hover--text-underline-offset: inherit;
+	--typo-anchor--hover--text-underline-position: inherit;
+	--typo-anchor--active--text-decoration-line: none;
+	--typo-anchor--active--text-decoration-color: inherit;
+	--typo-anchor--active--text-decoration-style: inherit;
+	--typo-anchor--active--text-decoration-thickness: inherit;
+	--typo-anchor--active--text-underline-offset: inherit;
+	--typo-anchor--active--text-underline-position: inherit;
+	--typo-anchor--focus--text-decoration-line: none;
+	--typo-anchor--focus--text-decoration-color: inherit;
+	--typo-anchor--focus--text-decoration-style: inherit;
+	--typo-anchor--focus--text-decoration-thickness: inherit;
+	--typo-anchor--focus--text-underline-offset: inherit;
+	--typo-anchor--focus--text-underline-position: inherit;
+
+	/* Align with Kamiyon --radius-button / --radius-card (16px) */
+	--radius-base: 1rem;
+	--radius-container: 1rem;
+	--default-border-width: 1px;
+	--default-outline-width: 1px;
+	--default-ring-width: 1px;
+	--corner-shape-base: inherit;
+	--corner-shape-container: inherit;
+
+	--color-root-bg-light: #201013;
+	--color-root-bg-dark: #201013;
+	--color-brand-light: var(--color-primary-500);
+	--color-brand-contrast-light: var(--color-primary-contrast-500);
+	--color-brand-dark: var(--color-primary-500);
+	--color-brand-contrast-dark: var(--color-primary-contrast-500);
+
+	/* Primary — sakura scale (#ff7998 @ 500) */
+	--color-primary-50: #fff1f4;
+	--color-primary-100: #ffe0e8;
+	--color-primary-200: #ffc2d0;
+	--color-primary-300: #ffa3b9;
+	--color-primary-400: #ff8aa5;
+	--color-primary-500: #ff7998;
+	--color-primary-600: #e85a7c;
+	--color-primary-700: #c24a66;
+	--color-primary-800: #9a3a52;
+	--color-primary-900: #722a3c;
+	--color-primary-950: #4a1c28;
+	/* Charcoal on light sakura fills (AA) — not white */
+	--color-primary-contrast-dark: #201013;
+	--color-primary-contrast-light: #fff1f4;
+	--color-primary-contrast-50: var(--color-primary-contrast-dark);
+	--color-primary-contrast-100: var(--color-primary-contrast-dark);
+	--color-primary-contrast-200: var(--color-primary-contrast-dark);
+	--color-primary-contrast-300: var(--color-primary-contrast-dark);
+	--color-primary-contrast-400: var(--color-primary-contrast-dark);
+	--color-primary-contrast-500: var(--color-primary-contrast-dark);
+	--color-primary-contrast-600: var(--color-primary-contrast-dark);
+	--color-primary-contrast-700: var(--color-primary-contrast-light);
+	--color-primary-contrast-800: var(--color-primary-contrast-light);
+	--color-primary-contrast-900: var(--color-primary-contrast-light);
+	--color-primary-contrast-950: var(--color-primary-contrast-light);
+
+	/* Secondary — soft gold (#e9c080 @ 500) */
+	--color-secondary-50: #fbf6ec;
+	--color-secondary-100: #f7ecd6;
+	--color-secondary-200: #f0d9ad;
+	--color-secondary-300: #e9c080;
+	--color-secondary-400: #e3b56a;
+	--color-secondary-500: #e9c080;
+	--color-secondary-600: #d4a85c;
+	--color-secondary-700: #b8893f;
+	--color-secondary-800: #8f6a30;
+	--color-secondary-900: #664c22;
+	--color-secondary-950: #3d2e14;
+	--color-secondary-contrast-dark: #201013;
+	--color-secondary-contrast-light: #fbf6ec;
+	--color-secondary-contrast-50: var(--color-secondary-contrast-dark);
+	--color-secondary-contrast-100: var(--color-secondary-contrast-dark);
+	--color-secondary-contrast-200: var(--color-secondary-contrast-dark);
+	--color-secondary-contrast-300: var(--color-secondary-contrast-dark);
+	--color-secondary-contrast-400: var(--color-secondary-contrast-dark);
+	--color-secondary-contrast-500: var(--color-secondary-contrast-dark);
+	--color-secondary-contrast-600: var(--color-secondary-contrast-dark);
+	--color-secondary-contrast-700: var(--color-secondary-contrast-light);
+	--color-secondary-contrast-800: var(--color-secondary-contrast-light);
+	--color-secondary-contrast-900: var(--color-secondary-contrast-light);
+	--color-secondary-contrast-950: var(--color-secondary-contrast-light);
+
+	/* Tertiary — sakura-ink tint (supporting accent) */
+	--color-tertiary-50: #fdf2f5;
+	--color-tertiary-100: #f9dce4;
+	--color-tertiary-200: #f0b3c3;
+	--color-tertiary-300: #e0859e;
+	--color-tertiary-400: #d16684;
+	--color-tertiary-500: #c24a66;
+	--color-tertiary-600: #a83f58;
+	--color-tertiary-700: #8a3348;
+	--color-tertiary-800: #6c2838;
+	--color-tertiary-900: #4e1d29;
+	--color-tertiary-950: #301219;
+	--color-tertiary-contrast-dark: #201013;
+	--color-tertiary-contrast-light: #fdf2f5;
+	--color-tertiary-contrast-50: var(--color-tertiary-contrast-dark);
+	--color-tertiary-contrast-100: var(--color-tertiary-contrast-dark);
+	--color-tertiary-contrast-200: var(--color-tertiary-contrast-dark);
+	--color-tertiary-contrast-300: var(--color-tertiary-contrast-dark);
+	--color-tertiary-contrast-400: var(--color-tertiary-contrast-light);
+	--color-tertiary-contrast-500: var(--color-tertiary-contrast-light);
+	--color-tertiary-contrast-600: var(--color-tertiary-contrast-light);
+	--color-tertiary-contrast-700: var(--color-tertiary-contrast-light);
+	--color-tertiary-contrast-800: var(--color-tertiary-contrast-light);
+	--color-tertiary-contrast-900: var(--color-tertiary-contrast-light);
+	--color-tertiary-contrast-950: var(--color-tertiary-contrast-light);
+
+	/* Success / warning / error — neutral utility scales */
+	--color-success-50: #effaf3;
+	--color-success-100: #d8f3e3;
+	--color-success-200: #b3e6c9;
+	--color-success-300: #86d4ab;
+	--color-success-400: #57bc89;
+	--color-success-500: #369e6c;
+	--color-success-600: #287f56;
+	--color-success-700: #216546;
+	--color-success-800: #1d5039;
+	--color-success-900: #194230;
+	--color-success-950: #0c251b;
+	--color-success-contrast-dark: #0c251b;
+	--color-success-contrast-light: #effaf3;
+	--color-success-contrast-50: var(--color-success-contrast-dark);
+	--color-success-contrast-100: var(--color-success-contrast-dark);
+	--color-success-contrast-200: var(--color-success-contrast-dark);
+	--color-success-contrast-300: var(--color-success-contrast-dark);
+	--color-success-contrast-400: var(--color-success-contrast-dark);
+	--color-success-contrast-500: var(--color-success-contrast-light);
+	--color-success-contrast-600: var(--color-success-contrast-light);
+	--color-success-contrast-700: var(--color-success-contrast-light);
+	--color-success-contrast-800: var(--color-success-contrast-light);
+	--color-success-contrast-900: var(--color-success-contrast-light);
+	--color-success-contrast-950: var(--color-success-contrast-light);
+
+	--color-warning-50: #fff8eb;
+	--color-warning-100: #feefc7;
+	--color-warning-200: #fcdc8a;
+	--color-warning-300: #fbc44d;
+	--color-warning-400: #f9ad24;
+	--color-warning-500: #f08c0c;
+	--color-warning-600: #d46807;
+	--color-warning-700: #b0470a;
+	--color-warning-800: #8f370f;
+	--color-warning-900: #762e10;
+	--color-warning-950: #441604;
+	--color-warning-contrast-dark: #441604;
+	--color-warning-contrast-light: #fff8eb;
+	--color-warning-contrast-50: var(--color-warning-contrast-dark);
+	--color-warning-contrast-100: var(--color-warning-contrast-dark);
+	--color-warning-contrast-200: var(--color-warning-contrast-dark);
+	--color-warning-contrast-300: var(--color-warning-contrast-dark);
+	--color-warning-contrast-400: var(--color-warning-contrast-dark);
+	--color-warning-contrast-500: var(--color-warning-contrast-dark);
+	--color-warning-contrast-600: var(--color-warning-contrast-light);
+	--color-warning-contrast-700: var(--color-warning-contrast-light);
+	--color-warning-contrast-800: var(--color-warning-contrast-light);
+	--color-warning-contrast-900: var(--color-warning-contrast-light);
+	--color-warning-contrast-950: var(--color-warning-contrast-light);
+
+	--color-error-50: #fef2f2;
+	--color-error-100: #fee2e2;
+	--color-error-200: #fecaca;
+	--color-error-300: #fca5a5;
+	--color-error-400: #f87171;
+	--color-error-500: #ef4444;
+	--color-error-600: #dc2626;
+	--color-error-700: #b91c1c;
+	--color-error-800: #991b1b;
+	--color-error-900: #7f1d1d;
+	--color-error-950: #450a0a;
+	--color-error-contrast-dark: #450a0a;
+	--color-error-contrast-light: #fef2f2;
+	--color-error-contrast-50: var(--color-error-contrast-dark);
+	--color-error-contrast-100: var(--color-error-contrast-dark);
+	--color-error-contrast-200: var(--color-error-contrast-dark);
+	--color-error-contrast-300: var(--color-error-contrast-dark);
+	--color-error-contrast-400: var(--color-error-contrast-light);
+	--color-error-contrast-500: var(--color-error-contrast-light);
+	--color-error-contrast-600: var(--color-error-contrast-light);
+	--color-error-contrast-700: var(--color-error-contrast-light);
+	--color-error-contrast-800: var(--color-error-contrast-light);
+	--color-error-contrast-900: var(--color-error-contrast-light);
+	--color-error-contrast-950: var(--color-error-contrast-light);
+
+	/* Surface — ivory / charcoal scale */
+	--color-surface-50: #ffffff;
+	--color-surface-100: #f8f8f8;
+	--color-surface-200: #f0f0f0;
+	--color-surface-300: #e5e5e5;
+	--color-surface-400: #c4c4c4;
+	--color-surface-500: #9ca3af;
+	--color-surface-600: #6b7280;
+	--color-surface-700: #4b5563;
+	--color-surface-800: #374151;
+	--color-surface-900: #2a1a1d;
+	--color-surface-950: #201013;
+	--color-surface-contrast-dark: #201013;
+	--color-surface-contrast-light: #ffffff;
+	--color-surface-contrast-50: var(--color-surface-contrast-dark);
+	--color-surface-contrast-100: var(--color-surface-contrast-dark);
+	--color-surface-contrast-200: var(--color-surface-contrast-dark);
+	--color-surface-contrast-300: var(--color-surface-contrast-dark);
+	--color-surface-contrast-400: var(--color-surface-contrast-dark);
+	--color-surface-contrast-500: var(--color-surface-contrast-light);
+	--color-surface-contrast-600: var(--color-surface-contrast-light);
+	--color-surface-contrast-700: var(--color-surface-contrast-light);
+	--color-surface-contrast-800: var(--color-surface-contrast-light);
+	--color-surface-contrast-900: var(--color-surface-contrast-light);
+	--color-surface-contrast-950: var(--color-surface-contrast-light);
+}

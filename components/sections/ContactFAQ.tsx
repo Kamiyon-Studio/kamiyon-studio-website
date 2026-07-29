@@ -1,10 +1,22 @@
-import { Accordion } from "@/components/ui/Accordion";
+import {
+  InteractiveAccordion,
+  type InteractiveAccordionItem,
+} from "@/components/ui/InteractiveAccordion";
 import { Container } from "@/components/ui/Container";
 import type { FaqItem } from "@/lib/cms/types";
 
 type ContactFAQProps = {
   faq: FaqItem[];
 };
+
+function toAccordionItems(faq: FaqItem[]): InteractiveAccordionItem[] {
+  return faq.map((item, index) => ({
+    id: `faq-${index}`,
+    number: String(index + 1).padStart(2, "0"),
+    title: item.question,
+    content: item.answer,
+  }));
+}
 
 export function ContactFAQ({ faq }: ContactFAQProps) {
   if (faq.length === 0) {
@@ -18,7 +30,7 @@ export function ContactFAQ({ faq }: ContactFAQProps) {
           Frequently asked questions
         </h2>
         <div className="mt-8">
-          <Accordion items={faq} />
+          <InteractiveAccordion items={toAccordionItems(faq)} />
         </div>
       </Container>
     </section>

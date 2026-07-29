@@ -93,16 +93,16 @@ describe("CinematicFooter", () => {
     expect(nav).toBeInTheDocument();
 
     const services = screen.getByRole("link", { name: "Services" });
-    const products = screen.getByRole("link", { name: "Products" });
-    const community = screen.getByRole("link", { name: "Community" });
+    const portfolio = screen.getByRole("link", { name: "Portfolio" });
     const blog = screen.getByRole("link", { name: "Blog" });
 
     expect(services).toHaveAttribute("href", "/services");
-    expect(products).toHaveAttribute("href", "/products");
-    expect(community).toHaveAttribute("href", "/community");
+    expect(portfolio).toHaveAttribute("href", "/portfolio");
     expect(blog).toHaveAttribute("href", "/blog");
+    expect(screen.queryByRole("link", { name: "Products" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Community" })).not.toBeInTheDocument();
 
-    for (const link of [services, products, community, blog]) {
+    for (const link of [services, portfolio, blog]) {
       expect(link).toHaveClass("footer-text-link");
       expect(link).not.toHaveClass("footer-glass-pill");
     }

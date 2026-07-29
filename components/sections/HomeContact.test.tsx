@@ -69,10 +69,12 @@ describe("HomeContact", () => {
     expect(screen.queryByRole("button", { name: /submit/i })).not.toBeInTheDocument();
   });
 
-  it("renders the default atmospheric visual when visualSrc is omitted", () => {
+  it("renders the default atmospheric visual as a section background", () => {
     const { container } = render(<HomeContact {...defaultProps} />);
 
-    expect(container.querySelector("img")?.getAttribute("src")).toContain("background.png");
+    const img = container.querySelector("img");
+    expect(img?.getAttribute("src")).toContain("background.jpg");
+    expect(img?.getAttribute("alt")).toBe("");
   });
 
   it("renders a custom atmospheric visual when visualSrc is provided", () => {
@@ -83,9 +85,21 @@ describe("HomeContact", () => {
     expect(container.querySelector("img")?.getAttribute("src")).toContain("youtube-banner.png");
   });
 
-  it("exposes an accessible section landmark", () => {
+  it("exposes an accessible section landmark with dark nav theme", () => {
     render(<HomeContact {...defaultProps} />);
 
-    expect(screen.getByRole("region", { name: defaultProps.heading })).toBeInTheDocument();
+    const region = screen.getByRole("region", { name: defaultProps.heading });
+    expect(region).toBeInTheDocument();
+    expect(region).toHaveAttribute("data-nav-theme", "dark");
+  });
+
+  it("renders a decorative hexagonal mail icon instead of the sakura emoji", () => {
+    const { container } = render(<HomeContact {...defaultProps} />);
+
+    const icon = screen.getByTestId("home-contact-mail-icon");
+    expect(icon).toBeInTheDocument();
+    expect(icon).toHaveAttribute("aria-hidden", "true");
+    expect(icon.querySelector("svg")).toBeInTheDocument();
+    expect(container.textContent).not.toContain("🌸");
   });
 });

@@ -9,6 +9,12 @@ import {
   readImageDimensions,
   type MediaUploadResult,
 } from "@/lib/cms/media";
+import {
+  isAllowedUploadMimeType,
+  isWithinUploadSizeLimit,
+  normalizeMimeType,
+  parseContentLength,
+} from "@/lib/cms/media-upload-policy";
 import { getHostedStudioUrl } from "@/sanity/studio-url";
 
 type ApiEnvelope<T> = {
@@ -152,6 +158,17 @@ export async function POST(
     });
   }
 
+  const contentLength = parseContentLength(
+    request.headers.get("content-length"),
+  );
+  if (contentLength != null && !isWithinUploadSizeLimit(contentLength)) {
+    return jsonEnvelope<MediaUploadResult>(request, 413, {
+      success: false,
+      data: null,
+      error: "File too large",
+    });
+  }
+
   const file = await extractUploadFile(request);
   if (!file) {
     return jsonEnvelope<MediaUploadResult>(request, 400, {
@@ -161,7 +178,23 @@ export async function POST(
     });
   }
 
-  const mimeType = file.type?.trim() || "application/octet-stream";
+  if (!isWithinUploadSizeLimit(file.size)) {
+    return jsonEnvelope<MediaUploadResult>(request, 413, {
+      success: false,
+      data: null,
+      error: "File too large",
+    });
+  }
+
+  const mimeType = normalizeMimeType(file.type?.trim() || "");
+  if (!isAllowedUploadMimeType(mimeType)) {
+    return jsonEnvelope<MediaUploadResult>(request, 415, {
+      success: false,
+      data: null,
+      error: "Unsupported media type",
+    });
+  }
+
   const key = createMediaObjectKey(file.name || "upload.bin");
   const bytes = new Uint8Array(await file.arrayBuffer());
   const dimensions = readImageDimensions(bytes, mimeType);

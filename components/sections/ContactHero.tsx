@@ -8,6 +8,7 @@ type ContactHeroProps = {
 
 export function ContactHero({ contactPage }: ContactHeroProps) {
   const quickLinks = [
+    { label: "Send a message", href: "#form" },
     { label: "Ways to reach us", href: "#methods" },
     ...(contactPage.faq.length > 0
       ? [{ label: "FAQ", href: "#faq" }]

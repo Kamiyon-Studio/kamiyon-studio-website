@@ -65,9 +65,9 @@ It intentionally **excludes** company-wide material that is not needed to build 
 | Studio | **Hosted** at `https://kamiyon.sanity.studio` (ADR-007); `/studio` on Worker redirects |
 | Media | **All** images, videos, downloadables in **Cloudflare R2**; Sanity stores structured content + **media references** (URLs/keys) only |
 | Seed | `pnpm sanity:seed` from `lib/cms/fallbacks` (+ partners/blog stubs); Studio for R2 media refine (ADR-011) |
-| Contact | **Interim:** Google Form CTA + external links; **Target (T8):** in-app form via **Resend** |
+| Contact | **Chrome CTA:** Google Form (retained); **`/contact`:** in-app form via **Resend** (T8/ADR-018; env-gated) + external channels |
 | Blog | Authors, categories, tags, featured image, SEO, Portable Text, reading time, published/updated dates, related posts |
-| Primary nav | Home, About, Services, **Products**, Portfolio, **Community**, Blog, Contact |
+| Primary nav | Home, About, Services, Portfolio, Blog, Contact (+ separate “Get in touch” CTA) |
 | Motion (main site) | **GSAP only** (remove Framer Motion + Lenis from production routes) |
 | Motion Lab | Keep `/motion-lab` in production; **`noindex`**; public animation showcase |
 | Brand colors | Primary `#FF7998` · Secondary `#E9C080` · Black `#201013` · White `#F8F8F8` |
@@ -184,27 +184,24 @@ Do **not** rely on “redeploy on every content change.”
 | --- | --- | --- |
 | `/` | Home | index |
 | `/about` | Story, values, team, culture | index |
-| `/services` · `/services/[slug]` | Services | index |
-| `/products` · `/products/[slug]` | Original IP | index |
-| `/portfolio` · `/portfolio/[slug]` | Case studies | index |
-| `/community` | Community feed | index |
+| `/services` · `/services/[slug]` | Five Gate 0 services | index |
+| `/portfolio` · `/portfolio/[slug]` | Portfolio / client work | index |
 | `/blog` · `/blog/[slug]` | Blog | index |
-| `/contact` | Form + external channels | index |
+| `/contact` | Channels + interim form CTA | index |
 | `/studio` | Sanity Studio (editors) | **noindex** |
 | `/motion-lab` | Animation experiments showcase | **noindex** |
+| `/products` · `/community` | **Archived** — permanent redirect → `/` | n/a |
 
-### Primary navigation (locked)
+### Primary navigation (locked 2026-07-29)
 
 1. Home  
 2. About  
-3. Services  
-4. **Products**  
-5. Portfolio  
-6. **Community**  
-7. Blog  
-8. Contact  
+3. Services (dropdown from published services)  
+4. Portfolio (dropdown from published portfolio items)  
+5. Blog  
+6. Contact  
 
-*(Repo nav updated 2026-07-21 — Products + Community visible.)*
+Separate chrome CTA: **Get in touch** → interim Google Form URL (unchanged).
 
 ### Sanity document map
 
@@ -214,27 +211,23 @@ Do **not** rely on “redeploy on every content change.”
 | `homePage` | Singleton | Hero, mission, featured work, highlights, CTA |
 | `aboutPage` | Singleton | Story, values, culture |
 | `contactPage` | Singleton | Intro, channels, FAQ, form settings copy |
-| `teamMember` | Document | Order, role, R2 photo ref, `isPlaceholder` |
-| `serviceCategory` | Document | Slug |
-| `service` | Document | Category, industries, body |
-| `product` | Document | Status, media refs, slug |
-| `caseStudy` | Document | Challenge / solution / impact, gallery, featured |
-| `communityItem` | Document | Type, date, body |
-| `author` | Document | Name, bio, avatar R2 ref, slug |
-| `category` | Document | Blog category title + slug |
-| `tag` | Document | Blog tag title + slug |
-| `post` | Document | Full blog model (below) |
-| `r2Asset` (or object) | Object/doc | `url` / `key`, alt, dimensions, mime — **no binary in Sanity** |
+| `teamMember` | Document | Order, role, R2 photo, `socialLinks[]`, `isPlaceholder` |
+| `service` | Document | Flat Gate 0 five; `tagline` + `capabilities` (no category) |
+| `portfolio` | Document | Challenge / solution / impact, `serviceType`, gallery, featured |
+| `partner` | Document | Home marquee |
+| `post` | Document | Authors → `teamMember`; categories/tags as string taxonomies |
+| `r2Asset` (or object) | Object/doc | `url` / `key`, alt — **no binary in Sanity** |
 | Shared | Objects | `seoMetadata`, `cta`, `socialLink`, portable text |
+| **Archive (readOnly)** | Documents | `product`, `communityItem`, `caseStudy`, `serviceCategory`, `category`, `tag`, `author`, `mediaAsset` — kept registered; never delete existing docs |
 
 ### Blog `post` fields (required)
 
 | Field | Notes |
 | --- | --- |
 | Title, slug | Required |
-| Authors | Refs → `author` |
-| Categories | Refs → `category` |
-| Tags | Refs → `tag` |
+| Authors | Refs → `teamMember` |
+| Categories | String array (`options.list` from `POST_CATEGORIES`) |
+| Tags | String array (`options.list` from `POST_TAGS`) |
 | Featured image | R2 media reference |
 | Body | Portable Text (expand subset for blog: links, lists as needed) |
 | SEO | `seoMetadata` object |
@@ -250,7 +243,11 @@ Do **not** rely on “redeploy on every content change.”
 
 ### Stable `lib/cms` public API
 
-Preserve: `getSiteSettings`, `getHomePage`, `getAboutPage`, `getContactPage`, `getTeamMembers`, `getServiceCategories`, `getServices`, `getServiceBySlug`, `getProducts`, `getProductBySlug`, `getCaseStudies`, `getCaseStudyBySlug`, `getCommunityItems`, blog getters (`getPosts`, `getPostBySlug`, …), `resolveWithFallback`, `getMediaUrl` (R2).
+Preserve: `getSiteSettings`, `getHomePage`, `getAboutPage`, `getContactPage`, `getTeamMembers`, `getServices`, `getServiceBySlug`, `getPortfolioItems`, `getPortfolioItemBySlug`, blog getters (`getPosts`, `getPostBySlug`, …), `resolveWithFallback`, `getMediaUrl` (R2).
+
+Archived / legacy (still exported for archive routes or transitional callers): `getProducts`, `getProductBySlug`, `getCommunityItems`. (`getServiceCategories` removed — flat five services, ADR-016.)
+
+Taxonomy constants: `SERVICE_CATEGORIES` / `POST_CATEGORIES` / `POST_TAGS` in `lib/cms/taxonomies.ts` (Studio `options.list` + title lookup).
 
 ---
 
@@ -322,12 +319,12 @@ Code-split GSAP; do not load it on pages with no animation.
 
 | Channel | Behavior |
 | --- | --- |
-| Interim primary CTA | External [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSeIefAWJu5FP9pwljLFz1wSUxU2ybR3--GdylUYUBsGHH0yaw/viewform) (linked button; wire in nav/CTA until T8) |
-| `/contact` page | Channels + mailto (`kamiyonstudio@gmail.com`); no in-app form until T8 |
-| Target (T8) | In-app form → API → **Resend** → studio inbox + visitor confirmation |
+| Chrome primary CTA | External [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSeIefAWJu5FP9pwljLFz1wSUxU2ybR3--GdylUYUBsGHH0yaw/viewform) — **retained** after T8 |
+| `/contact` page | In-app Resend form + channels + mailto (`kamiyonstudio@gmail.com`) |
+| T8 pipeline | Form → `POST /api/contact` → **Resend** → studio inbox + visitor confirmation (ADR-018) |
 | External links | Facebook, LinkedIn, public email (`mailto`), others from `siteSettings` |
-| Secrets | `RESEND_API_KEY` in Cloudflare env; never commit |
-| Validation (T8) | Server-side validate + rate limit; no PII in client logs |
+| Secrets | `RESEND_API_KEY` Worker secret; `CONTACT_FROM_EMAIL` / `CONTACT_TO_EMAIL` vars; never commit |
+| Validation (T8) | Server-side validate + honeypot + rate limit; no PII in client logs |
 | Same-route nav | In-app links: smooth-scroll to top / section (QA policy A, 2026-07-24) |
 
 ---
@@ -479,8 +476,9 @@ Decisions in §3 locked.
 | `SANITY_REVALIDATE_SECRET` | Webhook auth |
 | `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET` | Uploads + signed URLs |
 | `NEXT_PUBLIC_R2_PUBLIC_BASE_URL` | CDN/public media base |
-| `RESEND_API_KEY` | Contact form |
-| `CONTACT_TO_EMAIL` | Inbox recipient |
+| `RESEND_API_KEY` | Contact form (Worker **secret**) |
+| `CONTACT_TO_EMAIL` | Inbox recipient (default `kamiyonstudio@gmail.com`) |
+| `CONTACT_FROM_EMAIL` | Verified Resend from (`Kamiyon Studio <noreply@send.kamiyonstudio.com>`) |
 | `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` | Cloudflare Web Analytics (if required by snippet) |
 
 Never commit secrets. Document in `.env.example` during Phase D/E.

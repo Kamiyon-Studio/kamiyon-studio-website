@@ -52,7 +52,8 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geologica.variable} ${montserrat.variable} h-full antialiased`}
+      data-theme="kamiyon"
+      className={`${geologica.variable} ${montserrat.variable} scheme-dark h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-body">
         <script

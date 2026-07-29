@@ -1,0 +1,54 @@
+.scroll-marker-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+}
+
+.scroll-marker {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0.1rem;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.scroll-marker__bar {
+  display: block;
+  width: 0.2rem;
+  height: 1.65rem;
+  border-radius: 0.05rem;
+  background-color: color-mix(in srgb, var(--color-ivory) 28%, transparent);
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.scroll-marker.is-active .scroll-marker__bar,
+.scroll-marker[aria-current="true"] .scroll-marker__bar {
+  background-color: var(--color-ivory);
+}
+
+.scroll-marker:hover .scroll-marker__bar {
+  background-color: color-mix(in srgb, var(--color-ivory) 55%, transparent);
+}
+
+.scroll-marker.is-active:hover .scroll-marker__bar,
+.scroll-marker[aria-current="true"]:hover .scroll-marker__bar {
+  background-color: var(--color-ivory);
+}
+
+.scroll-marker:focus-visible {
+  outline: 2px solid var(--color-sakura-ink);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-marker__bar {
+    transition: none;
+  }
+}

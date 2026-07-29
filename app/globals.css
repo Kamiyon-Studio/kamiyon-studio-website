@@ -1,31 +1,39 @@
 @import "tailwindcss";
+@import "@skeletonlabs/skeleton";
+@import "@skeletonlabs/skeleton-react";
+@import "./themes/kamiyon.css";
 
 /*
  * Kamiyon Studio — Design Tokens
- * Phase 1: Design Foundation. Light mode only (v1, no dark mode).
+ * Dark-first marketing UI. Page base = brand charcoal (#201013).
  * Sources: context/ui-context.md · context/website-plan/06-DESIGN SYSTEM…
+ *
+ * Skeleton supplies shade scales (--color-primary-50…950, etc.) via kamiyon theme.
+ * Flat --color-primary / --color-secondary bridge to brand mid shades / sakura / gold
+ * so existing utilities (bg-sakura, footer color-mix) stay brand-correct.
  */
 
 /* -----------------------------------------------------------------------
    BRAND COLORS — registered as Tailwind color utilities.
    Creates: bg-sakura, text-sakura, border-sakura, etc.
-   Only confirmed hex values are set. TBD brand colors have comments only.
+   Prefer --color-sakura for brand fills; Skeleton shades live under *-50…950.
    ----------------------------------------------------------------------- */
 @theme {
-  --color-primary: #ff7998;
-  --color-secondary: #e9c080;
+  /* Brand hex anchors (do not collide with Skeleton --color-primary-500 etc.) */
+  --color-sakura: #ff7998;
+  --color-gold: #e9c080;
   --color-black: #201013;
   --color-white: #f8f8f8;
 
-  /* Alias — legacy sakura token name maps to locked primary */
-  --color-sakura: var(--color-primary);
+  /* Flat bridges → brand midpoints (Skeleton scales remain primary-50…950) */
+  --color-primary: var(--color-sakura);
+  --color-secondary: var(--color-gold);
 
   --color-ivory: var(--color-white);
   --color-charcoal: var(--color-black);
-  --color-gold: var(--color-secondary);
 
-  /* WCAG AA ink for text/icons on light backgrounds (~5:1 vs white) */
-  --color-sakura-ink: #c24a66;
+  /* WCAG AA brand ink for labels/icons on dark surfaces (~4.8:1 vs #201013) */
+  --color-sakura-ink: #ff9aaf;
   --color-primary-ink: var(--color-sakura-ink);
 
   /* shadcn-compat utilities used by cinematic footer (map to Kamiyon tokens) */
@@ -33,12 +41,12 @@
   --color-foreground: var(--text-primary);
   --color-muted-foreground: var(--text-muted);
   --color-border: var(--border-default);
-  --color-destructive: var(--color-sakura-ink);
+  --color-destructive: #ff9aaf;
 
-  /* ---- Shadow scale — 3 levels, max 15% opacity (Part 6) -------------- */
-  --shadow-sm: 0 1px 4px rgba(26, 26, 26, 0.08);
-  --shadow-md: 0 4px 16px rgba(26, 26, 26, 0.10);
-  --shadow-lg: 0 12px 40px rgba(26, 26, 26, 0.12);
+  /* ---- Shadow scale — soft lifts on dark surfaces -------------------- */
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.55);
 
   /* ---- Border-radius scale (Part 6) ------------------------------------ */
   --radius-pill:    9999px; /* Buttons (pill), badges, chips */
@@ -50,6 +58,10 @@
   /* Hero cinematic motions — disabled via motion-reduce:animate-none in Hero */
   --animate-hero-ken-burns: hero-ken-burns 24s ease-out forwards;
   --animate-hero-fade-rise: hero-fade-rise 0.9s ease-out both;
+
+  /* Home services vertical marquee (ADR-021) */
+  --animate-marquee-vertical: marquee-vertical var(--duration, 30s) linear infinite;
+  --animate-fade-in-up: fade-in-up 0.7s ease-out both;
 }
 
 /* -----------------------------------------------------------------------
@@ -66,20 +78,18 @@
    No raw hex values in component JSX or CSS selectors.
    ----------------------------------------------------------------------- */
 :root {
-  /* -- Backgrounds (Part 6) ---------------------------------------------- */
-  --bg-primary:   #ffffff;  /* Page background */
-  --bg-secondary: #fafafa;  /* Alternating sections */
-  --bg-accent:    #fff5f7;  /* Sakura-tinted CTA bands */
-  --bg-surface:   #ffffff;  /* Cards */
+  /* -- Backgrounds — dark-first ------------------------------------------ */
+  --bg-primary:   #201013;  /* Page background (brand charcoal) */
+  --bg-secondary: #2a181c;  /* Alternating sections */
+  --bg-accent:    #3a1f28;  /* Sakura-tinted CTA bands */
+  --bg-surface:   #2e1a20;  /* Cards / elevated surfaces */
 
-  /* ui-context.md maps page background → Warm Ivory (confirmed Phase 9) */
-  --bg-base: var(--color-ivory);
+  --bg-base: var(--bg-primary);
 
-  /* -- Text (Part 6) ------------------------------------------------------
-     ui-context.md maps primary text → Charcoal (confirmed Phase 9). */
-  --text-primary:   var(--color-charcoal);
-  --text-secondary: #6b7280; /* Captions, meta */
-  --text-muted:     #9ca3af; /* Placeholders */
+  /* -- Text — light ink on dark surfaces -------------------------------- */
+  --text-primary:   var(--color-ivory);
+  --text-secondary: #c4b4b8; /* Captions, meta */
+  --text-muted:     #9a888c; /* Placeholders */
 
   /* -- Accents ----------------------------------------------------------- */
   --accent-primary: var(--color-sakura); /* Sakura Pink — confirmed */
@@ -93,7 +103,7 @@
   /* TODO(TBD): --accent-dark → var(--color-indigo) once hex confirmed */
 
   /* -- Borders ----------------------------------------------------------- */
-  --border-default: rgba(255, 121, 152, 0.22);
+  --border-default: rgba(255, 121, 152, 0.28);
 
   /* -- Type scale — desktop reference values (Part 6) --------------------
      xs = caption/small  sm = nav/small  base = body  lg = body-large
@@ -112,23 +122,30 @@
   /* shadcn-compat CSS vars for cinematic footer color-mix() */
   --foreground: var(--text-primary);
   --background: var(--bg-primary);
-  --destructive: var(--color-sakura-ink);
+  --destructive: #ff9aaf;
   --border: var(--border-default);
   --muted-foreground: var(--text-muted);
 }
 
 /* -----------------------------------------------------------------------
    BASE STYLES
+   Dark lock: force dark color-scheme so Skeleton light-dark() pairings
+   stay on charcoal surfaces. No theme switcher in v1.
    ----------------------------------------------------------------------- */
+html {
+  color-scheme: dark;
+}
+
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
+  /* Reassert Kamiyon body after Skeleton @base typography */
+  font-family: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Accessibility — focus visible on all interactive elements.
-   Uses --color-sakura-ink, not --accent-primary: the raw brand sakura hex
-   is ~2.6:1 against ivory/white and fails the 3:1 non-text contrast
-   minimum required for focus indicators (WCAG 1.4.11 / 2.4.7). */
+   Uses --color-sakura-ink (light sakura on charcoal) for 3:1+ non-text
+   contrast on dark surfaces (WCAG 1.4.11 / 2.4.7). */
 :focus-visible {
   outline: 2px solid var(--color-sakura-ink);
   outline-offset: 2px;
@@ -158,6 +175,26 @@ body {
   from {
     opacity: 0;
     transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes marquee-vertical {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
   to {
     opacity: 1;

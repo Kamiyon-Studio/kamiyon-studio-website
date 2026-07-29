@@ -4,23 +4,24 @@
  */
 
 /** Types that also use slug-scoped tags (`type:slug`) in queries. */
-const SLUG_SCOPED_TYPES = new Set(["service", "product", "caseStudy", "post"]);
+const SLUG_SCOPED_TYPES = new Set(["service", "product", "portfolio", "post"]);
 
 /**
  * Base tags per Sanity `_type` (excluding the shared `sanity` tag).
- * Blog support docs (`author` / `category` / `tag`) invalidate the `post` tag
- * because post projections embed those references.
+ * Archived support docs (`author` / `category` / `tag` / `teamMember`) invalidate
+ * related collection tags because projections embed those references.
  */
 const TYPE_TAGS: Record<string, readonly string[]> = {
   siteSettings: ["siteSettings"],
   homePage: ["homePage"],
   aboutPage: ["aboutPage"],
   contactPage: ["contactPage"],
-  teamMember: ["teamMember"],
+  teamMember: ["teamMember", "post"],
   serviceCategory: ["serviceCategory"],
   service: ["service"],
   product: ["product"],
-  caseStudy: ["caseStudy"],
+  portfolio: ["portfolio"],
+  caseStudy: ["portfolio"],
   communityItem: ["communityItem"],
   partner: ["partner"],
   post: ["post"],

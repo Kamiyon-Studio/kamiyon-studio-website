@@ -27,4 +27,10 @@ describe("Badge", () => {
 
     expect(screen.getByText("Coming soon").className).toContain("absolute left-4 top-4");
   });
+
+  it("uses Skeleton badge primitive classes under the hood", () => {
+    render(<Badge>Coming soon</Badge>);
+
+    expect(screen.getByText("Coming soon").className).toContain("badge");
+  });
 });

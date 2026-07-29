@@ -31,6 +31,7 @@ export const SINGLETON_IDS = {
 export type CollectionType =
   | "product"
   | "caseStudy"
+  | "portfolio"
   | "teamMember"
   | "serviceCategory"
   | "service"
@@ -66,6 +67,10 @@ export function productId(slug: string): string {
 
 export function caseStudyId(slug: string): string {
   return collectionId("caseStudy", slug);
+}
+
+export function portfolioId(slug: string): string {
+  return collectionId("portfolio", slug);
 }
 
 export function teamMemberId(name: string): string {

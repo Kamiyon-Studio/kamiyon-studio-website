@@ -3,7 +3,7 @@
   --sg-primary: var(--color-primary);
   --sg-primary-soft: color-mix(in srgb, var(--color-primary) 18%, transparent);
   --sg-gold-soft: color-mix(in srgb, var(--color-secondary) 16%, transparent);
-  --sg-ink: var(--color-black);
+  --sg-ink: var(--color-ivory);
   --sg-surface: var(--bg-primary);
   --sg-muted: var(--text-muted);
   --sg-container: min(1400px, 100%);
@@ -14,6 +14,10 @@
   font-family: var(--font-display), system-ui, sans-serif;
   color: var(--sg-ink);
   transition: color 0.25s var(--sg-ease);
+}
+
+.sterling-gate[data-nav-theme="light"] {
+  --sg-ink: var(--color-charcoal);
 }
 
 .sterling-gate[data-nav-theme="dark"] {
@@ -226,6 +230,86 @@
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
+}
+
+.sterling-gate .menu-item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sterling-gate .menu-item-row .nav-link {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sterling-gate .menu-dropdown-toggle {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-right: 0.25rem;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--sg-ink) 35%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--sg-ink);
+  cursor: pointer;
+  transition:
+    border-color 0.2s var(--sg-ease),
+    color 0.2s var(--sg-ease),
+    background-color 0.2s var(--sg-ease);
+}
+
+.sterling-gate .menu-dropdown-toggle:hover,
+.sterling-gate .menu-dropdown-toggle:focus-visible {
+  border-color: var(--sg-ink);
+  outline: none;
+}
+
+.sterling-gate .menu-dropdown-toggle:focus-visible {
+  outline: 2px solid var(--sg-primary);
+  outline-offset: 2px;
+}
+
+.sterling-gate .menu-dropdown-chevron {
+  display: block;
+  transition: transform 0.25s var(--sg-ease);
+}
+
+.sterling-gate .menu-dropdown-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.sterling-gate .menu-sublist {
+  list-style: none;
+  margin: 0.35rem 0 0.85rem 1.25rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.sterling-gate .menu-sublist[hidden] {
+  display: none;
+}
+
+.sterling-gate .nav-sublink {
+  display: inline-block;
+  font-size: clamp(0.85rem, 1.4vw, 1rem);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--sg-ink) 55%, transparent);
+  text-decoration: none;
+  transition: color 0.2s var(--sg-ease);
+}
+
+.sterling-gate .nav-sublink:hover,
+.sterling-gate .nav-sublink:focus-visible {
+  color: var(--sg-ink);
 }
 
 .sterling-gate .nav-link {

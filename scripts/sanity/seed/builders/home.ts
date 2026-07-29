@@ -10,7 +10,7 @@ import type {
 } from "@/lib/cms/types";
 
 import { arrayKey, toReference, toSeo } from "../helpers";
-import { caseStudyId, productId, SINGLETON_IDS } from "../ids";
+import { portfolioId, productId, SINGLETON_IDS } from "../ids";
 import type { SeedDocument } from "../types";
 
 function mapHero(block: HomeHero, index: number) {
@@ -48,7 +48,7 @@ function mapFeaturedWork(block: HomeFeaturedWork, index: number) {
       toReference(productId(slug), arrayKey("featured-product", i))
     ),
     featuredCaseStudies: block.featuredCaseStudySlugs.map((slug, i) =>
-      toReference(caseStudyId(slug), arrayKey("featured-case-study", i))
+      toReference(portfolioId(slug), arrayKey("featured-portfolio", i))
     ),
   };
 }

@@ -4,6 +4,7 @@ export const product = defineType({
   name: "product",
   title: "Product",
   type: "document",
+  readOnly: () => true,
   fields: [
     defineField({ name: "title", title: "Title", type: "string", validation: (r) => r.required() }),
     defineField({

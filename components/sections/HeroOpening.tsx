@@ -14,7 +14,7 @@ type HeroOpeningProps = {
   hero: HomeHero;
 };
 
-const HERO_BACKGROUND = "/assets/background.png";
+const HERO_BACKGROUND = "/assets/background.jpg";
 
 /**
  * Full-bleed opening stage: brand title + motto over atmospheric background.
@@ -46,8 +46,13 @@ export function HeroOpening({ hero: _hero }: HeroOpeningProps) {
             className="object-cover object-[center_35%] opacity-90"
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-charcoal)]/75 via-[var(--color-charcoal)]/45 to-[var(--color-charcoal)]/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-charcoal)]/75 via-[var(--color-charcoal)]/45 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-charcoal)]/55 via-transparent to-[var(--color-charcoal)]/40" />
+        {/* Soft handoff into Partners (`--bg-secondary`) */}
+        <div
+          data-testid="hero-partners-blend"
+          className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-transparent to-[var(--bg-secondary)] md:h-40"
+        />
       </div>
 
       <div

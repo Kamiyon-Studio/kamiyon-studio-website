@@ -4,6 +4,7 @@ export const communityItem = defineType({
   name: "communityItem",
   title: "Community Item",
   type: "document",
+  readOnly: () => true,
   fields: [
     defineField({ name: "title", title: "Title", type: "string", validation: (r) => r.required() }),
     defineField({

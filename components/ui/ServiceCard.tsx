@@ -3,17 +3,19 @@ import { Badge } from "@/components/ui/Badge";
 import { TiltedCard, marketingCardTiltProps } from "@/components/ui/TiltedCard";
 import type { Service } from "@/lib/cms/types";
 
+/** Glyphs for Gate 0 five-service icons (plus legacy keys until CMS migrate). */
 const ICON_GLYPHS: Record<string, string> = {
   gamepad: "🎮",
   rocket: "🚀",
+  palette: "🎨",
+  brush: "🖌️",
+  users: "👥",
   sparkles: "✨",
   globe: "🌐",
   smartphone: "📱",
-  palette: "🎨",
   brain: "🧠",
   blocks: "⛓️",
   "messages-square": "💬",
-  brush: "🖌️",
 };
 
 function getIconGlyph(icon: string | undefined): string {
@@ -48,7 +50,9 @@ export function ServiceCard({ service }: ServiceCardProps) {
         <h3 className="mt-4 font-display text-lg font-semibold text-[var(--text-primary)]">
           {service.title}
         </h3>
-        <p className="mt-2 text-sm text-[var(--text-secondary)]">{service.summary}</p>
+        <p className="mt-2 text-sm text-[var(--text-secondary)]">
+          {service.tagline || service.summary}
+        </p>
         <span className="mt-4 text-sm font-medium text-sakura-ink transition-colors group-hover:opacity-80">
           Learn more →
         </span>

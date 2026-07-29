@@ -29,7 +29,7 @@ const LAYER_Y_PERCENTS = [
 ] as const;
 
 const LAYER_IMAGES = {
-  back: "/assets/background.png",
+  back: "/assets/background.jpg",
   mid: "/assets/youtube-banner.png",
   front: "/assets/kami-chan-concept-art.png",
 } as const;

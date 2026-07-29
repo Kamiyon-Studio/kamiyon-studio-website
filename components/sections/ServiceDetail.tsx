@@ -1,24 +1,17 @@
 import { Badge } from "@/components/ui/Badge";
 import { Container } from "@/components/ui/Container";
 import { PortableText } from "@/components/ui/PortableText";
-import type { Service, ServiceCategory } from "@/lib/cms/types";
+import type { Service } from "@/lib/cms/types";
 import { ServiceSidebar } from "./ServiceSidebar";
 
 type ServiceDetailProps = {
   service: Service;
-  category?: ServiceCategory;
 };
 
-export function ServiceDetail({ service, category }: ServiceDetailProps) {
+export function ServiceDetail({ service }: ServiceDetailProps) {
   return (
     <section className="bg-[var(--bg-primary)] py-16 md:py-24">
       <Container>
-        {category ? (
-          <p className="text-sm font-semibold uppercase tracking-wide text-sakura-ink">
-            {category.title}
-          </p>
-        ) : null}
-
         {service.isPlaceholder ? (
           <Badge variant="placeholder" className="mt-4">
             Placeholder service
@@ -28,6 +21,11 @@ export function ServiceDetail({ service, category }: ServiceDetailProps) {
         <h1 className="mt-4 font-display text-3xl font-bold text-[var(--text-primary)] md:text-4xl">
           {service.title}
         </h1>
+        {service.tagline ? (
+          <p className="mt-2 text-base font-medium text-sakura-ink md:text-lg">
+            {service.tagline}
+          </p>
+        ) : null}
         <p className="mt-4 max-w-[680px] text-base text-[var(--text-secondary)] md:text-lg">
           {service.summary}
         </p>

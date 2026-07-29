@@ -154,9 +154,7 @@ describe("SiteHeader", () => {
       "Home",
       "About",
       "Services",
-      "Products",
       "Portfolio",
-      "Community",
       "Blog",
       "Contact",
     ]) {

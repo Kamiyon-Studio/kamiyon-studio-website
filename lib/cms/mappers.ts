@@ -1,12 +1,17 @@
 import { getCmsImageUrl } from "./image";
 import { mapR2AssetToCmsImage, type R2AssetRef } from "./media";
+import {
+  findTaxonomyTitle,
+  isServiceCategoryValue,
+  POST_CATEGORIES,
+  POST_TAGS,
+  SERVICE_CATEGORIES,
+} from "./taxonomies";
 import type {
   AboutPage,
-  Author,
   BlogBodyBlock,
   BlogCategory,
   BlogTag,
-  CaseStudy,
   CommunityItem,
   ContactPage,
   Cta,
@@ -14,12 +19,12 @@ import type {
   HomePage,
   Partner,
   PortableTextBlock,
+  Portfolio,
   Post,
   Product,
   ProductMedia,
   SeoMetadata,
   Service,
-  ServiceCategory,
   SiteSettings,
   Slug,
   SocialLink,
@@ -310,46 +315,52 @@ export function mapTeamMember(doc: unknown): TeamMember | null {
     role: asString(row.role),
     bio: asString(row.bio),
     photo: mapR2AssetToCmsImage(row.photo as R2AssetRef | null | undefined),
+    socialLinks: mapSocialLinks(row.socialLinks),
     order: asNumber(row.order),
     isPlaceholder: asBoolean(row.isPlaceholder),
   };
 }
 
-export function mapServiceCategory(doc: unknown): ServiceCategory | null {
-  const row = asRecord(doc);
-  if (!row || typeof row.title !== "string") {
-    return null;
-  }
-
-  return {
-    _type: "serviceCategory",
-    title: row.title,
-    slug: mapSlug(row.slug),
-    description: asString(row.description),
-    order: asNumber(row.order),
-  };
-}
-
+/**
+ * Maps a flat Gate 0 service document.
+ * Rejects non-canonical slugs; ignores legacy category/outcomes fields.
+ */
 export function mapService(doc: unknown): Service | null {
   const row = asRecord(doc);
   if (!row || typeof row.title !== "string") {
     return null;
   }
 
+  const slug = mapSlug(row.slug);
+  if (!isServiceCategoryValue(slug.current)) {
+    return null;
+  }
+
   return {
     _type: "service",
     title: row.title,
-    slug: mapSlug(row.slug),
-    categorySlug: asString(row.categorySlug),
+    slug,
+    tagline: asString(row.tagline),
     summary: asString(row.summary),
     body: mapPortableBody(row.body),
-    outcomes: asStringArray(row.outcomes),
-    relatedIndustries: asStringArray(row.relatedIndustries),
+    capabilities: asStringArray(row.capabilities),
     icon: typeof row.icon === "string" ? row.icon : undefined,
     order: asNumber(row.order),
     isPlaceholder: asBoolean(row.isPlaceholder),
     seo: mapSeo(row.seo),
   };
+}
+
+/** Sort mapped services into Gate 0 fixed order (game → … → community-events). */
+export function sortServicesCanonically(services: Service[]): Service[] {
+  const order = new Map<string, number>(
+    SERVICE_CATEGORIES.map((entry, index) => [entry.value, index]),
+  );
+  return [...services].sort(
+    (a, b) =>
+      (order.get(a.slug.current) ?? Number.POSITIVE_INFINITY) -
+      (order.get(b.slug.current) ?? Number.POSITIVE_INFINITY),
+  );
 }
 
 function mapProductMedia(value: unknown): ProductMedia[] {
@@ -399,18 +410,19 @@ export function mapProduct(doc: unknown): Product | null {
   };
 }
 
-export function mapCaseStudy(doc: unknown): CaseStudy | null {
+export function mapPortfolio(doc: unknown): Portfolio | null {
   const row = asRecord(doc);
   if (!row || typeof row.title !== "string") {
     return null;
   }
 
   return {
-    _type: "caseStudy",
+    _type: "portfolio",
     title: row.title,
     slug: mapSlug(row.slug),
     clientName: asString(row.clientName),
     industry: asString(row.industry),
+    serviceType: asString(row.serviceType),
     challenge: asString(row.challenge),
     solution: asString(row.solution),
     impact: asString(row.impact),
@@ -432,6 +444,9 @@ export function mapCaseStudy(doc: unknown): CaseStudy | null {
     seo: mapSeo(row.seo),
   };
 }
+
+/** @deprecated Use mapPortfolio. */
+export const mapCaseStudy = mapPortfolio;
 
 export function mapCommunityItem(doc: unknown): CommunityItem | null {
   const row = asRecord(doc);
@@ -498,45 +513,21 @@ export function mapPartnerToMarqueeItem(partner: Partner): {
   };
 }
 
-function mapAuthor(doc: unknown): Author | null {
-  const row = asRecord(doc);
-  if (!row || typeof row.name !== "string") {
-    return null;
-  }
-
-  return {
-    _type: "author",
-    name: row.name,
-    slug: mapSlug(row.slug),
-    bio: typeof row.bio === "string" ? row.bio : undefined,
-    avatar: mapR2AssetToCmsImage(row.avatar as R2AssetRef | null | undefined),
-  };
+function mapBlogTaxonomyFromValues(
+  value: unknown,
+  options: readonly { value: string; title: string }[],
+): BlogCategory[] {
+  return asStringArray(value).map((slug) => ({
+    title: findTaxonomyTitle(options, slug) ?? slug,
+    slug: { current: slug },
+  }));
 }
 
-function mapBlogCategory(doc: unknown): BlogCategory | null {
-  const row = asRecord(doc);
-  if (!row || typeof row.title !== "string") {
-    return null;
-  }
-
-  return {
-    _type: "category",
-    title: row.title,
-    slug: mapSlug(row.slug),
-  };
-}
-
-function mapBlogTag(doc: unknown): BlogTag | null {
-  const row = asRecord(doc);
-  if (!row || typeof row.title !== "string") {
-    return null;
-  }
-
-  return {
-    _type: "tag",
-    title: row.title,
-    slug: mapSlug(row.slug),
-  };
+function mapBlogTagsFromValues(value: unknown): BlogTag[] {
+  return asStringArray(value).map((slug) => ({
+    title: findTaxonomyTitle(POST_TAGS, slug) ?? slug,
+    slug: { current: slug },
+  }));
 }
 
 export function mapPost(doc: unknown): Post | null {
@@ -550,14 +541,10 @@ export function mapPost(doc: unknown): Post | null {
     title: row.title,
     slug: mapSlug(row.slug),
     authors: (Array.isArray(row.authors) ? row.authors : [])
-      .map(mapAuthor)
-      .filter((author): author is Author => Boolean(author)),
-    categories: (Array.isArray(row.categories) ? row.categories : [])
-      .map(mapBlogCategory)
-      .filter((category): category is BlogCategory => Boolean(category)),
-    tags: (Array.isArray(row.tags) ? row.tags : [])
-      .map(mapBlogTag)
-      .filter((tag): tag is BlogTag => Boolean(tag)),
+      .map(mapTeamMember)
+      .filter((author): author is TeamMember => Boolean(author)),
+    categories: mapBlogTaxonomyFromValues(row.categories, POST_CATEGORIES),
+    tags: mapBlogTagsFromValues(row.tags),
     featuredImage: mapR2AssetToCmsImage(row.featuredImage as R2AssetRef | null | undefined),
     body: mapBlogBody(row.body),
     seo: mapSeo(row.seo),

@@ -5,11 +5,12 @@ import type { CaseStudy } from "@/lib/cms/types";
 import { ProjectSidebar } from "./ProjectSidebar";
 
 const baseCaseStudy: CaseStudy = {
-  _type: "caseStudy",
+  _type: "portfolio",
   title: "Sample Client Project — Placeholder",
   slug: { current: "sample-client-project-placeholder" },
   clientName: "TBD",
   industry: "Education",
+  serviceType: "game-development",
   challenge: "",
   solution: "",
   impact: "",
@@ -25,6 +26,30 @@ describe("ProjectSidebar", () => {
 
     expect(screen.getByText("TBD")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Education" })).toHaveAttribute("href", "/portfolio");
+  });
+
+  it("links the Gate 0 service label to /services/[slug]", () => {
+    render(
+      <ProjectSidebar
+        caseStudy={{ ...baseCaseStudy, serviceType: "ui-design" }}
+      />
+    );
+
+    expect(screen.getByRole("link", { name: "UI & Design" })).toHaveAttribute(
+      "href",
+      "/services/ui-design"
+    );
+  });
+
+  it("omits the Service field for stale / unknown serviceType values", () => {
+    render(
+      <ProjectSidebar
+        caseStudy={{ ...baseCaseStudy, serviceType: "mvp-development" }}
+      />
+    );
+
+    expect(screen.queryByText("Service")).not.toBeInTheDocument();
+    expect(screen.queryByText("MVP Development")).not.toBeInTheDocument();
   });
 
   it("formats and displays a valid published date", () => {

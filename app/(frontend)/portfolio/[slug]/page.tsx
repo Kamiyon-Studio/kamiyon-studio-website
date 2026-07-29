@@ -2,62 +2,64 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { CaseStudy } from "@/components/sections/CaseStudy";
-import { caseStudiesFallback } from "@/lib/cms/fallbacks";
-import { getCaseStudies, getCaseStudyBySlug } from "@/lib/cms/queries";
+import { portfolioItemsFallback } from "@/lib/cms/fallbacks";
+import { getPortfolioItemBySlug, getPortfolioItems } from "@/lib/cms/queries";
 import { getBreadcrumbJsonLd } from "@/lib/seo/breadcrumb-jsonld";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
-type CaseStudyPageProps = {
+type PortfolioItemPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-async function getCaseStudyContent(slug: string) {
-  const cmsCaseStudy = await getCaseStudyBySlug(slug);
+async function getPortfolioContent(slug: string) {
+  const cmsItem = await getPortfolioItemBySlug(slug);
 
-  if (cmsCaseStudy) {
-    return cmsCaseStudy;
+  if (cmsItem) {
+    return cmsItem;
   }
 
-  return caseStudiesFallback.find((caseStudy) => caseStudy.slug.current === slug) ?? null;
+  return (
+    portfolioItemsFallback.find((item) => item.slug.current === slug) ?? null
+  );
 }
 
 export async function generateStaticParams() {
-  const caseStudies = (await getCaseStudies()) ?? caseStudiesFallback;
+  const items = (await getPortfolioItems()) ?? portfolioItemsFallback;
 
-  return caseStudies.map((caseStudy) => ({ slug: caseStudy.slug.current }));
+  return items.map((item) => ({ slug: item.slug.current }));
 }
 
 export async function generateMetadata({
   params,
-}: CaseStudyPageProps): Promise<Metadata> {
+}: PortfolioItemPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const caseStudy = await getCaseStudyContent(slug);
+  const item = await getPortfolioContent(slug);
 
-  if (!caseStudy) {
+  if (!item) {
     return {};
   }
 
   return buildPageMetadata({
-    title: caseStudy.seo.title,
-    description: caseStudy.seo.description,
-    path: `/portfolio/${caseStudy.slug.current}`,
-    ogImage: caseStudy.seo.ogImage ?? caseStudy.coverImage,
-    noIndex: caseStudy.seo.noIndex,
+    title: item.seo.title,
+    description: item.seo.description,
+    path: `/portfolio/${item.slug.current}`,
+    ogImage: item.seo.ogImage ?? item.coverImage,
+    noIndex: item.seo.noIndex,
   });
 }
 
-export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
+export default async function PortfolioItemPage({ params }: PortfolioItemPageProps) {
   const { slug } = await params;
-  const caseStudy = await getCaseStudyContent(slug);
+  const item = await getPortfolioContent(slug);
 
-  if (!caseStudy) {
+  if (!item) {
     notFound();
   }
 
   const breadcrumbJsonLd = getBreadcrumbJsonLd([
     { name: "Home", href: "/" },
     { name: "Portfolio", href: "/portfolio" },
-    { name: caseStudy.title, href: `/portfolio/${caseStudy.slug.current}` },
+    { name: item.title, href: `/portfolio/${item.slug.current}` },
   ]);
 
   return (
@@ -66,7 +68,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      <CaseStudy caseStudy={caseStudy} />
+      <CaseStudy caseStudy={item} />
     </>
   );
 }

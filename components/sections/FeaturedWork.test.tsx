@@ -34,11 +34,12 @@ const products: Product[] = [
 
 const caseStudies: CaseStudy[] = [
   {
-    _type: "caseStudy",
+    _type: "portfolio",
     title: "Sample Client Project — Placeholder",
     slug: { current: "sample-client-project-placeholder" },
     clientName: "TBD",
     industry: "Education",
+  serviceType: "game-development",
     challenge: "A generic challenge summary.",
     solution: "",
     impact: "",

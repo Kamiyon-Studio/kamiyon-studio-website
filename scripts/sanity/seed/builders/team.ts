@@ -12,6 +12,7 @@ export function buildTeamMemberDocument(member: TeamMember): SeedDocument {
     name: member.name,
     role: member.role,
     bio: member.bio,
+    socialLinks: member.socialLinks ?? [],
     order: member.order,
     isPlaceholder: member.isPlaceholder,
   };

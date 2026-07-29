@@ -31,6 +31,9 @@ const PLATFORM_LABELS: Record<SocialLink["platform"], string> = {
   itch: "itch.io",
   youtube: "YouTube",
   x: "X",
+  instagram: "Instagram",
+  tiktok: "TikTok",
+  github: "GitHub",
   email: "Email",
 };
 

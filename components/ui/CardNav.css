@@ -168,8 +168,8 @@
 }
 
 .card-nav-cta-button {
-  background-color: var(--color-charcoal);
-  color: var(--bg-primary);
+  background-color: var(--color-sakura);
+  color: var(--color-charcoal);
   border: none;
   border-radius: calc(var(--radius-card) - 0.35rem);
   padding: 0 1rem;
@@ -178,7 +178,10 @@
   font-weight: 500;
   font-size: 0.875rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1);
   display: inline-flex;
   align-items: center;
   text-decoration: none;
@@ -187,7 +190,26 @@
 }
 
 .card-nav-cta-button:hover {
-  background-color: color-mix(in srgb, var(--color-charcoal) 85%, white);
+  background-color: color-mix(in srgb, var(--color-sakura) 85%, var(--color-charcoal));
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 18px rgba(255, 121, 152, 0.35);
+}
+
+.card-nav-cta-button:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.12s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-nav-cta-button {
+    transition: background-color 0.3s ease;
+  }
+
+  .card-nav-cta-button:hover,
+  .card-nav-cta-button:active {
+    transform: none;
+    box-shadow: none;
+  }
 }
 
 .card-nav-cta-button:focus-visible {

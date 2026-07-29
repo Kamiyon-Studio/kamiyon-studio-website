@@ -73,22 +73,22 @@ describe("useNavTheme", () => {
     document.body.innerHTML = "";
   });
 
-  it("observes every themed band and starts on light", () => {
+  it("observes every themed band and starts on dark", () => {
     const { result } = renderHook(() => useNavTheme());
 
-    expect(result.current).toBe("light");
+    expect(result.current).toBe("dark");
     expect(observe).toHaveBeenCalledTimes(3);
     expect(observe).toHaveBeenCalledWith(byId("home-hero"));
     expect(observe).toHaveBeenCalledWith(byId("home-partners"));
     expect(observe).toHaveBeenCalledWith(byId("services-card"));
   });
 
-  it("stays on light when the page has no themed bands", () => {
+  it("stays on dark when the page has no themed bands", () => {
     document.body.innerHTML = "<section id='untagged'></section>";
 
     const { result } = renderHook(() => useNavTheme());
 
-    expect(result.current).toBe("light");
+    expect(result.current).toBe("dark");
     expect(observe).not.toHaveBeenCalled();
   });
 
@@ -121,7 +121,7 @@ describe("useNavTheme", () => {
     expect(result.current).toBe("light");
   });
 
-  it("falls back to light when no band intersects the header", () => {
+  it("falls back to dark when no band intersects the header", () => {
     const { result } = renderHook(() => useNavTheme());
 
     fireIntersection([{ target: byId("services-card"), intersectionRatio: 1 }]);
@@ -133,7 +133,7 @@ describe("useNavTheme", () => {
       { target: byId("services-card"), intersectionRatio: 0 },
     ]);
 
-    expect(result.current).toBe("light");
+    expect(result.current).toBe("dark");
   });
 
   it("forcedTheme overrides the observed theme and skips observation", () => {

@@ -60,4 +60,17 @@ describe("SameRouteLink", () => {
 
     expect(onNavigate).toHaveBeenCalledTimes(1);
   });
+
+  it("forwards tabIndex to the underlying link", () => {
+    render(
+      <SameRouteLink href="/about" tabIndex={-1}>
+        About
+      </SameRouteLink>,
+    );
+
+    expect(screen.getByRole("link", { name: "About" })).toHaveAttribute(
+      "tabIndex",
+      "-1",
+    );
+  });
 });

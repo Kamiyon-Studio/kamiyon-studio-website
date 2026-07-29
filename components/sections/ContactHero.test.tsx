@@ -21,9 +21,13 @@ describe("ContactHero", () => {
     expect(screen.getByText(baseContactPage.intro)).toBeInTheDocument();
   });
 
-  it("omits the FAQ quick link when there is no FAQ content", () => {
+  it("includes Send a message and Ways to reach us quick links", () => {
     render(<ContactHero contactPage={baseContactPage} />);
 
+    expect(screen.getByRole("link", { name: "Send a message" })).toHaveAttribute(
+      "href",
+      "#form"
+    );
     expect(screen.getByRole("link", { name: "Ways to reach us" })).toHaveAttribute(
       "href",
       "#methods"

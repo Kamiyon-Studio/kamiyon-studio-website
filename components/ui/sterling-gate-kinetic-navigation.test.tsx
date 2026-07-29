@@ -188,6 +188,40 @@ describe("SterlingGateKineticNavigation", () => {
     );
   });
 
+  it("resets Services dropdown when closed via Escape", async () => {
+    const user = userEvent.setup();
+    const itemsWithDropdown = [
+      {
+        label: "Services",
+        href: "/services",
+        children: [
+          { label: "Game Development", href: "/services/game-development" },
+        ],
+      },
+      { label: "Portfolio", href: "/portfolio" },
+    ];
+
+    render(
+      <SterlingGateKineticNavigation
+        navItems={itemsWithDropdown}
+        siteName="Kamiyon Studio"
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
+    await user.click(screen.getByRole("button", { name: "Expand Services" }));
+    expect(screen.getByRole("button", { name: "Collapse Services" })).toBeInTheDocument();
+
+    await user.keyboard("{Escape}");
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
+
+    expect(screen.getByRole("button", { name: "Expand Services" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+    expect(screen.queryByRole("link", { name: "Game Development" })).not.toBeInTheDocument();
+  });
+
   it("does not throw under prefers-reduced-motion", async () => {
     const user = userEvent.setup();
     expect(() =>
@@ -272,7 +306,7 @@ describe("SterlingGateKineticNavigation", () => {
     );
 
     const root = container.querySelector(".sterling-gate");
-    expect(root).toHaveAttribute("data-nav-theme", "light");
+    expect(root).toHaveAttribute("data-nav-theme", "dark");
     expect(observeMock).toHaveBeenCalled();
     expect(navThemeCallback).toBeTypeOf("function");
 
@@ -295,7 +329,7 @@ describe("SterlingGateKineticNavigation", () => {
     });
   });
 
-  it("forces light ink while the menu is open", async () => {
+  it("keeps light ink (ivory) while the menu is open", async () => {
     const user = userEvent.setup();
 
     const { container } = render(
@@ -312,12 +346,70 @@ describe("SterlingGateKineticNavigation", () => {
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
 
-    expect(root).toHaveAttribute("data-nav-theme", "light");
+    expect(root).toHaveAttribute("data-nav-theme", "dark");
   });
 
-  it("applies dark ink token when data-nav-theme is dark", () => {
+  it("renders a collapsible Services dropdown and standalone links without toggles", async () => {
+    const user = userEvent.setup();
+    const itemsWithDropdown = [
+      { label: "About", href: "/about" },
+      {
+        label: "Services",
+        href: "/services",
+        children: [
+          { label: "Game Development", href: "/services/game-development" },
+          { label: "Branding", href: "/services/branding" },
+        ],
+      },
+      { label: "Portfolio", href: "/portfolio" },
+    ];
+
+    render(
+      <SterlingGateKineticNavigation
+        navItems={itemsWithDropdown}
+        siteName="Kamiyon Studio"
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
+
+    expect(screen.getByRole("link", { name: "Portfolio" })).toHaveAttribute(
+      "href",
+      "/portfolio",
+    );
+    expect(
+      screen.queryByRole("button", { name: "Expand Portfolio" }),
+    ).not.toBeInTheDocument();
+
+    const expandServices = screen.getByRole("button", { name: "Expand Services" });
+    expect(expandServices).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("link", { name: "Game Development" })).not.toBeInTheDocument();
+
+    await user.click(expandServices);
+
+    expect(screen.getByRole("button", { name: "Collapse Services" })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
+    expect(screen.getByRole("link", { name: "Game Development" })).toHaveAttribute(
+      "href",
+      "/services/game-development",
+    );
+    expect(screen.getByRole("link", { name: "Branding" })).toHaveAttribute(
+      "href",
+      "/services/branding",
+    );
+  });
+
+  it("applies dark ink by default and light ink when data-nav-theme is light", () => {
     const css = readFileSync(cssPath, "utf8");
 
+    expect(css).toMatch(
+      /\.sterling-gate\s*\{[^}]*--sg-ink:\s*var\(--color-ivory\);/s,
+    );
+    expect(css).toMatch(
+      /\.sterling-gate\[data-nav-theme="light"\]\s*\{\s*--sg-ink:\s*var\(--color-charcoal\);\s*\}/,
+    );
     expect(css).toMatch(
       /\.sterling-gate\[data-nav-theme="dark"\]\s*\{\s*--sg-ink:\s*var\(--color-ivory\);\s*\}/,
     );

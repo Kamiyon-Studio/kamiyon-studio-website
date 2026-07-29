@@ -2,7 +2,7 @@ import { getCmsImageUrl } from "@/lib/cms/image";
 import type { CaseStudy, Product } from "@/lib/cms/types";
 
 export const OPENING_ITEM_LIMIT = 5;
-export const OPENING_FALLBACK_IMAGE = "/assets/background.png";
+export const OPENING_FALLBACK_IMAGE = "/assets/background.jpg";
 
 export type OpeningItem = {
   id: string;

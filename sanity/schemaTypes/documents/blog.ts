@@ -1,9 +1,16 @@
 import { defineField, defineType } from "sanity";
 
+import {
+  POST_CATEGORIES,
+  POST_TAGS,
+  toSanityListOptions,
+} from "@/lib/cms/taxonomies";
+
 export const author = defineType({
   name: "author",
   title: "Author",
   type: "document",
+  readOnly: () => true,
   fields: [
     defineField({ name: "name", title: "Name", type: "string", validation: (r) => r.required() }),
     defineField({
@@ -25,6 +32,7 @@ export const category = defineType({
   name: "category",
   title: "Category",
   type: "document",
+  readOnly: () => true,
   fields: [
     defineField({ name: "title", title: "Title", type: "string", validation: (r) => r.required() }),
     defineField({
@@ -44,6 +52,7 @@ export const tag = defineType({
   name: "tag",
   title: "Tag",
   type: "document",
+  readOnly: () => true,
   fields: [
     defineField({ name: "title", title: "Title", type: "string", validation: (r) => r.required() }),
     defineField({
@@ -76,20 +85,34 @@ export const post = defineType({
       name: "authors",
       title: "Authors",
       type: "array",
-      of: [{ type: "reference", to: [{ type: "author" }] }],
+      of: [{ type: "reference", to: [{ type: "teamMember" }] }],
       validation: (r) => r.min(1),
     }),
     defineField({
       name: "categories",
       title: "Categories",
       type: "array",
-      of: [{ type: "reference", to: [{ type: "category" }] }],
+      of: [
+        {
+          type: "string",
+          options: {
+            list: toSanityListOptions(POST_CATEGORIES),
+          },
+        },
+      ],
     }),
     defineField({
       name: "tags",
       title: "Tags",
       type: "array",
-      of: [{ type: "reference", to: [{ type: "tag" }] }],
+      of: [
+        {
+          type: "string",
+          options: {
+            list: toSanityListOptions(POST_TAGS),
+          },
+        },
+      ],
     }),
     defineField({
       name: "featuredImage",

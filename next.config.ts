@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 import type { NextConfig } from "next";
 
+import { buildServiceRedirects } from "./lib/seo/service-redirects";
+
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const hostedStudioUrl = (
@@ -27,6 +29,23 @@ const nextConfig: NextConfig = {
         destination: hostedStudioUrl,
         permanent: false,
       },
+      {
+        source: "/products",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/products/:path*",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/community",
+        destination: "/",
+        permanent: true,
+      },
+      // Gate 0 / ADR-016 service remap (incl. Gate 1 live fold-in) — WS-G
+      ...buildServiceRedirects(),
     ];
   },
   images: {

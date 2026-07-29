@@ -35,7 +35,7 @@ function MotionLabHero() {
   return (
     <header
       ref={heroRef}
-      className="relative overflow-hidden border-b border-[var(--border-default)] bg-[linear-gradient(165deg,var(--color-ivory)_0%,#fff_45%,color-mix(in_srgb,var(--color-sakura)_12%,white)_100%)]"
+      className="relative overflow-hidden border-b border-[var(--border-default)] bg-[linear-gradient(165deg,var(--bg-primary)_0%,var(--bg-secondary)_45%,color-mix(in_srgb,var(--color-sakura)_18%,var(--bg-primary))_100%)]"
     >
       <Container className="flex min-h-[70vh] flex-col justify-center gap-6 py-20">
         <p
@@ -98,7 +98,7 @@ function ParallaxBand() {
     <div className="relative mt-10 h-64 overflow-hidden rounded-[var(--radius-card)] border border-[var(--border-default)]">
       <div ref={parallaxRef} className="absolute inset-[-20%] will-change-transform">
         <Image
-          src="/assets/background.png"
+          src="/assets/background.jpg"
           alt=""
           fill
           className="object-cover"

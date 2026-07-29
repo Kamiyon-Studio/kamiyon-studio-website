@@ -60,21 +60,22 @@ describe("WS8d partner seed builders", () => {
 
     expect(ids).toContain("partner-partner-1");
     expect(ids).toContain("post-coming-soon");
+    expect(ids).toContain("portfolio-sample-client-project-placeholder");
     expect(ids[ids.length - 1]).toBe("homePage");
+    expect(ids).not.toContain("product-eclipse");
+    expect(ids).not.toContain("author-kamiyon-studio");
 
-    const categoryIndex = ids.indexOf(
-      "serviceCategory-interactive-experience-development",
-    );
     const serviceIndex = ids.indexOf("service-game-development");
-    const productIndex = ids.indexOf("product-eclipse");
+    const portfolioIndex = ids.indexOf(
+      "portfolio-sample-client-project-placeholder",
+    );
     const partnerIndex = ids.indexOf("partner-partner-1");
-    const blogIndex = ids.indexOf("author-kamiyon-studio");
+    const blogIndex = ids.indexOf("post-coming-soon");
     const homeIndex = ids.indexOf("homePage");
     const siteSettingsIndex = ids.indexOf("siteSettings");
 
-    expect(categoryIndex).toBeLessThan(serviceIndex);
-    expect(serviceIndex).toBeLessThan(productIndex);
-    expect(productIndex).toBeLessThan(partnerIndex);
+    expect(serviceIndex).toBeLessThan(portfolioIndex);
+    expect(portfolioIndex).toBeLessThan(partnerIndex);
     expect(siteSettingsIndex).toBeLessThan(partnerIndex);
     expect(partnerIndex).toBeLessThan(blogIndex);
     expect(blogIndex).toBeLessThan(homeIndex);
@@ -82,8 +83,7 @@ describe("WS8d partner seed builders", () => {
     expect(new Set(ids).size).toBe(ids.length);
     expect(listAllSeedDocumentIds()).toEqual(ids);
 
-    // categories(4)+services(10)+products(3)+case(1)+community(2)+team(6)
-    // + about(1)+contact(1)+siteSettings(1)+partners(7)+blog(5)+home(1) = 42
-    expect(docs).toHaveLength(42);
+    // services(5)+portfolio(1)+team(6)+about+contact+siteSettings+partners(7)+blog(1)+home = 24
+    expect(docs).toHaveLength(24);
   });
 });

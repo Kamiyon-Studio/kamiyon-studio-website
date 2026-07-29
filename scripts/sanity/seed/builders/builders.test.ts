@@ -4,10 +4,7 @@ import { caseStudiesFallback } from "@/lib/cms/fallbacks/portfolio";
 import { communityItemsFallback } from "@/lib/cms/fallbacks/community";
 import { homePageFallback } from "@/lib/cms/fallbacks/home";
 import { productsFallback } from "@/lib/cms/fallbacks/products";
-import {
-  serviceCategoriesFallback,
-  servicesFallback,
-} from "@/lib/cms/fallbacks/services";
+import { servicesFallback } from "@/lib/cms/fallbacks/services";
 import { teamMembersFallback } from "@/lib/cms/fallbacks/about";
 
 import {
@@ -18,7 +15,6 @@ import {
   buildCoreSeedDocuments,
   buildHomePageDocument,
   buildProductDocuments,
-  buildServiceCategoryDocuments,
   buildServiceDocuments,
   buildSiteSettingsDocument,
   buildTeamMemberDocuments,
@@ -44,7 +40,7 @@ describe("WS8b core seed builders", () => {
       "product-afterschool-cleanup",
     ]);
     expect(buildCaseStudyDocuments().map((d) => d._id)).toEqual([
-      "caseStudy-sample-client-project-placeholder",
+      "portfolio-sample-client-project-placeholder",
     ]);
     expect(buildTeamMemberDocuments().map((d) => d._id)).toEqual([
       "teamMember-sherwin-limosnero",
@@ -54,13 +50,13 @@ describe("WS8b core seed builders", () => {
       "teamMember-lucky-guevarra",
       "teamMember-yushua-dapilaga",
     ]);
-    expect(buildServiceCategoryDocuments().map((d) => d._id)).toEqual([
-      "serviceCategory-interactive-experience-development",
-      "serviceCategory-software-development",
-      "serviceCategory-creative-design-services",
-      "serviceCategory-consulting-technical-advisory",
+    expect(buildServiceDocuments().map((d) => d._id)).toEqual([
+      "service-game-development",
+      "service-product-development",
+      "service-ui-design",
+      "service-branding",
+      "service-community-events",
     ]);
-    expect(buildServiceDocuments()[0]?._id).toBe("service-game-development");
     expect(buildCommunityItemDocuments().map((d) => d._id)).toEqual([
       "communityItem-workshop-details-coming-soon",
       "communityItem-partnership-details-coming-soon",
@@ -131,24 +127,26 @@ describe("WS8b core seed builders", () => {
     expect(caseStudies).toEqual(
       featuredFallback.featuredCaseStudySlugs.map((slug, i) => ({
         _type: "reference",
-        _ref: `caseStudy-${slug}`,
-        _key: `featured-case-study-${i}`,
+        _ref: `portfolio-${slug}`,
+        _key: `featured-portfolio-${i}`,
       }))
     );
   });
 
-  it("maps service categorySlug to a category reference", () => {
+  it("maps flat service fields (tagline + capabilities; no category)", () => {
     const docs = buildServiceDocuments();
     expect(docs).toHaveLength(servicesFallback.length);
+    expect(docs).toHaveLength(5);
 
     for (let i = 0; i < docs.length; i++) {
       const doc = docs[i]!;
       const source = servicesFallback[i]!;
       expect(doc).not.toHaveProperty("categorySlug");
-      expect(doc.category).toEqual({
-        _type: "reference",
-        _ref: `serviceCategory-${source.categorySlug}`,
-      });
+      expect(doc).not.toHaveProperty("category");
+      expect(doc).not.toHaveProperty("outcomes");
+      expect(doc).not.toHaveProperty("relatedIndustries");
+      expect(doc.tagline).toBe(source.tagline);
+      expect(doc.capabilities).toEqual([...source.capabilities]);
     }
   });
 
@@ -184,30 +182,29 @@ describe("WS8b core seed builders", () => {
       _type: "slug",
       current: "eclipse",
     });
-    expect(buildServiceCategoryDocuments()[0]?.slug).toEqual({
+    expect(buildServiceDocuments()[0]?.slug).toEqual({
       _type: "slug",
-      current: serviceCategoriesFallback[0]!.slug.current,
+      current: "game-development",
     });
   });
 
   it("buildCoreSeedDocuments gathers expected counts and unique IDs", () => {
     const docs = buildCoreSeedDocuments();
-    // 1 site + 4 categories + 10 services + 3 products + 1 case study
-    // + 2 community + 6 team + 1 about + 1 contact + 1 home = 30
-    expect(docs).toHaveLength(30);
+    // site + 5 services + 1 portfolio + 6 team + about + contact + home = 16
+    expect(docs).toHaveLength(16);
 
     const ids = docs.map((d) => d._id);
     expect(new Set(ids).size).toBe(ids.length);
     expect(listCoreSeedDocumentIds()).toEqual(ids);
 
-    // Home appears after products/case studies so featured refs can resolve.
+    // Home appears after portfolio so featured refs can resolve.
     const homeIndex = ids.indexOf("homePage");
-    const productIndex = ids.indexOf("product-eclipse");
-    const caseIndex = ids.indexOf(
-      "caseStudy-sample-client-project-placeholder",
+    const portfolioIndex = ids.indexOf(
+      "portfolio-sample-client-project-placeholder",
     );
-    expect(homeIndex).toBeGreaterThan(productIndex);
-    expect(homeIndex).toBeGreaterThan(caseIndex);
+    expect(homeIndex).toBeGreaterThan(portfolioIndex);
+    expect(ids).not.toContain("product-eclipse");
+    expect(ids).not.toContain("communityItem-workshop-details-coming-soon");
   });
 
   it("preserves contact channel isPlaceholder from channels source", () => {

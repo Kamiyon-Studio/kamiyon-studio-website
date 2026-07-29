@@ -2,12 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { ServiceDetail } from "@/components/sections/ServiceDetail";
-import { serviceCategoriesFallback, servicesFallback } from "@/lib/cms/fallbacks";
-import {
-  getServiceBySlug,
-  getServiceCategories,
-  getServices,
-} from "@/lib/cms/queries";
+import { servicesFallback } from "@/lib/cms/fallbacks";
+import { getServiceBySlug, getServices } from "@/lib/cms/queries";
 import { getBreadcrumbJsonLd } from "@/lib/seo/breadcrumb-jsonld";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
@@ -23,12 +19,6 @@ async function getServiceContent(slug: string) {
   }
 
   return servicesFallback.find((service) => service.slug.current === slug) ?? null;
-}
-
-async function getCategoryForService(categorySlug: string) {
-  const categories = (await getServiceCategories()) ?? serviceCategoriesFallback;
-
-  return categories.find((category) => category.slug.current === categorySlug);
 }
 
 export async function generateStaticParams() {
@@ -64,8 +54,6 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
     notFound();
   }
 
-  const category = await getCategoryForService(service.categorySlug);
-
   const breadcrumbJsonLd = getBreadcrumbJsonLd([
     { name: "Home", href: "/" },
     { name: "Services", href: "/services" },
@@ -78,7 +66,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      <ServiceDetail service={service} category={category} />
+      <ServiceDetail service={service} />
     </>
   );
 }

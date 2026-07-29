@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { ContactFAQ } from "@/components/sections/ContactFAQ";
+import { ContactForm } from "@/components/sections/ContactForm";
 import { ContactHero } from "@/components/sections/ContactHero";
 import { ContactMethods } from "@/components/sections/ContactMethods";
 import { ContactSidebar } from "@/components/sections/ContactSidebar";
@@ -42,15 +43,20 @@ export default async function ContactPage() {
         />
       ) : null}
       <ContactHero contactPage={contactPage} />
-      <section id="methods" className="bg-[var(--bg-primary)] py-16 md:py-24">
+      <section id="form" className="bg-[var(--bg-primary)] py-16 md:py-24">
         <Container>
           <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
-            <ContactMethods
-              channels={contactPage.channels}
-              ctaNote={contactPage.ctaNote}
-            />
+            <ContactForm />
             <ContactSidebar />
           </div>
+        </Container>
+      </section>
+      <section id="methods" className="bg-[var(--bg-secondary)] py-16 md:py-24">
+        <Container>
+          <ContactMethods
+            channels={contactPage.channels}
+            ctaNote={contactPage.ctaNote}
+          />
         </Container>
       </section>
       <ContactFAQ faq={contactPage.faq} />

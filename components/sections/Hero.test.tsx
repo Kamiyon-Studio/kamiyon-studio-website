@@ -71,7 +71,7 @@ describe("Hero", () => {
     const section = container.querySelector("section");
     expect(section).toHaveClass("relative");
 
-    const background = container.querySelector('img[src*="background.png"]');
+    const background = container.querySelector('img[src*="background.jpg"]');
     expect(background).toBeInTheDocument();
 
     expect(container.querySelector('[class*="rounded-[var(--radius-card-lg)]"]')).not.toBeInTheDocument();
@@ -82,12 +82,13 @@ describe("Hero", () => {
     const { container } = render(<Hero hero={baseHero} />);
     expect(container.querySelector(".bg-gradient-to-b")).toBeInTheDocument();
     expect(container.querySelector(".bg-gradient-to-r")).toBeInTheDocument();
+    expect(container.querySelector("[data-testid='hero-partners-blend']")).toBeInTheDocument();
   });
 
   it("layers a parallax background wrapper and opening curtain", () => {
     const { container } = render(<Hero hero={baseHero} />);
 
-    const background = container.querySelector('img[src*="background.png"]');
+    const background = container.querySelector('img[src*="background.jpg"]');
     expect(background).toBeInTheDocument();
     expect(background?.className).not.toMatch(/animate-hero-ken-burns/);
 

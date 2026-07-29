@@ -1,21 +1,13 @@
 import { expect, test } from "@playwright/test";
 
-const staticRoutes = [
-  "/",
-  "/about",
-  "/services",
-  "/products",
-  "/portfolio",
-  "/community",
-  "/blog",
-  "/contact",
-];
+const staticRoutes = ["/", "/about", "/services", "/portfolio", "/blog", "/contact"];
 
 const dynamicRoutes = [
   "/services/game-development",
-  "/products/eclipse",
   "/portfolio/sample-client-project-placeholder",
 ];
+
+const redirectedRoutes = ["/products", "/products/eclipse", "/community"];
 
 for (const route of staticRoutes) {
   test(`renders ${route} without error`, async ({ page }) => {
@@ -36,6 +28,15 @@ for (const route of dynamicRoutes) {
   });
 }
 
+for (const route of redirectedRoutes) {
+  test(`permanently redirects ${route} to home`, async ({ page }) => {
+    const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+
+    expect(response?.status()).toBeLessThan(400);
+    await expect(page).toHaveURL(/\/$/);
+  });
+}
+
 test("renders a friendly 404 for an unknown route", async ({ page }) => {
   const response = await page.goto("/this-route-does-not-exist");
 
@@ -44,34 +45,75 @@ test("renders a friendly 404 for an unknown route", async ({ page }) => {
   await expect(page.getByRole("link", { name: /back to home/i })).toBeVisible();
 });
 
-test("primary navigation links to every top-level section", async ({ page }) => {
+test("primary navigation shows six IA items plus Get in touch CTA", async ({ page }) => {
   await page.goto("/");
 
-  const nav = page.getByRole("navigation", { name: "Primary" });
-  await nav.getByRole("button", { name: /open menu/i }).click();
+  const overlayNav = page.getByRole("navigation", { name: "Site sections" });
+  await page.getByRole("navigation", { name: "Primary" }).getByRole("button", { name: /open menu/i }).click();
 
-  // CardNav IA: About → Home/Studio; Work → Services/Products/Portfolio/Community/Blog; Contact CTA
-  for (const label of [
-    "Home",
-    "Studio",
-    "Services",
-    "Products",
-    "Portfolio",
-    "Community",
-    "Blog",
-    "Get in touch",
+  for (const label of ["Home", "About", "Services", "Portfolio", "Blog", "Contact", "Get in touch"]) {
+    await expect(overlayNav.getByRole("link", { name: label }).first()).toBeVisible();
+  }
+
+  // Retired top-level IA routes (not service offerings like "Community & Events").
+  await expect(overlayNav.getByRole("link", { name: "Products", exact: true })).toHaveCount(0);
+  await expect(overlayNav.getByRole("link", { name: "Community", exact: true })).toHaveCount(0);
+});
+
+test("Get in touch CTA keeps the external Google Form URL", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("navigation", { name: "Primary" }).getByRole("button", { name: /open menu/i }).click();
+
+  const cta = page
+    .getByRole("navigation", { name: "Site sections" })
+    .getByRole("link", { name: "Get in touch" });
+  await expect(cta).toHaveAttribute("href", /docs\.google\.com\/forms/);
+});
+
+test("Services nav dropdown lists CMS children; Portfolio is a standalone link", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("navigation", { name: "Primary" }).getByRole("button", { name: /open menu/i }).click();
+
+  const overlayNav = page.getByRole("navigation", { name: "Site sections" });
+
+  await overlayNav.getByRole("button", { name: /expand services/i }).click();
+
+  const gameDev = overlayNav.getByRole("link", { name: "Game Development", exact: true });
+  await expect(gameDev).toHaveCount(1);
+  await expect(gameDev).toHaveAttribute("href", "/services/game-development");
+
+  await expect(overlayNav.getByRole("link", { name: "Portfolio" })).toHaveAttribute(
+    "href",
+    "/portfolio",
+  );
+  await expect(
+    overlayNav.getByRole("button", { name: /expand portfolio/i })
+  ).toHaveCount(0);
+  await expect(
+    overlayNav.getByRole("link", { name: "Sample Client Project — Placeholder" })
+  ).toHaveCount(0);
+});
+
+test("five canonical service detail pages render", async ({ page }) => {
+  for (const slug of [
+    "game-development",
+    "product-development",
+    "ui-design",
+    "branding",
+    "community-events",
   ]) {
-    await expect(nav.getByRole("link", { name: label }).first()).toBeVisible();
+    const response = await page.goto(`/services/${slug}`);
+    expect(response?.status()).toBeLessThan(400);
+    await expect(page.locator("main")).toBeVisible();
   }
 });
 
-test("primary navigation includes products and community", async ({ page }) => {
-  await page.goto("/");
-
-  const nav = page.getByRole("navigation", { name: "Primary" });
-  await nav.getByRole("button", { name: /open menu/i }).click();
-  await expect(nav.getByRole("link", { name: /products/i }).first()).toBeVisible();
-  await expect(nav.getByRole("link", { name: /community/i }).first()).toBeVisible();
+test("legacy service slug redirects to canonical", async ({ page }) => {
+  const response = await page.goto("/services/ui-ux-design", { waitUntil: "domcontentloaded" });
+  expect(response?.status()).toBeLessThan(400);
+  await expect(page).toHaveURL(/\/services\/ui-design\/?$/);
 });
 
 test("skip-to-content link is keyboard accessible", async ({ page }) => {

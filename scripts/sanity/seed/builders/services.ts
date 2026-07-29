@@ -1,34 +1,13 @@
-import {
-  serviceCategoriesFallback,
-  servicesFallback,
-} from "@/lib/cms/fallbacks/services";
-import type { Service, ServiceCategory } from "@/lib/cms/types";
+import { servicesFallback } from "@/lib/cms/fallbacks/services";
+import type { Service } from "@/lib/cms/types";
 
-import { toPortableBody, toReference, toSeo, toSlug } from "../helpers";
-import { serviceCategoryId, serviceId } from "../ids";
+import { toPortableBody, toSeo, toSlug } from "../helpers";
+import { serviceId } from "../ids";
 import type { SeedDocument } from "../types";
 
-export function buildServiceCategoryDocument(
-  category: ServiceCategory
-): SeedDocument {
-  return {
-    _id: serviceCategoryId(category.slug.current),
-    _type: "serviceCategory",
-    title: category.title,
-    slug: toSlug(category.slug.current),
-    description: category.description,
-    order: category.order,
-  };
-}
-
-export function buildServiceCategoryDocuments(
-  source: ServiceCategory[] = serviceCategoriesFallback
-): SeedDocument[] {
-  return source.map(buildServiceCategoryDocument);
-}
-
 /**
- * Fallback uses `categorySlug` string; Sanity schema requires a `category` reference.
+ * Flat service seed (ADR-016 / Gate 0).
+ * Emits tagline + capabilities; no category ref, outcomes, or relatedIndustries.
  */
 export function buildServiceDocument(service: Service): SeedDocument {
   return {
@@ -36,11 +15,10 @@ export function buildServiceDocument(service: Service): SeedDocument {
     _type: "service",
     title: service.title,
     slug: toSlug(service.slug.current),
-    category: toReference(serviceCategoryId(service.categorySlug)),
+    tagline: service.tagline,
     summary: service.summary,
     body: toPortableBody(service.body, `service-${service.slug.current}`),
-    outcomes: [...service.outcomes],
-    relatedIndustries: [...service.relatedIndustries],
+    capabilities: [...service.capabilities],
     ...(service.icon ? { icon: service.icon } : {}),
     order: service.order,
     isPlaceholder: service.isPlaceholder,

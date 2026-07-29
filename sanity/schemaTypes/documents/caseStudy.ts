@@ -4,6 +4,7 @@ export const caseStudy = defineType({
   name: "caseStudy",
   title: "Case Study",
   type: "document",
+  readOnly: () => true,
   fields: [
     defineField({ name: "title", title: "Title", type: "string", validation: (r) => r.required() }),
     defineField({

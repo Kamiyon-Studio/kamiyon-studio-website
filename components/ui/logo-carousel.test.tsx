@@ -52,4 +52,37 @@ describe("AnimatedCarousel", () => {
 
     expect(screen.getByText("Partner placeholder")).toBeInTheDocument();
   });
+
+  it("applies responsive slide gaps and fluid logo cells that respect slide basis", () => {
+    render(
+      <AnimatedCarousel
+        logos={[{ label: "A" }, { label: "B" }]}
+        autoPlay={false}
+        itemsPerViewMobile={2}
+        itemsPerViewDesktop={4}
+        itemGap="md"
+        logoContainerWidth="w-full"
+        logoContainerMinWidth="min-w-0"
+        contentClassName="w-full"
+      />,
+    );
+
+    const slides = screen.getAllByRole("group");
+    expect(slides[0]?.className).toMatch(/basis-1\/2/);
+    expect(slides[0]?.className).toMatch(/lg:basis-1\/4/);
+    expect(slides[0]?.className).toMatch(/pl-3/);
+    expect(slides[0]?.className).toMatch(/md:pl-4/);
+    expect(slides[0]?.className).toMatch(/lg:pl-6/);
+
+    const logoCell = screen.getByText("A");
+    expect(logoCell.className).toMatch(/min-w-0/);
+    expect(logoCell.className).not.toMatch(/min-w-\[10rem\]/);
+
+    const carouselContent = screen
+      .getByTestId("logo-carousel")
+      .querySelector(".flex");
+    expect(carouselContent?.className).toMatch(/-ml-3/);
+    expect(carouselContent?.className).toMatch(/md:-ml-4/);
+    expect(carouselContent?.className).toMatch(/lg:-ml-6/);
+  });
 });

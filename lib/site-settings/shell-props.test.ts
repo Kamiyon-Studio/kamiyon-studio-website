@@ -49,14 +49,12 @@ describe("buildShellNavProps", () => {
       comingSoon: false,
       platform: "facebook",
     });
-    expect(props.navItems).toHaveLength(8);
+    expect(props.navItems).toHaveLength(6);
     expect(props.navItems.map((item) => item.label)).toEqual([
       "Home",
       "About",
       "Services",
-      "Products",
       "Portfolio",
-      "Community",
       "Blog",
       "Contact",
     ]);

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 
 import { AnimatedSection } from "@/components/animation/AnimatedSection";
 import { Hero } from "@/components/sections/Hero";
-import { HomeLineSidebar } from "@/components/sections/HomeLineSidebar";
 import { HomeContact } from "@/components/sections/HomeContact";
+import { HomeScrollMarker } from "@/components/sections/HomeScrollMarker";
 import { PartnersMarquee } from "@/components/sections/PartnersMarquee";
 import { ProjectsBento } from "@/components/sections/ProjectsBento";
 import {
@@ -11,41 +11,34 @@ import {
   type ServiceStackSlide,
 } from "@/components/sections/ServicesStack";
 import {
-  caseStudiesFallback,
   homePageFallback,
+  portfolioItemsFallback,
   resolveWithFallback,
-  serviceCategoriesFallback,
+  servicesFallback,
 } from "@/lib/cms/fallbacks";
 import { mapPartnerToMarqueeItem } from "@/lib/cms/mappers";
 import {
-  getCaseStudies,
   getHomePage,
   getPartners,
-  getServiceCategories,
+  getPortfolioItems,
+  getServices,
 } from "@/lib/cms/queries";
 import { PARTNER_PLACEHOLDERS } from "@/lib/home/partner-placeholders";
 import { buildPageMetadata } from "@/lib/seo/metadata";
-import type {
-  HomeCtaBanner,
-  HomeHero,
-  ServiceCategory,
-} from "@/lib/cms/types";
+import type { HomeCtaBanner, HomeHero, Service } from "@/lib/cms/types";
 
 async function getHomePageContent() {
-  const [home, caseStudies, serviceCategories, partners] = await Promise.all([
+  const [home, portfolioItems, services, partners] = await Promise.all([
     getHomePage(),
-    getCaseStudies(),
-    getServiceCategories(),
+    getPortfolioItems(),
+    getServices(),
     getPartners(),
   ]);
 
   return {
     home: resolveWithFallback(home, homePageFallback),
-    caseStudies: resolveWithFallback(caseStudies, caseStudiesFallback),
-    serviceCategories: resolveWithFallback(
-      serviceCategories,
-      serviceCategoriesFallback
-    ),
+    portfolioItems: resolveWithFallback(portfolioItems, portfolioItemsFallback),
+    services: resolveWithFallback(services, servicesFallback),
     partners: resolveWithFallback(
       partners?.map(mapPartnerToMarqueeItem) ?? null,
       PARTNER_PLACEHOLDERS
@@ -53,16 +46,16 @@ async function getHomePageContent() {
   };
 }
 
-function toServiceStackSlides(
-  categories: ServiceCategory[]
-): ServiceStackSlide[] {
-  return categories.map((category) => ({
-    id: category.slug.current,
-    eyebrow: "Services",
-    title: category.title,
-    summary: category.description,
-    exploreHref: "/services",
-  }));
+function toServiceStackSlides(services: Service[]): ServiceStackSlide[] {
+  return [...services]
+    .sort((a, b) => a.order - b.order)
+    .map((service) => ({
+      id: service.slug.current,
+      eyebrow: "Services",
+      title: service.title,
+      summary: service.tagline || service.summary,
+      exploreHref: `/services/${service.slug.current}`,
+    }));
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -78,8 +71,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  const { home, caseStudies, serviceCategories, partners } =
-    await getHomePageContent();
+  const { home, portfolioItems, services, partners } = await getHomePageContent();
 
   const hero = home.blocks.find((block) => block._type === "hero") as
     | HomeHero
@@ -96,16 +88,13 @@ export default async function Home() {
 
   return (
     <>
-      <HomeLineSidebar />
-      {/* Brand-first opening uses its own GSAP entrance; section titles use WordPullUp. */}
+      <HomeScrollMarker />
       {hero ? <Hero hero={hero} /> : null}
       <AnimatedSection as="div" distance={28}>
-        <PartnersMarquee eyebrow="Partners" partners={partners} />
+        <PartnersMarquee eyebrow="Trusted by" partners={partners} />
       </AnimatedSection>
-      {/* ProjectsBento / HomeContact animate heading (WordPullUp) + body fade in-section. */}
-      <ProjectsBento caseStudies={caseStudies} />
-      {/* ScrollStack pins against window scroll — skip AnimatedSection wrapper. */}
-      <ServicesStack slides={toServiceStackSlides(serviceCategories)} />
+      <ProjectsBento caseStudies={portfolioItems} />
+      <ServicesStack slides={toServiceStackSlides(services)} />
       <HomeContact
         heading={contact.title}
         body={contact.body}

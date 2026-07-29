@@ -184,4 +184,120 @@ describe("POST /api/media/upload", () => {
 
     expect(response.status).toBe(403);
   });
+
+  it("returns 415 for SVG uploads", async () => {
+    process.env.NEXT_PUBLIC_SANITY_STUDIO_URL = "https://kamiyon.sanity.studio";
+    const svg = new File(["<svg></svg>"], "evil.svg", {
+      type: "image/svg+xml",
+    });
+
+    const response = await post({
+      headers: {
+        Authorization: "Bearer test-media-upload-secret",
+        Origin: "https://kamiyon.sanity.studio",
+      },
+      body: formWithFile(svg),
+    });
+
+    expect(response.status).toBe(415);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      data: null,
+      error: "Unsupported media type",
+    });
+    expect(response.headers.get("Access-Control-Allow-Origin")).toBe(
+      "https://kamiyon.sanity.studio",
+    );
+    expect(putMock).not.toHaveBeenCalled();
+  });
+
+  it("returns 415 for HTML uploads", async () => {
+    const html = new File(["<html></html>"], "page.html", {
+      type: "text/html",
+    });
+
+    const response = await post({
+      headers: { Authorization: "Bearer test-media-upload-secret" },
+      body: formWithFile(html),
+    });
+
+    expect(response.status).toBe(415);
+    expect(putMock).not.toHaveBeenCalled();
+  });
+
+  it("returns 413 when Content-Length exceeds the size cap before formData", async () => {
+    const { MAX_UPLOAD_BYTES } = await import(
+      "@/lib/cms/media-upload-policy"
+    );
+    const formDataSpy = vi.spyOn(Request.prototype, "formData");
+
+    const response = await post({
+      headers: {
+        Authorization: "Bearer test-media-upload-secret",
+        "Content-Length": String(MAX_UPLOAD_BYTES + 1),
+        "Content-Type": "multipart/form-data; boundary=----x",
+      },
+      body: formWithFile(
+        new File([PNG_1X1], "pixel.png", { type: "image/png" }),
+      ),
+    });
+
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      data: null,
+      error: "File too large",
+    });
+    expect(formDataSpy).not.toHaveBeenCalled();
+    expect(putMock).not.toHaveBeenCalled();
+    formDataSpy.mockRestore();
+  });
+
+  it("returns 413 when file.size exceeds the size cap before arrayBuffer", async () => {
+    const { MAX_UPLOAD_BYTES } = await import(
+      "@/lib/cms/media-upload-policy"
+    );
+    const fakeFile = new File([PNG_1X1], "huge.png", { type: "image/png" });
+    Object.defineProperty(fakeFile, "size", { value: MAX_UPLOAD_BYTES + 1 });
+    const form = new FormData();
+    form.append("file", fakeFile);
+
+    const formDataSpy = vi
+      .spyOn(Request.prototype, "formData")
+      .mockResolvedValue(form);
+    const arrayBufferSpy = vi.spyOn(File.prototype, "arrayBuffer");
+
+    const response = await post({
+      headers: {
+        Authorization: "Bearer test-media-upload-secret",
+        "Content-Type": "multipart/form-data; boundary=----test",
+      },
+      body: "ignored-because-formData-is-mocked",
+    });
+
+    expect(response.status).toBe(413);
+    expect(arrayBufferSpy).not.toHaveBeenCalled();
+    expect(putMock).not.toHaveBeenCalled();
+    formDataSpy.mockRestore();
+    arrayBufferSpy.mockRestore();
+  });
+
+  it("returns 401 before size/MIME checks when unauthorized", async () => {
+    const { MAX_UPLOAD_BYTES } = await import(
+      "@/lib/cms/media-upload-policy"
+    );
+
+    const response = await post({
+      headers: {
+        Authorization: "Bearer wrong-secret",
+        "Content-Length": String(MAX_UPLOAD_BYTES + 1),
+      },
+      body: formWithFile(
+        new File(["<svg></svg>"], "evil.svg", { type: "image/svg+xml" }),
+      ),
+    });
+
+    expect(response.status).toBe(401);
+    expect(putMock).not.toHaveBeenCalled();
+  });
 });

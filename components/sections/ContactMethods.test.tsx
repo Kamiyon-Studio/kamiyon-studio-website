@@ -26,14 +26,13 @@ const channels: ContactChannel[] = [
 ];
 
 describe("ContactMethods", () => {
-  it("renders one ContactCard per channel and states there is no contact form", () => {
+  it("renders one ContactCard per channel and points to channels or the form", () => {
     render(<ContactMethods channels={channels} />);
 
     expect(screen.getByText("Facebook")).toBeInTheDocument();
     expect(screen.getByText("LinkedIn")).toBeInTheDocument();
     expect(screen.getByText("Email")).toBeInTheDocument();
-    expect(screen.getByText(/does not use a contact form/)).toBeInTheDocument();
-    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(screen.getByText(/message form on this page/i)).toBeInTheDocument();
   });
 
   it("renders the ctaNote only when provided", () => {

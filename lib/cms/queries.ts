@@ -1,48 +1,47 @@
 import { safeSanityFetch } from "./fetch";
 import {
   aboutPageQuery,
-  caseStudiesQuery,
-  caseStudyBySlugQuery,
   communityItemsQuery,
   contactPageQuery,
   homePageQuery,
   partnersQuery,
+  portfolioItemBySlugQuery,
+  portfolioItemsQuery,
   postBySlugQuery,
   postsQuery,
   productBySlugQuery,
   productsQuery,
   serviceBySlugQuery,
-  serviceCategoriesQuery,
   servicesQuery,
   siteSettingsQuery,
   teamMembersQuery,
 } from "./groq";
 import {
   mapAboutPage,
-  mapCaseStudy,
   mapCollection,
   mapCommunityItem,
   mapContactPage,
   mapHomePage,
   mapPartner,
+  mapPortfolio,
   mapPost,
   mapProduct,
   mapService,
-  mapServiceCategory,
   mapSiteSettings,
   mapTeamMember,
+  sortServicesCanonically,
 } from "./mappers";
+import { isServiceCategoryValue } from "./taxonomies";
 import type {
   AboutPage,
-  CaseStudy,
   CommunityItem,
   ContactPage,
   HomePage,
   Partner,
+  Portfolio,
   Post,
   Product,
   Service,
-  ServiceCategory,
   SiteSettings,
   TeamMember,
 } from "./types";
@@ -77,21 +76,21 @@ export async function getTeamMembers(): Promise<TeamMember[] | null> {
   );
 }
 
-export async function getServiceCategories(): Promise<ServiceCategory[] | null> {
-  return mapCollection(
-    await safeSanityFetch(serviceCategoriesQuery, {}, { tags: ["sanity", "serviceCategory"] }),
-    mapServiceCategory,
-  );
-}
-
 export async function getServices(): Promise<Service[] | null> {
-  return mapCollection(
+  const mapped = mapCollection(
     await safeSanityFetch(servicesQuery, {}, { tags: ["sanity", "service"] }),
     mapService,
   );
+  if (!mapped) {
+    return null;
+  }
+  return sortServicesCanonically(mapped);
 }
 
 export async function getServiceBySlug(slug: string): Promise<Service | null> {
+  if (!isServiceCategoryValue(slug)) {
+    return null;
+  }
   return mapService(
     await safeSanityFetch(serviceBySlugQuery, { slug }, { tags: ["sanity", "service", `service:${slug}`] }),
   );
@@ -110,19 +109,19 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   );
 }
 
-export async function getCaseStudies(): Promise<CaseStudy[] | null> {
+export async function getPortfolioItems(): Promise<Portfolio[] | null> {
   return mapCollection(
-    await safeSanityFetch(caseStudiesQuery, {}, { tags: ["sanity", "caseStudy"] }),
-    mapCaseStudy,
+    await safeSanityFetch(portfolioItemsQuery, {}, { tags: ["sanity", "portfolio"] }),
+    mapPortfolio,
   );
 }
 
-export async function getCaseStudyBySlug(slug: string): Promise<CaseStudy | null> {
-  return mapCaseStudy(
+export async function getPortfolioItemBySlug(slug: string): Promise<Portfolio | null> {
+  return mapPortfolio(
     await safeSanityFetch(
-      caseStudyBySlugQuery,
+      portfolioItemBySlugQuery,
       { slug },
-      { tags: ["sanity", "caseStudy", `caseStudy:${slug}`] },
+      { tags: ["sanity", "portfolio", `portfolio:${slug}`] },
     ),
   );
 }
