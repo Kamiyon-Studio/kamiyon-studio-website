@@ -3,6 +3,7 @@ export { caseStudiesFallback, portfolioItemsFallback } from "./portfolio";
 export { communityItemsFallback } from "./community";
 export { contactPageFallback } from "./contact";
 export { homePageFallback } from "./home";
+export { postsFallback } from "./posts";
 export { productsFallback } from "./products";
 export { resolveWithFallback } from "./resolve";
 export { servicesFallback } from "./services";

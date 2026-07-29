@@ -1,6 +1,6 @@
 /**
- * Locked blog seed constants for Sanity content seed (WS8c).
- * Source of truth for stubs — no blog UI routes; T9 listing stays WS6.
+ * Locked blog seed constants for Sanity content seed.
+ * Post bodies/titles live in `lib/cms/fallbacks/posts.ts` (source of truth).
  */
 
 import {
@@ -16,6 +16,7 @@ export const BLOG_SEED_IDS = {
   category: blogCategoryId("updates"),
   tagComingSoon: tagId("coming-soon"),
   tagAnnouncement: tagId("announcement"),
+  /** Legacy single-stub id — still present among multi-post seeds. */
   post: postId("coming-soon"),
 } as const;
 
@@ -28,8 +29,8 @@ export type BlogSeedId = (typeof BLOG_SEED_IDS)[keyof typeof BLOG_SEED_IDS];
 export const BLOG_AUTHOR_BIO =
   "Kamiyon Studio creates games and interactive experiences that educate, inspire, and make a lasting impact.";
 
-/** Fixed publish time so re-seeds stay idempotent. */
-export const BLOG_SEED_PUBLISHED_AT = "2026-07-24T00:00:00.000Z";
+/** @deprecated Prefer postsFallback publishedAt values. */
+export const BLOG_SEED_PUBLISHED_AT = "2025-09-18T12:00:00.000Z";
 
 export const blogAuthorSeed = {
   name: "Kamiyon Studio",
@@ -47,8 +48,9 @@ export const blogTagSeeds = [
   { title: "Announcement", slug: "announcement", id: BLOG_SEED_IDS.tagAnnouncement },
 ] as const;
 
+/** @deprecated Prefer postsFallback. Kept for older test imports. */
 export const blogPostSeed = {
-  title: "Coming Soon",
+  title: "Coming soon — Kamiyon Studio blog",
   slug: "coming-soon",
   publishedAt: BLOG_SEED_PUBLISHED_AT,
   readingTimeMinutes: 1,
@@ -58,10 +60,9 @@ export const blogPostSeed = {
       "The Kamiyon Studio blog is launching soon. Check back for studio updates, announcements, and behind-the-scenes notes.",
     noIndex: false,
   },
-  /** Portable-text paragraphs (normal style) for the post body. */
   bodyParagraphs: [
     "The Kamiyon Studio blog is launching soon.",
-    "We will share studio updates, product notes, and announcements here. This post is a placeholder so editors can see the full author, category, tag, SEO, and body field structure in Sanity Studio.",
+    "We will share studio updates, product notes, and announcements here. This post is a placeholder so editors can see the full author, category, tag, SEO, and body field structure.",
     "Check back shortly — Create. Play. Inspire.",
   ],
 } as const;

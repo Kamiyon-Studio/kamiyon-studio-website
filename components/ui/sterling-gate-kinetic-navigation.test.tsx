@@ -65,6 +65,7 @@ vi.mock("@/lib/gsap", () => {
       set: vi.fn(),
       to: vi.fn(),
       fromTo: vi.fn(),
+      killTweensOf: vi.fn(),
       defaults: vi.fn(),
       parseEase: vi.fn(() => null),
       registerPlugin: vi.fn(),
@@ -420,6 +421,19 @@ describe("SterlingGateKineticNavigation", () => {
       "href",
       "/services/branding",
     );
+
+    const panel = document.querySelector('[data-dropdown-panel="/services"]');
+    expect(panel).toHaveClass("is-open");
+    expect(panel).toHaveAttribute("aria-hidden", "false");
+
+    await user.click(screen.getByRole("button", { name: "Collapse Services" }));
+
+    expect(screen.getByRole("button", { name: "Expand Services" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+    expect(panel).not.toHaveClass("is-open");
+    expect(panel).toHaveAttribute("aria-hidden", "true");
   });
 
   it("applies dark ink by default and light ink when data-nav-theme is light", () => {

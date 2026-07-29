@@ -334,7 +334,8 @@ export function SterlingGateKineticNavigation({
       const open = openDropdownHref === href;
       const links = panel.querySelectorAll<HTMLElement>(".nav-sublink");
 
-      gsap.killTweensOf([panel, links]);
+      gsap.killTweensOf(panel);
+      gsap.killTweensOf(links);
 
       if (reduceMotion) {
         gsap.set(panel, {
@@ -358,6 +359,9 @@ export function SterlingGateKineticNavigation({
             duration: 0.45,
             ease: "main",
             overwrite: "auto",
+            onComplete: () => {
+              gsap.set(panel, { clearProps: "overflow" });
+            },
           },
         );
         gsap.fromTo(
@@ -383,6 +387,7 @@ export function SterlingGateKineticNavigation({
         return;
       }
 
+      gsap.set(panel, { overflow: "hidden" });
       gsap.to(links, {
         y: -6,
         autoAlpha: 0,
