@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 
 import { AnimatedSection } from "@/components/animation/AnimatedSection";
 import { Hero } from "@/components/sections/Hero";
-import { HomeLineSidebar } from "@/components/sections/HomeLineSidebar";
 import { HomeContact } from "@/components/sections/HomeContact";
 import { PartnersMarquee } from "@/components/sections/PartnersMarquee";
 import { ProjectsBento } from "@/components/sections/ProjectsBento";
@@ -88,7 +87,6 @@ export default async function Home() {
 
   return (
     <>
-      <HomeLineSidebar />
       {hero ? <Hero hero={hero} /> : null}
       <AnimatedSection as="div" distance={28}>
         <PartnersMarquee eyebrow="Partners" partners={partners} />
