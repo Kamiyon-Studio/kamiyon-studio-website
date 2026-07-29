@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-
 import { AnimatedCarousel } from "@/components/ui/logo-carousel";
 import { Container } from "@/components/ui/Container";
 import {
@@ -9,10 +7,7 @@ import {
   type PartnerPlaceholder,
 } from "@/lib/home/partner-placeholders";
 
-/** Same asset + crop as the hero — flipped vertically for a mirror junction. */
-const PARTNERS_BACKGROUND = "/assets/background.jpg";
-
-type PartnersMarqueeEyebrow = "Partners" | "Clients";
+type PartnersMarqueeEyebrow = "Trusted by" | "Clients";
 
 type PartnersMarqueeProps = {
   eyebrow?: PartnersMarqueeEyebrow;
@@ -33,33 +28,15 @@ export function PartnersMarquee({
   return (
     <section
       id="home-partners"
-      data-nav-theme="dark"
-      className="relative scroll-mt-4 overflow-hidden bg-[var(--color-charcoal)] py-12 md:py-16"
+      data-nav-theme="light"
+      className="scroll-mt-4 bg-[var(--bg-secondary)] py-12 md:py-16"
       aria-label={sectionLabel}
     >
-      <div className="absolute inset-0" aria-hidden="true" data-testid="partners-mirror-bg">
-        {/* Exact hero crop, vertically flipped + blurred */}
-        <div className="absolute inset-[-12%] scale-y-[-1]">
-          <Image
-            src={PARTNERS_BACKGROUND}
-            alt=""
-            fill
-            sizes="100vw"
-            className="scale-110 object-cover object-[center_35%] opacity-90 blur-md"
-          />
-        </div>
-        {/* Mirrored hero scrims (vertical stops inverted) */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-charcoal)]/80 via-[var(--color-charcoal)]/45 to-[var(--color-charcoal)]/75" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-charcoal)]/55 via-transparent to-[var(--color-charcoal)]/40" />
-        {/* Soft handoff into ProjectsBento (`--bg-primary`) */}
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-b from-transparent to-[var(--bg-primary)]" />
-      </div>
-
-      <Container className="relative z-10">
+      <Container>
         {eyebrow ? (
           <p
             id="partners-marquee-eyebrow"
-            className="text-center text-sm font-semibold uppercase tracking-wide text-[var(--color-ivory)]/80"
+            className="text-center text-sm font-semibold uppercase tracking-wide text-sakura-ink"
           >
             {eyebrow}
           </p>
@@ -80,7 +57,7 @@ export function PartnersMarquee({
             logoImageHeight="h-10"
             padding="py-0"
             containerClassName="bg-transparent"
-            contentClassName="w-full [&_.group]:text-[var(--color-ivory)]/70 [&_img]:brightness-0 [&_img]:invert"
+            contentClassName="w-full"
             carouselClassName="partners-logo-carousel"
           />
         </div>

@@ -82,6 +82,7 @@ describe("Hero", () => {
     const { container } = render(<Hero hero={baseHero} />);
     expect(container.querySelector(".bg-gradient-to-b")).toBeInTheDocument();
     expect(container.querySelector(".bg-gradient-to-r")).toBeInTheDocument();
+    expect(container.querySelector("[data-testid='hero-partners-blend']")).toBeInTheDocument();
   });
 
   it("layers a parallax background wrapper and opening curtain", () => {

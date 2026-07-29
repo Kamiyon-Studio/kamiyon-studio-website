@@ -91,7 +91,7 @@ export default async function Home() {
       <HomeScrollMarker />
       {hero ? <Hero hero={hero} /> : null}
       <AnimatedSection as="div" distance={28}>
-        <PartnersMarquee eyebrow="Partners" partners={partners} />
+        <PartnersMarquee eyebrow="Trusted by" partners={partners} />
       </AnimatedSection>
       <ProjectsBento caseStudies={portfolioItems} />
       <ServicesStack slides={toServiceStackSlides(services)} />

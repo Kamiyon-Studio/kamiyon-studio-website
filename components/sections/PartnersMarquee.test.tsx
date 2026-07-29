@@ -79,11 +79,11 @@ describe("PartnersMarquee", () => {
     expect(screen.queryByText("Acme")).not.toBeInTheDocument();
   });
 
-  it("renders an optional Partners eyebrow when provided", () => {
-    render(<PartnersMarquee eyebrow="Partners" />);
+  it("renders an optional Trusted by eyebrow when provided", () => {
+    render(<PartnersMarquee eyebrow="Trusted by" />);
 
-    expect(screen.getByText("Partners")).toBeInTheDocument();
-    expect(screen.getByRole("region", { name: "Partners" })).toBeInTheDocument();
+    expect(screen.getByText("Trusted by")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Trusted by" })).toBeInTheDocument();
   });
 
   it("renders an optional Clients eyebrow when provided", () => {
@@ -96,7 +96,7 @@ describe("PartnersMarquee", () => {
   it("omits the eyebrow when not provided", () => {
     render(<PartnersMarquee />);
 
-    expect(screen.queryByText("Partners")).not.toBeInTheDocument();
+    expect(screen.queryByText("Trusted by")).not.toBeInTheDocument();
     expect(screen.queryByText("Clients")).not.toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Partner logos" })).toBeInTheDocument();
   });
@@ -106,26 +106,6 @@ describe("PartnersMarquee", () => {
 
     expect(screen.getByTestId("partners-marquee-track")).toBeInTheDocument();
     expect(screen.getByTestId("logo-carousel")).toBeInTheDocument();
-  });
-
-  it("mirrors the hero background vertically with blur and blends into the next section", () => {
-    const { container } = render(<PartnersMarquee />);
-
-    const section = screen.getByRole("region", { name: "Partner logos" });
-    expect(section).toHaveAttribute("data-nav-theme", "dark");
-
-    const mirror = screen.getByTestId("partners-mirror-bg");
-    const flipLayer = mirror.firstElementChild;
-    expect(flipLayer?.className).toMatch(/scale-y-\[-1\]/);
-
-    const background = container.querySelector('img[src*="background.jpg"]');
-    expect(background).toBeInTheDocument();
-    expect(background?.getAttribute("alt")).toBe("");
-    expect(background?.className).toMatch(/blur-md/);
-    expect(background?.className).toMatch(/object-\[center_35%\]/);
-    expect(background?.className).toMatch(/opacity-90/);
-
-    expect(mirror.querySelector("[class*='to-[var(--bg-primary)]']")).toBeInTheDocument();
   });
 
   it("uses 2/4 items-per-view with responsive slide gaps so logos never overlap", () => {
@@ -158,7 +138,7 @@ describe("PartnersMarquee", () => {
     render(<PartnersMarquee />);
 
     const section = screen.getByRole("region", { name: "Partner logos" });
-    const container = section.querySelector(":scope > .relative.z-10");
+    const container = section.firstElementChild;
     expect(container?.className).toMatch(/\bpx-4\b/);
     expect(container?.className).toMatch(/\bsm:px-6\b/);
     expect(container?.className).toMatch(/\blg:px-8\b/);

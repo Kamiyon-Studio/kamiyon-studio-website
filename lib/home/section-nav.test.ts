@@ -19,7 +19,7 @@ describe("HOME_SECTION_NAV", () => {
   it("pairs each anchor with the expected label", () => {
     expect(HOME_SECTION_NAV.map((item) => item.label)).toEqual([
       "Hero",
-      "Partners",
+      "Trusted by",
       "Projects",
       "Services",
       "Contact",
