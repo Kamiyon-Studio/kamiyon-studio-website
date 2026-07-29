@@ -1,11 +1,36 @@
 import { render, screen } from "@testing-library/react";
+import { createElement, type ElementType } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { AboutPage } from "@/lib/cms/types";
-import { INTERIM_CONTACT_FORM_URL } from "@/lib/contact/channels";
 
-vi.mock("next/navigation", () => ({
-  usePathname: () => "/about",
+vi.mock("next/image", () => ({
+  default: ({
+    fill: _fill,
+    priority: _priority,
+    ...props
+  }: React.ComponentProps<"img"> & { fill?: boolean; priority?: boolean }) =>
+    createElement("img", props),
+}));
+
+vi.mock("@/hooks/useOpeningAnimation", () => ({
+  useOpeningAnimation: () => ({ current: null }),
+}));
+
+vi.mock("@/hooks/useParallax", () => ({
+  useParallax: () => ({ current: null }),
+}));
+
+vi.mock("@/components/ui/SplitText", () => ({
+  SplitText: ({
+    tag = "p",
+    text,
+    className,
+  }: {
+    tag?: ElementType;
+    text: string;
+    className?: string;
+  }) => createElement(tag, { className }, text),
 }));
 
 import { AboutHero } from "./AboutHero";
@@ -14,6 +39,9 @@ const baseAboutPage: AboutPage = {
   _type: "aboutPage",
   title: "About",
   storySections: [],
+  timelineHeading: "Our journey",
+  timelineSummary: "",
+  timelineEntries: [],
   mission: "Create games and interactive experiences that educate and inspire.",
   vision: "A globally recognized multimedia company.",
   motto: "Create. Play. Inspire.",
@@ -23,20 +51,17 @@ const baseAboutPage: AboutPage = {
 };
 
 describe("AboutHero", () => {
-  it("renders the motto as the headline and mission as the supporting line", () => {
+  it("renders ABOUT US as the only hero message", () => {
     render(<AboutHero aboutPage={baseAboutPage} />);
 
-    expect(screen.getByRole("heading", { level: 1, name: baseAboutPage.motto })).toBeInTheDocument();
-    expect(screen.getByText(baseAboutPage.mission)).toBeInTheDocument();
-  });
+    const heading = screen.getByRole("heading", { level: 1, name: "ABOUT US" });
+    const hero = heading.closest("section");
 
-  it("renders quick links to values, team, and contact", () => {
-    render(<AboutHero aboutPage={baseAboutPage} />);
-
-    expect(screen.getByRole("link", { name: "Our values" })).toHaveAttribute("href", "#values");
-    expect(screen.getByRole("link", { name: "Meet the team" })).toHaveAttribute("href", "#team");
-    const contact = screen.getByRole("link", { name: "Contact us" });
-    expect(contact).toHaveAttribute("href", INTERIM_CONTACT_FORM_URL);
-    expect(contact).toHaveAttribute("target", "_blank");
+    expect(hero).toHaveAttribute("data-nav-theme", "dark");
+    expect(screen.queryByText(baseAboutPage.mission)).not.toBeInTheDocument();
+    expect(screen.queryByText(baseAboutPage.motto)).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Our values" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Meet the team" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Contact us" })).not.toBeInTheDocument();
   });
 });

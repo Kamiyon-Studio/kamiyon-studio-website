@@ -372,8 +372,8 @@ export function SterlingGateKineticNavigation({
                 <Image
                   src={logoSrc}
                   alt=""
-                  width={32}
-                  height={32}
+                  width={44}
+                  height={44}
                   className="nav-logo-mark"
                   priority
                 />

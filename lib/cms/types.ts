@@ -156,10 +156,28 @@ export type CoreValue = {
   description: string;
 };
 
+/**
+ * CMS story timeline entry.
+ * Gate 1 maps `image` (CmsImage) → UI TimelineEntry.image `{ src, alt, width?, height? }`.
+ * Contract fields: key, year (YYYY), dateLabel, optional date (ISO), title, body, image.
+ */
+export type StoryTimelineEntry = {
+  key: string;
+  year: string;
+  dateLabel: string;
+  date?: string;
+  title: string;
+  body: string;
+  image?: CmsImage;
+};
+
 export type AboutPage = {
   _type: "aboutPage";
   title: string;
   storySections: StorySection[];
+  timelineHeading: string;
+  timelineSummary: string;
+  timelineEntries: StoryTimelineEntry[];
   mission: string;
   vision: string;
   motto: string;
@@ -197,6 +215,8 @@ export type ContactPage = {
 
 export type TeamMember = {
   _type: "teamMember";
+  /** Sanity document id — stable, unique React key (names can collide). */
+  _id?: string;
   name: string;
   role: string;
   bio: string;

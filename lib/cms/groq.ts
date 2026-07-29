@@ -88,6 +88,17 @@ export const aboutPageQuery = defineQuery(/* groq */ `
     _type,
     title,
     storySections[]{ title, body },
+    timelineHeading,
+    timelineSummary,
+    timelineEntries[]{
+      _key,
+      year,
+      dateLabel,
+      date,
+      title,
+      body,
+      image ${r2AssetProjection}
+    },
     mission,
     vision,
     motto,
@@ -113,6 +124,7 @@ export const contactPageQuery = defineQuery(/* groq */ `
 export const teamMembersQuery = defineQuery(/* groq */ `
   *[_type == "teamMember"] | order(order asc) {
     _type,
+    _id,
     name,
     role,
     bio,

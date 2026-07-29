@@ -12,6 +12,24 @@ export const aboutPage = defineType({
       type: "array",
       of: [{ type: "storySection" }],
     }),
+    defineField({
+      name: "timelineHeading",
+      title: "Timeline heading",
+      type: "string",
+      initialValue: "Our journey",
+    }),
+    defineField({
+      name: "timelineSummary",
+      title: "Timeline summary",
+      type: "text",
+    }),
+    defineField({
+      name: "timelineEntries",
+      title: "Timeline entries",
+      type: "array",
+      of: [{ type: "storyTimelineEntry" }],
+      description: "Leave empty until real milestones are ready to publish.",
+    }),
     defineField({ name: "mission", title: "Mission", type: "text", validation: (r) => r.required() }),
     defineField({ name: "vision", title: "Vision", type: "text", validation: (r) => r.required() }),
     defineField({

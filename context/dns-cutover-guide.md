@@ -78,19 +78,18 @@ and one `CNAME` named `www`.
 Take a screenshot of the whole records table, or copy it into a note. This is your safety
 net, and it is the fastest way to undo anything later.
 
-For reference, these are the values recorded on 2026-07-26:
+For reference, these are the values recorded on **2026-07-30** (earlier A-record snapshot from 2026-07-26 is obsolete):
 
 | Name | Type | Value | Proxy |
 | --- | --- | --- | --- |
-| `kamiyonstudio.com` | A | `216.198.79.1` | DNS only |
-| `kamiyonstudio.com` | A | `64.29.17.1` | DNS only |
+| `kamiyonstudio.com` | CNAME | `a7fb456c57072fcd.vercel-dns-017.com` | DNS only |
 | `www` | CNAME | `a7fb456c57072fcd.vercel-dns-017.com` | DNS only |
 
 **Risk:** none.
 
-### 3. Lower the TTL on those three records, then wait an hour
+### 3. Lower the TTL on those Vercel CNAMEs, then wait an hour
 
-For each of the three records above:
+For each of the two records above:
 
 1. Click **Edit** at the right of the row.
 2. Find the **TTL** dropdown and choose **1 min** (or the smallest value offered).
@@ -232,8 +231,7 @@ to normal within a few minutes because you lowered the TTL in step 3.
 
    | Name | Type | Value |
    | --- | --- | --- |
-   | `kamiyonstudio.com` | A | `216.198.79.1` |
-   | `kamiyonstudio.com` | A | `64.29.17.1` |
+   | `kamiyonstudio.com` | CNAME | `a7fb456c57072fcd.vercel-dns-017.com` |
    | `www` | CNAME | `a7fb456c57072fcd.vercel-dns-017.com` |
 
 2. **Detach the domains from the Worker.** Cloudflare → **Compute (Workers)** → **Workers

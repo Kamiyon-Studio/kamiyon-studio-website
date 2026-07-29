@@ -179,8 +179,8 @@ Marketing site patterns — full-width heroes, constrained content columns.
 
 | Page | Layout |
 | --- | --- |
-| Home | Full-width hero → partners marquee → projects bento → **services vertical marquee** (`/#home-services`, ADR-021) → contact CTA |
-| About | Hero → story sections (alternating) → values grid → team grid → culture closing |
+| Home | Combined full-bleed opening stage (brand + motto upper; partners band lower, `/#home-partners`, `data-nav-theme="dark"`, ADR-023) → projects bento → **services vertical marquee** (`/#home-services`, ADR-021) → contact CTA |
+| About | Full-viewport `ABOUT US` hero (`data-nav-theme="dark"`, homepage-like bg/parallax/opening) → two-column `OUR STORY` editorial intro → GSAP ScrollTrigger story timeline (heading/summary + empty entries until milestones publish; no outer AnimatedSection) → vision band → values grid → team grid → culture closing |
 | Services | Intro → category groups → service card grid → industries callout → CTA |
 | Products | Intro → product card grid → detail: hero media + features + goals |
 | Portfolio | Intro → case study cards (story-focused) → detail: challenge / solution / impact |
@@ -210,7 +210,8 @@ Animations should communicate delight, not distraction:
 | --- | --- | --- |
 | Section / page headings (`h1`–`h2`) | Word pull-up stagger on scroll into view | `components/ui/WordPullUp` |
 | Body copy, eyebrows, supporting text | Fade + slight rise on scroll | `AnimatedSection` / `useFadeIn` |
-| Full-bleed opening hero brand | Character split (GSAP) — special case | `components/ui/SplitText` in `HeroOpening` |
+| Full-bleed opening hero brand | Character split (GSAP) — special case | `components/ui/SplitText` in `HeroOpening` / `AboutHero` |
+| About story timeline | Center progress line via GSAP ScrollTrigger scrub; sticky year rail (xl+); static under reduced motion | `components/ui/timeline` via `StoryTimeline` — do **not** wrap in outer `AnimatedSection` |
 | Contact FAQ accordion | Numbered spring height reveal (`motion/react`); single-open | `components/ui/InteractiveAccordion` (ADR-020) |
 | Home services discovery | Vertical text marquee; each row is a link to `/services/{slug}`; static list under reduced motion | `components/ui/cta-with-text-marquee` via `ServicesStack` (ADR-021) |
 

@@ -6,18 +6,27 @@ import {
   PARTNER_PLACEHOLDERS,
   type PartnerPlaceholder,
 } from "@/lib/home/partner-placeholders";
+import { cn } from "@/lib/utils";
 
 type PartnersMarqueeEyebrow = "Trusted by" | "Clients";
 
 type PartnersMarqueeProps = {
   eyebrow?: PartnersMarqueeEyebrow;
   partners?: PartnerPlaceholder[];
+  /** Heading surface tone (logos keep original color). Default `onLight`. */
+  tone?: "onLight" | "onDark";
+  /** Standalone section vs compact hero band. Default `section`. */
+  layout?: "section" | "band";
 };
 
 export function PartnersMarquee({
   eyebrow,
   partners = PARTNER_PLACEHOLDERS,
+  tone: _tone = "onLight",
+  layout = "section",
 }: PartnersMarqueeProps) {
+  const isBand = layout === "band";
+  const showEyebrow = Boolean(eyebrow);
   const sectionLabel = eyebrow ?? "Partner logos";
   const logos = partners.map((partner) => ({
     src: partner.logoUrl,
@@ -28,21 +37,29 @@ export function PartnersMarquee({
   return (
     <section
       id="home-partners"
-      data-nav-theme="light"
-      className="scroll-mt-4 bg-[var(--bg-secondary)] py-12 md:py-16"
+      data-nav-theme={isBand ? "dark" : "light"}
+      className={cn(
+        "scroll-mt-4",
+        isBand
+          ? "bg-transparent py-4 md:py-6"
+          : "bg-[var(--bg-secondary)] py-12 md:py-16",
+      )}
       aria-label={sectionLabel}
     >
       <Container>
-        {eyebrow ? (
-          <p
+        {showEyebrow ? (
+          <h3
             id="partners-marquee-eyebrow"
             className="text-center text-sm font-semibold uppercase tracking-wide text-sakura-ink"
           >
             {eyebrow}
-          </p>
+          </h3>
         ) : null}
 
-        <div className={eyebrow ? "mt-6" : undefined} data-testid="partners-marquee-track">
+        <div
+          className={showEyebrow ? "mt-6" : undefined}
+          data-testid="partners-marquee-track"
+        >
           <AnimatedCarousel
             logos={logos}
             autoPlay

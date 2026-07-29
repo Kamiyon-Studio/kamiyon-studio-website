@@ -14,6 +14,9 @@ export const aboutPageFallback: AboutPage = {
       body: "The studio operates as both a creative technology agency and an original IP studio, spanning game development, product development, UI and design, branding, and community programs — with capabilities that include MVP builds, AI-powered features, and educational experiences.",
     },
   ],
+  timelineHeading: "Our journey",
+  timelineSummary: "Milestones from founding to the work ahead — published as they earn a place here.",
+  timelineEntries: [],
   mission:
     "We create games and interactive experiences that educate, inspire, and make a lasting impact.",
   vision:

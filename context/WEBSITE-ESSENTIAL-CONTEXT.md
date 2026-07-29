@@ -399,20 +399,23 @@ Decisions in §3 locked.
 - Delete Payload deps/routes/schema; unwire `withPayload`.
 - Env docs: Sanity + R2 + Resend + site URL.
 
-### Phase E — Cloudflare OpenNext + R2 + webhooks
+### Phase E — Cloudflare OpenNext + R2 + webhooks — **done in-repo** (2026-07-30)
 
-- OpenNext deploy to Pages/Workers (free tier).
-- R2 bucket + CDN domain; Studio upload API.
-- Sanity webhook → revalidate.
-- Cloudflare Web Analytics.
+- OpenNext on Workers Free (staging + prod `*.workers.dev`); hosted Studio (ADR-007).
+- R2 media + cache buckets; CDN domains Active; Studio upload API.
+- Sanity webhook → revalidate (staging live; prod webhook after apex cutover).
+- Cloudflare Web Analytics beacon (ADR-012; token build var still operator).
+- Kinetic overlay nav site-wide (ADR-008). Closeout: ADR-022 + [`completed/2026-07-30-phase-e-cloudflare-opennext.md`](./completed/2026-07-30-phase-e-cloudflare-opennext.md).
+- **Remaining:** WS4b apex DNS → Worker (operator) — see [`dns-cutover-guide.md`](./dns-cutover-guide.md).
 
 ### Phase F — Production surfaces
 
 - ~~Nav: Products + Community~~ done (cleanup).
 - ~~Fonts / brand hex / Framer+Lenis removal~~ done (cleanup).
+- ~~T14 CF Web Analytics snippet~~ done in-repo (token ops pending).
 - Blog frontend (T9).
-- Wire interim Google Form CTA; then Contact form + Resend (T8) + external links.
-- Cloudflare Web Analytics (T14); Lighthouse/CWV gates; E2E (T15); scorecard → launch.
+- Contact form + Resend live path (T8 in-repo; domain verify + Worker secrets still ops).
+- Lighthouse/CWV gates; E2E (T15); scorecard → launch.
 - QA polish streams: see [`progress-tracker.md`](./progress-tracker.md) + [`QA-Report.md`](./QA-Report.md).
 
 ---
@@ -424,9 +427,9 @@ Decisions in §3 locked.
 | T1 | Scaffold Sanity project; Studio hosted (ADR-007) — `/studio` redirects | P0 — **done** (hosted 2026-07-24) |
 | T2 | Schema parity (§7) including blog/author/category/tag | P0 |
 | T3 | Swap `lib/cms` to Sanity + GROQ; keep public API + fallbacks | P0 — **done** (2026-07-23) |
-| T4 | R2 media model + Studio upload + `getMediaUrl` | P0 |
-| T5 | OpenNext Cloudflare deploy + env docs (free tier) | P0 |
-| T6 | Sanity webhook → `revalidateTag` / path revalidation | P0 |
+| T4 | R2 media model + Studio upload + `getMediaUrl` | P0 — **done** (2026-07-30) |
+| T5 | OpenNext Cloudflare deploy + env docs (free tier) | P0 — **done** (Workers Free; ADR-022) |
+| T6 | Sanity webhook → `revalidateTag` / path revalidation | P0 — **done** (staging live; prod after WS4b) |
 | T7 | Delete Payload runtime and deps | P0 — **done** (2026-07-21 cleanup) |
 | T8 | Contact form API + Resend + external links UI (interim: Google Form CTA) | P1 |
 | T9 | Blog listing/detail UI (reading time, related, SEO) | P1 |
@@ -434,7 +437,7 @@ Decisions in §3 locked.
 | T11 | Apply Geologica + Montserrat; remove Beaufort/Poppins | P1 — **done** (2026-07-21 cleanup) |
 | T12 | Apply locked brand hex tokens (`#FF7998`, etc.) | P1 — **done** (2026-07-21 cleanup) |
 | T13 | `/motion-lab` + `/studio` `noindex` | P1 — motion-lab done; studio verify at deploy |
-| T14 | Cloudflare Web Analytics snippet | P1 |
+| T14 | Cloudflare Web Analytics snippet | P1 — **done** (beacon; build token operator) |
 | T15 | Expand E2E (nav, blog, contact form) | P2 |
 | T16 | Primary nav: include Products + Community; update tests | P1 — **done** (2026-07-21 cleanup) |
 | T17 | Editor Studio training / desk polish | P2 |

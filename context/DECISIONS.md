@@ -459,3 +459,56 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 
 ---
 
+## ADR-022 — Phase E closeout: OpenNext Workers + R2 + kinetic nav (2026-07-30)
+
+**Status:** Accepted (code + staging/prod Workers live; apex DNS cutover still operator)
+
+**Context:** Phase E (T4/T5/T6/T14) + Track G kinetic nav needed a single closeout record spanning OpenNext staging/prod, R2 media/cache, webhooks, analytics, and the site-wide header swap. Prior ADRs cover pieces: ADR-007/009 (hosted Studio), ADR-008 (kinetic nav), ADR-012 (Web Analytics beacon).
+
+**Decision:**
+
+- **Hosting:** `@opennextjs/cloudflare` on Workers Free — workers `kamiyon-studio-website-staging` / `kamiyon-studio-website`; branch map `staging`→staging, `main`→prod (CI: `.github/workflows/deploy.yml`).
+- **R2:** Media buckets `kamiyon-media-{staging,prod}` + incremental cache `kamiyon-next-cache-{staging,prod}`; public CDN `media-staging` / `media.kamiyonstudio.com`. Upload via `POST /api/media/upload` (Bearer `MEDIA_UPLOAD_SECRET`) + Studio `r2Asset` input.
+- **Revalidate:** `POST /api/revalidate` + `lib/cms/revalidate-tags.ts`; staging Sanity webhook live; production webhook waits for apex cutover.
+- **Analytics:** Manual CF Web Analytics beacon (ADR-012); inert until build-time token set.
+- **Chrome:** Kinetic overlay nav site-wide via `SiteHeader` → `SterlingGateKineticNavigation` (ADR-008); Kamiyon tokens only.
+- **Env:** Prefer `APP_ENV` over `VERCEL_ENV`; `NEXT_PUBLIC_SITE_URL` / public vars inlined at **build** time.
+
+**Consequences:**
+
+- Tickets T4/T5/T6/T14 marked done in essential context (ops gaps called out below).
+- **Remaining operator (WS4b):** attach `kamiyonstudio.com` + `www` to prod Worker; create prod revalidate webhook; bake Studio `SANITY_STUDIO_API_ORIGIN` for apex; set analytics build tokens; pause Vercel after 24–48 h green. See [`dns-cutover-guide.md`](./dns-cutover-guide.md) + [`deploy-runbook.md`](./deploy-runbook.md).
+- Archive: [`completed/2026-07-30-phase-e-cloudflare-opennext.md`](./completed/2026-07-30-phase-e-cloudflare-opennext.md).
+
+---
+
+## ADR-023 — Combined home hero + partners opening stage (2026-07-30)
+
+**Status:** Accepted (WS-A–D landed; WS-E docs)
+
+**Context:** Homepage previously stacked a full-bleed hero then a separate light partners marquee section. Design intent is one opening composition: brand + motto above, partners logos as a lower band on the same dark full-bleed stage. CMS partners content unchanged.
+
+**Decision:**
+
+- Home opening is one full-bleed stage via `<Hero partners={…} />` — brand + motto upper; `PartnersMarquee layout="band" tone="onDark"` lower.
+- `#home-partners` retained for scroll spy; `data-nav-theme="dark"` through the opening (not light).
+- Standalone light partners section removed from `page.tsx`.
+- Soft bottom scrim for logo legibility; no blend to `--bg-secondary`.
+- Motto kept; no “Trusted by” eyebrow in the band; section-nav label still “Trusted by”.
+- `PartnersMarquee` API: `layout?: "section" | "band"`; `tone?: "onLight" | "onDark"`.
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| Partners share dark hero imagery instead of a light section | One first-viewport composition; `tone="onDark"` keeps logos readable |
+| No in-band “Trusted by” eyebrow | Band stays quiet under brand/motto; label remains on section nav only |
+| Dark nav theme through opening | Matches full-bleed stage; avoids premature light chrome over dark media |
+
+**Consequences:**
+
+- Home layout line in `ui-context.md` updated (combined opening → projects → …).
+- CMS / partner document shape unchanged.
+
+---
+

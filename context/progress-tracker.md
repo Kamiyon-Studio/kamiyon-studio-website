@@ -17,6 +17,32 @@ When a task/phase is marked complete:
 
 ## Current Phase
 
+### Phase F — Production surfaces + apex cutover (2026-07-30)
+
+**Prior:** Phase E archived — [`completed/2026-07-30-phase-e-cloudflare-opennext.md`](./completed/2026-07-30-phase-e-cloudflare-opennext.md) · **ADR-022**
+
+| Surface | URL | Status |
+| --- | --- | --- |
+| Staging site | https://kamiyon-studio-website-staging.limosnerosherwin.workers.dev | Live |
+| Hosted Studio | https://kamiyon.sanity.studio/ | Live |
+| Media CDN (staging / prod) | media-staging / media.kamiyonstudio.com | Active |
+| Production Worker | https://kamiyon-studio-website.limosnerosherwin.workers.dev | Live + re-smoked 2026-07-30 |
+| Production site | https://kamiyonstudio.com | Still on Vercel until WS4b |
+
+**Source of truth:** [`WEBSITE-ESSENTIAL-CONTEXT.md`](./WEBSITE-ESSENTIAL-CONTEXT.md) · [`DECISIONS.md`](./DECISIONS.md) · [`deploy-runbook.md`](./deploy-runbook.md) · [`QA-Report.md`](./QA-Report.md)
+
+### Home hero + partners combined opening (2026-07-30)
+
+**Plan:** hero+partners combine · **ADR:** ADR-023  
+**Note:** WS-A–D implementation landed in-repo; WS-E docs (this tracker + `ui-context` + ADR-023).
+
+| Stream | Status | Notes |
+| --- | --- | --- |
+| **WS-A–D** Combined opening stage | **Done in-repo** | Brand + motto upper; `PartnersMarquee layout="band" tone="onDark"` lower; `#home-partners` + dark nav; standalone light partners section removed; soft bottom scrim; CMS unchanged |
+| **WS-E** Context docs | **Done** | `ui-context` Home layout; ADR-023; this tracker |
+
+**Ship gate:** Opening is one full-bleed stage; section-nav label still “Trusted by”.
+
 ### Home services vertical marquee (2026-07-29)
 
 **Plan:** `.claude/plans/home-services-vertical-marquee.plan.md` · **ADR:** ADR-021  
@@ -83,17 +109,7 @@ When a task/phase is marked complete:
 
 ---
 
-**Phase E — Wave 3 verified (2026-07-24):** Staging Worker + hosted Studio confirmed working. **Wave 4 (apex DNS cutover) is next**, run **in parallel** with remaining polish.
-
-| Surface | URL | Status |
-| --- | --- | --- |
-| Staging site | https://kamiyon-studio-website-staging.limosnerosherwin.workers.dev | Live |
-| Hosted Studio | https://kamiyon.sanity.studio/ | Live |
-| Media CDN (staging / prod) | media-staging / media.kamiyonstudio.com | Active |
-| Production Worker (no domain yet) | https://kamiyon-studio-website.limosnerosherwin.workers.dev | Live + smoked 2026-07-29 (`200` HTML) |
-| Production site | https://kamiyonstudio.com | Still on prior host until Wave 4 |
-
-**Source of truth:** [`WEBSITE-ESSENTIAL-CONTEXT.md`](./WEBSITE-ESSENTIAL-CONTEXT.md) · [`DECISIONS.md`](./DECISIONS.md) · [`deploy-runbook.md`](./deploy-runbook.md) · [`QA-Report.md`](./QA-Report.md)
+**Phase E** — Done / archived 2026-07-30 → [`completed/2026-07-30-phase-e-cloudflare-opennext.md`](./completed/2026-07-30-phase-e-cloudflare-opennext.md) (ADR-022). Apex DNS cutover remains under WS4b below.
 
 ---
 
@@ -117,7 +133,7 @@ When a task/phase is marked complete:
 | Stream | Scope | Status |
 | --- | --- | --- |
 | **WS0–WS3, WS4a, WS8** | Context / hero / chrome / same-route / staging ops / seed | **Done** |
-| **WS4b** | Apex/www → prod Worker; pause Vercel | **Prod Worker live**; remaining = **operator dashboard** (see checklist below) |
+| **WS4b** | Apex/www → prod Worker; pause Vercel | **Prod Worker live**; Sanity CORS for apex+www **added 2026-07-30**; remaining = **operator dashboard** (DNS attach, webhook, Studio bake, Vercel pause) |
 | **WS5** | T8 Resend native form | **Done in-repo** (ADR-018) — awaiting Resend domain verify + Worker secrets for live send |
 | **WS6** | T9 blog UI / T14 analytics | T14 done; T9 optional |
 | **WS7** | T15 E2E expansion | **Later** — expand after Resend domain live (form path ready) |
@@ -125,7 +141,7 @@ When a task/phase is marked complete:
 **WS4b operator checklist** (human-only; details in [`dns-cutover-guide.md`](./dns-cutover-guide.md) + [`deploy-runbook.md`](./deploy-runbook.md) “WS4b — Production cutover”):
 
 1. Cloudflare Workers → production Worker → **Custom domains**: attach `kamiyonstudio.com` + `www` (or Workers Routes + redirect).
-2. Sanity → API → **CORS**: add `https://kamiyonstudio.com` (+ `www` if used); credentials as needed.
+2. ~~Sanity → API → **CORS**: add `https://kamiyonstudio.com` (+ `www`)~~ — **done 2026-07-30**.
 3. Sanity → **Webhook**: point revalidate URL at production `/api/revalidate` (Bearer = prod `SANITY_REVALIDATE_SECRET`).
 4. Redeploy hosted Studio with `SANITY_STUDIO_API_ORIGIN=https://kamiyonstudio.com`.
 5. Smoke apex for 24–48 h, then **pause/remove Vercel** DNS/project.
@@ -137,9 +153,9 @@ When a task/phase is marked complete:
 
 ## Current Goal
 
-1. **Human:** optional non-prod WS-C `--apply` after dry-run sign-off (prod still forbidden).  
-2. **Ops:** **WS4b** apex DNS cutover (operator dashboard).  
-3. **Resend:** verify `send.kamiyonstudio.com` in Resend (DKIM/SPF) + apex DMARC `p=none`; then `wrangler secret put RESEND_API_KEY` (+ set `CONTACT_FROM_EMAIL` / `CONTACT_TO_EMAIL` Worker vars).  
+1. **Ops:** **WS4b** apex DNS cutover (operator dashboard) — CORS already set.  
+2. **Resend:** verify `send.kamiyonstudio.com` in Resend (DKIM/SPF) + apex DMARC `p=none`; then `wrangler secret put RESEND_API_KEY` (+ set `CONTACT_FROM_EMAIL` / `CONTACT_TO_EMAIL` Worker vars).  
+3. **Human:** optional non-prod WS-C `--apply` after dry-run sign-off (prod still forbidden).  
 4. Optional: WS6 blog UI (T9); WS7 E2E once Resend is live.
 
 ---
@@ -190,4 +206,4 @@ When a task/phase is marked complete:
 
 ## Architecture Decisions (active)
 
-See [`DECISIONS.md`](./DECISIONS.md) (incl. ADR-016/017/018/019/020/021).
+See [`DECISIONS.md`](./DECISIONS.md) (incl. ADR-016/017/018/019/020/021/022/023).

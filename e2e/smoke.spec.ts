@@ -45,6 +45,48 @@ test("renders a friendly 404 for an unknown route", async ({ page }) => {
   await expect(page.getByRole("link", { name: /back to home/i })).toBeVisible();
 });
 
+test("About page renders cinematic hero, story, empty timeline, and lower sections", async ({
+  page,
+}) => {
+  const response = await page.goto("/about");
+  expect(response?.status()).toBeLessThan(400);
+
+  await expect(page.getByRole("heading", { level: 1, name: "ABOUT US" })).toBeVisible();
+
+  await page.locator("#our-story").scrollIntoViewIfNeeded();
+  await expect(page.getByRole("heading", { level: 2, name: "OUR STORY" })).toBeVisible();
+
+  await page.locator("#timeline").scrollIntoViewIfNeeded();
+  await expect(page.locator("#timeline")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: /our journey|timeline/i }),
+  ).toBeVisible();
+  // Empty until milestones publish; once CMS has entries, the ordered list appears instead.
+  const emptyState = page.getByTestId("timeline-empty");
+  const entryList = page.locator("#timeline ol");
+  await expect(emptyState.or(entryList).first()).toBeVisible();
+
+  await page.locator("#values").scrollIntoViewIfNeeded();
+  await expect(page.locator("#values")).toBeVisible();
+  await page.locator("#team").scrollIntoViewIfNeeded();
+  await expect(page.locator("#team")).toBeVisible();
+});
+
+test("About page layout holds at mobile width", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const response = await page.goto("/about");
+  expect(response?.status()).toBeLessThan(400);
+
+  await expect(page.getByRole("heading", { level: 1, name: "ABOUT US" })).toBeVisible();
+  await page.locator("#our-story").scrollIntoViewIfNeeded();
+  await expect(page.getByRole("heading", { level: 2, name: "OUR STORY" })).toBeVisible();
+  await page.locator("#timeline").scrollIntoViewIfNeeded();
+  await expect(page.locator("#timeline")).toBeVisible();
+  const emptyState = page.getByTestId("timeline-empty");
+  const entryList = page.locator("#timeline ol");
+  await expect(emptyState.or(entryList).first()).toBeVisible();
+});
+
 test("primary navigation shows six IA items plus Get in touch CTA", async ({ page }) => {
   await page.goto("/");
 

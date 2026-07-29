@@ -26,6 +26,7 @@ import {
   homeHighlight,
   productMedia,
   storySection,
+  storyTimelineEntry,
 } from "./objects/shared";
 import { socialLink } from "./objects/socialLink";
 
@@ -39,6 +40,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     portableBody,
     blogBody,
     storySection,
+    storyTimelineEntry,
     coreValue,
     contactChannel,
     faqItem,

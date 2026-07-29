@@ -17,6 +17,7 @@ When a task/phase is marked complete:
 
 | Date | Milestone | File |
 | --- | --- | --- |
+| 2026-07-30 | Phase E — OpenNext Workers + R2 + webhooks + kinetic nav (T4/T5/T6/T14) | [`2026-07-30-phase-e-cloudflare-opennext.md`](./2026-07-30-phase-e-cloudflare-opennext.md) |
 | 2026-07-24 | Sanity content seed (WS8 — fallbacks → dataset, 42 docs) | [`2026-07-24-sanity-content-seed.md`](./2026-07-24-sanity-content-seed.md) |
 | 2026-07-23 | Cinematic curtain-reveal site footer (replaces SiteFooter) | [`2026-07-23-cinematic-footer.md`](./2026-07-23-cinematic-footer.md) |
 | 2026-07-23 | Phase C — `lib/cms` Sanity + GROQ + R2 media swap | [`2026-07-23-phase-c-sanity-cms-swap.md`](./2026-07-23-phase-c-sanity-cms-swap.md) |

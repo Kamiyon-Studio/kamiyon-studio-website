@@ -10,6 +10,7 @@ import {
 import type {
   AboutPage,
   BlogBodyBlock,
+  StoryTimelineEntry,
   BlogCategory,
   BlogTag,
   CommunityItem,
@@ -240,6 +241,41 @@ export function mapHomePage(doc: unknown): HomePage | null {
   };
 }
 
+function mapStoryTimelineEntry(
+  value: unknown,
+  index: number,
+): StoryTimelineEntry | null {
+  const item = asRecord(value);
+  if (!item) {
+    return null;
+  }
+
+  const year = asString(item.year).trim();
+  const dateLabel = asString(item.dateLabel).trim();
+  const title = asString(item.title).trim();
+  const body = asString(item.body).trim();
+
+  if (!year || !dateLabel || !title || !body) {
+    return null;
+  }
+
+  const key =
+    typeof item._key === "string" && item._key.trim()
+      ? item._key
+      : `timeline-${index}`;
+  const date = typeof item.date === "string" && item.date.trim() ? item.date.trim() : undefined;
+
+  return {
+    key,
+    year,
+    dateLabel,
+    ...(date ? { date } : {}),
+    title,
+    body,
+    image: mapR2AssetToCmsImage(item.image as R2AssetRef | null | undefined),
+  };
+}
+
 export function mapAboutPage(doc: unknown): AboutPage | null {
   const row = asRecord(doc);
   if (!row || typeof row.title !== "string" || typeof row.mission !== "string") {
@@ -256,6 +292,11 @@ export function mapAboutPage(doc: unknown): AboutPage | null {
         body: asString(item.body),
       };
     }),
+    timelineHeading: asString(row.timelineHeading),
+    timelineSummary: asString(row.timelineSummary),
+    timelineEntries: (Array.isArray(row.timelineEntries) ? row.timelineEntries : [])
+      .map((entry, index) => mapStoryTimelineEntry(entry, index))
+      .filter((entry): entry is StoryTimelineEntry => entry !== null),
     mission: row.mission,
     vision: asString(row.vision),
     motto: asString(row.motto),
@@ -311,6 +352,7 @@ export function mapTeamMember(doc: unknown): TeamMember | null {
 
   return {
     _type: "teamMember",
+    _id: typeof row._id === "string" ? row._id : undefined,
     name: row.name,
     role: asString(row.role),
     bio: asString(row.bio),

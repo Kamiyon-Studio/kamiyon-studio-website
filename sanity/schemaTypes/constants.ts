@@ -90,6 +90,7 @@ export const SANITY_OBJECT_TYPES = [
   "portableBody",
   "blogBody",
   "storySection",
+  "storyTimelineEntry",
   "coreValue",
   "contactChannel",
   "faqItem",

@@ -36,4 +36,22 @@ describe("TeamGrid", () => {
 
     expect(container.querySelector("#team")).not.toBeNull();
   });
+
+  it("renders duplicate-name members with unique keys via _id", () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const duplicateNames: TeamMember[] = [
+      { _type: "teamMember", _id: "member-a", name: "Sherwin Limosnero", role: "CEO", bio: "", order: 1, isPlaceholder: false },
+      { _type: "teamMember", _id: "member-b", name: "Sherwin Limosnero", role: "CEO", bio: "", order: 2, isPlaceholder: false },
+    ];
+
+    render(<TeamGrid teamMembers={duplicateNames} />);
+
+    expect(screen.getAllByText("Sherwin Limosnero")).toHaveLength(2);
+    expect(consoleError).not.toHaveBeenCalledWith(
+      expect.stringContaining("same key"),
+      expect.anything(),
+      expect.anything(),
+    );
+    consoleError.mockRestore();
+  });
 });

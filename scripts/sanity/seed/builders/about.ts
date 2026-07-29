@@ -18,6 +18,28 @@ export function buildAboutPageDocument(
       title: section.title,
       body: section.body,
     })),
+    timelineHeading: source.timelineHeading,
+    timelineSummary: source.timelineSummary,
+    // Empty until real milestones publish — never seed fake Unsplash entries.
+    timelineEntries: source.timelineEntries.map((entry, index) => ({
+      _type: "storyTimelineEntry",
+      _key: entry.key || arrayKey("timeline", index),
+      year: entry.year,
+      dateLabel: entry.dateLabel,
+      ...(entry.date ? { date: entry.date } : {}),
+      title: entry.title,
+      body: entry.body,
+      ...(entry.image
+        ? {
+            image: {
+              _type: "r2Asset",
+              ...(entry.image.url ? { url: entry.image.url } : {}),
+              ...(entry.image.key ? { key: entry.image.key } : {}),
+              ...(entry.image.alt != null ? { alt: entry.image.alt } : {}),
+            },
+          }
+        : {}),
+    })),
     mission: source.mission,
     vision: source.vision,
     motto: source.motto,

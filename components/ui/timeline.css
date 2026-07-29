@@ -1,0 +1,11 @@
+/* Story timeline — progress line + sticky year rail helpers */
+
+.timeline-section [data-timeline-progress] {
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timeline-section [data-timeline-progress] {
+    transform: scaleY(1) !important;
+  }
+}

@@ -10,6 +10,71 @@ export const storySection = defineType({
   ],
 });
 
+export const storyTimelineEntry = defineType({
+  name: "storyTimelineEntry",
+  title: "Story timeline entry",
+  type: "object",
+  fields: [
+    defineField({
+      name: "year",
+      title: "Year",
+      type: "string",
+      description: "Four-digit year for the year rail (e.g. 2024).",
+      validation: (r) =>
+        r
+          .required()
+          .regex(/^\d{4}$/, { name: "yyyy", invert: false }),
+    }),
+    defineField({
+      name: "dateLabel",
+      title: "Date label",
+      type: "string",
+      description: 'Human-readable display date (e.g. "March 2024").',
+      validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "date",
+      title: "ISO date",
+      type: "string",
+      description: "Optional ISO date for semantic <time dateTime> (e.g. 2024-03-01).",
+    }),
+    defineField({ name: "title", title: "Title", type: "string", validation: (r) => r.required() }),
+    defineField({ name: "body", title: "Body", type: "text", validation: (r) => r.required() }),
+    defineField({
+      name: "image",
+      title: "Image",
+      type: "r2Asset",
+      validation: (r) =>
+        r.required().custom((value) => {
+          if (!value || typeof value !== "object") {
+            return "Image is required";
+          }
+          const asset = value as {
+            url?: unknown;
+            key?: unknown;
+            mimeType?: unknown;
+          };
+          const url = typeof asset.url === "string" ? asset.url.trim() : "";
+          const key = typeof asset.key === "string" ? asset.key.trim() : "";
+          if (!url && !key) {
+            return "Image URL or R2 key is required";
+          }
+          if (
+            typeof asset.mimeType === "string" &&
+            asset.mimeType.trim() &&
+            !asset.mimeType.trim().toLowerCase().startsWith("image/")
+          ) {
+            return "Timeline entries require an image asset";
+          }
+          return true;
+        }),
+    }),
+  ],
+  preview: {
+    select: { title: "title", subtitle: "dateLabel" },
+  },
+});
+
 export const coreValue = defineType({
   name: "coreValue",
   title: "Core value",

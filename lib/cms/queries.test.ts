@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { serviceBySlugQuery, servicesQuery } from "./groq";
+import { aboutPageQuery, serviceBySlugQuery, servicesQuery } from "./groq";
 import { SERVICE_CATEGORIES } from "./taxonomies";
 
 const safeFetchMock = vi.fn();
@@ -34,6 +34,20 @@ describe("service GROQ (Gate 0 five-service taxonomy)", () => {
     expect(serviceBySlugQuery).toContain("tagline");
     expect(serviceBySlugQuery).toContain("capabilities");
     expect(serviceBySlugQuery).not.toContain("outcomes");
+  });
+});
+
+describe("About Story Timeline GROQ", () => {
+  it("projects timeline copy, keyed entries, and R2 image fields", () => {
+    expect(aboutPageQuery).toContain("timelineHeading");
+    expect(aboutPageQuery).toContain("timelineSummary");
+    expect(aboutPageQuery).toContain("timelineEntries[]");
+    expect(aboutPageQuery).toMatch(
+      /timelineEntries\[\]\s*\{\s*_key,\s*year,\s*dateLabel,\s*date,\s*title,\s*body,/,
+    );
+    expect(aboutPageQuery).toMatch(
+      /image\s*\{\s*url,\s*key,\s*alt,\s*caption,\s*_key\s*\}/,
+    );
   });
 });
 

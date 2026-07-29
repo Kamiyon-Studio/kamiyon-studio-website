@@ -73,27 +73,31 @@ describe("PartnersMarquee", () => {
     expect(images[0]?.getAttribute("src")).toContain(
       encodeURIComponent("https://media.kamiyonstudio.com/partners/acme.png"),
     );
-    expect(images[0]?.className).toMatch(/grayscale/);
-    expect(images[0]?.className).toMatch(/group-hover:grayscale-0/);
+    expect(images[0]?.className).not.toMatch(/grayscale/);
+    expect(images[0]?.className).toMatch(/opacity-100/);
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
     expect(screen.queryByText("Acme")).not.toBeInTheDocument();
   });
 
-  it("renders an optional Trusted by eyebrow when provided", () => {
+  it("renders an optional Trusted by heading when provided", () => {
     render(<PartnersMarquee eyebrow="Trusted by" />);
 
-    expect(screen.getByText("Trusted by")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 3, name: "Trusted by" }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Trusted by" })).toBeInTheDocument();
   });
 
-  it("renders an optional Clients eyebrow when provided", () => {
+  it("renders an optional Clients heading when provided", () => {
     render(<PartnersMarquee eyebrow="Clients" />);
 
-    expect(screen.getByText("Clients")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 3, name: "Clients" }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Clients" })).toBeInTheDocument();
   });
 
-  it("omits the eyebrow when not provided", () => {
+  it("omits the heading when not provided", () => {
     render(<PartnersMarquee />);
 
     expect(screen.queryByText("Trusted by")).not.toBeInTheDocument();
@@ -149,5 +153,60 @@ describe("PartnersMarquee", () => {
         /\bcontainer\b/.test(el.className) && /\bpx-4\b/.test(el.className),
     );
     expect(doublePaddedInset).toBeUndefined();
+  });
+
+  it("defaults to section layout on light: secondary background, large padding, light nav theme", () => {
+    render(<PartnersMarquee />);
+
+    const section = screen.getByRole("region", { name: "Partner logos" });
+    expect(section.id).toBe("home-partners");
+    expect(section.getAttribute("data-nav-theme")).toBe("light");
+    expect(section.className).toMatch(/bg-\[var\(--bg-secondary\)\]/);
+    expect(section.className).toMatch(/py-12/);
+    expect(section.className).toMatch(/md:py-16/);
+  });
+
+  it("band layout uses compact dark band without secondary background or large padding", () => {
+    render(<PartnersMarquee layout="band" />);
+
+    const section = screen.getByRole("region", { name: "Partner logos" });
+    expect(section.id).toBe("home-partners");
+    expect(section.getAttribute("data-nav-theme")).toBe("dark");
+    expect(section.className).not.toMatch(/bg-\[var\(--bg-secondary\)\]/);
+    expect(section.className).not.toMatch(/py-12/);
+    expect(section.className).not.toMatch(/md:py-16/);
+  });
+
+  it("band layout renders Trusted by as an h3 when eyebrow is passed", () => {
+    render(<PartnersMarquee layout="band" tone="onDark" eyebrow="Trusted by" />);
+
+    const heading = screen.getByRole("heading", { level: 3, name: "Trusted by" });
+    expect(heading).toBeInTheDocument();
+    expect(heading.className).toMatch(/text-sakura-ink/);
+    expect(heading.className).toMatch(/uppercase/);
+    expect(screen.getByRole("region", { name: "Trusted by" })).toBeInTheDocument();
+  });
+
+  it("keeps partner logos in original color without invert overlay", () => {
+    render(
+      <PartnersMarquee
+        tone="onDark"
+        partners={[
+          {
+            id: "acme",
+            label: "Acme",
+            logoUrl: "https://media.kamiyonstudio.com/partners/acme.png",
+            logoAlt: "Acme logo",
+          },
+        ]}
+      />,
+    );
+
+    const image = screen.getByRole("img", { name: "Acme logo" });
+    const toneClasses = [image.className, image.parentElement?.className ?? ""].join(
+      " ",
+    );
+    expect(toneClasses).not.toMatch(/invert|brightness/);
+    expect(image.className).not.toMatch(/grayscale/);
   });
 });

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  mapAboutPage,
   mapCaseStudy,
   mapCollection,
   mapHomePage,
@@ -58,6 +59,113 @@ describe("mapHomePage", () => {
       featuredProductSlugs: ["eclipse"],
       featuredCaseStudySlugs: ["case-a"],
     });
+  });
+});
+
+describe("mapAboutPage", () => {
+  it("maps valid story timeline entries while preserving existing About fields", () => {
+    const page = mapAboutPage({
+      title: "About",
+      storySections: [{ title: "Our story", body: "Story body" }],
+      timelineHeading: "Our journey",
+      timelineSummary: "How the studio grew.",
+      timelineEntries: [
+        {
+          _key: "founded",
+          year: "2024",
+          dateLabel: "March 2024",
+          date: "2024-03-01",
+          title: "Studio founded",
+          body: "Kamiyon Studio began.",
+          image: {
+            url: "https://media.kamiyonstudio.com/about/founded.jpg",
+            alt: "The founding team",
+          },
+        },
+        {
+          year: "2025",
+          dateLabel: "2025",
+          title: "A new chapter",
+          body: "The journey continued.",
+        },
+      ],
+      mission: "Mission",
+      vision: "Vision",
+      motto: "Create. Play. Inspire.",
+      values: [{ name: "Curiosity", description: "Keep learning." }],
+      cultureSummary: "Culture",
+      teamIntro: "Meet the team.",
+      seo: { title: "About", description: "About Kamiyon Studio." },
+    });
+
+    expect(page).toMatchObject({
+      _type: "aboutPage",
+      title: "About",
+      storySections: [{ title: "Our story", body: "Story body" }],
+      timelineHeading: "Our journey",
+      timelineSummary: "How the studio grew.",
+      timelineEntries: [
+        {
+          key: "founded",
+          year: "2024",
+          dateLabel: "March 2024",
+          date: "2024-03-01",
+          title: "Studio founded",
+          body: "Kamiyon Studio began.",
+          image: {
+            url: "https://media.kamiyonstudio.com/about/founded.jpg",
+            alt: "The founding team",
+          },
+        },
+        {
+          key: "timeline-1",
+          year: "2025",
+          dateLabel: "2025",
+          title: "A new chapter",
+          body: "The journey continued.",
+        },
+      ],
+      mission: "Mission",
+      vision: "Vision",
+      motto: "Create. Play. Inspire.",
+      values: [{ name: "Curiosity", description: "Keep learning." }],
+      cultureSummary: "Culture",
+      teamIntro: "Meet the team.",
+    });
+  });
+
+  it("skips timeline entries missing required strings", () => {
+    const page = mapAboutPage({
+      title: "About",
+      mission: "Mission",
+      timelineEntries: [
+        {
+          _key: "valid",
+          year: "2024",
+          dateLabel: "March 2024",
+          title: "Studio founded",
+          body: "Kamiyon Studio began.",
+        },
+        {
+          _key: "missing-title",
+          year: "2025",
+          dateLabel: "2025",
+          title: " ",
+          body: "Incomplete.",
+        },
+      ],
+    });
+
+    expect(page?.timelineEntries).toEqual([
+      {
+        key: "valid",
+        year: "2024",
+        dateLabel: "March 2024",
+        title: "Studio founded",
+        body: "Kamiyon Studio began.",
+        image: undefined,
+      },
+    ]);
   });
 });
 

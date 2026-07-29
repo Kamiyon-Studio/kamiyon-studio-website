@@ -1,6 +1,6 @@
-# Deploy runbook (Phase E stub)
+# Deploy runbook (Phase E / OpenNext)
 
-> Stub for Cloudflare OpenNext + R2 + webhooks. Fill real `*.workers.dev` / custom-domain URLs after Wave 3–4 cutover. Secrets are never committed.
+> Cloudflare OpenNext + R2 + webhooks. Staging and prod Workers are live on `*.workers.dev`. Apex DNS cutover (WS4b) is operator-led — see **WS4b** below and [`dns-cutover-guide.md`](./dns-cutover-guide.md). Secrets are never committed.
 
 ## Branch → environment
 
@@ -201,8 +201,9 @@ After Wave 4, point `SANITY_STUDIO_API_ORIGIN` at production (`https://kamiyonst
 | Apex `kamiyonstudio.com` today | `A 216.198.79.1`, `A 64.29.17.1` (Vercel, DNS-only) → `308` redirect to `www` |
 | `www.kamiyonstudio.com` today | `CNAME a7fb456c57072fcd.vercel-dns-017.com` → `200` (live Vercel site) |
 | `media.kamiyonstudio.com` | Cloudflare-proxied, `/` → `404` (expected for an R2 domain) |
-| Sanity CORS origins | `http://localhost:3333`, `http://localhost:3000`, `https://kamiyon.sanity.studio`, staging Worker — **production origin missing** |
+| Sanity CORS origins | `http://localhost:3333`, `http://localhost:3000`, `https://kamiyon.sanity.studio`, staging Worker, **`https://kamiyonstudio.com` + `https://www.kamiyonstudio.com`** (added 2026-07-30) |
 | Sanity webhooks | Staging revalidate hook only — **no production hook** |
+| Apex / www DNS (2026-07-30) | Both `CNAME` → `a7fb456c57072fcd.vercel-dns-017.com` (DNS only, TTL Auto). Worker custom domains: **none** yet. |
 | Sanity media refs | Only one non-R2 URL in the dataset (Eclipse `coverImage.url` = an itch.io *page* URL); `getCmsImageUrl` rejects it and renders the branded placeholder. Prod media bucket is empty until editors upload. |
 | Staging Worker build | Older than `test` HEAD — it still renders the pre-allowlist itch.io image. Re-deploy staging before using it as the “known good” reference. |
 
@@ -256,13 +257,13 @@ Bindings are identical to staging except the bucket names: `ASSETS`, `WORKER_SEL
 
 ### Gaps that must close before DNS is touched
 
-- [x] Production Worker deployed and green on `https://kamiyon-studio-website.limosnerosherwin.workers.dev` (2026-07-26)
+- [x] Production Worker deployed and green on `https://kamiyon-studio-website.limosnerosherwin.workers.dev` (2026-07-26; re-smoked 2026-07-30)
 - [x] Prod Worker secrets `SANITY_REVALIDATE_SECRET` + `MEDIA_UPLOAD_SECRET` set (2026-07-26; both endpoints answer `401`, not `503`)
 - [ ] GitHub secrets `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` confirmed (Actions deploys `main` → production)
-- [ ] Sanity CORS includes `https://kamiyonstudio.com` (+ `www` if it will be attached)
+- [x] Sanity CORS includes `https://kamiyonstudio.com` (+ `www`) — added 2026-07-30
 - [ ] Production revalidate webhook created with `Authorization: Bearer <prod SANITY_REVALIDATE_SECRET>`
 - [ ] Cloudflare Web Analytics token for the apex created and set as a **build** variable (T14) — otherwise the beacon silently no-ops
-- [ ] Old apex/`www` Vercel DNS values recorded for rollback (see snapshot table)
+- [ ] Old apex/`www` Vercel DNS values recorded for rollback (see snapshot / 2026-07-30 CNAME inventory)
 - [ ] Decide `www` strategy (attach to Worker vs Redirect Rule) — step 6
 
 **Known non-blocking gap:** `buildPageMetadata` no longer emits a hardcoded `/opengraph-image` (that path 404s — the generated route is served as `/opengraph-image-<build hash>`). The home page gets the hashed image automatically; inner routes ship `og:title`/`og:description` with no image until they have a CMS `seo.ogImage` or a stable OG endpoint is added. A dynamic OG route would pull `next/og` back into the Worker bundle, so weigh it against the 3 MiB Free limit (ADR-007).
@@ -362,8 +363,7 @@ Also confirm by eye: home renders CMS content (not only fallbacks), `/studio` la
 
 | Name | Type | Value |
 | --- | --- | --- |
-| `kamiyonstudio.com` | A | `216.198.79.1` |
-| `kamiyonstudio.com` | A | `64.29.17.1` |
+| `kamiyonstudio.com` | CNAME | `a7fb456c57072fcd.vercel-dns-017.com` |
 | `www` | CNAME | `a7fb456c57072fcd.vercel-dns-017.com` |
 
 2. **[human]** Remove the custom domains from the Worker (Settings → Domains & Routes) and disable any `www` Redirect Rule.
@@ -378,11 +378,12 @@ Also confirm by eye: home renders CMS content (not only fallbacks), `/studio` la
 - [x] Point Sanity webhook at staging revalidate URL (hook `Dkvgfo2UV4bLXobH`; Bearer = Worker secret)
 - [x] Redeploy Studio with `SANITY_STUDIO_API_ORIGIN` for R2 uploads; API smoke upload OK
 - [x] WS4b preflight audit (2026-07-26) — inventory, gap list, ordered runbook above
+- [x] Sanity CORS for `https://kamiyonstudio.com` + `www` (2026-07-30)
 - [ ] Optional: confirm R2 upload from Studio UI (r2Asset input) after hard-refresh
-- [ ] Refresh staging from `test`
-- [x] Deploy prod Worker; secrets set; smoke on `*.workers.dev` (2026-07-26 — see *Production Worker live*)
+- [ ] Refresh staging from `test` (no remote `staging` branch yet — create when CI branch map is needed)
+- [x] Deploy prod Worker; secrets set; smoke on `*.workers.dev` (2026-07-26; re-smoked 2026-07-30)
 - [ ] Attach `kamiyonstudio.com` + `www`
-- [ ] Point Sanity CORS + webhook URLs at production
+- [ ] Point Sanity webhook URL at production (CORS already done)
 - [ ] Set prod `NEXT_PUBLIC_SITE_URL=https://kamiyonstudio.com` at **build** time (public vars are inlined)
 - [ ] `workers_dev: false` on production after DNS is live
 - [ ] Pause Vercel (do not delete yet)
