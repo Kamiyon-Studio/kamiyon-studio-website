@@ -17,6 +17,21 @@ When a task/phase is marked complete:
 
 ## Current Phase
 
+### About values hover-expand strip (2026-07-30)
+
+**Plan:** `.claude/plans/values-expand-on-hover.plan.md` · **ADR:** ADR-024  
+**Note:** Wave 3 closeout — WS-A + WS-B landed; WS-E verify PASS (vitest 9/9). Agent ship gate closed; founder visual ack still open.
+
+| Stream | Status | Notes |
+| --- | --- | --- |
+| **WS-A** `values-expand-on-hover` primitive + Unsplash `remotePattern` + tests | **Done** | Separate file from team `expand-on-hover.tsx`; `motion/react` only; fixed Unsplash images |
+| **WS-B** `ValuesGrid` mapper + section tests | **Done** | Keep `#values` + “What we value”; CMS name/description on active overlay; no CMS image field |
+| **WS-C** TiltedCard hygiene | **Skipped (retained)** | TiltedCard still used by FeaturedWork, CommunityCard, ProjectCard, ContactCard, Highlights, BentoProjectCard, ServiceCard, ProductCard, TeamMemberCard — do not delete |
+| **WS-D** ADR-024 + tracker + ui-context + plan | **Done** | ADR-024 Accepted with A+B landed; Wave 3 finalize |
+| **WS-E** Verify gate (vitest / composition / TiltedCard consumers / team strip) | **Done (local tests)** | Vitest 9/9 on A+B paths; `/about` still ValuesGrid + TeamGrid; team `expand-on-hover` untouched |
+
+**Ship gate:** Agent ownership **PASS** (A+B + E). Remaining: founder visual ack (level 5) on `/about#values`. Team expand strip untouched.
+
 ### Phase F — Production surfaces + apex cutover (2026-07-30)
 
 **Prior:** Phase E archived — [`completed/2026-07-30-phase-e-cloudflare-opennext.md`](./completed/2026-07-30-phase-e-cloudflare-opennext.md) · **ADR-022**
@@ -206,4 +221,4 @@ When a task/phase is marked complete:
 
 ## Architecture Decisions (active)
 
-See [`DECISIONS.md`](./DECISIONS.md) (incl. ADR-016/017/018/019/020/021/022/023).
+See [`DECISIONS.md`](./DECISIONS.md) (incl. ADR-016/017/018/019/020/021/022/023/024).

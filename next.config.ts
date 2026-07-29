@@ -63,6 +63,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "media-staging.kamiyonstudio.com",
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
     ],
   },
   webpack: (webpackConfig) => {

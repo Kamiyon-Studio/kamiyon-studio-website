@@ -8,15 +8,45 @@ vi.mock("@/lib/cms/image", () => ({
   getCmsImageUrl: vi.fn(() => null),
 }));
 
+vi.mock("@/components/ui/expand-on-hover", () => ({
+  HoverExpand: ({ members }: { members: TeamMember[] }) => (
+    <div data-testid="hover-expand">
+      {members.map((member) => (
+        <span key={member._id ?? member.name}>{member.name}</span>
+      ))}
+      {members.map((member) => (
+        <span key={`${member._id ?? member.name}-role`}>{member.role}</span>
+      ))}
+    </div>
+  ),
+}));
+
 const members: TeamMember[] = [
-  { _type: "teamMember", name: "Jane Dela Cruz", role: "Founder", bio: "", order: 1, isPlaceholder: false },
-  { _type: "teamMember", name: "Sam Reyes", role: "Lead Designer", bio: "", order: 2, isPlaceholder: false },
+  {
+    _type: "teamMember",
+    name: "Jane Dela Cruz",
+    role: "Founder",
+    bio: "",
+    socialLinks: [],
+    order: 1,
+    isPlaceholder: false,
+  },
+  {
+    _type: "teamMember",
+    name: "Sam Reyes",
+    role: "Lead Designer",
+    bio: "",
+    socialLinks: [],
+    order: 2,
+    isPlaceholder: false,
+  },
 ];
 
 describe("TeamGrid", () => {
-  it("renders one TeamMemberCard per team member", () => {
+  it("renders HoverExpand with team members", () => {
     render(<TeamGrid teamMembers={members} />);
 
+    expect(screen.getByTestId("hover-expand")).toBeInTheDocument();
     expect(screen.getByText("Jane Dela Cruz")).toBeInTheDocument();
     expect(screen.getByText("Founder")).toBeInTheDocument();
     expect(screen.getByText("Sam Reyes")).toBeInTheDocument();
@@ -40,8 +70,26 @@ describe("TeamGrid", () => {
   it("renders duplicate-name members with unique keys via _id", () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
     const duplicateNames: TeamMember[] = [
-      { _type: "teamMember", _id: "member-a", name: "Sherwin Limosnero", role: "CEO", bio: "", order: 1, isPlaceholder: false },
-      { _type: "teamMember", _id: "member-b", name: "Sherwin Limosnero", role: "CEO", bio: "", order: 2, isPlaceholder: false },
+      {
+        _type: "teamMember",
+        _id: "member-a",
+        name: "Sherwin Limosnero",
+        role: "CEO",
+        bio: "",
+        socialLinks: [],
+        order: 1,
+        isPlaceholder: false,
+      },
+      {
+        _type: "teamMember",
+        _id: "member-b",
+        name: "Sherwin Limosnero",
+        role: "CEO",
+        bio: "",
+        socialLinks: [],
+        order: 2,
+        isPlaceholder: false,
+      },
     ];
 
     render(<TeamGrid teamMembers={duplicateNames} />);

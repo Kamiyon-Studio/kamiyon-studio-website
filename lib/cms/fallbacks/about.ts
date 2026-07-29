@@ -15,8 +15,106 @@ export const aboutPageFallback: AboutPage = {
     },
   ],
   timelineHeading: "Our journey",
-  timelineSummary: "Milestones from founding to the work ahead — published as they earn a place here.",
-  timelineEntries: [],
+  timelineSummary:
+    "Milestones from founding through the work ahead — drawn from how the studio grew and where it is headed.",
+  timelineEntries: [
+    {
+      key: "timeline-2024-01",
+      year: "2024",
+      dateLabel: "March 2024",
+      date: "2024-03-01",
+      title: "Learning through competition",
+      body: "Sherwin Limosnero and Christian Jude Villaber begin building together through game jams, hackathons, and competitions — learning by shipping under pressure rather than waiting until they felt ready.",
+      image: {
+        url: "/assets/background.jpg",
+        alt: "Early collaboration and competition work",
+      },
+    },
+    {
+      key: "timeline-2024-02",
+      year: "2024",
+      dateLabel: "November 2024",
+      date: "2024-11-05",
+      title: "The Kamiyon name is born",
+      body: "From a school project, the name Kamiyon emerges — kami (“us”) and ’yon (“that”), meaning “that’s us.” The studio takes shape in Biñan City, Laguna, Philippines as a creative technology practice.",
+      image: {
+        url: "/assets/background.jpg",
+        alt: "Kamiyon Studio founding moment",
+      },
+    },
+    {
+      key: "timeline-2025-01",
+      year: "2025",
+      dateLabel: "June 2025",
+      date: "2025-06-01",
+      title: "A multidisciplinary team takes shape",
+      body: "What began as two game developers grows into a studio of designers, developers, artists, and creatives united by a shared belief: world-class interactive experiences can be built in the Philippines.",
+      image: {
+        url: "/assets/background.jpg",
+        alt: "Kamiyon Studio multidisciplinary team",
+      },
+    },
+    {
+      key: "timeline-2025-02",
+      year: "2025",
+      dateLabel: "November 2025",
+      date: "2025-11-01",
+      title: "Agency craft fuels original IP",
+      body: "Kamiyon settles into a dual-track model: client services fund the studio while revenue is reinvested into games, educational platforms, and original intellectual property.",
+      image: {
+        url: "/assets/background.jpg",
+        alt: "Client craft and original IP work",
+      },
+    },
+    {
+      key: "timeline-2026-01",
+      year: "2026",
+      dateLabel: "March 2026",
+      date: "2026-03-01",
+      title: "Foundation phase in public",
+      body: "Phase 1 priorities move into the open: a recognizable brand, clearer internal systems and documentation, and a growing portfolio across games, products, and interactive experiences.",
+      image: {
+        url: "/assets/background.jpg",
+        alt: "Kamiyon brand and portfolio foundation",
+      },
+    },
+    {
+      key: "timeline-2026-02",
+      year: "2026",
+      dateLabel: "September 2026",
+      date: "2026-09-01",
+      title: "Education and community at the center",
+      body: "Relationships with educational institutions and creator communities deepen, aligning the studio’s work with K–12 learning, Web3 education, and gamified platforms that make learning more engaging.",
+      image: {
+        url: "/assets/background.jpg",
+        alt: "Educational and community programs",
+      },
+    },
+    {
+      key: "timeline-2027-01",
+      year: "2027",
+      dateLabel: "March 2027",
+      date: "2027-03-01",
+      title: "Growth phase begins",
+      body: "Phase 2 focuses on scaling the agency: expanding the client base, tightening development workflows, strengthening the Kamiyon brand, and building recurring revenue alongside community presence.",
+      image: {
+        url: "/assets/background.jpg",
+        alt: "Studio growth and workflow maturity",
+      },
+    },
+    {
+      key: "timeline-2027-02",
+      year: "2027",
+      dateLabel: "October 2027",
+      date: "2027-10-01",
+      title: "Original worlds take the lead",
+      body: "Investment in original games and long-form IP intensifies — moving the studio closer to a future where Filipino-made worlds, characters, and educational products become the primary growth engine.",
+      image: {
+        url: "/assets/background.jpg",
+        alt: "Original intellectual property development",
+      },
+    },
+  ],
   mission:
     "We create games and interactive experiences that educate, inspire, and make a lasting impact.",
   vision:

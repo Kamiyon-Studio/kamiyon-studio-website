@@ -20,7 +20,7 @@ export function buildAboutPageDocument(
     })),
     timelineHeading: source.timelineHeading,
     timelineSummary: source.timelineSummary,
-    // Empty until real milestones publish — never seed fake Unsplash entries.
+    // Seed from aboutPageFallback milestones (2024–2027); images use r2Asset url/key when present.
     timelineEntries: source.timelineEntries.map((entry, index) => ({
       _type: "storyTimelineEntry",
       _key: entry.key || arrayKey("timeline", index),

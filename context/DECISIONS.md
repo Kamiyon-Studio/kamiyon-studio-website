@@ -512,3 +512,37 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 
 ---
 
+## ADR-024 — About values hover-expand strip replaces TiltedCard grid (2026-07-30)
+
+**Status:** Accepted (WS-A + WS-B landed; WS-E verify PASS — vitest 9/9; TiltedCard retained for other consumers; Wave 4 founder visual sign-off pending)
+
+**Context:** About `ValuesGrid` rendered CMS `CoreValue` items as a responsive `TiltedCard` marketing-card grid (✦ icon + name + description always visible). Operator wants a Skiper-style hover-expand image strip instead. The team section already uses `components/ui/expand-on-hover.tsx` (`HoverExpand`) for portraits, so values must not overwrite that primitive.
+
+**Decision:**
+
+- New client primitive `components/ui/values-expand-on-hover.tsx` (`ValuesHoverExpand`) — separate file from team `expand-on-hover.tsx`; do **not** overwrite or generalize the team strip.
+- `ValuesGrid` becomes a thin mapper: CMS `CoreValue[]` → strip items; keep `#values` anchor and “What we value” heading.
+- CMS `CoreValue` **name** + **description** remain on the **active** overlay only (collapsed columns show imagery, not full copy).
+- Fixed Unsplash images per value (code constant / index map) — **no** CMS image field on `CoreValue`.
+- Allow Unsplash host via `next.config` `images.remotePatterns` (WS-A ownership) so `next/image` can load fixed URLs.
+- Use `motion/react` only (already in repo); **no** swiper / framer-motion installs.
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| Separate values primitive vs shared expand-on-hover | Team strip is portrait/social-specific; values need image + name/description overlay without coupling APIs |
+| Fixed Unsplash URLs, not CMS images | Avoid schema/migration; values copy stays editorial CMS; visuals are design-locked |
+| Name/description only on active overlay | Matches Skiper expand pattern; reduces clutter vs always-visible card copy |
+
+**Consequences:**
+
+- New UI primitive under `components/ui/`; team `HoverExpand` / `TeamGrid` unchanged by this feature.
+- `ValuesGrid` presentation-only change; CMS `CoreValue` type and About page fetch unchanged.
+- `TiltedCard` **retained** — still consumed by FeaturedWork, Highlights, and marketing cards (WS-C skipped).
+- About layout row in `ui-context.md` documents hover-expand values strip.
+- Plan: `.claude/plans/values-expand-on-hover.plan.md` · tracker WS-A–E.
+- Wave 3 closeout (2026-07-30): WS-A/B Done; WS-E vitest 9/9 PASS; founder visual ack still open.
+
+---
+

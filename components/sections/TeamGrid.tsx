@@ -1,5 +1,5 @@
 import { Container } from "@/components/ui/Container";
-import { TeamMemberCard } from "@/components/ui/TeamMemberCard";
+import { HoverExpand } from "@/components/ui/expand-on-hover";
 import type { TeamMember } from "@/lib/cms/types";
 
 type TeamGridProps = {
@@ -22,10 +22,8 @@ export function TeamGrid({ teamIntro, teamMembers }: TeamGridProps) {
           ) : null}
         </div>
 
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {teamMembers.map((member) => (
-            <TeamMemberCard key={member._id ?? member.name} member={member} />
-          ))}
+        <div className="mt-10 flex justify-center">
+          <HoverExpand members={teamMembers} />
         </div>
       </Container>
     </section>

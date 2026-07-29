@@ -180,7 +180,7 @@ Marketing site patterns — full-width heroes, constrained content columns.
 | Page | Layout |
 | --- | --- |
 | Home | Combined full-bleed opening stage (brand + motto upper; partners band lower, `/#home-partners`, `data-nav-theme="dark"`, ADR-023) → projects bento → **services vertical marquee** (`/#home-services`, ADR-021) → contact CTA |
-| About | Full-viewport `ABOUT US` hero (`data-nav-theme="dark"`, homepage-like bg/parallax/opening) → two-column `OUR STORY` editorial intro → GSAP ScrollTrigger story timeline (heading/summary + empty entries until milestones publish; no outer AnimatedSection) → vision band → values grid → team grid → culture closing |
+| About | Full-viewport `ABOUT US` hero (`data-nav-theme="dark"`, homepage-like bg/parallax/opening) → two-column `OUR STORY` editorial intro → GSAP ScrollTrigger story timeline (heading/summary + empty entries until milestones publish; no outer AnimatedSection) → vision band → **hover-expand values strip** (`/#values`, “What we value”, ADR-024; CMS name/description on active overlay) → team hover-expand strip → culture closing |
 | Services | Intro → category groups → service card grid → industries callout → CTA |
 | Products | Intro → product card grid → detail: hero media + features + goals |
 | Portfolio | Intro → case study cards (story-focused) → detail: challenge / solution / impact |

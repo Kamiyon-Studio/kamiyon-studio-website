@@ -45,7 +45,7 @@ test("renders a friendly 404 for an unknown route", async ({ page }) => {
   await expect(page.getByRole("link", { name: /back to home/i })).toBeVisible();
 });
 
-test("About page renders cinematic hero, story, empty timeline, and lower sections", async ({
+test("About page renders cinematic hero, story, timeline, and lower sections", async ({
   page,
 }) => {
   const response = await page.goto("/about");
@@ -61,7 +61,7 @@ test("About page renders cinematic hero, story, empty timeline, and lower sectio
   await expect(
     page.getByRole("heading", { level: 2, name: /our journey|timeline/i }),
   ).toBeVisible();
-  // Empty until milestones publish; once CMS has entries, the ordered list appears instead.
+  // CMS may be empty in some envs; accept empty state or populated entry list.
   const emptyState = page.getByTestId("timeline-empty");
   const entryList = page.locator("#timeline ol");
   await expect(emptyState.or(entryList).first()).toBeVisible();
