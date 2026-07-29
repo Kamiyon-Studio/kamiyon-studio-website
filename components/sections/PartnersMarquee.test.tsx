@@ -108,6 +108,26 @@ describe("PartnersMarquee", () => {
     expect(screen.getByTestId("logo-carousel")).toBeInTheDocument();
   });
 
+  it("mirrors the hero background vertically with blur and blends into the next section", () => {
+    const { container } = render(<PartnersMarquee />);
+
+    const section = screen.getByRole("region", { name: "Partner logos" });
+    expect(section).toHaveAttribute("data-nav-theme", "dark");
+
+    const mirror = screen.getByTestId("partners-mirror-bg");
+    const flipLayer = mirror.firstElementChild;
+    expect(flipLayer?.className).toMatch(/scale-y-\[-1\]/);
+
+    const background = container.querySelector('img[src*="background.jpg"]');
+    expect(background).toBeInTheDocument();
+    expect(background?.getAttribute("alt")).toBe("");
+    expect(background?.className).toMatch(/blur-md/);
+    expect(background?.className).toMatch(/object-\[center_35%\]/);
+    expect(background?.className).toMatch(/opacity-90/);
+
+    expect(mirror.querySelector("[class*='to-[var(--bg-primary)]']")).toBeInTheDocument();
+  });
+
   it("uses 2/4 items-per-view with responsive slide gaps so logos never overlap", () => {
     render(<PartnersMarquee />);
 
@@ -138,7 +158,7 @@ describe("PartnersMarquee", () => {
     render(<PartnersMarquee />);
 
     const section = screen.getByRole("region", { name: "Partner logos" });
-    const container = section.firstElementChild;
+    const container = section.querySelector(":scope > .relative.z-10");
     expect(container?.className).toMatch(/\bpx-4\b/);
     expect(container?.className).toMatch(/\bsm:px-6\b/);
     expect(container?.className).toMatch(/\blg:px-8\b/);
