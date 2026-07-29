@@ -589,7 +589,7 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 
 - New client primitive `components/ui/logo-marquee.tsx` — CSS infinite horizontal marquee (`--animate-marquee-horizontal` / `@keyframes marquee-horizontal` translating `-50%` over a duplicated track).
 - `PartnersMarquee` swaps Embla for `LogoMarquee`; section API (`layout`, `tone`, eyebrow, `#home-partners`) unchanged.
-- Logo treatment: larger heights (`h-14 md:h-16 lg:h-20`), `grayscale` + muted opacity at rest, full color/opacity on `group-hover` / `group-focus-within`; pause animation on track hover.
+- Logo treatment: larger heights (later tuned to ~¾ of the first enlarge), `grayscale` + muted opacity at rest, full color/opacity on per-logo `group-hover/logo` / `group-focus-within/logo`.
 - `prefers-reduced-motion: reduce` → static single row, no clone.
 - CMS / `PARTNER_PLACEHOLDERS` / partner document shape unchanged. `logo-carousel.tsx` retained (not deleted in this ADR).
 
@@ -605,6 +605,53 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 
 - Home partners line in `ui-context.md` notes continuous marquee + desaturate hover.
 - Plan: `.claude/plans/home-partners-continuous-marquee.plan.md` · tracker WS-A–D.
+
+---
+
+## ADR-027 — About page drops Vision / Values / Culture sections (2026-07-30)
+
+**Status:** Accepted
+
+**Context:** `/about` stacked VisionBand → ValuesGrid (“What we value”) → TeamGrid → CultureClosing (“Our culture”) after the timeline. Operator wants a tighter About story: hero → story → timeline → team only.
+
+**Decision:**
+
+- Remove `VisionBand`, `ValuesGrid`, and `CultureClosing` from `app/(frontend)/about/page.tsx`.
+- Archive section sources + the values-only `values-expand-on-hover` primitive under `archive/about-vision-values-culture/` (not deleted).
+- Keep Sanity `vision` / `values` / `cultureSummary` fields, GROQ, mappers, fallbacks, and seed so CMS content remains recoverable.
+- Update e2e About smoke to assert `#team` without `#values`.
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| Archive code vs delete | Easy restore; history preserved |
+| Leave CMS fields unused | Avoid schema/content migration churn; Studio can still edit dormant copy |
+
+**Consequences:**
+
+- About layout line in `ui-context.md` updated.
+- ADR-024 remains historical for the archived values strip.
+- Archive README: `archive/about-vision-values-culture/README.md`.
+
+---
+
+## ADR-028 — About team FocusRail replaces InteractiveSelector (2026-07-30)
+
+**Status:** Accepted
+
+**Context:** `/about#team` used an accordion-style `InteractiveSelector` portrait strip. Operator wants a 3D focus-rail carousel (drag / wheel / keyboard / prev-next) for browsing members.
+
+**Decision:**
+- Add `components/ui/focus-rail.tsx` (Motion `motion/react`, lucide chevrons, optional Explore `Link`).
+- `TeamGrid` maps `TeamMember[]` → `FocusRailItem[]` (title=name, meta=role, description=useful bio, image=CMS photo or Unsplash atmosphere placeholder — not fake portraits).
+- Keep `#team` anchor, “Meet the team” heading, and `teamIntro` copy; rail is full-bleed under the intro.
+- Dependencies already in-repo: `next`, `lucide-react`, `motion` (import from `motion/react`, not `framer-motion`).
+
+**Consequences:**
+- Team section is a dark theatrical band inside the light About page — intentional contrast.
+- `InteractiveSelector` / `expand-on-hover` remain in the codebase for other use but are no longer the About team surface.
+- Explore CTA appears only when a member has a social URL.
 
 ---
 

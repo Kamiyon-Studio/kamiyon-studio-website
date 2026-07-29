@@ -180,7 +180,7 @@ Marketing site patterns — full-width heroes, constrained content columns.
 | Page | Layout |
 | --- | --- |
 | Home | Combined full-bleed opening stage (brand + motto upper; **continuous partners logo marquee** lower — larger logos, grayscale→color on hover, `/#home-partners`, `data-nav-theme="dark"`, ADR-023 + ADR-026) → projects bento → **services vertical marquee** (`/#home-services`, ADR-021) → contact CTA |
-| About | Full-viewport `ABOUT US` hero (`data-nav-theme="dark"`, homepage-like bg/parallax/opening) → two-column `OUR STORY` editorial intro → **Kamiyon milestone timeline** (`/#timeline`, ADR-025: alternating bordered cards on centre spine; `xl` three-zone grid with sticky year rail + cumulative roster aside; Embla multi-image carousel; reduced-motion reveals all; no outer AnimatedSection) → vision band → **hover-expand values strip** (`/#values`, “What we value”, ADR-024; CMS name/description on active overlay) → team hover-expand strip → culture closing |
+| About | Full-viewport `ABOUT US` hero (`data-nav-theme="dark"`, homepage-like bg/parallax/opening) → two-column `OUR STORY` editorial intro → **Kamiyon milestone timeline** (`/#timeline`, ADR-025) → team **FocusRail** 3D carousel (`/#team`, ADR-028) — Vision / Values / Culture sections **removed from page** (ADR-027; sources archived under `archive/about-vision-values-culture/`) |
 | Services | Intro → category groups → service card grid → industries callout → CTA |
 | Products | Intro → product card grid → detail: hero media + features + goals |
 | Portfolio | Intro → case study cards (story-focused) → detail: challenge / solution / impact |

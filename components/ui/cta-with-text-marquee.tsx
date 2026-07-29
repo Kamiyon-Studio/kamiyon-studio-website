@@ -49,12 +49,12 @@ export function VerticalMarquee({
   const trackClassName = cn(
     "flex shrink-0 flex-col animate-marquee-vertical motion-reduce:animate-none",
     reverse && "[animation-direction:reverse]",
-    pauseOnHover && "group-hover:[animation-play-state:paused]",
+    pauseOnHover && "group-hover/marquee:[animation-play-state:paused]",
   );
 
   return (
     <div
-      className={cn("group flex flex-col overflow-hidden", className)}
+      className={cn("group/marquee flex flex-col overflow-hidden", className)}
       style={
         {
           "--duration": `${speed}s`,

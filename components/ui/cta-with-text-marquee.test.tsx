@@ -167,6 +167,21 @@ describe("CTAWithVerticalMarquee", () => {
       expect(imgs[1]).toHaveAttribute("src", "/img-front.jpg");
     });
 
+    it("scopes marquee and reveal groups separately so hover is per item", () => {
+      const { container } = render(
+        <CTAWithVerticalMarquee {...baseProps} items={itemsWithImages} />,
+      );
+
+      // An unnamed `group` ancestor would make one row's hover reveal them all.
+      const unscoped = Array.from(container.querySelectorAll("*")).filter(
+        (node) => node.classList.contains("group"),
+      );
+      expect(unscoped).toEqual([]);
+
+      expect(container.querySelector(".group\\/marquee")).toBeInTheDocument();
+      expect(container.querySelector(".group\\/reveal")).toBeInTheDocument();
+    });
+
     it("keeps clone track image-free when decorative mode is used", () => {
       const { container } = render(
         <CTAWithVerticalMarquee {...baseProps} items={itemsWithImages} />,

@@ -20,11 +20,12 @@ export interface RevealImageListItemProps {
   decorative?: boolean;
 }
 
-const imageSlot =
-  "absolute right-8 -top-1 z-40 h-20 w-16";
+const imageSlot = "absolute right-8 -top-1 z-40 h-20 w-16";
 
+// Variants are scoped to the `group/reveal` root so hovering one row never
+// triggers the reveal on sibling rows sharing an outer `group` ancestor.
 const imageFrame =
-  "relative h-16 w-16 scale-0 overflow-hidden rounded-md opacity-0 shadow-none transition-all delay-100 duration-500 group-hover:h-full group-hover:w-full group-hover:scale-100 group-hover:opacity-100 group-hover:shadow-xl group-focus-within:h-full group-focus-within:w-full group-focus-within:scale-100 group-focus-within:opacity-100 group-focus-within:shadow-xl";
+  "relative h-16 w-16 scale-0 overflow-hidden rounded-md opacity-0 shadow-none transition-all delay-100 duration-500 group-hover/reveal:h-full group-hover/reveal:w-full group-hover/reveal:scale-100 group-hover/reveal:opacity-100 group-hover/reveal:shadow-xl group-focus-within/reveal:h-full group-focus-within/reveal:w-full group-focus-within/reveal:scale-100 group-focus-within/reveal:opacity-100 group-focus-within/reveal:shadow-xl";
 
 /**
  * A single service row with a hover image-reveal effect.
@@ -42,12 +43,12 @@ export function RevealImageListItem({
   const [frontImage, backImage] = images;
 
   const rootClass = cn(
-    "group relative h-fit w-fit overflow-visible py-8",
+    "group/reveal relative h-fit w-fit overflow-visible py-8",
     className,
   );
 
   const textEl = (
-    <span className="font-black transition-all duration-500 group-hover:opacity-40 group-focus-within:opacity-40">
+    <span className="font-black transition-all duration-500 group-hover/reveal:opacity-40 group-focus-within/reveal:opacity-40">
       {text}
     </span>
   );
@@ -69,7 +70,7 @@ export function RevealImageListItem({
         aria-hidden="true"
         className={cn(
           imageSlot,
-          "translate-x-0 translate-y-0 rotate-0 transition-all delay-150 duration-500 group-hover:translate-x-6 group-hover:translate-y-6 group-hover:rotate-12 group-focus-within:translate-x-6 group-focus-within:translate-y-6 group-focus-within:rotate-12",
+          "translate-x-0 translate-y-0 rotate-0 transition-all delay-150 duration-500 group-hover/reveal:translate-x-6 group-hover/reveal:translate-y-6 group-hover/reveal:rotate-12 group-focus-within/reveal:translate-x-6 group-focus-within/reveal:translate-y-6 group-focus-within/reveal:rotate-12",
         )}
       >
         <div className={cn(imageFrame, "duration-200")}>

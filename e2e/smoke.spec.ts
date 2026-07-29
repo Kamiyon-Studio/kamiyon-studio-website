@@ -45,7 +45,7 @@ test("renders a friendly 404 for an unknown route", async ({ page }) => {
   await expect(page.getByRole("link", { name: /back to home/i })).toBeVisible();
 });
 
-test("About page renders cinematic hero, story, timeline, and lower sections", async ({
+test("About page renders cinematic hero, story, timeline, and team", async ({
   page,
 }) => {
   const response = await page.goto("/about");
@@ -72,10 +72,12 @@ test("About page renders cinematic hero, story, timeline, and lower sections", a
     await expect(page.getByTestId("timeline-roster")).toBeAttached();
   }
 
-  await page.locator("#values").scrollIntoViewIfNeeded();
-  await expect(page.locator("#values")).toBeVisible();
   await page.locator("#team").scrollIntoViewIfNeeded();
   await expect(page.locator("#team")).toBeVisible();
+  await expect(page.getByTestId("focus-rail")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: /meet the team/i }),
+  ).toBeVisible();
 });
 
 test("About page layout holds at mobile width", async ({ page }) => {

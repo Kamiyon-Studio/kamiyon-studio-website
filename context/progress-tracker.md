@@ -17,6 +17,16 @@ When a task/phase is marked complete:
 
 ## Current Phase
 
+### About team FocusRail carousel (2026-07-30)
+
+**ADR:** ADR-028  
+**Status:** Done — `/about#team` uses `FocusRail` (`components/ui/focus-rail.tsx`) instead of `InteractiveSelector`. CMS `teamMember` → rail items (name/role/bio/photo; Unsplash atmosphere placeholders when no photo).
+
+### About page — drop Vision / Values / Culture (2026-07-30)
+
+**ADR:** ADR-027 · **Archive:** [`archive/about-vision-values-culture/`](../archive/about-vision-values-culture/README.md)  
+**Status:** Done — `/about` is hero → story → timeline → team. CMS fields retained unused.
+
 ### About milestone timeline + cumulative roster (2026-07-30)
 
 **Plan:** `.claude/plans/about-timeline-sabotage-style.plan.md` · **ADR:** ADR-025  
@@ -37,7 +47,7 @@ When a task/phase is marked complete:
 ### About values hover-expand strip (2026-07-30)
 
 **Plan:** `.claude/plans/values-expand-on-hover.plan.md` · **ADR:** ADR-024  
-**Note:** Wave 3 closeout — WS-A + WS-B landed; WS-E verify PASS (vitest 9/9). Agent ship gate closed; founder visual ack still open.
+**Note:** **Superseded for live page by ADR-027** — section + primitive archived under `archive/about-vision-values-culture/`. Historical WS-A–E remain below for reference.
 
 | Stream | Status | Notes |
 | --- | --- | --- |

@@ -2,12 +2,9 @@ import type { Metadata } from "next";
 
 import { AnimatedSection } from "@/components/animation/AnimatedSection";
 import { AboutHero } from "@/components/sections/AboutHero";
-import { CultureClosing } from "@/components/sections/CultureClosing";
 import { OurStory } from "@/components/sections/OurStory";
 import { StoryTimeline } from "@/components/sections/StoryTimeline";
 import { TeamGrid } from "@/components/sections/TeamGrid";
-import { ValuesGrid } from "@/components/sections/ValuesGrid";
-import { VisionBand } from "@/components/sections/VisionBand";
 import {
   aboutPageFallback,
   resolveWithFallback,
@@ -117,17 +114,8 @@ export default async function AboutPage() {
         summary={timelineSummary}
         entries={timelineEntries}
       />
-      <AnimatedSection as="div" distance={32}>
-        <VisionBand vision={aboutPage.vision} />
-      </AnimatedSection>
-      <AnimatedSection as="div" distance={32}>
-        <ValuesGrid values={aboutPage.values} />
-      </AnimatedSection>
       <AnimatedSection as="div" distance={28}>
         <TeamGrid teamIntro={aboutPage.teamIntro} teamMembers={teamMembers} />
-      </AnimatedSection>
-      <AnimatedSection as="div" distance={32}>
-        <CultureClosing cultureSummary={aboutPage.cultureSummary} />
       </AnimatedSection>
     </>
   );

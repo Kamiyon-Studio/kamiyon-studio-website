@@ -2,20 +2,26 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { TeamMember } from "@/lib/cms/types";
-import { TeamGrid } from "./TeamGrid";
+import { mapTeamMembersToFocusRailItems, TeamGrid } from "./TeamGrid";
 
 vi.mock("@/lib/cms/image", () => ({
-  getCmsImageUrl: vi.fn(() => null),
+  getCmsImageUrl: vi.fn((image?: { url?: string } | null) =>
+    image?.url ? image.url : null,
+  ),
 }));
 
-vi.mock("@/components/ui/interactive-selector", () => ({
-  InteractiveSelector: ({ members }: { members: TeamMember[] }) => (
-    <div data-testid="interactive-selector">
-      {members.map((member) => (
-        <span key={member._id ?? member.name}>{member.name}</span>
-      ))}
-      {members.map((member) => (
-        <span key={`${member._id ?? member.name}-role`}>{member.role}</span>
+vi.mock("@/components/ui/focus-rail", () => ({
+  FocusRail: ({
+    items,
+  }: {
+    items: Array<{ id: string | number; title: string; meta?: string }>;
+  }) => (
+    <div data-testid="focus-rail">
+      {items.map((item) => (
+        <span key={item.id}>
+          {item.title}
+          {item.meta ? ` · ${item.meta}` : ""}
+        </span>
       ))}
     </div>
   ),
@@ -35,22 +41,28 @@ const members: TeamMember[] = [
     _type: "teamMember",
     name: "Sam Reyes",
     role: "Lead Designer",
-    bio: "",
-    socialLinks: [],
+    bio: "Designs product systems.",
+    socialLinks: [
+      {
+        platform: "linkedin",
+        url: "https://linkedin.com/in/sam",
+        label: "LinkedIn",
+      },
+    ],
     order: 2,
     isPlaceholder: false,
   },
 ];
 
 describe("TeamGrid", () => {
-  it("renders InteractiveSelector with team members", () => {
+  it("renders FocusRail with team members", () => {
     render(<TeamGrid teamMembers={members} />);
 
-    expect(screen.getByTestId("interactive-selector")).toBeInTheDocument();
-    expect(screen.getByText("Jane Dela Cruz")).toBeInTheDocument();
-    expect(screen.getByText("Founder")).toBeInTheDocument();
-    expect(screen.getByText("Sam Reyes")).toBeInTheDocument();
-    expect(screen.getByText("Lead Designer")).toBeInTheDocument();
+    expect(screen.getByTestId("focus-rail")).toBeInTheDocument();
+    expect(screen.getByText(/Jane Dela Cruz/)).toBeInTheDocument();
+    expect(screen.getByText(/Founder/)).toBeInTheDocument();
+    expect(screen.getByText(/Sam Reyes/)).toBeInTheDocument();
+    expect(screen.getByText(/Lead Designer/)).toBeInTheDocument();
   });
 
   it("renders the team intro copy only when provided", () => {
@@ -94,12 +106,60 @@ describe("TeamGrid", () => {
 
     render(<TeamGrid teamMembers={duplicateNames} />);
 
-    expect(screen.getAllByText("Sherwin Limosnero")).toHaveLength(2);
+    expect(screen.getAllByText(/Sherwin Limosnero/)).toHaveLength(2);
     expect(consoleError).not.toHaveBeenCalledWith(
       expect.stringContaining("same key"),
       expect.anything(),
       expect.anything(),
     );
     consoleError.mockRestore();
+  });
+});
+
+describe("mapTeamMembersToFocusRailItems", () => {
+  it("maps name/role/bio and skips placeholder bios", () => {
+    const items = mapTeamMembersToFocusRailItems([
+      {
+        _type: "teamMember",
+        _id: "a",
+        name: "Ada",
+        role: "CEO",
+        bio: "Bio coming soon.",
+        socialLinks: [],
+        order: 1,
+        isPlaceholder: true,
+      },
+      {
+        _type: "teamMember",
+        _id: "b",
+        name: "Sam",
+        role: "CTO",
+        bio: "Builds platforms.",
+        photo: {
+          url: "https://media.kamiyonstudio.com/team/sam.jpg",
+          alt: "Sam",
+        },
+        socialLinks: [{ platform: "x", url: "https://x.com/sam", label: "X" }],
+        order: 2,
+        isPlaceholder: false,
+      },
+    ]);
+
+    expect(items[0]).toMatchObject({
+      id: "a",
+      title: "Ada",
+      meta: "CEO",
+    });
+    expect(items[0]?.description).toBeUndefined();
+    expect(items[0]?.imageSrc).toContain("images.unsplash.com");
+
+    expect(items[1]).toMatchObject({
+      id: "b",
+      title: "Sam",
+      meta: "CTO",
+      description: "Builds platforms.",
+      imageSrc: "https://media.kamiyonstudio.com/team/sam.jpg",
+      href: "https://x.com/sam",
+    });
   });
 });

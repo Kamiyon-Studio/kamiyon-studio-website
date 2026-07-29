@@ -98,6 +98,48 @@ describe("RevealImageListItem", () => {
     });
   });
 
+  describe("per-item hover scoping", () => {
+    it("names the root group so siblings are unaffected", () => {
+      const { container } = render(
+        <RevealImageListItem text="Game Development" images={images} />,
+      );
+
+      expect(container.firstElementChild).toHaveClass("group/reveal");
+      expect(container.firstElementChild).not.toHaveClass("group");
+    });
+
+    it("uses only reveal-scoped group variants", () => {
+      const { container } = render(
+        <RevealImageListItem text="Game Development" images={images} />,
+      );
+
+      const unscoped = Array.from(container.querySelectorAll("*")).flatMap(
+        (node) =>
+          Array.from(node.classList).filter(
+            (token) =>
+              /^group-(hover|focus-within):/.test(token) || token === "group",
+          ),
+      );
+
+      expect(unscoped).toEqual([]);
+    });
+
+    it("reveals images independently for each rendered item", () => {
+      const { container } = render(
+        <>
+          <RevealImageListItem text="First" images={images} />
+          <RevealImageListItem text="Second" images={images} />
+        </>,
+      );
+
+      const roots = container.querySelectorAll(".group\\/reveal");
+      expect(roots).toHaveLength(2);
+      roots.forEach((root) => {
+        expect(root.querySelectorAll("img")).toHaveLength(2);
+      });
+    });
+  });
+
   it("applies extra className to the root element", () => {
     const { container } = render(
       <RevealImageListItem

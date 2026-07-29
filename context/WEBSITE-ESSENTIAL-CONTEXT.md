@@ -183,7 +183,7 @@ Do **not** rely on “redeploy on every content change.”
 | Route | Purpose | Indexing |
 | --- | --- | --- |
 | `/` | Home | index |
-| `/about` | Story, values, team, culture | index |
+| `/about` | Story, timeline, team | index |
 | `/services` · `/services/[slug]` | Five Gate 0 services | index |
 | `/portfolio` · `/portfolio/[slug]` | Portfolio / client work | index |
 | `/blog` · `/blog/[slug]` | Blog | index |
