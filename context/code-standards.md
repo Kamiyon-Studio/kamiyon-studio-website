@@ -198,5 +198,5 @@ Do not modify unless explicitly instructed:
 
 - Vision labels in UI when rendering vision-only content
 - Motto on site: **Create. Play. Inspire.**
-- Contact: interim Google Form CTA + external links; Resend in-app form is T8 — do not half-implement Resend before WS5
+- Contact: interim Google Form chrome CTA + `/contact` Resend form (T8/ADR-018); do not remove `INTERIM_CONTACT_FORM_URL`
 - Product `developmentStatus`: default `tbd` — never hardcode `released` without canon proof

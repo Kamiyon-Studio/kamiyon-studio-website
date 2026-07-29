@@ -33,7 +33,7 @@ export async function POST(
 ): Promise<NextResponse<ApiEnvelope<ContactSuccess>>> {
   const config = getContactEmailConfig();
   if (!config.isConfigured || !config.apiKey) {
-    return jsonEnvelope(503, {
+    return jsonEnvelope<ContactSuccess>(503, {
       success: false,
       data: null,
       error: "Contact form is not configured",
@@ -42,7 +42,7 @@ export async function POST(
 
   const rate = contactRateLimiter.check(clientIp(request));
   if (!rate.allowed) {
-    return jsonEnvelope(
+    return jsonEnvelope<ContactSuccess>(
       429,
       {
         success: false,
@@ -57,7 +57,7 @@ export async function POST(
   try {
     payload = await request.json();
   } catch {
-    return jsonEnvelope(400, {
+    return jsonEnvelope<ContactSuccess>(400, {
       success: false,
       data: null,
       error: "Invalid JSON body",
@@ -65,7 +65,7 @@ export async function POST(
   }
 
   if (!payload || typeof payload !== "object") {
-    return jsonEnvelope(400, {
+    return jsonEnvelope<ContactSuccess>(400, {
       success: false,
       data: null,
       error: "Invalid request body",
@@ -77,7 +77,7 @@ export async function POST(
   );
 
   if (!validated.ok) {
-    return jsonEnvelope(400, {
+    return jsonEnvelope<ContactSuccess>(400, {
       success: false,
       data: null,
       error: validated.error,
@@ -86,7 +86,7 @@ export async function POST(
 
   if (validated.spam) {
     // Silent success — do not tip off bots.
-    return jsonEnvelope(200, {
+    return jsonEnvelope<ContactSuccess>(200, {
       success: true,
       data: { sent: true },
       error: null,
@@ -104,14 +104,14 @@ export async function POST(
   );
 
   if (!result.ok) {
-    return jsonEnvelope(502, {
+    return jsonEnvelope<ContactSuccess>(502, {
       success: false,
       data: null,
       error: result.error,
     });
   }
 
-  return jsonEnvelope(200, {
+  return jsonEnvelope<ContactSuccess>(200, {
     success: true,
     data: { sent: true },
     error: null,

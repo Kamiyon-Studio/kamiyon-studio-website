@@ -23,7 +23,7 @@ CI: [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) on push to
 
 Set per environment as documented in the workflow (e.g. `NEXT_PUBLIC_SITE_URL_STAGING`, `NEXT_PUBLIC_SITE_URL_PRODUCTION`, R2 public base URLs, Sanity project/dataset, CF Web Analytics tokens).
 
-Worker **runtime** secrets (`SANITY_REVALIDATE_SECRET`, `MEDIA_UPLOAD_SECRET`, `SANITY_API_READ_TOKEN`, …) are configured in the Cloudflare dashboard / `wrangler secret put`, not in this repo.
+Worker **runtime** secrets (`SANITY_REVALIDATE_SECRET`, `MEDIA_UPLOAD_SECRET`, `SANITY_API_READ_TOKEN`, `RESEND_API_KEY`, …) are configured in the Cloudflare dashboard / `wrangler secret put`, not in this repo.
 
 ---
 
@@ -36,6 +36,9 @@ Worker **runtime** secrets (`SANITY_REVALIDATE_SECRET`, `MEDIA_UPLOAD_SECRET`, `
 | `NEXT_PUBLIC_R2_PUBLIC_BASE_URL` | optional / staging media | `https://media-staging.kamiyonstudio.com` | `https://media.kamiyonstudio.com` |
 | `MEDIA_UPLOAD_SECRET` | `.env.local` / `.dev.vars` | Worker secret | Worker secret |
 | `SANITY_REVALIDATE_SECRET` | `.env.local` / `.dev.vars` | Worker secret | Worker secret |
+| `RESEND_API_KEY` | `.env.local` (optional) | Worker secret | Worker secret (after domain verify) |
+| `CONTACT_TO_EMAIL` | optional (defaults to public Gmail) | Worker var | Worker var |
+| `CONTACT_FROM_EMAIL` | `Kamiyon Studio <noreply@send.kamiyonstudio.com>` | Worker var | Worker var (after DKIM/SPF) |
 | `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` | optional | staging token | prod token |
 | `CLOUDFLARE_ACCOUNT_ID` | optional local Wrangler | GitHub secret | GitHub secret |
 
