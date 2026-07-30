@@ -26,7 +26,7 @@ const newsEntry: TimelineEntryV2 = {
   date: "2024-03-01",
   title: "Studio founded",
   body: "Kamiyon Studio began in Biñan City with a small team shipping under pressure and learning in public every week.",
-  images: [{ src: "/assets/background.jpg", alt: "Founding" }],
+  images: [{ src: "/assets/background.avif", alt: "Founding" }],
 };
 
 const joinEntry: TimelineEntryV2 = {

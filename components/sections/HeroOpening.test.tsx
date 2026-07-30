@@ -116,7 +116,7 @@ describe("HeroOpening", () => {
     expect(section).toHaveClass("min-h-[100svh]");
     expect(container.querySelector("[data-opening-curtain]")).toBeInTheDocument();
 
-    const stage = container.querySelector('img[src*="background.jpg"]');
+    const stage = container.querySelector('img[src*="background.avif"]');
     expect(stage).toBeInTheDocument();
     expect(stage?.className).not.toMatch(/animate-hero-ken-burns/);
 

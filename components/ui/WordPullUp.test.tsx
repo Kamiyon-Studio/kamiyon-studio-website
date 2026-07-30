@@ -1,22 +1,71 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("@gsap/react", () => ({
-  useGSAP: () => undefined,
-}));
+const { matchMediaAddMock, setMock, fromToMock } = vi.hoisted(() => {
+  const fromToMock = vi.fn(() => ({ play: vi.fn(), kill: vi.fn() }));
+  const setMock = vi.fn();
+  const matchMediaAddMock = vi.fn();
+  return { matchMediaAddMock, setMock, fromToMock };
+});
 
 vi.mock("@/lib/gsap", () => ({
-  gsap: { set: vi.fn(), to: vi.fn(() => ({ play: vi.fn() })) },
-  ScrollTrigger: { create: vi.fn() },
+  gsap: {
+    set: setMock,
+    fromTo: fromToMock,
+    matchMedia: vi.fn(() => ({
+      add: matchMediaAddMock,
+    })),
+  },
+  createScrollTriggerDefaults: vi.fn((opts: unknown) => opts),
+  GSAP_ALLOW_MOTION: "(prefers-reduced-motion: no-preference)",
+  GSAP_REDUCE_MOTION: "(prefers-reduced-motion: reduce)",
+  ensureGsapPlugins: vi.fn(),
 }));
 
-vi.mock("@/lib/motion/reduced-motion", () => ({
-  prefersReducedMotion: () => true,
+vi.mock("@/hooks/useGsapContext", () => ({
+  useGsapContext: (_scope: unknown, createAnimations: () => void) => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- vitest mock
+    const React = require("react") as typeof import("react");
+    React.useLayoutEffect(() => {
+      createAnimations();
+    }, [createAnimations]);
+  },
 }));
+
+import {
+  MOTION_DISTANCE,
+  MOTION_DURATION,
+  MOTION_EASE,
+  MOTION_STAGGER,
+} from "@/lib/motion/constants";
 
 import { WordPullUp } from "./WordPullUp";
 
+function callAllowMotion() {
+  const allowMotion = matchMediaAddMock.mock.calls.find(
+    ([query]) =>
+      typeof query === "string" && query.includes("no-preference"),
+  )?.[1] as (() => void) | undefined;
+  expect(allowMotion).toBeTypeOf("function");
+  allowMotion!();
+}
+
+function callReduceMotion() {
+  const reduceMotion = matchMediaAddMock.mock.calls.find(
+    ([query]) =>
+      typeof query === "string" && query.includes("reduce"),
+  )?.[1] as (() => void) | undefined;
+  expect(reduceMotion).toBeTypeOf("function");
+  reduceMotion!();
+}
+
 describe("WordPullUp", () => {
+  beforeEach(() => {
+    matchMediaAddMock.mockClear();
+    setMock.mockClear();
+    fromToMock.mockClear();
+  });
+
   it("renders each word from the heading string", () => {
     render(
       <WordPullUp
@@ -62,9 +111,8 @@ describe("WordPullUp", () => {
     expect(heading.textContent).toMatch(/Create\s+Play/);
   });
 
-  // `prefersReducedMotion` is mocked to true above, so this asserts the markup
-  // does not branch on it. Branching during render made the server and client
-  // trees disagree and React discarded the whole homepage tree on hydration.
+  // Markup must not branch on motion preference: branching during render made
+  // the server and client trees disagree and React discarded the homepage tree.
   it("renders the same word spans regardless of motion preference", () => {
     const { container } = render(
       <WordPullUp as="h2" words="Recent Projects" startOnView={false} />,
@@ -84,5 +132,114 @@ describe("WordPullUp", () => {
     expect(
       screen.getByRole("heading", { level: 2, name: "Meet the team" }),
     ).toBeInTheDocument();
+  });
+
+  it("registers reduced-motion and allow-motion GSAP handlers", () => {
+    render(<WordPullUp as="h2" words="Recent Projects" />);
+
+    expect(matchMediaAddMock).toHaveBeenCalledWith(
+      "(prefers-reduced-motion: reduce)",
+      expect.any(Function),
+    );
+    expect(matchMediaAddMock).toHaveBeenCalledWith(
+      "(prefers-reduced-motion: no-preference)",
+      expect.any(Function),
+    );
+  });
+
+  it("keeps words visible under reduced-motion", () => {
+    render(<WordPullUp as="h2" words="Recent Projects" />);
+
+    callReduceMotion();
+
+    expect(setMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ autoAlpha: 1, y: 0 }),
+    );
+    expect(fromToMock).not.toHaveBeenCalled();
+  });
+
+  it("stagger pull-up uses MOTION_* and createScrollTriggerDefaults on view", async () => {
+    const { createScrollTriggerDefaults } = await import("@/lib/gsap");
+
+    render(<WordPullUp as="h2" words="Recent Projects" />);
+
+    callAllowMotion();
+
+    expect(fromToMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        autoAlpha: 0,
+        y: MOTION_DISTANCE.staggerY,
+      }),
+      expect.objectContaining({
+        autoAlpha: 1,
+        y: 0,
+        duration: MOTION_DURATION.base,
+        ease: MOTION_EASE.out,
+        stagger: MOTION_STAGGER.base,
+        scrollTrigger: expect.objectContaining({
+          once: true,
+        }),
+      }),
+    );
+
+    expect(createScrollTriggerDefaults).toHaveBeenCalledWith(
+      expect.objectContaining({
+        once: true,
+        trigger: expect.any(HTMLElement),
+      }),
+    );
+
+    // Omit `start` so createScrollTriggerDefaults applies SCROLL_TRIGGER_START.
+    const defaultsCall = vi.mocked(createScrollTriggerDefaults).mock
+      .calls.at(-1)?.[0] as { start?: string } | undefined;
+    expect(defaultsCall?.start).toBeUndefined();
+  });
+
+  it("honors delayMultiple override for stagger", () => {
+    render(
+      <WordPullUp as="h2" words="Recent Projects" delayMultiple={0.2} />,
+    );
+
+    callAllowMotion();
+
+    expect(fromToMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      expect.objectContaining({
+        stagger: 0.2,
+      }),
+    );
+  });
+
+  it("plays immediately without ScrollTrigger when startOnView is false", async () => {
+    const { createScrollTriggerDefaults } = await import("@/lib/gsap");
+    vi.mocked(createScrollTriggerDefaults).mockClear();
+
+    render(
+      <WordPullUp as="h2" words="Recent Projects" startOnView={false} />,
+    );
+
+    callAllowMotion();
+
+    expect(fromToMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        autoAlpha: 0,
+        y: MOTION_DISTANCE.staggerY,
+      }),
+      expect.objectContaining({
+        autoAlpha: 1,
+        y: 0,
+        duration: MOTION_DURATION.base,
+        ease: MOTION_EASE.out,
+        stagger: MOTION_STAGGER.base,
+      }),
+    );
+
+    const tweenVars = fromToMock.mock.calls[0]?.[2] as Record<string, unknown>;
+    expect(tweenVars.scrollTrigger).toBeUndefined();
+    expect(createScrollTriggerDefaults).not.toHaveBeenCalled();
   });
 });

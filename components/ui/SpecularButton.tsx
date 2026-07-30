@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   type CSSProperties,
   type MouseEventHandler,
@@ -336,19 +337,21 @@ export function SpecularButton({
     autoAnimate,
   });
 
-  propsRef.current = {
-    radius,
-    lineColor,
-    baseColor,
-    intensity,
-    shineSize,
-    shineFade,
-    thickness,
-    speed,
-    followMouse,
-    proximity,
-    autoAnimate,
-  };
+  useLayoutEffect(() => {
+    propsRef.current = {
+      radius,
+      lineColor,
+      baseColor,
+      intensity,
+      shineSize,
+      shineFade,
+      thickness,
+      speed,
+      followMouse,
+      proximity,
+      autoAnimate,
+    };
+  });
 
   useSpecularEffect(hostRef, fxRef, propsRef);
 

@@ -111,7 +111,10 @@ const Carousel = React.forwardRef<
         return;
       }
 
-      onSelect(api);
+      // Defer initial sync so setState is not synchronous inside the effect body.
+      queueMicrotask(() => {
+        onSelect(api);
+      });
       api.on("reInit", onSelect);
       api.on("select", onSelect);
 

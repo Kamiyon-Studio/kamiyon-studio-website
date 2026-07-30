@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import "./ServiceCard.css";
 
 /** Shared placeholder until each service has its own CMS hero image. */
-const SERVICE_CARD_PLACEHOLDER = "/assets/background.jpg";
+const SERVICE_CARD_PLACEHOLDER = "/assets/background.avif";
 
 type ServiceCardProps = {
   service: Service;

@@ -111,14 +111,14 @@ describe("Hero stage selection", () => {
     expect(
       container.querySelectorAll("[data-testid^='hero-parallax-plate-']"),
     ).toHaveLength(HERO_PARALLAX_LAYERS.length);
-    expect(container.querySelector('img[src*="background.jpg"]')).toBeNull();
+    expect(container.querySelector('img[src*="background.avif"]')).toBeNull();
   });
 
   it("falls back to the static opening when the media CDN is not configured", () => {
     const { container } = render(<Hero hero={baseHero} partners={samplePartners} />);
 
     expect(container.querySelector("[data-testid='hero-parallax-stage']")).toBeNull();
-    expect(container.querySelector('img[src*="background.jpg"]')).toBeInTheDocument();
+    expect(container.querySelector('img[src*="background.avif"]')).toBeInTheDocument();
   });
 
   it("falls back to the static opening for a host next/image would reject", () => {
@@ -127,7 +127,7 @@ describe("Hero stage selection", () => {
     const { container } = render(<Hero hero={baseHero} partners={samplePartners} />);
 
     expect(container.querySelector("[data-testid='hero-parallax-stage']")).toBeNull();
-    expect(container.querySelector('img[src*="background.jpg"]')).toBeInTheDocument();
+    expect(container.querySelector('img[src*="background.avif"]')).toBeInTheDocument();
   });
 
   it("keeps the wordmark, motto, and partners band in both stages", () => {
@@ -185,7 +185,7 @@ describe("Hero", () => {
     const section = container.querySelector("section");
     expect(section).toHaveClass("relative");
 
-    const background = container.querySelector('img[src*="background.jpg"]');
+    const background = container.querySelector('img[src*="background.avif"]');
     expect(background).toBeInTheDocument();
 
     expect(container.querySelector('[class*="rounded-[var(--radius-card-lg)]"]')).not.toBeInTheDocument();
@@ -207,7 +207,7 @@ describe("Hero", () => {
   it("layers a parallax background wrapper and opening curtain", () => {
     const { container } = render(<Hero hero={baseHero} partners={samplePartners} />);
 
-    const background = container.querySelector('img[src*="background.jpg"]');
+    const background = container.querySelector('img[src*="background.avif"]');
     expect(background).toBeInTheDocument();
     expect(background?.className).not.toMatch(/animate-hero-ken-burns/);
 

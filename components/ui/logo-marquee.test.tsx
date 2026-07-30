@@ -104,16 +104,20 @@ describe("LogoMarquee", () => {
 
   it("accepts custom logo image size classes", () => {
     render(
-      <LogoMarquee
-        logos={logos}
-        logoImageClassName="h-[2.625rem] md:h-12 lg:h-[3.75rem]"
-      />,
+      <LogoMarquee logos={logos} logoImageClassName="h-8 md:h-9" />,
     );
 
     const image = screen.getAllByRole("img", { name: "Acme logo" })[0];
-    expect(image?.className).toMatch(/h-\[2\.625rem\]/);
-    expect(image?.className).toMatch(/md:h-12/);
-    expect(image?.className).toMatch(/lg:h-\[3\.75rem\]/);
+    expect(image?.className).toMatch(/\bh-8\b/);
+    expect(image?.className).toMatch(/\bmd:h-9\b/);
+  });
+
+  it("fades both left and right edges with a horizontal mask", () => {
+    render(<LogoMarquee logos={logos} />);
+
+    const root = screen.getByTestId("logo-marquee");
+    expect(root.className).toMatch(/mask-image:linear-gradient\(to_right/);
+    expect(root.className).toMatch(/-webkit-mask-image:linear-gradient\(to_right/);
   });
 
   it("does not pause the whole track on hover by default", () => {

@@ -28,7 +28,7 @@ export const aboutPageFallback: AboutPage = {
       body: "Sherwin Limosnero and Christian Jude Villaber begin building together through game jams, hackathons, and competitions — learning by shipping under pressure rather than waiting until they felt ready.",
       images: [
         {
-          url: "/assets/background.jpg",
+          url: "/assets/background.avif",
           alt: "Early collaboration and competition work",
         },
       ],
@@ -43,7 +43,7 @@ export const aboutPageFallback: AboutPage = {
       body: "From a school project, the name Kamiyon emerges — kami (“us”) and ’yon (“that”), meaning “that’s us.” The studio takes shape in Biñan City, Laguna, Philippines as a creative technology practice.",
       images: [
         {
-          url: "/assets/background.jpg",
+          url: "/assets/background.avif",
           alt: "Kamiyon Studio founding moment",
         },
       ],
@@ -58,7 +58,7 @@ export const aboutPageFallback: AboutPage = {
       body: "What began as two game developers grows into a studio of designers, developers, artists, and creatives united by a shared belief: world-class interactive experiences can be built in the Philippines.",
       images: [
         {
-          url: "/assets/background.jpg",
+          url: "/assets/background.avif",
           alt: "Kamiyon Studio multidisciplinary team",
         },
       ],
@@ -73,7 +73,7 @@ export const aboutPageFallback: AboutPage = {
       body: "Kamiyon settles into a dual-track model: client services fund the studio while revenue is reinvested into games, educational platforms, and original intellectual property.",
       images: [
         {
-          url: "/assets/background.jpg",
+          url: "/assets/background.avif",
           alt: "Client craft and original IP work",
         },
       ],
@@ -88,7 +88,7 @@ export const aboutPageFallback: AboutPage = {
       body: "Phase 1 priorities move into the open: a recognizable brand, clearer internal systems and documentation, and a growing portfolio across games, products, and interactive experiences.",
       images: [
         {
-          url: "/assets/background.jpg",
+          url: "/assets/background.avif",
           alt: "Kamiyon brand and portfolio foundation",
         },
       ],
@@ -103,7 +103,7 @@ export const aboutPageFallback: AboutPage = {
       body: "Relationships with educational institutions and creator communities deepen, aligning the studio’s work with K–12 learning, Web3 education, and gamified platforms that make learning more engaging.",
       images: [
         {
-          url: "/assets/background.jpg",
+          url: "/assets/background.avif",
           alt: "Educational and community programs",
         },
       ],
@@ -118,7 +118,7 @@ export const aboutPageFallback: AboutPage = {
       body: "Phase 2 focuses on scaling the agency: expanding the client base, tightening development workflows, strengthening the Kamiyon brand, and building recurring revenue alongside community presence.",
       images: [
         {
-          url: "/assets/background.jpg",
+          url: "/assets/background.avif",
           alt: "Studio growth and workflow maturity",
         },
       ],
@@ -133,7 +133,7 @@ export const aboutPageFallback: AboutPage = {
       body: "Investment in original games and long-form IP intensifies — moving the studio closer to a future where Filipino-made worlds, characters, and educational products become the primary growth engine.",
       images: [
         {
-          url: "/assets/background.jpg",
+          url: "/assets/background.avif",
           alt: "Original intellectual property development",
         },
       ],

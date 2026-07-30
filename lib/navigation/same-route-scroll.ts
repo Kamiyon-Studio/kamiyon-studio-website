@@ -1,3 +1,4 @@
+import { refreshScrollTrigger } from "@/lib/gsap";
 import { prefersReducedMotion } from "@/lib/motion/reduced-motion";
 
 export type ParsedAppHref = {
@@ -17,6 +18,30 @@ export type SameRouteClickEvent = {
 };
 
 const PROTOCOL_HREF = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
+
+/** Fallback when `scrollend` is unsupported or never fires. */
+const SCROLL_TRIGGER_SYNC_FALLBACK_MS = 800;
+
+type PendingScrollTriggerSync = {
+  onScrollEnd: () => void;
+  timeoutId: number;
+};
+
+let pendingScrollTriggerSync: PendingScrollTriggerSync | null = null;
+
+function clearPendingScrollTriggerSync(): void {
+  if (!pendingScrollTriggerSync || typeof window === "undefined") {
+    pendingScrollTriggerSync = null;
+    return;
+  }
+
+  window.removeEventListener(
+    "scrollend",
+    pendingScrollTriggerSync.onScrollEnd,
+  );
+  window.clearTimeout(pendingScrollTriggerSync.timeoutId);
+  pendingScrollTriggerSync = null;
+}
 
 export function isExternalHref(href: string): boolean {
   return PROTOCOL_HREF.test(href.trim());
@@ -77,6 +102,54 @@ function scrollBehavior(): ScrollBehavior {
   return prefersReducedMotion() ? "auto" : "smooth";
 }
 
+/**
+ * After programmatic smooth scroll, refresh ScrollTrigger once scroll settles.
+ * Uses `scrollend` with a timeout fallback. No-ops under reduced motion
+ * (instant scroll already; provider scroll updates cover it).
+ * Replaces any in-flight sync so rapid nav clicks do not stack refreshes.
+ */
+export function syncScrollTriggerAfterProgrammaticScroll(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (prefersReducedMotion()) {
+    return;
+  }
+
+  clearPendingScrollTriggerSync();
+
+  let settled = false;
+
+  const settle = () => {
+    if (settled) {
+      return;
+    }
+
+    settled = true;
+    clearPendingScrollTriggerSync();
+    refreshScrollTrigger();
+  };
+
+  const onScrollEnd = () => {
+    settle();
+  };
+
+  const timeoutId = window.setTimeout(
+    settle,
+    SCROLL_TRIGGER_SYNC_FALLBACK_MS,
+  );
+
+  pendingScrollTriggerSync = { onScrollEnd, timeoutId };
+  window.addEventListener("scrollend", onScrollEnd, { once: true });
+}
+
+function afterProgrammaticScroll(behavior: ScrollBehavior): void {
+  if (behavior === "smooth") {
+    syncScrollTriggerAfterProgrammaticScroll();
+  }
+}
+
 export function scrollToNavTarget(target: ParsedAppHref): void {
   const behavior = scrollBehavior();
 
@@ -89,12 +162,14 @@ export function scrollToNavTarget(target: ParsedAppHref): void {
 
     if (element) {
       element.scrollIntoView({ behavior, block: "start" });
+      afterProgrammaticScroll(behavior);
       return;
     }
   }
 
   if (typeof window !== "undefined") {
     window.scrollTo({ top: 0, behavior });
+    afterProgrammaticScroll(behavior);
   }
 }
 

@@ -51,7 +51,7 @@ describe("PartnersMarquee", () => {
     );
   });
 
-  it("renders partner logos as larger desaturated images without links", () => {
+  it("renders partner logos as standard marquee-sized desaturated images without links", () => {
     render(
       <PartnersMarquee
         partners={[
@@ -72,9 +72,8 @@ describe("PartnersMarquee", () => {
     );
     expect(images[0]?.className).toMatch(/grayscale/);
     expect(images[0]?.className).toMatch(/group-hover\/logo:grayscale-0/);
-    expect(images[0]?.className).toMatch(/h-\[2\.625rem\]/);
-    expect(images[0]?.className).toMatch(/md:h-12/);
-    expect(images[0]?.className).toMatch(/lg:h-\[3\.75rem\]/);
+    expect(images[0]?.className).toMatch(/\bh-8\b/);
+    expect(images[0]?.className).toMatch(/\bmd:h-9\b/);
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
     expect(screen.queryByText("Acme")).not.toBeInTheDocument();
   });

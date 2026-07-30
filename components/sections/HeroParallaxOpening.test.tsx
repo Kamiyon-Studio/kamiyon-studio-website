@@ -218,6 +218,6 @@ describe("HeroParallaxOpening", () => {
   it("does not render the static hero background", () => {
     const { container } = renderHero();
 
-    expect(container.querySelector('img[src*="background.jpg"]')).toBeNull();
+    expect(container.querySelector('img[src*="background.avif"]')).toBeNull();
   });
 });

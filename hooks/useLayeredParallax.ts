@@ -8,6 +8,7 @@ import {
   GSAP_ALLOW_MOTION,
   GSAP_REDUCE_MOTION,
 } from "@/lib/gsap";
+import { SCROLL_SCRUB_SMOOTH } from "@/lib/motion/constants";
 import type { MotionElementRef } from "@/lib/motion/types";
 
 import { useGsapContext } from "./useGsapContext";
@@ -83,7 +84,7 @@ export function useLayeredParallax<T extends HTMLElement = HTMLElement>(
             trigger: root,
             start: "0% 0%",
             end: "100% 0%",
-            scrub: 0,
+            scrub: SCROLL_SCRUB_SMOOTH,
           }),
         });
 

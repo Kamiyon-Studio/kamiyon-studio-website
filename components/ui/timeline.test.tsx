@@ -72,7 +72,7 @@ const entries: TimelineEntryV2[] = [
     date: "2024-03-01",
     title: "Studio founded",
     body: "Kamiyon Studio began in Biñan.",
-    images: [{ src: "/assets/background.jpg", alt: "Studio founding" }],
+    images: [{ src: "/assets/background.avif", alt: "Studio founding" }],
   },
   {
     key: "next",
@@ -90,7 +90,7 @@ const entries: TimelineEntryV2[] = [
     dateLabel: "Late 2025",
     title: "Same year milestone",
     body: "Another beat in 2025.",
-    images: [{ src: "/assets/background.jpg", alt: "Milestone" }],
+    images: [{ src: "/assets/background.avif", alt: "Milestone" }],
   },
 ];
 
@@ -136,7 +136,7 @@ describe("Timeline", () => {
     expect(dated).toHaveTextContent("March 2024");
 
     expect(screen.getAllByText("Late 2025").length).toBeGreaterThan(0);
-    expect(screen.getByAltText("Studio founding")).toHaveAttribute("src", "/assets/background.jpg");
+    expect(screen.getByAltText("Studio founding")).toHaveAttribute("src", "/assets/background.avif");
   });
 
   it("derives card side from array order and lists unique years on the rail", () => {
@@ -188,6 +188,52 @@ describe("Timeline", () => {
     expect(matchMediaAddMock).toHaveBeenCalledWith(
       "(prefers-reduced-motion: no-preference)",
       expect.any(Function),
+    );
+  });
+
+  it("scrubs the progress line with SCROLL_SCRUB_UI under allow-motion", async () => {
+    const { createScrollTriggerDefaults } = await import("@/lib/gsap");
+    const { SCROLL_SCRUB_UI } = await import("@/lib/motion/constants");
+
+    render(
+      <Timeline heading="Our journey" summary="" entries={entries} />,
+    );
+
+    const allowMotion = matchMediaAddMock.mock.calls.find(
+      ([query]) =>
+        typeof query === "string" && query.includes("no-preference"),
+    )?.[1] as (() => void) | undefined;
+    expect(allowMotion).toBeTypeOf("function");
+    allowMotion!();
+
+    expect(createScrollTriggerDefaults).toHaveBeenCalledWith(
+      expect.objectContaining({
+        scrub: SCROLL_SCRUB_UI,
+        start: "top center",
+        end: "bottom center",
+      }),
+    );
+  });
+
+  it("fills the progress line immediately under reduced-motion", async () => {
+    const { GSAP_REDUCE_MOTION } = await import("@/lib/gsap");
+
+    render(
+      <Timeline heading="Our journey" summary="" entries={entries} />,
+    );
+
+    const reduceMotion = matchMediaAddMock.mock.calls.find(
+      ([query]) => query === GSAP_REDUCE_MOTION,
+    )?.[1] as (() => void) | undefined;
+    expect(reduceMotion).toBeTypeOf("function");
+    reduceMotion!();
+
+    expect(setMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        scaleY: 1,
+        transformOrigin: "top center",
+      }),
     );
   });
 

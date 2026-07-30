@@ -8,7 +8,7 @@ import { useOpeningAnimation } from "@/hooks/useOpeningAnimation";
 import { useParallax } from "@/hooks/useParallax";
 import { cn } from "@/lib/utils";
 
-const HERO_BACKGROUND = "/assets/background.jpg";
+const HERO_BACKGROUND = "/assets/background.avif";
 
 export type PageOpeningHeroProps = {
   id: string;

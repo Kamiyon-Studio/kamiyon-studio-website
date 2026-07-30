@@ -4,7 +4,7 @@ import { getCmsImageUrl, isAllowedNextImageSrc } from "./image";
 
 describe("isAllowedNextImageSrc", () => {
   it("allows local public paths", () => {
-    expect(isAllowedNextImageSrc("/assets/background.jpg")).toBe(true);
+    expect(isAllowedNextImageSrc("/assets/background.avif")).toBe(true);
   });
 
   it("allows Kamiyon media CDN hosts", () => {

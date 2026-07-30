@@ -661,7 +661,7 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 
 **Status:** Accepted
 
-**Context:** The combined home opening (ADR-023) used one static plate (`/assets/background.jpg`) with a single-layer `useParallax` drift. Operator supplied four hand-painted depth plates (sunset range → lit ridge + lake → pagoda hillside → foreground rocks) and asked for a multi-plate parallax, with the plates hosted on R2 rather than committed to the repo, and the existing hero kept as the fallback.
+**Context:** The combined home opening (ADR-023) used one static plate (`/assets/background.avif`) with a single-layer `useParallax` drift. Operator supplied four hand-painted depth plates (sunset range → lit ridge + lake → pagoda hillside → foreground rocks) and asked for a multi-plate parallax, with the plates hosted on R2 rather than committed to the repo, and the existing hero kept as the fallback.
 
 **Decision:**
 

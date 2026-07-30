@@ -37,7 +37,11 @@ export type ScrollTriggerDefaultsOptions = {
 
 /**
  * Shared ScrollTrigger defaults for enter-viewport reveals.
- * Do not force `once` or `toggleActions` when using scrub/parallax — pass overrides.
+ *
+ * Scrub is opt-in only — pass `scrub` (e.g. `SCROLL_SCRUB_SMOOTH` /
+ * `SCROLL_SCRUB_UI` from `@/lib/motion/constants`) for scroll-linked motion.
+ * Enter-once reveals stay scrub-free with `toggleActions: "play none none none"`.
+ * When `scrub` is set, `toggleActions` is omitted (scrub and toggleActions conflict).
  * Pin is opt-in only (mobile-friendly default: no pin).
  */
 export function createScrollTriggerDefaults(

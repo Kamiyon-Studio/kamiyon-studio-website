@@ -1,11 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { prefersReducedMotionMock } = vi.hoisted(() => ({
-  prefersReducedMotionMock: vi.fn(() => false),
-}));
+const { prefersReducedMotionMock, refreshScrollTriggerMock } = vi.hoisted(
+  () => ({
+    prefersReducedMotionMock: vi.fn(() => false),
+    refreshScrollTriggerMock: vi.fn(),
+  }),
+);
 
 vi.mock("@/lib/motion/reduced-motion", () => ({
   prefersReducedMotion: () => prefersReducedMotionMock(),
+}));
+
+vi.mock("@/lib/gsap", () => ({
+  refreshScrollTrigger: () => refreshScrollTriggerMock(),
 }));
 
 import {
@@ -16,14 +23,21 @@ import {
   normalizePathname,
   parseAppHref,
   scrollToNavTarget,
+  syncScrollTriggerAfterProgrammaticScroll,
 } from "./same-route-scroll";
 
 describe("same-route-scroll helpers", () => {
   beforeEach(() => {
     prefersReducedMotionMock.mockReturnValue(false);
+    refreshScrollTriggerMock.mockClear();
   });
 
   afterEach(() => {
+    // Flush any pending ST sync scheduled by a prior assertion so listeners
+    // do not leak into the next test.
+    window.dispatchEvent(new Event("scrollend"));
+    refreshScrollTriggerMock.mockClear();
+    vi.useRealTimers();
     vi.unstubAllGlobals();
     document.body.innerHTML = "";
   });
@@ -105,6 +119,54 @@ describe("same-route-scroll helpers", () => {
     });
   });
 
+  describe("syncScrollTriggerAfterProgrammaticScroll", () => {
+    it("refreshes ScrollTrigger on scrollend when motion is allowed", () => {
+      syncScrollTriggerAfterProgrammaticScroll();
+
+      expect(refreshScrollTriggerMock).not.toHaveBeenCalled();
+
+      window.dispatchEvent(new Event("scrollend"));
+
+      expect(refreshScrollTriggerMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("falls back to a timeout refresh when scrollend does not fire", () => {
+      vi.useFakeTimers();
+
+      syncScrollTriggerAfterProgrammaticScroll();
+
+      expect(refreshScrollTriggerMock).not.toHaveBeenCalled();
+
+      vi.advanceTimersByTime(800);
+
+      expect(refreshScrollTriggerMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("refreshes only once when both scrollend and fallback fire", () => {
+      vi.useFakeTimers();
+
+      syncScrollTriggerAfterProgrammaticScroll();
+      window.dispatchEvent(new Event("scrollend"));
+
+      expect(refreshScrollTriggerMock).toHaveBeenCalledTimes(1);
+
+      vi.advanceTimersByTime(800);
+
+      expect(refreshScrollTriggerMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("skips sync under reduced motion", () => {
+      prefersReducedMotionMock.mockReturnValue(true);
+      vi.useFakeTimers();
+
+      syncScrollTriggerAfterProgrammaticScroll();
+      window.dispatchEvent(new Event("scrollend"));
+      vi.advanceTimersByTime(800);
+
+      expect(refreshScrollTriggerMock).not.toHaveBeenCalled();
+    });
+  });
+
   describe("scrollToNavTarget", () => {
     it("smooth-scrolls to top when no hash is provided", () => {
       const scrollTo = vi.fn();
@@ -115,6 +177,16 @@ describe("same-route-scroll helpers", () => {
       expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "smooth" });
     });
 
+    it("schedules ScrollTrigger sync after smooth top scroll", () => {
+      const scrollTo = vi.fn();
+      vi.stubGlobal("scrollTo", scrollTo);
+
+      scrollToNavTarget({ pathname: "/about", hash: "" });
+      window.dispatchEvent(new Event("scrollend"));
+
+      expect(refreshScrollTriggerMock).toHaveBeenCalledTimes(1);
+    });
+
     it("uses instant scroll when prefers-reduced-motion is set", () => {
       prefersReducedMotionMock.mockReturnValue(true);
       const scrollTo = vi.fn();
@@ -123,6 +195,19 @@ describe("same-route-scroll helpers", () => {
       scrollToNavTarget({ pathname: "/", hash: "" });
 
       expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "auto" });
+    });
+
+    it("does not schedule ScrollTrigger sync under reduced motion", () => {
+      prefersReducedMotionMock.mockReturnValue(true);
+      const scrollTo = vi.fn();
+      vi.stubGlobal("scrollTo", scrollTo);
+      vi.useFakeTimers();
+
+      scrollToNavTarget({ pathname: "/", hash: "" });
+      window.dispatchEvent(new Event("scrollend"));
+      vi.advanceTimersByTime(800);
+
+      expect(refreshScrollTriggerMock).not.toHaveBeenCalled();
     });
 
     it("smooth-scrolls to a hash target when present", () => {
@@ -138,6 +223,18 @@ describe("same-route-scroll helpers", () => {
         behavior: "smooth",
         block: "start",
       });
+    });
+
+    it("schedules ScrollTrigger sync after smooth hash scroll", () => {
+      const target = document.createElement("section");
+      target.id = "team";
+      target.scrollIntoView = vi.fn();
+      document.body.appendChild(target);
+
+      scrollToNavTarget({ pathname: "/about", hash: "#team" });
+      window.dispatchEvent(new Event("scrollend"));
+
+      expect(refreshScrollTriggerMock).toHaveBeenCalledTimes(1);
     });
 
     it("falls back to top when hash target is missing", () => {

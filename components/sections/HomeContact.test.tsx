@@ -73,7 +73,7 @@ describe("HomeContact", () => {
     const { container } = render(<HomeContact {...defaultProps} />);
 
     const img = container.querySelector("img");
-    expect(img?.getAttribute("src")).toContain("background.jpg");
+    expect(img?.getAttribute("src")).toContain("background.avif");
     expect(img?.getAttribute("alt")).toBe("");
   });
 

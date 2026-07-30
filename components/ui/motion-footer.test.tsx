@@ -1,3 +1,4 @@
+import { createElement } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -12,9 +13,47 @@ vi.mock("@/lib/motion/reduced-motion", () => ({
   prefersReducedMotion: vi.fn(() => false),
 }));
 
+vi.mock("@/components/ui/social-platform-icons", () => ({
+  SOCIAL_PLATFORM_LABELS: {
+    facebook: "Facebook",
+    linkedin: "LinkedIn",
+    itch: "itch.io",
+    youtube: "YouTube",
+    x: "X",
+    email: "Email",
+    instagram: "Instagram",
+    tiktok: "TikTok",
+    github: "GitHub",
+  },
+  SocialPlatformIcon: ({
+    platform,
+  }: {
+    platform: string;
+    size?: number;
+  }) => createElement("span", { "data-platform": platform }, platform),
+}));
+
+const { createAllowMotionMatchMedia } = vi.hoisted(() => {
+  function createAllowMotionMatchMedia() {
+    return {
+      add: vi.fn(
+        (query: string, callback: () => void | (() => void)) => {
+          if (query.includes("no-preference")) {
+            return callback();
+          }
+          return undefined;
+        },
+      ),
+      revert: vi.fn(),
+    };
+  }
+  return { createAllowMotionMatchMedia };
+});
+
 vi.mock("@/lib/gsap", () => {
   return {
     ensureGsapPlugins: vi.fn(),
+    refreshScrollTrigger: vi.fn(),
     GSAP_ALLOW_MOTION: "(prefers-reduced-motion: no-preference)",
     GSAP_REDUCE_MOTION: "(prefers-reduced-motion: reduce)",
     gsap: {
@@ -29,20 +68,7 @@ vi.mock("@/lib/gsap", () => {
       fromTo: vi.fn(),
       to: vi.fn(),
       set: vi.fn(),
-      matchMedia: vi.fn(() => ({
-        add: vi.fn(
-          (
-            query: string,
-            callback: () => void | (() => void),
-          ) => {
-            if (query.includes("no-preference")) {
-              return callback();
-            }
-            return undefined;
-          },
-        ),
-        revert: vi.fn(),
-      })),
+      matchMedia: vi.fn(() => createAllowMotionMatchMedia()),
     },
     ScrollTrigger: {
       create: vi.fn(),
@@ -58,9 +84,15 @@ import { prefersReducedMotion } from "@/lib/motion/reduced-motion";
 
 import { CinematicFooter } from "./motion-footer";
 
-beforeEach(() => {
+beforeEach(async () => {
   vi.mocked(prefersReducedMotion).mockReturnValue(false);
   vi.mocked(usePathname).mockReturnValue("/");
+  const { gsap } = await import("@/lib/gsap");
+  vi.mocked(gsap.fromTo).mockClear();
+  vi.mocked(gsap.set).mockClear();
+  vi.mocked(gsap.matchMedia).mockImplementation(() =>
+    createAllowMotionMatchMedia(),
+  );
 });
 
 describe("CinematicFooter", () => {
@@ -312,6 +344,72 @@ describe("CinematicFooter", () => {
     await user.click(screen.getByRole("button", { name: "Back to top" }));
 
     expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "auto" });
+  });
+
+  it("scrubs footer scroll motion with SCROLL_SCRUB_SMOOTH", async () => {
+    const { gsap } = await import("@/lib/gsap");
+    const { SCROLL_SCRUB_SMOOTH } = await import("@/lib/motion/constants");
+
+    render(
+      <CinematicFooter
+        siteName={testShellProps.siteName}
+        footerMotto={testShellProps.footerMotto}
+        navItems={testShellProps.navItems}
+        socialLinks={testShellProps.socialLinks}
+        contactCta={testShellProps.contactCta}
+      />,
+    );
+
+    const scrubbedFromTos = vi
+      .mocked(gsap.fromTo)
+      .mock.calls.filter(([, , vars]) => {
+        const scrollTrigger = (
+          vars as { scrollTrigger?: { scrub?: number } } | undefined
+        )?.scrollTrigger;
+        return scrollTrigger?.scrub === SCROLL_SCRUB_SMOOTH;
+      });
+
+    expect(scrubbedFromTos.length).toBe(2);
+  });
+
+  it("sets final footer transforms under reduced-motion without scrub", async () => {
+    const { gsap, GSAP_REDUCE_MOTION } = await import("@/lib/gsap");
+    const addSpy = vi.fn(() => undefined);
+    vi.mocked(gsap.matchMedia).mockImplementation(() => ({
+      add: addSpy,
+      revert: vi.fn(),
+    }));
+
+    render(
+      <CinematicFooter
+        siteName={testShellProps.siteName}
+        footerMotto={testShellProps.footerMotto}
+        navItems={testShellProps.navItems}
+        socialLinks={testShellProps.socialLinks}
+        contactCta={testShellProps.contactCta}
+      />,
+    );
+
+    const reduceCallbacks = addSpy.mock.calls
+      .filter(([query]) => query === GSAP_REDUCE_MOTION)
+      .map(([, callback]) => callback as () => void);
+    expect(reduceCallbacks.length).toBeGreaterThan(0);
+
+    vi.mocked(gsap.fromTo).mockClear();
+    vi.mocked(gsap.set).mockClear();
+    for (const callback of reduceCallbacks) {
+      callback();
+    }
+
+    expect(gsap.fromTo).not.toHaveBeenCalled();
+    expect(gsap.set).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        y: 0,
+        scale: 1,
+        opacity: 1,
+      }),
+    );
   });
 
   it("exposes a Connect landmark for social links", () => {

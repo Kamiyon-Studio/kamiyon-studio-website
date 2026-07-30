@@ -1,12 +1,25 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { matchMediaAddMock, setMock, timelineToMock } = vi.hoisted(() => {
+import { SCROLL_SCRUB_SMOOTH } from "@/lib/motion/constants";
+
+const {
+  createScrollTriggerDefaultsMock,
+  matchMediaAddMock,
+  setMock,
+  timelineToMock,
+} = vi.hoisted(() => {
+  const createScrollTriggerDefaultsMock = vi.fn((opts: unknown) => opts);
   const timelineToMock = vi.fn().mockReturnThis();
   const setMock = vi.fn();
   const matchMediaAddMock = vi.fn();
 
-  return { matchMediaAddMock, setMock, timelineToMock };
+  return {
+    createScrollTriggerDefaultsMock,
+    matchMediaAddMock,
+    setMock,
+    timelineToMock,
+  };
 });
 
 vi.mock("@/lib/gsap", () => ({
@@ -17,7 +30,7 @@ vi.mock("@/lib/gsap", () => ({
       add: matchMediaAddMock,
     })),
   },
-  createScrollTriggerDefaults: vi.fn((opts: unknown) => opts),
+  createScrollTriggerDefaults: createScrollTriggerDefaultsMock,
   GSAP_ALLOW_MOTION: "(prefers-reduced-motion: no-preference)",
   GSAP_REDUCE_MOTION: "(prefers-reduced-motion: reduce)",
   ensureGsapPlugins: vi.fn(),
@@ -36,13 +49,62 @@ vi.mock("@/hooks/useGsapContext", () => ({
   },
 }));
 
+vi.mock("lucide-react", () => ({
+  Sparkles: (props: Record<string, unknown>) => (
+    <svg data-testid="sparkles-icon" {...props} />
+  ),
+}));
+
 import { ParallaxScrolling } from "./parallax-scrolling";
+
+function invokeFinePointerCallback() {
+  const fineCall = matchMediaAddMock.mock.calls.find(
+    ([query]) =>
+      typeof query === "string" &&
+      query.includes("pointer: fine") &&
+      query.includes("prefers-reduced-motion: no-preference"),
+  );
+  expect(fineCall).toBeDefined();
+  const callback = fineCall?.[1] as (() => void) | undefined;
+  expect(callback).toEqual(expect.any(Function));
+  callback?.();
+}
 
 describe("ParallaxScrolling", () => {
   beforeEach(() => {
+    createScrollTriggerDefaultsMock.mockClear();
     matchMediaAddMock.mockClear();
     setMock.mockClear();
     timelineToMock.mockClear();
+  });
+
+  it("registers reduced-motion and fine-pointer matchMedia gates", () => {
+    render(<ParallaxScrolling />);
+
+    const queries = matchMediaAddMock.mock.calls.map(([query]) => query);
+    expect(queries).toContain("(prefers-reduced-motion: reduce)");
+    expect(queries).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("pointer: fine"),
+        expect.stringContaining("prefers-reduced-motion: no-preference"),
+      ]),
+    );
+  });
+
+  it("uses SCROLL_SCRUB_SMOOTH for scrubbed layer timeline", () => {
+    render(<ParallaxScrolling />);
+    invokeFinePointerCallback();
+
+    expect(createScrollTriggerDefaultsMock).toHaveBeenCalledWith(
+      expect.objectContaining({ scrub: SCROLL_SCRUB_SMOOTH }),
+    );
+    expect(SCROLL_SCRUB_SMOOTH).toBe(0.65);
+
+    const scrubArg = createScrollTriggerDefaultsMock.mock.calls[0]?.[0] as {
+      scrub?: boolean | number;
+    };
+    expect(scrubArg.scrub).not.toBe(0);
+    expect(scrubArg.scrub).not.toBe(true);
   });
 
   it("renders the default title as presentational text (not a heading)", () => {

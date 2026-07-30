@@ -64,13 +64,13 @@ function LogoCell({
         <Image
           src={logoUrl}
           alt={logo.alt}
-          width={150}
-          height={60}
+          width={120}
+          height={36}
           className={cn(
-            "w-auto max-w-[7.5rem] object-contain opacity-70 grayscale transition-[filter,opacity] duration-300",
+            "w-auto max-w-[6rem] object-contain opacity-70 grayscale transition-[filter,opacity] duration-300",
             "group-hover/logo:opacity-100 group-hover/logo:grayscale-0",
             "group-focus-within/logo:opacity-100 group-focus-within/logo:grayscale-0",
-            logoImageClassName ?? "h-[2.625rem] md:h-12 lg:h-[3.75rem]",
+            logoImageClassName ?? "h-8 md:h-9",
           )}
         />
       ) : (
@@ -78,6 +78,7 @@ function LogoCell({
           {logo.label}
         </span>
       )}
+
     </div>
   );
 }
@@ -118,11 +119,18 @@ export function LogoMarquee({
     return null;
   }
 
+  const edgeFadeClassName =
+    "[mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)]";
+
   if (prefersReducedMotion) {
     return (
       <div
         data-testid="logo-marquee"
-        className={cn("flex flex-wrap items-center justify-center", className)}
+        className={cn(
+          "flex flex-wrap items-center justify-center",
+          edgeFadeClassName,
+          className,
+        )}
       >
         <LogoRow logos={logos} logoImageClassName={logoImageClassName} />
       </div>
@@ -139,6 +147,7 @@ export function LogoMarquee({
       data-testid="logo-marquee"
       className={cn(
         "overflow-hidden",
+        edgeFadeClassName,
         pauseOnHover && "group/track",
         className,
       )}

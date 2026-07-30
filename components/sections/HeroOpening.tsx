@@ -16,7 +16,7 @@ type HeroOpeningProps = {
   partners: PartnerPlaceholder[];
 };
 
-const HERO_BACKGROUND = "/assets/background.jpg";
+const HERO_BACKGROUND = "/assets/background.avif";
 
 /**
  * Full-bleed opening stage: brand + motto upper, partners marquee band lower.

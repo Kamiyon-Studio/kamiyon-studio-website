@@ -5,7 +5,7 @@ import { useCallback } from "react";
 import { ScrollMarker } from "@/components/ui/ScrollMarker";
 import { useSectionSpy } from "@/hooks/useSectionSpy";
 import { HOME_SECTION_NAV } from "@/lib/home/section-nav";
-import { prefersReducedMotion } from "@/lib/motion/reduced-motion";
+import { scrollToNavTarget } from "@/lib/navigation/same-route-scroll";
 
 const SECTION_IDS = HOME_SECTION_NAV.map((item) => item.id);
 const SECTION_ITEMS = HOME_SECTION_NAV.map((item) => ({ label: item.label }));
@@ -17,13 +17,7 @@ export function HomeScrollMarker() {
     const targetId = HOME_SECTION_NAV[index]?.id;
     if (!targetId) return;
 
-    const target = document.getElementById(targetId);
-    if (!target) return;
-
-    target.scrollIntoView({
-      behavior: prefersReducedMotion() ? "auto" : "smooth",
-      block: "start",
-    });
+    scrollToNavTarget({ pathname: null, hash: `#${targetId}` });
   }, []);
 
   return (
