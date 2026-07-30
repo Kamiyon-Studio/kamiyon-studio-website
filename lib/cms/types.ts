@@ -342,6 +342,22 @@ export type Partner = {
   isPlaceholder: boolean;
 };
 
+/** award — home recognition laurels */
+
+export type Award = {
+  _type: "award";
+  /** Grid key: document `_id`, else a title-derived slug. */
+  id: string;
+  title: string;
+  /** Recognition tier eyebrow, e.g. "Winner". */
+  label?: string;
+  /** Awarding festival, publication, or institution. */
+  organization?: string;
+  year?: string;
+  order: number;
+  isPlaceholder: boolean;
+};
+
 /** Spec 05 — communityItem */
 
 export type CommunityItemType =

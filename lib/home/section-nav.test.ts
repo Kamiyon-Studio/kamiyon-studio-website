@@ -8,6 +8,7 @@ describe("HOME_SECTION_NAV", () => {
       "home-hero",
       "home-partners",
       "home-projects",
+      "home-recognition",
       "home-services",
       "home-contact",
     ]);
@@ -21,6 +22,7 @@ describe("HOME_SECTION_NAV", () => {
       "Hero",
       "Trusted by",
       "Projects",
+      "Recognition",
       "Services",
       "Contact",
     ]);

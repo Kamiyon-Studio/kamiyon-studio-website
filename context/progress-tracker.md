@@ -20,7 +20,7 @@ When a task/phase is marked complete:
 ### About team FocusRail carousel (2026-07-30)
 
 **ADR:** ADR-028  
-**Status:** Done — `/about#team` uses `FocusRail` (`components/ui/focus-rail.tsx`) instead of `InteractiveSelector`. CMS `teamMember` → rail items (name/role/bio/photo; Unsplash atmosphere placeholders when no photo).
+**Status:** Done — `/about#team` uses minimized `FocusRail` + click-to-open card modal; About section titles (story / timeline / team) use WordPullUp display headings.
 
 ### About page — drop Vision / Values / Culture (2026-07-30)
 

@@ -300,6 +300,19 @@ export const partnersQuery = defineQuery(/* groq */ `
   }
 `);
 
+export const awardsQuery = defineQuery(/* groq */ `
+  *[_type == "award"] | order(order asc) {
+    _id,
+    _type,
+    title,
+    label,
+    organization,
+    year,
+    order,
+    isPlaceholder
+  }
+`);
+
 export const postsQuery = defineQuery(/* groq */ `
   *[_type == "post" && defined(publishedAt) && publishedAt <= now()] | order(publishedAt desc) {
     _type,

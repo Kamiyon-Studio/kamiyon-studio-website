@@ -1,7 +1,19 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { OurStory } from "./OurStory";
+
+vi.mock("@/components/ui/WordPullUp", () => ({
+  WordPullUp: ({
+    words,
+    as: Tag = "h1",
+    id,
+  }: {
+    words: string;
+    as?: "h1" | "h2" | "h3";
+    id?: string;
+  }) => <Tag id={id}>{words}</Tag>,
+}));
 
 describe("OurStory", () => {
   it("renders the editorial heading and story sections in a responsive grid", () => {

@@ -19,9 +19,14 @@ import {
 } from "@/lib/gsap";
 import { cn } from "@/lib/utils";
 
+import { WordPullUp } from "./WordPullUp";
 import { TimelineAside } from "./timeline-aside";
 import { TimelineEntryCard } from "./timeline-entry-card";
 import "./timeline.css";
+
+/** Ivory fill for WordPullUp on charcoal timeline band. */
+const IVORY_DISPLAY_HEADING =
+  "text-[var(--color-ivory)] [background:none] [filter:none] [-webkit-text-fill-color:var(--color-ivory)] [&_.word-pull-up-word]:[background:none] [&_.word-pull-up-word]:[filter:none] [&_.word-pull-up-word]:[-webkit-text-fill-color:var(--color-ivory)]";
 
 /** @deprecated Prefer `TimelineEntryV2` from `@/lib/timeline`. Soft landing re-export. */
 export type TimelineEntry = TimelineEntryV2;
@@ -137,12 +142,12 @@ export function Timeline({
     >
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <header className="mx-auto max-w-3xl text-center">
-          <h2
+          <WordPullUp
+            as="h2"
             id={`${id}-heading`}
-            className="font-display text-[clamp(1.75rem,4vw,2.75rem)] font-bold tracking-tight"
-          >
-            {heading}
-          </h2>
+            words={heading}
+            className={cn(IVORY_DISPLAY_HEADING, "text-center")}
+          />
           {summary ? (
             <p className="mt-4 text-base leading-relaxed text-[var(--color-ivory)]/70 md:text-lg">
               {summary}

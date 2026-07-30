@@ -115,7 +115,7 @@ export default async function AboutPage() {
         entries={timelineEntries}
       />
       <AnimatedSection as="div" distance={28}>
-        <TeamGrid teamIntro={aboutPage.teamIntro} teamMembers={teamMembers} />
+        <TeamGrid teamMembers={teamMembers} />
       </AnimatedSection>
     </>
   );

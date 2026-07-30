@@ -8,6 +8,7 @@ export const HOME_SECTION_NAV: readonly HomeSectionNavItem[] = [
   { id: "home-hero", label: "Hero" },
   { id: "home-partners", label: "Trusted by" },
   { id: "home-projects", label: "Projects" },
+  { id: "home-recognition", label: "Recognition" },
   { id: "home-services", label: "Services" },
   { id: "home-contact", label: "Contact" },
 ] as const;

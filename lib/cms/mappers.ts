@@ -9,6 +9,7 @@ import {
 } from "./taxonomies";
 import type {
   AboutPage,
+  Award,
   BlogBodyBlock,
   StoryTimelineEntry,
   BlogCategory,
@@ -621,6 +622,35 @@ export function mapPartnerToMarqueeItem(partner: Partner): {
       typeof partner.logo?.alt === "string" && partner.logo.alt.trim()
         ? partner.logo.alt
         : partner.label,
+  };
+}
+
+/** Maps an award doc; drops entries without a title (nothing to display). */
+export function mapAward(doc: unknown): Award | null {
+  const row = asRecord(doc);
+  if (!row) {
+    return null;
+  }
+
+  const title = asString(row.title).trim();
+  if (!title) {
+    return null;
+  }
+
+  const documentId = typeof row._id === "string" ? row._id.trim() : "";
+  const label = asString(row.label).trim();
+  const organization = asString(row.organization).trim();
+  const year = asString(row.year).trim();
+
+  return {
+    _type: "award",
+    id: documentId || rosterIdFromName(title),
+    title,
+    ...(label ? { label } : {}),
+    ...(organization ? { organization } : {}),
+    ...(year ? { year } : {}),
+    order: asNumber(row.order),
+    isPlaceholder: asBoolean(row.isPlaceholder),
   };
 }
 

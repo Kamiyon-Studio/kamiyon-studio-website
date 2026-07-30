@@ -12,6 +12,7 @@ export const SANITY_DOCUMENT_TYPES = [
   "caseStudy",
   "communityItem",
   "partner",
+  "award",
   "mediaAsset",
   "author",
   "category",

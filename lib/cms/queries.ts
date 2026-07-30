@@ -1,6 +1,7 @@
 import { safeSanityFetch } from "./fetch";
 import {
   aboutPageQuery,
+  awardsQuery,
   communityItemsQuery,
   contactPageQuery,
   homePageQuery,
@@ -18,6 +19,7 @@ import {
 } from "./groq";
 import {
   mapAboutPage,
+  mapAward,
   mapCollection,
   mapCommunityItem,
   mapContactPage,
@@ -34,6 +36,7 @@ import {
 import { isServiceCategoryValue } from "./taxonomies";
 import type {
   AboutPage,
+  Award,
   CommunityItem,
   ContactPage,
   HomePage,
@@ -137,6 +140,13 @@ export async function getPartners(): Promise<Partner[] | null> {
   return mapCollection(
     await safeSanityFetch(partnersQuery, {}, { tags: ["sanity", "partner"] }),
     mapPartner,
+  );
+}
+
+export async function getAwards(): Promise<Award[] | null> {
+  return mapCollection(
+    await safeSanityFetch(awardsQuery, {}, { tags: ["sanity", "award"] }),
+    mapAward,
   );
 }
 

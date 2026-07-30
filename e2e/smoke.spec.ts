@@ -78,6 +78,7 @@ test("About page renders cinematic hero, story, timeline, and team", async ({
   await expect(
     page.getByRole("heading", { level: 2, name: /meet the team/i }),
   ).toBeVisible();
+  await expect(page.getByTestId("focus-rail-modal")).toHaveCount(0);
 });
 
 test("About page layout holds at mobile width", async ({ page }) => {

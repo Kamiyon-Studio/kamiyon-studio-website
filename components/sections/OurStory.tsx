@@ -1,9 +1,14 @@
 import { Container } from "@/components/ui/Container";
+import { WordPullUp } from "@/components/ui/WordPullUp";
 import type { StorySection } from "@/lib/cms/types";
 
 type OurStoryProps = {
   storySections: StorySection[];
 };
+
+/** Ivory fill for WordPullUp on charcoal bands (matches HomeContact). */
+const IVORY_DISPLAY_HEADING =
+  "text-[var(--color-ivory)] [background:none] [filter:none] [-webkit-text-fill-color:var(--color-ivory)] [&_.word-pull-up-word]:[background:none] [&_.word-pull-up-word]:[filter:none] [&_.word-pull-up-word]:[-webkit-text-fill-color:var(--color-ivory)]";
 
 export function OurStory({ storySections }: OurStoryProps) {
   if (storySections.length === 0) {
@@ -17,12 +22,12 @@ export function OurStory({ storySections }: OurStoryProps) {
       aria-labelledby="our-story-heading"
     >
       <Container className="max-w-6xl">
-        <h2
+        <WordPullUp
+          as="h2"
           id="our-story-heading"
-          className="font-display text-[clamp(2rem,5vw,3.5rem)] font-bold tracking-tight text-[var(--color-ivory)]"
-        >
-          OUR STORY
-        </h2>
+          words="OUR STORY"
+          className={IVORY_DISPLAY_HEADING}
+        />
 
         <div className="mt-10 grid grid-cols-1 gap-10 md:mt-14 md:grid-cols-2 md:gap-16">
           {storySections.map((section) => (

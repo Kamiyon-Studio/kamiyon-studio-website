@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   mapAboutPage,
+  mapAward,
   mapCaseStudy,
   mapCollection,
   mapHomePage,
@@ -551,6 +552,57 @@ describe("mapPartner", () => {
         websiteUrl: "https://example.com",
       }),
     ).not.toHaveProperty("websiteUrl");
+  });
+});
+
+describe("mapAward", () => {
+  it("returns null without a title", () => {
+    expect(mapAward({ _id: "award-1", label: "Winner", order: 1 })).toBeNull();
+    expect(mapAward({ _id: "award-1", title: "   ", order: 1 })).toBeNull();
+    expect(mapAward(null)).toBeNull();
+  });
+
+  it("maps the full award shape", () => {
+    expect(
+      mapAward({
+        _id: "award-slot-1",
+        title: "Gameplay Design Award",
+        label: "Winner",
+        organization: "Montreal Independent Games Festival",
+        year: "2026",
+        order: 2,
+        isPlaceholder: false,
+      }),
+    ).toEqual({
+      _type: "award",
+      id: "award-slot-1",
+      title: "Gameplay Design Award",
+      label: "Winner",
+      organization: "Montreal Independent Games Festival",
+      year: "2026",
+      order: 2,
+      isPlaceholder: false,
+    });
+  });
+
+  it("omits blank optional fields rather than emitting empty strings", () => {
+    const award = mapAward({
+      _id: "award-slot-2",
+      title: "Award slot",
+      label: "  ",
+      organization: "",
+    });
+
+    expect(award).not.toHaveProperty("label");
+    expect(award).not.toHaveProperty("organization");
+    expect(award).not.toHaveProperty("year");
+    expect(award).toMatchObject({ order: 0, isPlaceholder: false });
+  });
+
+  it("derives a stable id from the title when _id is missing", () => {
+    expect(mapAward({ title: "Best Student Game 2026" })).toMatchObject({
+      id: "best-student-game-2026",
+    });
   });
 });
 

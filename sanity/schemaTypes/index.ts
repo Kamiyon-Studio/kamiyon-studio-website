@@ -1,6 +1,7 @@
 import { type SchemaTypeDefinition } from "sanity";
 
 import { aboutPage } from "./documents/aboutPage";
+import { award } from "./documents/award";
 import { author, category, post, tag } from "./documents/blog";
 import { caseStudy } from "./documents/caseStudy";
 import { communityItem } from "./documents/communityItem";
@@ -61,6 +62,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     service,
     portfolio,
     partner,
+    award,
     post,
     // Archived (readOnly — keep registered, never delete documents)
     serviceCategory,

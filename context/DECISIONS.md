@@ -644,14 +644,16 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 
 **Decision:**
 - Add `components/ui/focus-rail.tsx` (Motion `motion/react`, lucide chevrons, optional Explore `Link`).
+- Rail chrome is **minimized** (title + role only). Description / Explore live in a **click-to-open card modal**.
 - `TeamGrid` maps `TeamMember[]` → `FocusRailItem[]` (title=name, meta=role, description=useful bio, image=CMS photo or Unsplash atmosphere placeholder — not fake portraits).
-- Keep `#team` anchor, “Meet the team” heading, and `teamIntro` copy; rail is full-bleed under the intro.
+- Keep `#team` anchor; no team intro body copy on the page. Rail is full-bleed under the single-line WordPullUp heading.
+- About important section titles (Our Story, Timeline, Meet the team) use **WordPullUp** / `DISPLAY_HEADING_CLASS` (same as Home “Recent Projects”).
 - Dependencies already in-repo: `next`, `lucide-react`, `motion` (import from `motion/react`, not `framer-motion`).
 
 **Consequences:**
 - Team section is a dark theatrical band inside the light About page — intentional contrast.
 - `InteractiveSelector` / `expand-on-hover` remain in the codebase for other use but are no longer the About team surface.
-- Explore CTA appears only when a member has a social URL.
+- Explore CTA appears only in the modal when a member has a social URL.
 
 ---
 

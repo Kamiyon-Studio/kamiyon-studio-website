@@ -3,11 +3,11 @@ import {
   FocusRail,
   type FocusRailItem,
 } from "@/components/ui/focus-rail";
+import { WordPullUp } from "@/components/ui/WordPullUp";
 import { getCmsImageUrl } from "@/lib/cms/image";
 import type { TeamMember } from "@/lib/cms/types";
 
 type TeamGridProps = {
-  teamIntro?: string;
   teamMembers: TeamMember[];
 };
 
@@ -51,22 +51,22 @@ export function mapTeamMembersToFocusRailItems(
   });
 }
 
-export function TeamGrid({ teamIntro, teamMembers }: TeamGridProps) {
+export function TeamGrid({ teamMembers }: TeamGridProps) {
   const items = mapTeamMembersToFocusRailItems(teamMembers);
 
   return (
-    <section id="team" className="bg-[var(--bg-secondary)] py-16 md:py-24">
+    <section
+      id="team"
+      className="bg-[var(--bg-secondary)] py-16 md:py-24"
+      aria-labelledby="team-heading"
+    >
       <Container>
-        <div className="mx-auto max-w-[680px] text-center">
-          <h2 className="font-display text-2xl font-bold text-[var(--text-primary)] md:text-3xl">
-            Meet the team
-          </h2>
-          {teamIntro ? (
-            <p className="mt-4 text-base text-[var(--text-secondary)] md:text-lg">
-              {teamIntro}
-            </p>
-          ) : null}
-        </div>
+        <WordPullUp
+          as="h2"
+          id="team-heading"
+          words="Meet the team"
+          className="whitespace-nowrap"
+        />
       </Container>
 
       {items.length > 0 ? (

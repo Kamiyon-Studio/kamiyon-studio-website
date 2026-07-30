@@ -27,6 +27,24 @@ vi.mock("@/components/ui/focus-rail", () => ({
   ),
 }));
 
+vi.mock("@/components/ui/WordPullUp", () => ({
+  WordPullUp: ({
+    words,
+    as: Tag = "h1",
+    id,
+    className,
+  }: {
+    words: string;
+    as?: "h1" | "h2" | "h3";
+    id?: string;
+    className?: string;
+  }) => (
+    <Tag id={id} className={className}>
+      {words}
+    </Tag>
+  ),
+}));
+
 const members: TeamMember[] = [
   {
     _type: "teamMember",
@@ -65,12 +83,17 @@ describe("TeamGrid", () => {
     expect(screen.getByText(/Lead Designer/)).toBeInTheDocument();
   });
 
-  it("renders the team intro copy only when provided", () => {
-    const { rerender } = render(<TeamGrid teamMembers={members} />);
-    expect(screen.queryByText("A word from the team")).not.toBeInTheDocument();
+  it("renders Meet the team as a single-line display heading without intro copy", () => {
+    render(<TeamGrid teamMembers={members} />);
 
-    rerender(<TeamGrid teamMembers={members} teamIntro="A word from the team" />);
-    expect(screen.getByText("A word from the team")).toBeInTheDocument();
+    const heading = screen.getByRole("heading", {
+      level: 2,
+      name: "Meet the team",
+    });
+    expect(heading).toHaveClass("whitespace-nowrap");
+    expect(
+      screen.queryByText(/six multidisciplinary members/i),
+    ).not.toBeInTheDocument();
   });
 
   it("sets the #team anchor id for in-page navigation", () => {

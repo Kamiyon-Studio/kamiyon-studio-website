@@ -10,6 +10,18 @@ vi.mock("next/image", () => ({
   },
 }));
 
+vi.mock("@/components/ui/WordPullUp", () => ({
+  WordPullUp: ({
+    words,
+    as: Tag = "h1",
+    id,
+  }: {
+    words: string;
+    as?: "h1" | "h2" | "h3";
+    id?: string;
+  }) => createElement(Tag, { id }, words),
+}));
+
 vi.mock("embla-carousel-react", () => ({
   default: () => [vi.fn(), null],
 }));

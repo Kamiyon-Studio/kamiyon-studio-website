@@ -1,4 +1,5 @@
 export { aboutPageFallback, teamMembersFallback } from "./about";
+export { awardsFallback } from "./awards";
 export { caseStudiesFallback, portfolioItemsFallback } from "./portfolio";
 export { communityItemsFallback } from "./community";
 export { contactPageFallback } from "./contact";

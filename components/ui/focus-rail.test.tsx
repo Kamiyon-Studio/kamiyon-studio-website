@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { FocusRail, type FocusRailItem } from "./focus-rail";
 
@@ -31,12 +31,15 @@ const ITEMS: FocusRailItem[] = [
 ];
 
 describe("FocusRail", () => {
-  it("renders the active item title and counter", () => {
+  it("renders a minimized active label without description", () => {
     render(<FocusRail items={ITEMS} />);
 
     expect(screen.getByTestId("focus-rail")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Neon Tokyo" })).toBeInTheDocument();
+    expect(screen.getByText("Neon Tokyo")).toBeInTheDocument();
+    expect(screen.getByText("Urban")).toBeInTheDocument();
     expect(screen.getByText("1 / 3")).toBeInTheDocument();
+    expect(screen.queryByText("Vibrant nightlife.")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("focus-rail-modal")).not.toBeInTheDocument();
   });
 
   it("advances to the next item when Next is clicked", async () => {
@@ -46,20 +49,40 @@ describe("FocusRail", () => {
     await user.click(screen.getByRole("button", { name: "Next" }));
 
     expect(screen.getByText("2 / 3")).toBeInTheDocument();
-    expect(
-      await screen.findByRole("heading", { name: "Nordic Silence" }),
-    ).toBeInTheDocument();
+    expect(await screen.findByText("Nordic Silence")).toBeInTheDocument();
   });
 
-  it("shows Explore only when the active item has href", async () => {
+  it("opens a details modal with description when the label is clicked", async () => {
     const user = userEvent.setup();
     render(<FocusRail items={ITEMS} />);
 
-    expect(screen.queryByRole("link", { name: /explore/i })).not.toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: /open details for neon tokyo/i }),
+    );
+
+    const modal = await screen.findByTestId("focus-rail-modal");
+    expect(modal).toBeInTheDocument();
+    expect(
+      within(modal).getByRole("heading", { name: "Neon Tokyo" }),
+    ).toBeInTheDocument();
+    expect(within(modal).getByText("Vibrant nightlife.")).toBeInTheDocument();
+
+    const card = within(modal).getByTestId("focus-rail-modal-card");
+    expect(card.className).toMatch(/max-h-\[min\(90dvh/);
+    expect(card.className).toMatch(/overflow-hidden/);
+  });
+
+  it("shows Explore inside the modal when the active item has href", async () => {
+    const user = userEvent.setup();
+    render(<FocusRail items={ITEMS} />);
 
     await user.click(screen.getByRole("button", { name: "Next" }));
+    await user.click(
+      screen.getByRole("button", { name: /open details for nordic silence/i }),
+    );
 
-    expect(screen.getByRole("link", { name: /explore/i })).toHaveAttribute(
+    const modal = await screen.findByTestId("focus-rail-modal");
+    expect(within(modal).getByRole("link", { name: /explore/i })).toHaveAttribute(
       "href",
       "#nordic",
     );
@@ -78,8 +101,6 @@ describe("FocusRail", () => {
     await user.click(screen.getByRole("button", { name: "Next" }));
 
     expect(screen.getByText("1 / 3")).toBeInTheDocument();
-    expect(
-      await screen.findByRole("heading", { name: "Neon Tokyo" }),
-    ).toBeInTheDocument();
+    expect(await screen.findByText("Neon Tokyo")).toBeInTheDocument();
   });
 });

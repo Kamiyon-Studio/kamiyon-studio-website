@@ -82,12 +82,13 @@ function WordPullUp({
 
   return (
     <Tag ref={containerRef as never} id={id} className={classNames}>
-      {words.split(" ").map((word, i) => (
+      {words.split(" ").map((word, i, arr) => (
         <span
           key={`${word}-${i}`}
           className="word-pull-up-word inline-block pr-[0.35em]"
         >
           {word === "" ? "\u00a0" : word}
+          {i < arr.length - 1 ? "\u00a0" : null}
         </span>
       ))}
     </Tag>

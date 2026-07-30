@@ -14,7 +14,13 @@ const SINGLETON_TITLES: Record<(typeof SANITY_SINGLETON_TYPES)[number], string> 
 };
 
 /** Active collection types at the root of the desk (services use a fixed list). */
-const COLLECTION_TYPES = ["teamMember", "portfolio", "partner", "post"] as const;
+const COLLECTION_TYPES = [
+  "teamMember",
+  "portfolio",
+  "partner",
+  "award",
+  "post",
+] as const;
 
 const hiddenTypeIds = new Set<string>([
   ...SANITY_SINGLETON_TYPES,

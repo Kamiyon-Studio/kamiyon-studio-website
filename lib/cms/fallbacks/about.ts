@@ -168,8 +168,7 @@ export const aboutPageFallback: AboutPage = {
   ],
   cultureSummary:
     "Kamiyon encourages exploration over specialization. Learning, collaboration, curiosity, and continuous improvement are fundamental to how the team works.",
-  teamIntro:
-    "Kamiyon Studio currently consists of six multidisciplinary members.",
+  teamIntro: undefined,
   seo: {
     title: "About Kamiyon Studio",
     description:
