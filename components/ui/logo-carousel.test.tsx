@@ -22,7 +22,7 @@ vi.mock("embla-carousel-react", () => {
 });
 
 describe("AnimatedCarousel", () => {
-  it("renders provided logos in grayscale that restore color on hover", () => {
+  it("renders provided logos in their original color", () => {
     render(
       <AnimatedCarousel
         title="Powering the Web"
@@ -38,8 +38,8 @@ describe("AnimatedCarousel", () => {
 
     expect(screen.getByText("Powering the Web")).toBeInTheDocument();
     const image = screen.getByRole("img", { name: "Acme" });
-    expect(image.className).toMatch(/grayscale/);
-    expect(image.className).toMatch(/group-hover:grayscale-0/);
+    expect(image.className).not.toMatch(/grayscale/);
+    expect(image.className).toMatch(/opacity-100/);
   });
 
   it("falls back to label text when a logo URL is missing", () => {

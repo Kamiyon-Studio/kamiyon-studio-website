@@ -9,7 +9,9 @@ import {
 } from "./taxonomies";
 import type {
   AboutPage,
+  Award,
   BlogBodyBlock,
+  StoryTimelineEntry,
   BlogCategory,
   BlogTag,
   CommunityItem,
@@ -240,6 +242,110 @@ export function mapHomePage(doc: unknown): HomePage | null {
   };
 }
 
+function rosterIdFromName(name: string): string {
+  const slug = name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return slug || "member";
+}
+
+function mapTimelineRosterMember(
+  value: unknown,
+): StoryTimelineEntry["teamMember"] | undefined {
+  const row = asRecord(value);
+  if (!row) {
+    return undefined;
+  }
+
+  const name = asString(row.name).trim();
+  if (!name) {
+    return undefined;
+  }
+
+  const id =
+    typeof row._id === "string" && row._id.trim()
+      ? row._id.trim()
+      : rosterIdFromName(name);
+  const role = asString(row.role).trim();
+  const photo = mapR2AssetToCmsImage(row.photo as R2AssetRef | null | undefined);
+
+  return {
+    id,
+    name,
+    role,
+    ...(photo ? { photo } : {}),
+  };
+}
+
+function mapStoryTimelineEntry(
+  value: unknown,
+  index: number,
+): StoryTimelineEntry | null {
+  const item = asRecord(value);
+  if (!item) {
+    return null;
+  }
+
+  const year = asString(item.year).trim();
+  const dateLabel = asString(item.dateLabel).trim();
+  const title = asString(item.title).trim();
+  const body = asString(item.body).trim();
+
+  if (!year || !dateLabel || !title || !body) {
+    return null;
+  }
+
+  const rawType = asString(item.entryType).trim();
+  const entryType: StoryTimelineEntry["entryType"] =
+    rawType === "teamJoin" ? "teamJoin" : "news";
+
+  const imagesFromArray = Array.isArray(item.images)
+    ? item.images
+        .map((asset) => mapR2AssetToCmsImage(asset as R2AssetRef | null | undefined))
+        .filter((image): image is NonNullable<typeof image> => image !== undefined)
+    : [];
+
+  const legacyImage = mapR2AssetToCmsImage(item.image as R2AssetRef | null | undefined);
+  const images =
+    imagesFromArray.length > 0
+      ? imagesFromArray
+      : legacyImage
+        ? [legacyImage]
+        : [];
+
+  if (images.length === 0) {
+    return null;
+  }
+
+  let teamMember: StoryTimelineEntry["teamMember"] | undefined;
+  if (entryType === "teamJoin") {
+    teamMember = mapTimelineRosterMember(item.teamMember);
+    if (!teamMember) {
+      return null;
+    }
+  }
+
+  const key =
+    typeof item._key === "string" && item._key.trim()
+      ? item._key
+      : `timeline-${index}`;
+  const date = typeof item.date === "string" && item.date.trim() ? item.date.trim() : undefined;
+
+  return {
+    key,
+    entryType,
+    year,
+    dateLabel,
+    ...(date ? { date } : {}),
+    title,
+    body,
+    images,
+    ...(teamMember ? { teamMember } : {}),
+  };
+}
+
 export function mapAboutPage(doc: unknown): AboutPage | null {
   const row = asRecord(doc);
   if (!row || typeof row.title !== "string" || typeof row.mission !== "string") {
@@ -256,6 +362,11 @@ export function mapAboutPage(doc: unknown): AboutPage | null {
         body: asString(item.body),
       };
     }),
+    timelineHeading: asString(row.timelineHeading),
+    timelineSummary: asString(row.timelineSummary),
+    timelineEntries: (Array.isArray(row.timelineEntries) ? row.timelineEntries : [])
+      .map((entry, index) => mapStoryTimelineEntry(entry, index))
+      .filter((entry): entry is StoryTimelineEntry => entry !== null),
     mission: row.mission,
     vision: asString(row.vision),
     motto: asString(row.motto),
@@ -311,6 +422,7 @@ export function mapTeamMember(doc: unknown): TeamMember | null {
 
   return {
     _type: "teamMember",
+    _id: typeof row._id === "string" ? row._id : undefined,
     name: row.name,
     role: asString(row.role),
     bio: asString(row.bio),
@@ -510,6 +622,35 @@ export function mapPartnerToMarqueeItem(partner: Partner): {
       typeof partner.logo?.alt === "string" && partner.logo.alt.trim()
         ? partner.logo.alt
         : partner.label,
+  };
+}
+
+/** Maps an award doc; drops entries without a title (nothing to display). */
+export function mapAward(doc: unknown): Award | null {
+  const row = asRecord(doc);
+  if (!row) {
+    return null;
+  }
+
+  const title = asString(row.title).trim();
+  if (!title) {
+    return null;
+  }
+
+  const documentId = typeof row._id === "string" ? row._id.trim() : "";
+  const label = asString(row.label).trim();
+  const organization = asString(row.organization).trim();
+  const year = asString(row.year).trim();
+
+  return {
+    _type: "award",
+    id: documentId || rosterIdFromName(title),
+    title,
+    ...(label ? { label } : {}),
+    ...(organization ? { organization } : {}),
+    ...(year ? { year } : {}),
+    order: asNumber(row.order),
+    isPlaceholder: asBoolean(row.isPlaceholder),
   };
 }
 

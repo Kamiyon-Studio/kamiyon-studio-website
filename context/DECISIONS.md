@@ -459,3 +459,201 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 
 ---
 
+## ADR-022 — Phase E closeout: OpenNext Workers + R2 + kinetic nav (2026-07-30)
+
+**Status:** Accepted (code + staging/prod Workers live; apex DNS cutover still operator)
+
+**Context:** Phase E (T4/T5/T6/T14) + Track G kinetic nav needed a single closeout record spanning OpenNext staging/prod, R2 media/cache, webhooks, analytics, and the site-wide header swap. Prior ADRs cover pieces: ADR-007/009 (hosted Studio), ADR-008 (kinetic nav), ADR-012 (Web Analytics beacon).
+
+**Decision:**
+
+- **Hosting:** `@opennextjs/cloudflare` on Workers Free — workers `kamiyon-studio-website-staging` / `kamiyon-studio-website`; branch map `staging`→staging, `main`→prod (CI: `.github/workflows/deploy.yml`).
+- **R2:** Media buckets `kamiyon-media-{staging,prod}` + incremental cache `kamiyon-next-cache-{staging,prod}`; public CDN `media-staging` / `media.kamiyonstudio.com`. Upload via `POST /api/media/upload` (Bearer `MEDIA_UPLOAD_SECRET`) + Studio `r2Asset` input.
+- **Revalidate:** `POST /api/revalidate` + `lib/cms/revalidate-tags.ts`; staging Sanity webhook live; production webhook waits for apex cutover.
+- **Analytics:** Manual CF Web Analytics beacon (ADR-012); inert until build-time token set.
+- **Chrome:** Kinetic overlay nav site-wide via `SiteHeader` → `SterlingGateKineticNavigation` (ADR-008); Kamiyon tokens only.
+- **Env:** Prefer `APP_ENV` over `VERCEL_ENV`; `NEXT_PUBLIC_SITE_URL` / public vars inlined at **build** time.
+
+**Consequences:**
+
+- Tickets T4/T5/T6/T14 marked done in essential context (ops gaps called out below).
+- **Remaining operator (WS4b):** attach `kamiyonstudio.com` + `www` to prod Worker; create prod revalidate webhook; bake Studio `SANITY_STUDIO_API_ORIGIN` for apex; set analytics build tokens; pause Vercel after 24–48 h green. See [`dns-cutover-guide.md`](./dns-cutover-guide.md) + [`deploy-runbook.md`](./deploy-runbook.md).
+- Archive: [`completed/2026-07-30-phase-e-cloudflare-opennext.md`](./completed/2026-07-30-phase-e-cloudflare-opennext.md).
+
+---
+
+## ADR-023 — Combined home hero + partners opening stage (2026-07-30)
+
+**Status:** Accepted (WS-A–D landed; WS-E docs)
+
+**Context:** Homepage previously stacked a full-bleed hero then a separate light partners marquee section. Design intent is one opening composition: brand + motto above, partners logos as a lower band on the same dark full-bleed stage. CMS partners content unchanged.
+
+**Decision:**
+
+- Home opening is one full-bleed stage via `<Hero partners={…} />` — brand + motto upper; `PartnersMarquee layout="band" tone="onDark"` lower.
+- `#home-partners` retained for scroll spy; `data-nav-theme="dark"` through the opening (not light).
+- Standalone light partners section removed from `page.tsx`.
+- Soft bottom scrim for logo legibility; no blend to `--bg-secondary`.
+- Motto kept; no “Trusted by” eyebrow in the band; section-nav label still “Trusted by”.
+- `PartnersMarquee` API: `layout?: "section" | "band"`; `tone?: "onLight" | "onDark"`.
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| Partners share dark hero imagery instead of a light section | One first-viewport composition; `tone="onDark"` keeps logos readable |
+| No in-band “Trusted by” eyebrow | Band stays quiet under brand/motto; label remains on section nav only |
+| Dark nav theme through opening | Matches full-bleed stage; avoids premature light chrome over dark media |
+
+**Consequences:**
+
+- Home layout line in `ui-context.md` updated (combined opening → projects → …).
+- CMS / partner document shape unchanged.
+
+---
+
+## ADR-024 — About values hover-expand strip replaces TiltedCard grid (2026-07-30)
+
+**Status:** Accepted (WS-A + WS-B landed; WS-E verify PASS — vitest 9/9; TiltedCard retained for other consumers; Wave 4 founder visual sign-off pending)
+
+**Context:** About `ValuesGrid` rendered CMS `CoreValue` items as a responsive `TiltedCard` marketing-card grid (✦ icon + name + description always visible). Operator wants a Skiper-style hover-expand image strip instead. The team section already uses `components/ui/expand-on-hover.tsx` (`HoverExpand`) for portraits, so values must not overwrite that primitive.
+
+**Decision:**
+
+- New client primitive `components/ui/values-expand-on-hover.tsx` (`ValuesHoverExpand`) — separate file from team `expand-on-hover.tsx`; do **not** overwrite or generalize the team strip.
+- `ValuesGrid` becomes a thin mapper: CMS `CoreValue[]` → strip items; keep `#values` anchor and “What we value” heading.
+- CMS `CoreValue` **name** + **description** remain on the **active** overlay only (collapsed columns show imagery, not full copy).
+- Fixed Unsplash images per value (code constant / index map) — **no** CMS image field on `CoreValue`.
+- Allow Unsplash host via `next.config` `images.remotePatterns` (WS-A ownership) so `next/image` can load fixed URLs.
+- Use `motion/react` only (already in repo); **no** swiper / framer-motion installs.
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| Separate values primitive vs shared expand-on-hover | Team strip is portrait/social-specific; values need image + name/description overlay without coupling APIs |
+| Fixed Unsplash URLs, not CMS images | Avoid schema/migration; values copy stays editorial CMS; visuals are design-locked |
+| Name/description only on active overlay | Matches Skiper expand pattern; reduces clutter vs always-visible card copy |
+
+**Consequences:**
+
+- New UI primitive under `components/ui/`; team `HoverExpand` / `TeamGrid` unchanged by this feature.
+- `ValuesGrid` presentation-only change; CMS `CoreValue` type and About page fetch unchanged.
+- `TiltedCard` **retained** — still consumed by FeaturedWork, Highlights, and marketing cards (WS-C skipped).
+- About layout row in `ui-context.md` documents hover-expand values strip.
+- Plan: `.claude/plans/values-expand-on-hover.plan.md` · tracker WS-A–E.
+- Wave 3 closeout (2026-07-30): WS-A/B Done; WS-E vitest 9/9 PASS; founder visual ack still open.
+
+---
+
+## ADR-025 — About timeline entry types + cumulative roster aside (2026-07-30)
+
+**Status:** Accepted (WS-A–G local PASS — vitest full suite green; founder visual sign-off pending)
+
+**Context:** About `/about#timeline` used a single monolith (`components/ui/timeline.tsx`) with news-only milestones, a singular required image, and a static year rail with no active state or roster. Operator wants a Sabotage-Studio *layout language* (alternating cards, centre spine, bordered frames, sticky right panel with year rail + live roster) adapted to Kamiyon brand tokens — not a clone.
+
+**Decision:**
+
+- Frozen UI contract in `lib/timeline/**` (`TimelineEntryV2`, `buildCumulativeRoster`, `buildYearRail`) — framework-free so CMS, cards, and aside can share it without cycles.
+- Two entry types: `news` | `teamJoin`. `teamJoin` **must** reference a Sanity `teamMember`; roster cells use that member’s photo + name (initials when photo missing).
+- Cumulative roster is **reversible** by default (scroll-up removes later joins); `TeamGrid` remains the canonical always-complete team list. Roster starts empty.
+- CMS: `images: r2Asset[]` (min 1); legacy singular `image` kept hidden/read-only with a mapper read path during migration. Embla only when `images.length > 1`.
+- Motion split: GSAP keeps the spine `scaleY` scrub; year spy + roster use `IntersectionObserver` only. Aside pins with CSS `position: sticky` (never `fixed`).
+- `prefers-reduced-motion: reduce` reveals the full roster and first year active with no scroll gating.
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| Kamiyon tokens over Sabotage grayscale/crown overlays | Brand first; reference is IA/layout only |
+| Reversible roster vs monotonic “history” | Panel reads as “the studio as of this point”; monotonic is a hook flag if needed later |
+| Legacy `image` read path kept temporarily | Published docs stay valid mid-migration; hygiene removal deferred |
+| Compact year chips below `xl`; roster omitted on small screens | Avoids cramming three zones; `TeamGrid` already carries the full team |
+
+**Consequences:**
+
+- New: `lib/timeline/**`, `timeline-entry-card` / `timeline-entry-media` / `timeline-aside`, `useTimelineScrollSpy`, `useCumulativeRoster`.
+- `Timeline` becomes an orchestrator; `StoryTimeline` + About `toTimelineEntries` consume `TimelineEntryV2`.
+- Sanity `storyTimelineEntry` gains `entryType`, `teamMember`, `images[]`; seed emits the new shape.
+- Plan: `.claude/plans/about-timeline-sabotage-style.plan.md` · tracker WS-A–G.
+
+---
+
+## ADR-026 — Home partners continuous logo marquee (2026-07-30)
+
+**Status:** Accepted (WS-A–D landed; local vitest green)
+
+**Context:** Homepage partners band (`PartnersMarquee` under the combined hero opening, ADR-023) used Embla `AnimatedCarousel` with small full-color logos and stepped autoplay. Canon and operator intent call for a continuous horizontal strip, larger logos, and grayscale idle → full color on hover.
+
+**Decision:**
+
+- New client primitive `components/ui/logo-marquee.tsx` — CSS infinite horizontal marquee (`--animate-marquee-horizontal` / `@keyframes marquee-horizontal` translating `-50%` over a duplicated track).
+- `PartnersMarquee` swaps Embla for `LogoMarquee`; section API (`layout`, `tone`, eyebrow, `#home-partners`) unchanged.
+- Logo treatment: larger heights (later tuned to ~¾ of the first enlarge), `grayscale` + muted opacity at rest, full color/opacity on per-logo `group-hover/logo` / `group-focus-within/logo`.
+- `prefers-reduced-motion: reduce` → static single row, no clone.
+- CMS / `PARTNER_PLACEHOLDERS` / partner document shape unchanged. `logo-carousel.tsx` retained (not deleted in this ADR).
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| CSS marquee vs Embla loop | Continuous motion matches “marquee” product language; avoids snap/basis layout fighting logo sizes |
+| Grayscale idle (canon §2) | Trust strip stays quiet under brand; color on hover rewards attention |
+| Keep `AnimatedCarousel` | Out of scope hygiene; partners no longer consumes it |
+
+**Consequences:**
+
+- Home partners line in `ui-context.md` notes continuous marquee + desaturate hover.
+- Plan: `.claude/plans/home-partners-continuous-marquee.plan.md` · tracker WS-A–D.
+
+---
+
+## ADR-027 — About page drops Vision / Values / Culture sections (2026-07-30)
+
+**Status:** Accepted
+
+**Context:** `/about` stacked VisionBand → ValuesGrid (“What we value”) → TeamGrid → CultureClosing (“Our culture”) after the timeline. Operator wants a tighter About story: hero → story → timeline → team only.
+
+**Decision:**
+
+- Remove `VisionBand`, `ValuesGrid`, and `CultureClosing` from `app/(frontend)/about/page.tsx`.
+- Archive section sources + the values-only `values-expand-on-hover` primitive under `archive/about-vision-values-culture/` (not deleted).
+- Keep Sanity `vision` / `values` / `cultureSummary` fields, GROQ, mappers, fallbacks, and seed so CMS content remains recoverable.
+- Update e2e About smoke to assert `#team` without `#values`.
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| Archive code vs delete | Easy restore; history preserved |
+| Leave CMS fields unused | Avoid schema/content migration churn; Studio can still edit dormant copy |
+
+**Consequences:**
+
+- About layout line in `ui-context.md` updated.
+- ADR-024 remains historical for the archived values strip.
+- Archive README: `archive/about-vision-values-culture/README.md`.
+
+---
+
+## ADR-028 — About team FocusRail replaces InteractiveSelector (2026-07-30)
+
+**Status:** Accepted
+
+**Context:** `/about#team` used an accordion-style `InteractiveSelector` portrait strip. Operator wants a 3D focus-rail carousel (drag / wheel / keyboard / prev-next) for browsing members.
+
+**Decision:**
+- Add `components/ui/focus-rail.tsx` (Motion `motion/react`, lucide chevrons, optional Explore `Link`).
+- Rail chrome is **minimized** (title + role only). Description / Explore live in a **click-to-open card modal**.
+- `TeamGrid` maps `TeamMember[]` → `FocusRailItem[]` (title=name, meta=role, description=useful bio, image=CMS photo or Unsplash atmosphere placeholder — not fake portraits).
+- Keep `#team` anchor; no team intro body copy on the page. Rail is full-bleed under the single-line WordPullUp heading.
+- About important section titles (Our Story, Timeline, Meet the team) use **WordPullUp** / `DISPLAY_HEADING_CLASS` (same as Home “Recent Projects”).
+- Dependencies already in-repo: `next`, `lucide-react`, `motion` (import from `motion/react`, not `framer-motion`).
+
+**Consequences:**
+- Team section is a dark theatrical band inside the light About page — intentional contrast.
+- `InteractiveSelector` / `expand-on-hover` remain in the codebase for other use but are no longer the About team surface.
+- Explore CTA appears only in the modal when a member has a social URL.
+
+---
+

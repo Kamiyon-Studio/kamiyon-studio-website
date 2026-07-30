@@ -24,6 +24,7 @@ const TYPE_TAGS: Record<string, readonly string[]> = {
   caseStudy: ["portfolio"],
   communityItem: ["communityItem"],
   partner: ["partner"],
+  award: ["award"],
   post: ["post"],
   author: ["post"],
   category: ["post"],

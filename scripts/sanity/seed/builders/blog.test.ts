@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
+import { postsFallback } from "@/lib/cms/fallbacks/posts";
 import { teamMemberId } from "../ids";
-import { BLOG_SEED_IDS, BLOG_SEED_PUBLISHED_AT } from "../seed-data.blog";
+import { BLOG_SEED_IDS } from "../seed-data.blog";
 import type { SanityReference } from "../types";
 import {
   buildBlogPostDocument,
@@ -23,21 +24,24 @@ function refsOf(field: unknown): SanityReference[] {
 }
 
 describe("blog seed builders (teamMember authors + string taxonomies)", () => {
-  it("builds post with teamMember author refs and string categories/tags", () => {
-    const post = buildBlogPostDocument();
+  it("builds each fallback post with teamMember author and string taxonomies", () => {
+    const comingSoon =
+      postsFallback.find((post) => post.slug.current === "coming-soon") ??
+      postsFallback[0]!;
+    const post = buildBlogPostDocument(comingSoon);
     const authorId = teamMemberId("Sherwin Limosnero");
 
     expect(post._id).toBe(BLOG_SEED_IDS.post);
     expect(post._type).toBe("post");
     expect(post).toMatchObject({
-      title: "Coming Soon",
+      title: comingSoon.title,
       slug: { _type: "slug", current: "coming-soon" },
-      publishedAt: BLOG_SEED_PUBLISHED_AT,
+      publishedAt: comingSoon.publishedAt,
       readingTimeMinutes: 1,
       categories: ["updates"],
       tags: ["coming-soon", "announcement"],
       seo: {
-        title: "Coming Soon | Kamiyon Studio Blog",
+        title: comingSoon.seo.title,
         noIndex: false,
       },
     });
@@ -48,11 +52,14 @@ describe("blog seed builders (teamMember authors + string taxonomies)", () => {
     expect(post).not.toHaveProperty("featuredImage");
   });
 
-  it("seeds only the post document (archived taxonomy docs omitted)", () => {
+  it("seeds at least 10 posts with distinct publishedAt values", () => {
     const docs = buildBlogSeedDocuments();
     const ids = docs.map((doc) => doc._id);
+    const publishedAts = docs.map((doc) => doc.publishedAt);
 
-    expect(ids).toEqual([BLOG_SEED_IDS.post]);
+    expect(docs.length).toBeGreaterThanOrEqual(10);
+    expect(new Set(publishedAts).size).toBe(docs.length);
+    expect(ids).toContain(BLOG_SEED_IDS.post);
     expect(listBlogSeedDocumentIds()).toEqual(ids);
   });
 });

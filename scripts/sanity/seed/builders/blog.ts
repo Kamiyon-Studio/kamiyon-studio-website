@@ -1,67 +1,77 @@
 /**
- * Pure blog seed builders: locked constants → Sanity createOrReplace docs.
+ * Pure blog seed builders: postsFallback → Sanity createOrReplace docs.
  * Authors reference teamMember; categories/tags are string taxonomy values.
  */
 
-import { arrayKey, toReference, toSlug } from "../helpers";
-import { teamMemberId } from "../ids";
+import { postsFallback } from "@/lib/cms/fallbacks/posts";
+import type { BlogBodyBlock, PortableTextBlock, Post } from "@/lib/cms/types";
+
+import { arrayKey, toPortableBody, toReference, toSeo, toSlug } from "../helpers";
+import { postId, teamMemberId } from "../ids";
 import {
   BLOG_SEED_IDS,
-  blogPostSeed,
+  blogAuthorSeed,
+  blogCategorySeed,
   blogTagSeeds,
 } from "../seed-data.blog";
-import type { SanityPortableBlock, SeedDocument } from "../types";
+import type { SeedDocument } from "../types";
 
-function paragraphBlock(index: number, text: string): SanityPortableBlock {
-  return {
-    _type: "block",
-    _key: arrayKey("post-coming-soon-p", index),
-    style: "normal",
-    markDefs: [],
-    children: [
-      {
-        _type: "span",
-        _key: arrayKey(`post-coming-soon-p-${index}-span`, 0),
-        text,
-        marks: [],
-      },
-    ],
-  };
+function isPortableTextBlock(block: BlogBodyBlock): block is PortableTextBlock {
+  return block._type === "block";
 }
 
-/** Default byline author — first team member (CEO). */
-const DEFAULT_AUTHOR_ID = teamMemberId("Sherwin Limosnero");
+export function buildBlogPostDocument(
+  post: Post = postsFallback.find((row) => row.slug.current === "coming-soon") ??
+    postsFallback[0]!,
+): SeedDocument {
+  const bodyBlocks = post.body.filter(isPortableTextBlock);
+  const body =
+    bodyBlocks.length > 0
+      ? toPortableBody(bodyBlocks, `post-${post.slug.current}`)
+      : [
+          {
+            _type: "block" as const,
+            _key: arrayKey(`post-${post.slug.current}-p`, 0),
+            style: "normal",
+            markDefs: [],
+            children: [
+              {
+                _type: "span" as const,
+                _key: arrayKey(`post-${post.slug.current}-p-0-span`, 0),
+                text: post.title,
+              },
+            ],
+          },
+        ];
 
-export function buildBlogPostDocument(): SeedDocument {
-  const body = blogPostSeed.bodyParagraphs.map((text, index) =>
-    paragraphBlock(index, text),
-  );
+  const authorName = post.authors[0]?.name ?? "Sherwin Limosnero";
 
   return {
-    _id: BLOG_SEED_IDS.post,
+    _id: postId(post.slug.current),
     _type: "post",
-    title: blogPostSeed.title,
-    slug: toSlug(blogPostSeed.slug),
-    authors: [toReference(DEFAULT_AUTHOR_ID, "author-team-member")],
-    categories: ["updates"],
-    tags: blogTagSeeds.map((tag) => tag.slug),
+    title: post.title,
+    slug: toSlug(post.slug.current),
+    authors: [toReference(teamMemberId(authorName), "author-team-member")],
+    categories: post.categories.map((category) => category.slug.current),
+    tags: post.tags.map((tag) => tag.slug.current),
     body,
-    seo: {
-      title: blogPostSeed.seo.title,
-      description: blogPostSeed.seo.description,
-      noIndex: blogPostSeed.seo.noIndex,
-    },
-    readingTimeMinutes: blogPostSeed.readingTimeMinutes,
-    publishedAt: blogPostSeed.publishedAt,
+    seo: toSeo(post.seo),
+    ...(typeof post.readingTimeMinutes === "number"
+      ? { readingTimeMinutes: post.readingTimeMinutes }
+      : {}),
+    publishedAt: post.publishedAt,
+    ...(post.updatedAt ? { updatedAt: post.updatedAt } : {}),
   };
 }
 
 /**
- * Ordered blog upsert list: post only (taxonomy strings + teamMember author).
+ * Ordered blog upsert list: posts only (taxonomy strings + teamMember author).
  * Archived author/category/tag docs are not seeded.
  */
-export function buildBlogSeedDocuments(): SeedDocument[] {
-  return [buildBlogPostDocument()];
+export function buildBlogSeedDocuments(
+  source: Post[] = postsFallback,
+): SeedDocument[] {
+  return source.map((post) => buildBlogPostDocument(post));
 }
 
 /** Stable `_id` list for dry-run / CLI logging. */
@@ -74,8 +84,8 @@ export function buildBlogAuthorDocument(): SeedDocument {
   return {
     _id: BLOG_SEED_IDS.author,
     _type: "author",
-    name: "Kamiyon Studio",
-    slug: toSlug("kamiyon-studio"),
+    name: blogAuthorSeed.name,
+    slug: toSlug(blogAuthorSeed.slug),
   };
 }
 
@@ -84,8 +94,8 @@ export function buildBlogCategoryDocument(): SeedDocument {
   return {
     _id: BLOG_SEED_IDS.category,
     _type: "category",
-    title: "Updates",
-    slug: toSlug("updates"),
+    title: blogCategorySeed.title,
+    slug: toSlug(blogCategorySeed.slug),
   };
 }
 

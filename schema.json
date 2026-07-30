@@ -2132,6 +2132,42 @@
         },
         "optional": true
       },
+      "timelineHeading": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "timelineSummary": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "timelineEntries": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "object",
+            "attributes": {
+              "_key": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "rest": {
+              "type": "inline",
+              "name": "storyTimelineEntry"
+            }
+          }
+        },
+        "optional": true
+      },
       "mission": {
         "type": "objectAttribute",
         "value": {
@@ -2976,6 +3012,65 @@
           "type": "objectAttribute",
           "value": {
             "type": "string"
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
+    "name": "storyTimelineEntry",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "storyTimelineEntry"
+          }
+        },
+        "year": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "dateLabel": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "date": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "title": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "body": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "image": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "inline",
+            "name": "r2Asset"
           },
           "optional": true
         }

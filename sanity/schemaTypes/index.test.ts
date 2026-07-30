@@ -23,6 +23,7 @@ describe("sanity schema constants", () => {
       "caseStudy",
       "communityItem",
       "partner",
+      "award",
       "mediaAsset",
       "author",
       "category",
@@ -61,6 +62,7 @@ describe("sanity schema constants", () => {
     expect(SANITY_OBJECT_TYPES).toContain("portableBody");
     expect(SANITY_OBJECT_TYPES).toContain("blogBody");
     expect(SANITY_OBJECT_TYPES).toContain("hero");
+    expect(SANITY_OBJECT_TYPES).toContain("storyTimelineEntry");
   });
 
   it("uses unique document type names", () => {

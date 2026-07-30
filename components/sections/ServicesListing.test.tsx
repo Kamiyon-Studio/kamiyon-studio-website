@@ -1,8 +1,30 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import type { Service } from "@/lib/cms/types";
 import { ServicesListing } from "./ServicesListing";
+
+vi.mock("next/image", () => ({
+  default: ({
+    alt,
+    src,
+    fill: _fill,
+    priority: _priority,
+    sizes: _sizes,
+    className,
+    ...rest
+  }: {
+    alt: string;
+    src: string;
+    fill?: boolean;
+    priority?: boolean;
+    sizes?: string;
+    className?: string;
+  }) => (
+    // eslint-disable-next-line @next/next/no-img-element -- test mock
+    <img alt={alt} src={src} className={className} {...rest} />
+  ),
+}));
 
 function makeService(overrides: Partial<Service> & Pick<Service, "title" | "order">): Service {
   const slug =
@@ -59,8 +81,7 @@ describe("ServicesListing", () => {
   it("renders a flat ordered list with Game Development first", () => {
     render(<ServicesListing services={fiveServices} />);
 
-    expect(screen.getByRole("heading", { name: "Services" })).toBeInTheDocument();
-    expect(screen.getByText(/creative technology studio/i)).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Service offerings" })).toBeInTheDocument();
 
     const links = screen.getAllByRole("link");
     expect(links.map((link) => link.getAttribute("href"))).toEqual([
@@ -79,15 +100,15 @@ describe("ServicesListing", () => {
     expect(screen.queryByText(/interactive experience development/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/consulting & technical advisory/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/industries we work with/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole("heading", { level: 2 })).not.toBeInTheDocument();
   });
 
-  it("surfaces Gate 0 taglines on each card", () => {
+  it("surfaces Gate 0 taglines on each banner card", () => {
     render(<ServicesListing services={fiveServices} />);
 
     for (const service of fiveServices) {
       const link = screen.getByRole("link", { name: new RegExp(service.title, "i") });
       expect(within(link).getByText(service.tagline)).toBeInTheDocument();
+      expect(within(link).getByRole("heading", { level: 2, name: service.title })).toBeInTheDocument();
     }
   });
 });

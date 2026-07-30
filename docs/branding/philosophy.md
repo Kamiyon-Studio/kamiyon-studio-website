@@ -1,4 +1,4 @@
-﻿# Product Philosophy
+# Product Philosophy
 
 > **Every product created by Kamiyon Studio should exist for a reason. Whether it entertains, educates, or empowers, it should leave people better than we found them.**
 
@@ -58,22 +58,6 @@ Products that achieve multiple goals simultaneously represent the ideal expressi
 # Product Categories
 
 Kamiyon develops products across three primary categories.
-
----
-
-## Original Intellectual Property
-
-These are products conceived, owned, and published by Kamiyon Studio.
-
-They represent the company's long-term creative ambitions and contribute to building a recognizable portfolio of original experiences.
-
-Examples include:
-
-* Eclipse
-* Vocabu
-* Future original game franchises
-
-Original IP is central to Kamiyon's long-term vision.
 
 ---
 

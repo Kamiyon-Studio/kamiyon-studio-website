@@ -1,10 +1,14 @@
 import { Container } from "@/components/ui/Container";
-import { TiltedCard, marketingCardTiltProps } from "@/components/ui/TiltedCard";
+import { WordPullUp } from "@/components/ui/WordPullUp";
 import type { StorySection } from "@/lib/cms/types";
 
 type OurStoryProps = {
   storySections: StorySection[];
 };
+
+/** Ivory fill for WordPullUp on charcoal bands (matches HomeContact). */
+const IVORY_DISPLAY_HEADING =
+  "text-[var(--color-ivory)] [background:none] [filter:none] [-webkit-text-fill-color:var(--color-ivory)] [&_.word-pull-up-word]:[background:none] [&_.word-pull-up-word]:[filter:none] [&_.word-pull-up-word]:[-webkit-text-fill-color:var(--color-ivory)]";
 
 export function OurStory({ storySections }: OurStoryProps) {
   if (storySections.length === 0) {
@@ -12,26 +16,29 @@ export function OurStory({ storySections }: OurStoryProps) {
   }
 
   return (
-    <section className="bg-[var(--bg-secondary)] py-16 md:py-24">
-      <Container className="max-w-[820px]">
-        <h2 className="text-center font-display text-2xl font-bold text-[var(--text-primary)] md:text-3xl">
-          Our story
-        </h2>
+    <section
+      id="our-story"
+      className="bg-[var(--color-charcoal)] py-16 text-[var(--color-ivory)] md:py-24"
+      aria-labelledby="our-story-heading"
+    >
+      <Container className="max-w-6xl">
+        <WordPullUp
+          as="h2"
+          id="our-story-heading"
+          words="OUR STORY"
+          className={IVORY_DISPLAY_HEADING}
+        />
 
-        <div className="mt-10 space-y-8">
-          {storySections.map((section, index) => (
-            <TiltedCard
-              key={section.title}
-              {...marketingCardTiltProps}
-              className={index % 2 === 1 ? "md:ml-10" : "md:mr-10"}
-            >
-              <div className="rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--bg-surface)] p-6 shadow-[var(--shadow-sm)] md:p-8">
-                <h3 className="font-display text-lg font-semibold text-[var(--text-primary)]">
-                  {section.title}
-                </h3>
-                <p className="mt-3 text-base text-[var(--text-secondary)]">{section.body}</p>
-              </div>
-            </TiltedCard>
+        <div className="mt-10 grid grid-cols-1 gap-10 md:mt-14 md:grid-cols-2 md:gap-16">
+          {storySections.map((section) => (
+            <article key={section.title} className="min-w-0">
+              <h3 className="font-display text-xl font-semibold text-[var(--color-ivory)] md:text-2xl">
+                {section.title}
+              </h3>
+              <p className="mt-4 text-base leading-relaxed text-[var(--color-ivory)]/75 md:text-lg">
+                {section.body}
+              </p>
+            </article>
           ))}
         </div>
       </Container>

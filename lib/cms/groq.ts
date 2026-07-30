@@ -88,6 +88,20 @@ export const aboutPageQuery = defineQuery(/* groq */ `
     _type,
     title,
     storySections[]{ title, body },
+    timelineHeading,
+    timelineSummary,
+    timelineEntries[]{
+      _key,
+      entryType,
+      year,
+      dateLabel,
+      date,
+      title,
+      body,
+      images[] ${r2AssetProjection},
+      image ${r2AssetProjection},
+      teamMember->{ _id, name, role, photo ${r2AssetProjection} }
+    },
     mission,
     vision,
     motto,
@@ -113,6 +127,7 @@ export const contactPageQuery = defineQuery(/* groq */ `
 export const teamMembersQuery = defineQuery(/* groq */ `
   *[_type == "teamMember"] | order(order asc) {
     _type,
+    _id,
     name,
     role,
     bio,
@@ -281,6 +296,19 @@ export const partnersQuery = defineQuery(/* groq */ `
     slug,
     order,
     logo ${r2AssetProjection},
+    isPlaceholder
+  }
+`);
+
+export const awardsQuery = defineQuery(/* groq */ `
+  *[_type == "award"] | order(order asc) {
+    _id,
+    _type,
+    title,
+    label,
+    organization,
+    year,
+    order,
     isPlaceholder
   }
 `);

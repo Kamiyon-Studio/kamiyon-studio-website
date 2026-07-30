@@ -45,6 +45,57 @@ test("renders a friendly 404 for an unknown route", async ({ page }) => {
   await expect(page.getByRole("link", { name: /back to home/i })).toBeVisible();
 });
 
+test("About page renders cinematic hero, story, timeline, and team", async ({
+  page,
+}) => {
+  const response = await page.goto("/about");
+  expect(response?.status()).toBeLessThan(400);
+
+  await expect(page.getByRole("heading", { level: 1, name: "ABOUT US" })).toBeVisible();
+
+  await page.locator("#our-story").scrollIntoViewIfNeeded();
+  await expect(page.getByRole("heading", { level: 2, name: "OUR STORY" })).toBeVisible();
+
+  await page.locator("#timeline").scrollIntoViewIfNeeded();
+  await expect(page.locator("#timeline")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: /our journey|timeline/i }),
+  ).toBeVisible();
+  // CMS may be empty in some envs; accept empty state or populated entry list.
+  const emptyState = page.getByTestId("timeline-empty");
+  const entryList = page.locator("#timeline ol");
+  await expect(emptyState.or(entryList).first()).toBeVisible();
+
+  // Sticky year rail + roster aside exists in markup (hidden below xl).
+  if (await entryList.count()) {
+    await expect(page.getByTestId("timeline-year-rail")).toBeAttached();
+    await expect(page.getByTestId("timeline-roster")).toBeAttached();
+  }
+
+  await page.locator("#team").scrollIntoViewIfNeeded();
+  await expect(page.locator("#team")).toBeVisible();
+  await expect(page.getByTestId("focus-rail")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: /meet the team/i }),
+  ).toBeVisible();
+  await expect(page.getByTestId("focus-rail-modal")).toHaveCount(0);
+});
+
+test("About page layout holds at mobile width", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const response = await page.goto("/about");
+  expect(response?.status()).toBeLessThan(400);
+
+  await expect(page.getByRole("heading", { level: 1, name: "ABOUT US" })).toBeVisible();
+  await page.locator("#our-story").scrollIntoViewIfNeeded();
+  await expect(page.getByRole("heading", { level: 2, name: "OUR STORY" })).toBeVisible();
+  await page.locator("#timeline").scrollIntoViewIfNeeded();
+  await expect(page.locator("#timeline")).toBeVisible();
+  const emptyState = page.getByTestId("timeline-empty");
+  const entryList = page.locator("#timeline ol");
+  await expect(emptyState.or(entryList).first()).toBeVisible();
+});
+
 test("primary navigation shows six IA items plus Get in touch CTA", async ({ page }) => {
   await page.goto("/");
 

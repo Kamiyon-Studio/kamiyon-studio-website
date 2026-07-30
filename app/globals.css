@@ -61,6 +61,8 @@
 
   /* Home services vertical marquee (ADR-021) */
   --animate-marquee-vertical: marquee-vertical var(--duration, 30s) linear infinite;
+  /* Home partners horizontal logo marquee (ADR-026) */
+  --animate-marquee-horizontal: marquee-horizontal var(--duration, 40s) linear infinite;
   --animate-fade-in-up: fade-in-up 0.7s ease-out both;
 }
 
@@ -179,6 +181,15 @@ body {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes marquee-horizontal {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
   }
 }
 

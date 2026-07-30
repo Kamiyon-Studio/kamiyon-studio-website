@@ -69,8 +69,8 @@
 }
 
 .sterling-gate .nav-logo-mark {
-  width: 2rem;
-  height: 2rem;
+  width: 2.75rem;
+  height: 2.75rem;
   object-fit: contain;
 }
 
@@ -106,15 +106,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  width: 1.25rem;
-  height: 1rem;
+  gap: 6px;
+  width: 1.5rem;
+  height: 1.25rem;
 }
 
 .sterling-gate .nav-hamburger-line {
   display: block;
-  width: 1.25rem;
-  height: 2px;
+  width: 1.5rem;
+  height: 2.5px;
   background-color: currentColor;
   border-radius: 9999px;
   transition:
@@ -123,9 +123,9 @@
   transform-origin: 50% 50%;
 }
 
-/* Bars are 2px tall with 5px gaps: outer bar centers sit 7px from the icon center. */
+/* Bars are 2.5px tall with 6px gaps: outer bar centers sit 8.5px from the icon center. */
 .sterling-gate .nav-close-btn.open .nav-hamburger-line:nth-child(1) {
-  transform: translateY(7px) rotate(45deg);
+  transform: translateY(8.5px) rotate(45deg);
 }
 
 .sterling-gate .nav-close-btn.open .nav-hamburger-line:nth-child(2) {
@@ -133,7 +133,7 @@
 }
 
 .sterling-gate .nav-close-btn.open .nav-hamburger-line:nth-child(3) {
-  transform: translateY(-7px) rotate(-45deg);
+  transform: translateY(-8.5px) rotate(-45deg);
 }
 
 .sterling-gate .fullscreen-menu-container {
@@ -283,6 +283,13 @@
   transform: rotate(180deg);
 }
 
+.sterling-gate .menu-sublist-panel {
+  overflow: hidden;
+  height: 0;
+  opacity: 0;
+  visibility: hidden;
+}
+
 .sterling-gate .menu-sublist {
   list-style: none;
   margin: 0.35rem 0 0.85rem 1.25rem;
@@ -290,10 +297,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
-}
-
-.sterling-gate .menu-sublist[hidden] {
-  display: none;
 }
 
 .sterling-gate .nav-sublink {
@@ -387,7 +390,8 @@
   .sterling-gate .nav-link-hover-bg,
   .sterling-gate .nav-close-btn,
   .sterling-gate .nav-logo-row,
-  .sterling-gate .nav-hamburger-line {
+  .sterling-gate .nav-hamburger-line,
+  .sterling-gate .menu-dropdown-chevron {
     transition: none;
   }
 }

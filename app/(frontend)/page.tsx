@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 
-import { AnimatedSection } from "@/components/animation/AnimatedSection";
 import { Hero } from "@/components/sections/Hero";
 import { HomeContact } from "@/components/sections/HomeContact";
 import { HomeScrollMarker } from "@/components/sections/HomeScrollMarker";
-import { PartnersMarquee } from "@/components/sections/PartnersMarquee";
 import { ProjectsBento } from "@/components/sections/ProjectsBento";
+import { RecognitionAwards } from "@/components/sections/RecognitionAwards";
 import {
   ServicesStack,
   type ServiceStackSlide,
 } from "@/components/sections/ServicesStack";
 import {
+  awardsFallback,
   homePageFallback,
   portfolioItemsFallback,
   resolveWithFallback,
@@ -18,6 +18,7 @@ import {
 } from "@/lib/cms/fallbacks";
 import { mapPartnerToMarqueeItem } from "@/lib/cms/mappers";
 import {
+  getAwards,
   getHomePage,
   getPartners,
   getPortfolioItems,
@@ -28,17 +29,19 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
 import type { HomeCtaBanner, HomeHero, Service } from "@/lib/cms/types";
 
 async function getHomePageContent() {
-  const [home, portfolioItems, services, partners] = await Promise.all([
+  const [home, portfolioItems, services, partners, awards] = await Promise.all([
     getHomePage(),
     getPortfolioItems(),
     getServices(),
     getPartners(),
+    getAwards(),
   ]);
 
   return {
     home: resolveWithFallback(home, homePageFallback),
     portfolioItems: resolveWithFallback(portfolioItems, portfolioItemsFallback),
     services: resolveWithFallback(services, servicesFallback),
+    awards: resolveWithFallback(awards, awardsFallback),
     partners: resolveWithFallback(
       partners?.map(mapPartnerToMarqueeItem) ?? null,
       PARTNER_PLACEHOLDERS
@@ -71,7 +74,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  const { home, portfolioItems, services, partners } = await getHomePageContent();
+  const { home, portfolioItems, services, partners, awards } =
+    await getHomePageContent();
 
   const hero = home.blocks.find((block) => block._type === "hero") as
     | HomeHero
@@ -89,11 +93,9 @@ export default async function Home() {
   return (
     <>
       <HomeScrollMarker />
-      {hero ? <Hero hero={hero} /> : null}
-      <AnimatedSection as="div" distance={28}>
-        <PartnersMarquee eyebrow="Trusted by" partners={partners} />
-      </AnimatedSection>
+      {hero ? <Hero hero={hero} partners={partners} /> : null}
       <ProjectsBento caseStudies={portfolioItems} />
+      <RecognitionAwards awards={awards} />
       <ServicesStack slides={toServiceStackSlides(services)} />
       <HomeContact
         heading={contact.title}

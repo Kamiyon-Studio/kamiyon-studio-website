@@ -156,10 +156,39 @@ export type CoreValue = {
   description: string;
 };
 
+/** Resolved team member for a timeline join entry (aside roster cell). */
+export type CmsTimelineRosterMember = {
+  id: string; // teamMember _id, or name-derived slug fallback
+  name: string;
+  role: string;
+  photo?: CmsImage;
+};
+
+/**
+ * CMS story timeline entry.
+ * Maps to UI `TimelineEntryV2` via `toTimelineEntries` on the About page.
+ * Contract: key, entryType, year (YYYY), dateLabel, optional date (ISO), title, body,
+ * images (always length >= 1 post-map), optional teamMember for teamJoin.
+ */
+export type StoryTimelineEntry = {
+  key: string;
+  entryType: "news" | "teamJoin";
+  year: string;
+  dateLabel: string;
+  date?: string;
+  title: string;
+  body: string;
+  images: CmsImage[];
+  teamMember?: CmsTimelineRosterMember;
+};
+
 export type AboutPage = {
   _type: "aboutPage";
   title: string;
   storySections: StorySection[];
+  timelineHeading: string;
+  timelineSummary: string;
+  timelineEntries: StoryTimelineEntry[];
   mission: string;
   vision: string;
   motto: string;
@@ -197,6 +226,8 @@ export type ContactPage = {
 
 export type TeamMember = {
   _type: "teamMember";
+  /** Sanity document id — stable, unique React key (names can collide). */
+  _id?: string;
   name: string;
   role: string;
   bio: string;
@@ -308,6 +339,22 @@ export type Partner = {
   order: number;
   /** Logo/icon only — home marquee displays without links. */
   logo?: CmsImage;
+  isPlaceholder: boolean;
+};
+
+/** award — home recognition laurels */
+
+export type Award = {
+  _type: "award";
+  /** Grid key: document `_id`, else a title-derived slug. */
+  id: string;
+  title: string;
+  /** Recognition tier eyebrow, e.g. "Winner". */
+  label?: string;
+  /** Awarding festival, publication, or institution. */
+  organization?: string;
+  year?: string;
+  order: number;
   isPlaceholder: boolean;
 };
 

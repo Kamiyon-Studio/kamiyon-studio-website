@@ -27,7 +27,8 @@ class MockIntersectionObserver {
 function mountThemeSections() {
   document.body.innerHTML = `
     <section id="home-hero" data-nav-theme="dark"></section>
-    <section id="home-partners" data-nav-theme="light"></section>
+    <section id="home-partners" data-nav-theme="dark"></section>
+    <section id="home-projects" data-nav-theme="light"></section>
     <div id="services-card" class="scroll-stack-card" data-nav-theme="dark"></div>
   `;
 }
@@ -77,9 +78,10 @@ describe("useNavTheme", () => {
     const { result } = renderHook(() => useNavTheme());
 
     expect(result.current).toBe("dark");
-    expect(observe).toHaveBeenCalledTimes(3);
+    expect(observe).toHaveBeenCalledTimes(4);
     expect(observe).toHaveBeenCalledWith(byId("home-hero"));
     expect(observe).toHaveBeenCalledWith(byId("home-partners"));
+    expect(observe).toHaveBeenCalledWith(byId("home-projects"));
     expect(observe).toHaveBeenCalledWith(byId("services-card"));
   });
 
@@ -118,6 +120,13 @@ describe("useNavTheme", () => {
       { target: byId("home-partners"), intersectionRatio: 0.95 },
     ]);
 
+    expect(result.current).toBe("dark");
+
+    fireIntersection([
+      { target: byId("home-partners"), intersectionRatio: 0.1 },
+      { target: byId("home-projects"), intersectionRatio: 0.95 },
+    ]);
+
     expect(result.current).toBe("light");
   });
 
@@ -130,6 +139,7 @@ describe("useNavTheme", () => {
     fireIntersection([
       { target: byId("home-hero"), intersectionRatio: 0 },
       { target: byId("home-partners"), intersectionRatio: 0 },
+      { target: byId("home-projects"), intersectionRatio: 0 },
       { target: byId("services-card"), intersectionRatio: 0 },
     ]);
 
@@ -153,10 +163,10 @@ describe("useNavTheme", () => {
 
     rerender({ forcedTheme: null });
 
-    expect(observe).toHaveBeenCalledTimes(3);
+    expect(observe).toHaveBeenCalledTimes(4);
 
     fireIntersection([
-      { target: byId("home-partners"), intersectionRatio: 0.8 },
+      { target: byId("home-projects"), intersectionRatio: 0.8 },
     ]);
 
     expect(result.current).toBe("light");
@@ -165,18 +175,18 @@ describe("useNavTheme", () => {
   it("ignores data-nav-theme on the nav root itself", () => {
     document.body.innerHTML = `
       <div class="sterling-gate" data-nav-theme="dark"></div>
-      <section id="home-partners" data-nav-theme="light"></section>
+      <section id="home-projects" data-nav-theme="light"></section>
     `;
 
     const { result } = renderHook(() => useNavTheme());
 
     fireIntersection([
-      { target: byId("home-partners"), intersectionRatio: 0.5 },
+      { target: byId("home-projects"), intersectionRatio: 0.5 },
     ]);
 
     expect(result.current).toBe("light");
     expect(observe).toHaveBeenCalledTimes(1);
-    expect(observe).toHaveBeenCalledWith(byId("home-partners"));
+    expect(observe).toHaveBeenCalledWith(byId("home-projects"));
   });
 
   it("disconnects the observer on unmount", () => {

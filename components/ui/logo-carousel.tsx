@@ -143,7 +143,7 @@ export function AnimatedCarousel({
     logoImageHeight,
     logoMaxWidth,
     logoMaxHeight,
-    "object-contain grayscale opacity-70 transition-[filter,opacity] duration-300 group-hover:grayscale-0 group-hover:opacity-100 group-focus-within:grayscale-0 group-focus-within:opacity-100",
+    "object-contain opacity-100",
   );
 
   return (

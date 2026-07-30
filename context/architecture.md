@@ -14,16 +14,17 @@ This file describes the **current repo** after cleanup. Do not treat Payload or 
 | Framework | Next.js 16 (App Router) + TypeScript + React 19 | SSR, metadata, routes |
 | UI | Tailwind CSS 4 + design tokens | Presentation |
 | Content | Sanity GROQ via `lib/cms` + typed fallbacks | Live CMS when configured; fallbacks otherwise |
-| CMS | Sanity Studio at `/studio` | Phase B scaffold + Phase C queries |
-| Media | Cloudflare R2 refs (`r2Asset` / `getMediaUrl`) | Upload flow Phase E |
-| Hosting (future) | OpenNext on Cloudflare | Phase E |
+| CMS | Hosted Sanity Studio (`/studio` → redirect) | ADR-007 / ADR-009 |
+| Media | Cloudflare R2 (`r2Asset` / `getMediaUrl` / upload API) | T4 done |
+| Hosting | OpenNext on Cloudflare Workers (staging + prod) | Phase E / ADR-022 |
+| Chrome | Kinetic overlay nav (`SiteHeader`) | ADR-008 |
 | Motion | GSAP + ScrollTrigger (main site) | See `lib/gsap`, `lib/motion` |
 | Tests | Vitest + Playwright | Unit + smoke E2E |
 
 ```
-Visitors → Next.js (app/(frontend)/) → lib/cms GROQ → Sanity (or null) → resolveWithFallback → fallbacks
-Editors → /studio (Sanity) → (Phase E) webhook → revalidateTag → cached GROQ → pages
-Media → R2 CDN ← refs in Sanity documents
+Visitors → Cloudflare CDN → OpenNext Worker → lib/cms GROQ → Sanity (or null) → resolveWithFallback → fallbacks
+Editors → kamiyon.sanity.studio → webhook → /api/revalidate → revalidateTag → cached GROQ → pages
+Media → R2 CDN (media*.kamiyonstudio.com) ← Studio upload → /api/media/upload
 ```
 
 ---
@@ -61,4 +62,4 @@ CMS getters return `null` when Sanity is unset, empty, or errors. Never throw fo
 
 ## Next architecture step
 
-**Phase E:** OpenNext + R2 upload + webhook revalidation + CF Web Analytics.
+**Phase F:** Apex DNS cutover (WS4b operator), Resend domain live (T8 ops), blog UI (T9), expanded E2E (T15).

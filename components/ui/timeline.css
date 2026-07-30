@@ -1,0 +1,65 @@
+/* Story timeline — progress line, spine nodes, date labels, frame helpers */
+
+.timeline-section [data-timeline-progress] {
+  will-change: transform;
+}
+
+.timeline-section .timeline-spine-node {
+  position: absolute;
+  top: 0.5rem;
+  left: 1rem;
+  z-index: 1;
+  height: 0.75rem;
+  width: 0.75rem;
+  translate: -50% 0;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, var(--color-ivory) 40%, transparent);
+  background: var(--color-charcoal);
+}
+
+@media (min-width: 768px) {
+  .timeline-section .timeline-spine-node {
+    left: 50%;
+  }
+}
+
+.timeline-section .timeline-date-vertical {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  letter-spacing: 0.18em;
+}
+
+.timeline-section .timeline-entry-frame {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  width: 100%;
+  max-width: 28rem;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in oklab, var(--color-ivory) 20%, transparent);
+  background: var(--color-charcoal);
+}
+
+@media (min-width: 768px) {
+  .timeline-section .timeline-entry-frame {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+.timeline-section .timeline-zone-gutter-left {
+  padding-inline-end: 2rem;
+}
+
+.timeline-section .timeline-zone-gutter-right {
+  padding-inline-start: 2rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timeline-section [data-timeline-progress] {
+    transform: scaleY(1) !important;
+  }
+
+  .timeline-section .timeline-embla-viewport {
+    scroll-behavior: auto;
+  }
+}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { ServicesHero } from "@/components/sections/ServicesHero";
 import { ServicesListing } from "@/components/sections/ServicesListing";
 import { resolveWithFallback, servicesFallback } from "@/lib/cms/fallbacks";
 import { getServices } from "@/lib/cms/queries";
@@ -15,5 +16,10 @@ export const metadata: Metadata = buildPageMetadata({
 export default async function ServicesPage() {
   const services = resolveWithFallback(await getServices(), servicesFallback);
 
-  return <ServicesListing services={services} />;
+  return (
+    <>
+      <ServicesHero />
+      <ServicesListing services={services} />
+    </>
+  );
 }

@@ -17,6 +17,88 @@ When a task/phase is marked complete:
 
 ## Current Phase
 
+### About team FocusRail carousel (2026-07-30)
+
+**ADR:** ADR-028  
+**Status:** Done — `/about#team` uses minimized `FocusRail` + click-to-open card modal; About section titles (story / timeline / team) use WordPullUp display headings.
+
+### About page — drop Vision / Values / Culture (2026-07-30)
+
+**ADR:** ADR-027 · **Archive:** [`archive/about-vision-values-culture/`](../archive/about-vision-values-culture/README.md)  
+**Status:** Done — `/about` is hero → story → timeline → team. CMS fields retained unused.
+
+### About milestone timeline + cumulative roster (2026-07-30)
+
+**Plan:** `.claude/plans/about-timeline-sabotage-style.plan.md` · **ADR:** ADR-025  
+**Note:** Waves 1–3 landed in-repo (WS-A–E). WS-F docs; WS-G verify next.
+
+| Stream | Status | Notes |
+| --- | --- | --- |
+| **WS-A** `lib/timeline` contract + roster/years pure logic | **Done** | Types frozen; 15 unit tests green |
+| **WS-B** Sanity schema + GROQ + mappers + fallbacks + seed | **Done** | `entryType` / `images[]` / `teamMember`; legacy `image` read path |
+| **WS-C** Entry card + media frame + spine CSS | **Done** | Embla multi-image; read-more; DOM contract attrs |
+| **WS-D** Sticky aside + scroll-spy + cumulative roster hooks | **Done** | Reversible roster; IO only (no GSAP) |
+| **WS-E** Timeline orchestrator + StoryTimeline + About page | **Done** | `TimelineEntryV2`; xl grid; year chips below xl |
+| **WS-F** ADR-025 + tracker + ui-context + plan | **Done** | ADR Accepted; layout/motion rows updated |
+| **WS-G** Verify gate (vitest / lint / tsc / smoke) | **Done (local tests)** | Focused 71/71; full 761/761; lint clean on touched; tsc clean on our paths. Global branch cov 73.61% pre-existing (`media.ts` etc.). E2E smoke deferred (no server). |
+
+**Ship gate:** Agent ownership **PASS** (A–G local). Remaining: founder visual ack (level 5) on `/about#timeline`; operator join dates for real `teamJoin` seed content (news-only fallback until then); optional E2E smoke when a local/staging server is up.
+
+### About values hover-expand strip (2026-07-30)
+
+**Plan:** `.claude/plans/values-expand-on-hover.plan.md` · **ADR:** ADR-024  
+**Note:** **Superseded for live page by ADR-027** — section + primitive archived under `archive/about-vision-values-culture/`. Historical WS-A–E remain below for reference.
+
+| Stream | Status | Notes |
+| --- | --- | --- |
+| **WS-A** `values-expand-on-hover` primitive + Unsplash `remotePattern` + tests | **Done** | Separate file from team `expand-on-hover.tsx`; `motion/react` only; fixed Unsplash images |
+| **WS-B** `ValuesGrid` mapper + section tests | **Done** | Keep `#values` + “What we value”; CMS name/description on active overlay; no CMS image field |
+| **WS-C** TiltedCard hygiene | **Skipped (retained)** | TiltedCard still used by FeaturedWork, CommunityCard, ProjectCard, ContactCard, Highlights, BentoProjectCard, ServiceCard, ProductCard, TeamMemberCard — do not delete |
+| **WS-D** ADR-024 + tracker + ui-context + plan | **Done** | ADR-024 Accepted with A+B landed; Wave 3 finalize |
+| **WS-E** Verify gate (vitest / composition / TiltedCard consumers / team strip) | **Done (local tests)** | Vitest 9/9 on A+B paths; `/about` still ValuesGrid + TeamGrid; team `expand-on-hover` untouched |
+
+**Ship gate:** Agent ownership **PASS** (A+B + E). Remaining: founder visual ack (level 5) on `/about#values`. Team expand strip untouched.
+
+### Phase F — Production surfaces + apex cutover (2026-07-30)
+
+**Prior:** Phase E archived — [`completed/2026-07-30-phase-e-cloudflare-opennext.md`](./completed/2026-07-30-phase-e-cloudflare-opennext.md) · **ADR-022**
+
+| Surface | URL | Status |
+| --- | --- | --- |
+| Staging site | https://kamiyon-studio-website-staging.limosnerosherwin.workers.dev | Live |
+| Hosted Studio | https://kamiyon.sanity.studio/ | Live |
+| Media CDN (staging / prod) | media-staging / media.kamiyonstudio.com | Active |
+| Production Worker | https://kamiyon-studio-website.limosnerosherwin.workers.dev | Live + re-smoked 2026-07-30 |
+| Production site | https://kamiyonstudio.com | Still on Vercel until WS4b |
+
+**Source of truth:** [`WEBSITE-ESSENTIAL-CONTEXT.md`](./WEBSITE-ESSENTIAL-CONTEXT.md) · [`DECISIONS.md`](./DECISIONS.md) · [`deploy-runbook.md`](./deploy-runbook.md) · [`QA-Report.md`](./QA-Report.md)
+
+### Home partners continuous logo marquee (2026-07-30)
+
+**Plan:** `.claude/plans/home-partners-continuous-marquee.plan.md` · **ADR:** ADR-026  
+**Note:** Wave 1–3 landed in-repo (WS-A + WS-B + WS-C). Extends ADR-023 band; CMS unchanged.
+
+| Stream | Status | Notes |
+| --- | --- | --- |
+| **WS-A** `logo-marquee` + horizontal CSS keyframes + tests | **Done in-repo** | `components/ui/logo-marquee{,.test}.tsx`; `globals.css` `--animate-marquee-horizontal` |
+| **WS-B** `PartnersMarquee` rewrite + section tests | **Done in-repo** | Continuous loop; larger logos; grayscale→color on hover/focus; drops Embla |
+| **WS-C** ADR-026 + tracker + ui-context | **Done** | Soft finalize with A+B |
+| **WS-D** Verify gate (vitest / visual `/#home-partners`) | **Done (local tests)** | Vitest 26/26 on logo-marquee + PartnersMarquee + HeroOpening; founder visual ack still open |
+
+**Ship gate:** WS-A + WS-B required. Founder visual ack (level 5) on `/#home-partners`.
+
+### Home hero + partners combined opening (2026-07-30)
+
+**Plan:** hero+partners combine · **ADR:** ADR-023  
+**Note:** WS-A–D implementation landed in-repo; WS-E docs (this tracker + `ui-context` + ADR-023).
+
+| Stream | Status | Notes |
+| --- | --- | --- |
+| **WS-A–D** Combined opening stage | **Done in-repo** | Brand + motto upper; `PartnersMarquee layout="band" tone="onDark"` lower; `#home-partners` + dark nav; standalone light partners section removed; soft bottom scrim; CMS unchanged |
+| **WS-E** Context docs | **Done** | `ui-context` Home layout; ADR-023; this tracker |
+
+**Ship gate:** Opening is one full-bleed stage; section-nav label still “Trusted by”.
+
 ### Home services vertical marquee (2026-07-29)
 
 **Plan:** `.claude/plans/home-services-vertical-marquee.plan.md` · **ADR:** ADR-021  
@@ -83,17 +165,7 @@ When a task/phase is marked complete:
 
 ---
 
-**Phase E — Wave 3 verified (2026-07-24):** Staging Worker + hosted Studio confirmed working. **Wave 4 (apex DNS cutover) is next**, run **in parallel** with remaining polish.
-
-| Surface | URL | Status |
-| --- | --- | --- |
-| Staging site | https://kamiyon-studio-website-staging.limosnerosherwin.workers.dev | Live |
-| Hosted Studio | https://kamiyon.sanity.studio/ | Live |
-| Media CDN (staging / prod) | media-staging / media.kamiyonstudio.com | Active |
-| Production Worker (no domain yet) | https://kamiyon-studio-website.limosnerosherwin.workers.dev | Live + smoked 2026-07-29 (`200` HTML) |
-| Production site | https://kamiyonstudio.com | Still on prior host until Wave 4 |
-
-**Source of truth:** [`WEBSITE-ESSENTIAL-CONTEXT.md`](./WEBSITE-ESSENTIAL-CONTEXT.md) · [`DECISIONS.md`](./DECISIONS.md) · [`deploy-runbook.md`](./deploy-runbook.md) · [`QA-Report.md`](./QA-Report.md)
+**Phase E** — Done / archived 2026-07-30 → [`completed/2026-07-30-phase-e-cloudflare-opennext.md`](./completed/2026-07-30-phase-e-cloudflare-opennext.md) (ADR-022). Apex DNS cutover remains under WS4b below.
 
 ---
 
@@ -117,7 +189,7 @@ When a task/phase is marked complete:
 | Stream | Scope | Status |
 | --- | --- | --- |
 | **WS0–WS3, WS4a, WS8** | Context / hero / chrome / same-route / staging ops / seed | **Done** |
-| **WS4b** | Apex/www → prod Worker; pause Vercel | **Prod Worker live**; remaining = **operator dashboard** (see checklist below) |
+| **WS4b** | Apex/www → prod Worker; pause Vercel | **Prod Worker live**; Sanity CORS for apex+www **added 2026-07-30**; remaining = **operator dashboard** (DNS attach, webhook, Studio bake, Vercel pause) |
 | **WS5** | T8 Resend native form | **Done in-repo** (ADR-018) — awaiting Resend domain verify + Worker secrets for live send |
 | **WS6** | T9 blog UI / T14 analytics | T14 done; T9 optional |
 | **WS7** | T15 E2E expansion | **Later** — expand after Resend domain live (form path ready) |
@@ -125,7 +197,7 @@ When a task/phase is marked complete:
 **WS4b operator checklist** (human-only; details in [`dns-cutover-guide.md`](./dns-cutover-guide.md) + [`deploy-runbook.md`](./deploy-runbook.md) “WS4b — Production cutover”):
 
 1. Cloudflare Workers → production Worker → **Custom domains**: attach `kamiyonstudio.com` + `www` (or Workers Routes + redirect).
-2. Sanity → API → **CORS**: add `https://kamiyonstudio.com` (+ `www` if used); credentials as needed.
+2. ~~Sanity → API → **CORS**: add `https://kamiyonstudio.com` (+ `www`)~~ — **done 2026-07-30**.
 3. Sanity → **Webhook**: point revalidate URL at production `/api/revalidate` (Bearer = prod `SANITY_REVALIDATE_SECRET`).
 4. Redeploy hosted Studio with `SANITY_STUDIO_API_ORIGIN=https://kamiyonstudio.com`.
 5. Smoke apex for 24–48 h, then **pause/remove Vercel** DNS/project.
@@ -137,9 +209,9 @@ When a task/phase is marked complete:
 
 ## Current Goal
 
-1. **Human:** optional non-prod WS-C `--apply` after dry-run sign-off (prod still forbidden).  
-2. **Ops:** **WS4b** apex DNS cutover (operator dashboard).  
-3. **Resend:** verify `send.kamiyonstudio.com` in Resend (DKIM/SPF) + apex DMARC `p=none`; then `wrangler secret put RESEND_API_KEY` (+ set `CONTACT_FROM_EMAIL` / `CONTACT_TO_EMAIL` Worker vars).  
+1. **Ops:** **WS4b** apex DNS cutover (operator dashboard) — CORS already set.  
+2. **Resend:** verify `send.kamiyonstudio.com` in Resend (DKIM/SPF) + apex DMARC `p=none`; then `wrangler secret put RESEND_API_KEY` (+ set `CONTACT_FROM_EMAIL` / `CONTACT_TO_EMAIL` Worker vars).  
+3. **Human:** optional non-prod WS-C `--apply` after dry-run sign-off (prod still forbidden).  
 4. Optional: WS6 blog UI (T9); WS7 E2E once Resend is live.
 
 ---
@@ -190,4 +262,4 @@ When a task/phase is marked complete:
 
 ## Architecture Decisions (active)
 
-See [`DECISIONS.md`](./DECISIONS.md) (incl. ADR-016/017/018/019/020/021).
+See [`DECISIONS.md`](./DECISIONS.md) (incl. ADR-016/017/018/019/020/021/022/023/024/025).

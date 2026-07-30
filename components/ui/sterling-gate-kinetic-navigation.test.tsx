@@ -65,6 +65,7 @@ vi.mock("@/lib/gsap", () => {
       set: vi.fn(),
       to: vi.fn(),
       fromTo: vi.fn(),
+      killTweensOf: vi.fn(),
       defaults: vi.fn(),
       parseEase: vi.fn(() => null),
       registerPlugin: vi.fn(),
@@ -126,7 +127,8 @@ describe("SterlingGateKineticNavigation", () => {
     vi.stubGlobal("IntersectionObserver", MockIntersectionObserver);
     document.body.innerHTML = `
       <section id="home-hero" data-nav-theme="dark"></section>
-      <section id="home-partners" data-nav-theme="light"></section>
+      <section id="home-partners" data-nav-theme="dark"></section>
+      <section id="home-projects" data-nav-theme="light"></section>
     `;
 
     Object.defineProperty(window, "matchMedia", {
@@ -313,6 +315,7 @@ describe("SterlingGateKineticNavigation", () => {
     fireIntersection([
       { target: observedTarget("home-hero"), intersectionRatio: 0.85 },
       { target: observedTarget("home-partners"), intersectionRatio: 0.1 },
+      { target: observedTarget("home-projects"), intersectionRatio: 0.05 },
     ]);
 
     await waitFor(() => {
@@ -321,11 +324,30 @@ describe("SterlingGateKineticNavigation", () => {
 
     fireIntersection([
       { target: observedTarget("home-hero"), intersectionRatio: 0.05 },
-      { target: observedTarget("home-partners"), intersectionRatio: 0.9 },
+      { target: observedTarget("home-partners"), intersectionRatio: 0.1 },
+      { target: observedTarget("home-projects"), intersectionRatio: 0.9 },
     ]);
 
     await waitFor(() => {
       expect(root).toHaveAttribute("data-nav-theme", "light");
+    });
+  });
+
+  it("stays dark when partners wins intersection inside the opening", async () => {
+    const { container } = render(
+      <SterlingGateKineticNavigation navItems={navItems} siteName="Kamiyon Studio" />,
+    );
+
+    const root = container.querySelector(".sterling-gate");
+
+    fireIntersection([
+      { target: observedTarget("home-hero"), intersectionRatio: 0.05 },
+      { target: observedTarget("home-partners"), intersectionRatio: 0.9 },
+      { target: observedTarget("home-projects"), intersectionRatio: 0.1 },
+    ]);
+
+    await waitFor(() => {
+      expect(root).toHaveAttribute("data-nav-theme", "dark");
     });
   });
 
@@ -399,6 +421,19 @@ describe("SterlingGateKineticNavigation", () => {
       "href",
       "/services/branding",
     );
+
+    const panel = document.querySelector('[data-dropdown-panel="/services"]');
+    expect(panel).toHaveClass("is-open");
+    expect(panel).toHaveAttribute("aria-hidden", "false");
+
+    await user.click(screen.getByRole("button", { name: "Collapse Services" }));
+
+    expect(screen.getByRole("button", { name: "Expand Services" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+    expect(panel).not.toHaveClass("is-open");
+    expect(panel).toHaveAttribute("aria-hidden", "true");
   });
 
   it("applies dark ink by default and light ink when data-nav-theme is light", () => {

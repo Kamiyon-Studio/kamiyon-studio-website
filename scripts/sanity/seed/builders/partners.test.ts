@@ -83,7 +83,7 @@ describe("WS8d partner seed builders", () => {
     expect(new Set(ids).size).toBe(ids.length);
     expect(listAllSeedDocumentIds()).toEqual(ids);
 
-    // services(5)+portfolio(1)+team(6)+about+contact+siteSettings+partners(7)+blog(1)+home = 24
-    expect(docs).toHaveLength(24);
+    // services(5)+portfolio(1)+team(6)+about+contact+siteSettings+partners(7)+awards(3)+blog(10)+home = 36
+    expect(docs).toHaveLength(36);
   });
 });
