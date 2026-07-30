@@ -1,22 +1,30 @@
 # Deploy OpenNext Worker to Cloudflare.
 #
-# Required GitHub repository secrets:
-#   CLOUDFLARE_API_TOKEN  — API token with Workers Scripts Edit (+ R2 if needed)
+# Credentials live on GitHub *Environments*, not on the repository, so a run can
+# only read the Cloudflare token for the environment it was approved for:
+#   staging     — auto-deploys, restricted to the `staging` branch
+#   Production  — requires a manual reviewer approval, restricted to `main`
+#
+# Per-environment secrets (both environments):
+#   CLOUDFLARE_API_TOKEN  — scoped token: Workers Scripts Edit, Workers R2
+#                           Storage Edit, Account Settings Read (this account only)
 #   CLOUDFLARE_ACCOUNT_ID — Cloudflare account ID
 #
-# Optional GitHub Actions variables / secrets for build-time Next.js env
-# (see context/deploy-runbook.md): APP_ENV, NEXT_PUBLIC_SITE_URL,
-# NEXT_PUBLIC_R2_PUBLIC_BASE_URL, NEXT_PUBLIC_SANITY_*, etc.
-# `NEXT_PUBLIC_*` is inlined at build time and robots.txt/sitemap.xml are
-# prerendered, so each has a literal default: an unset repo variable would
-# otherwise bake `http://localhost:3000` and ship `Disallow: /` to production.
+# Repository variables supply build-time Next.js config (see
+# context/deploy-runbook.md). `NEXT_PUBLIC_*` is inlined at build time and
+# robots.txt/sitemap.xml are prerendered, so each has a literal default: an unset
+# repo variable would otherwise bake `http://localhost:3000` and ship
+# `Disallow: /` to production.
 #
 # Triggers:
 #   push → staging branch → pnpm deploy:staging (wrangler --env staging)
-#   push → main branch    → pnpm deploy:prod    (production)
+#   push → main branch    → pnpm deploy:prod    (production, after approval)
 #
 # Track A owns package scripts:
 #   deploy:staging / deploy:prod = opennextjs-cloudflare build + deploy
+#
+# Actions are pinned to commit SHAs; a moving tag could otherwise be repointed at
+# attacker-controlled code that reads these secrets.
 
 name: Deploy
 
@@ -39,25 +47,34 @@ concurrency:
   group: cloudflare-deploy-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 jobs:
-  deploy:
-    name: Deploy (${{ github.event_name == 'workflow_dispatch' && inputs.target || (github.ref_name == 'main' && 'production' || 'staging') }})
+  deploy-staging:
+    name: Deploy (staging)
+    if: >-
+      (github.event_name == 'push' && github.ref_name == 'staging') ||
+      (github.event_name == 'workflow_dispatch' && inputs.target == 'staging')
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    permissions:
-      contents: read
+    environment: staging
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # Keep the job's GITHUB_TOKEN out of .git/config so a compromised
+          # dependency's install script cannot reuse it to push.
+          persist-credentials: false
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
         with:
           version: 10
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: pnpm
@@ -65,20 +82,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Resolve deploy target
-        id: target
-        shell: bash
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "env=${{ inputs.target }}" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.ref_name }}" = "main" ]; then
-            echo "env=production" >> "$GITHUB_OUTPUT"
-          else
-            echo "env=staging" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Deploy staging
-        if: steps.target.outputs.env == 'staging'
+      - name: Deploy
         run: pnpm run deploy:staging
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -90,8 +94,36 @@ jobs:
           NEXT_PUBLIC_SANITY_DATASET: ${{ vars.NEXT_PUBLIC_SANITY_DATASET || 'kamiyon' }}
           NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN: ${{ vars.NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN_STAGING }}
 
-      - name: Deploy production
-        if: steps.target.outputs.env == 'production'
+  deploy-production:
+    name: Deploy (production)
+    if: >-
+      (github.event_name == 'push' && github.ref_name == 'main') ||
+      (github.event_name == 'workflow_dispatch' && inputs.target == 'production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: Production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Deploy
         run: pnpm run deploy:prod
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
