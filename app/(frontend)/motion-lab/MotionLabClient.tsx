@@ -20,7 +20,11 @@ import {
   GSAP_ALLOW_MOTION,
   GSAP_REDUCE_MOTION,
 } from "@/lib/gsap";
-import { MOTION_DURATION, MOTION_EASE } from "@/lib/motion/constants";
+import {
+  MOTION_DURATION,
+  MOTION_EASE,
+  SCROLL_SCRUB_SMOOTH,
+} from "@/lib/motion/constants";
 
 const DEMO_CARDS = [
   { title: "Reveal", body: "Viewport fade-up via AnimatedSection." },
@@ -98,7 +102,7 @@ function ParallaxBand() {
     <div className="relative mt-10 h-64 overflow-hidden rounded-[var(--radius-card)] border border-[var(--border-default)]">
       <div ref={parallaxRef} className="absolute inset-[-20%] will-change-transform">
         <Image
-          src="/assets/background.jpg"
+          src="/assets/background.avif"
           alt=""
           fill
           className="object-cover"
@@ -137,7 +141,7 @@ function ScrollTimelineDemo() {
             trigger: root,
             start: "top 70%",
             end: "bottom 40%",
-            scrub: 0.6,
+            scrub: SCROLL_SCRUB_SMOOTH,
           }),
         });
 

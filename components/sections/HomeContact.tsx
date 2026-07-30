@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { WordPullUp } from "@/components/ui/WordPullUp";
 
-const DEFAULT_VISUAL_SRC = "/assets/background.jpg";
+const DEFAULT_VISUAL_SRC = "/assets/background.avif";
 
 /** Pointy-top hexagon outline + solid envelope (Fully Illustrated–style contact mark). */
 function HexagonMailIcon({ className }: { className?: string }) {

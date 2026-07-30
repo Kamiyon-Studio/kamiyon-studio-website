@@ -1,10 +1,20 @@
 "use client";
 
-import { useGSAP } from "@gsap/react";
 import { useRef } from "react";
 
-import { gsap, ScrollTrigger } from "@/lib/gsap";
-import { prefersReducedMotion } from "@/lib/motion/reduced-motion";
+import { useGsapContext } from "@/hooks/useGsapContext";
+import {
+  createScrollTriggerDefaults,
+  gsap,
+  GSAP_ALLOW_MOTION,
+  GSAP_REDUCE_MOTION,
+} from "@/lib/gsap";
+import {
+  MOTION_DISTANCE,
+  MOTION_DURATION,
+  MOTION_EASE,
+  MOTION_STAGGER,
+} from "@/lib/motion/constants";
 import { DISPLAY_HEADING_CLASS } from "@/lib/ui/display-heading";
 import { cn } from "@/lib/utils";
 
@@ -25,20 +35,21 @@ type WordPullUpProps = {
  */
 function WordPullUp({
   words,
-  delayMultiple = 0.12,
+  delayMultiple = MOTION_STAGGER.base,
   className,
   as: Tag = "h1",
   id,
   startOnView = true,
 }: WordPullUpProps) {
-  const containerRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLElement | null>(null);
 
   const classNames = cn(DISPLAY_HEADING_CLASS, className);
 
-  useGSAP(
+  useGsapContext(
+    containerRef,
     () => {
       const container = containerRef.current;
-      if (!container || prefersReducedMotion()) {
+      if (!container) {
         return;
       }
 
@@ -47,50 +58,63 @@ function WordPullUp({
         return;
       }
 
-      gsap.set(wordEls, { y: 20, opacity: 0 });
+      const mm = gsap.matchMedia();
 
-      const tween = gsap.to(wordEls, {
-        y: 0,
-        opacity: 1,
-        duration: 0.5,
-        stagger: delayMultiple,
-        ease: "power2.out",
-        paused: startOnView,
+      mm.add(GSAP_REDUCE_MOTION, () => {
+        gsap.set(wordEls, { autoAlpha: 1, y: 0 });
       });
 
-      if (startOnView) {
-        ScrollTrigger.create({
-          trigger: container,
-          start: "top 85%",
-          once: true,
-          onEnter: () => tween.play(),
-        });
-      } else {
-        tween.play();
-      }
+      mm.add(GSAP_ALLOW_MOTION, () => {
+        const from = {
+          autoAlpha: 0,
+          y: MOTION_DISTANCE.staggerY,
+        };
+        const to = {
+          autoAlpha: 1,
+          y: 0,
+          duration: MOTION_DURATION.base,
+          stagger: delayMultiple,
+          ease: MOTION_EASE.out,
+        };
+
+        if (startOnView) {
+          gsap.fromTo(wordEls, from, {
+            ...to,
+            scrollTrigger: createScrollTriggerDefaults({
+              trigger: container,
+              once: true,
+            }),
+          });
+          return;
+        }
+
+        gsap.fromTo(wordEls, from, to);
+      });
     },
-    { scope: containerRef, dependencies: [words, delayMultiple, startOnView] },
+    [words, delayMultiple, startOnView],
   );
 
-  if (prefersReducedMotion()) {
-    return (
-      <Tag id={id} className={classNames}>
-        {words}
-      </Tag>
-    );
-  }
-
+  // Rendered identically regardless of motion preference: reduced-motion is
+  // handled in the GSAP matchMedia effect, so the words stay in one tree and
+  // avoid server/client hydration mismatches.
   return (
     <Tag ref={containerRef as never} id={id} className={classNames}>
-      {words.split(" ").map((word, i, arr) => (
-        <span
-          key={`${word}-${i}`}
-          className="word-pull-up-word inline-block pr-[0.35em]"
-        >
-          {word === "" ? "\u00a0" : word}
-          {i < arr.length - 1 ? "\u00a0" : null}
-        </span>
-      ))}
+      {words.split(" ").flatMap((word, i, arr) => {
+        const span = (
+          <span
+            key={`${word}-${i}`}
+            className="word-pull-up-word inline-block pr-[0.35em]"
+          >
+            {word === "" ? "\u00a0" : word}
+          </span>
+        );
+
+        // Separator sits *outside* the span on purpose: accessible-name
+        // computation trims each element's own text, so a space kept inside
+        // would be dropped and the heading would announce as one run-on word.
+        // Must stay breaking whitespace, or long headings cannot wrap.
+        return i < arr.length - 1 ? [span, " "] : [span];
+      })}
     </Tag>
   );
 }

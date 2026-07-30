@@ -33,7 +33,7 @@ describe("GlowingShadow", () => {
   it("does not render nested interactive roles — children supply interactivity", () => {
     render(
       <GlowingShadow>
-        <a href="/contact">Contact</a>
+        <a href="https://example.com/contact">Contact</a>
       </GlowingShadow>,
     );
 

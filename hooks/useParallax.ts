@@ -8,7 +8,10 @@ import {
   GSAP_ALLOW_MOTION,
   GSAP_REDUCE_MOTION,
 } from "@/lib/gsap";
-import { MOTION_DISTANCE } from "@/lib/motion/constants";
+import {
+  MOTION_DISTANCE,
+  SCROLL_SCRUB_SMOOTH,
+} from "@/lib/motion/constants";
 import type { MotionElementRef, ParallaxOptions } from "@/lib/motion/types";
 
 import { useGsapContext } from "./useGsapContext";
@@ -18,7 +21,7 @@ const defaults: Required<
 > = {
   speed: MOTION_DISTANCE.parallax,
   disabled: false,
-  scrub: true,
+  scrub: SCROLL_SCRUB_SMOOTH,
 };
 
 export function useParallax<T extends HTMLElement = HTMLElement>(

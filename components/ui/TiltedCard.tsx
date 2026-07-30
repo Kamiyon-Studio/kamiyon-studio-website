@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { prefersReducedMotion } from "@/lib/motion/reduced-motion";
 
 import "./TiltedCard.css";
@@ -84,6 +85,7 @@ export function TiltedCard({
   const isContentMode = Boolean(children);
   const [tilt, setTilt] = useState<TiltState>(idleTilt);
   const lastYRef = useRef(0);
+  const reduceMotion = useReducedMotion();
 
   function handleMouse(e: MouseEvent<HTMLElement>) {
     if (prefersReducedMotion() || !ref.current) return;
@@ -112,8 +114,6 @@ export function TiltedCard({
     setTilt(idleTilt);
     lastYRef.current = 0;
   }
-
-  const reduceMotion = prefersReducedMotion();
 
   const figureClassName = [
     "tilted-card-figure",

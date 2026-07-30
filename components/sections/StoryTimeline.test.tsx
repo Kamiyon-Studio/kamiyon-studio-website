@@ -42,7 +42,7 @@ const sample: TimelineEntryV2[] = [
     date: "2024-03-01",
     title: "Studio founded",
     body: "Kamiyon Studio began.",
-    images: [{ src: "/assets/background.jpg", alt: "Founding" }],
+    images: [{ src: "/assets/background.avif", alt: "Founding" }],
   },
 ];
 

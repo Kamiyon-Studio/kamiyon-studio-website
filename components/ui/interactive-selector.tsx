@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import {
   useCallback,
   useEffect,
@@ -262,7 +263,7 @@ export function InteractiveSelector({
             onClick={() => goToRelative(-1)}
             className="inline-flex size-9 items-center justify-center border-2 border-[var(--color-primary)] text-[var(--color-primary)] transition-colors duration-200 hover:bg-[var(--color-primary)] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-secondary)]"
           >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" aria-hidden />
           </button>
           <button
             type="button"
@@ -270,7 +271,7 @@ export function InteractiveSelector({
             onClick={() => goToRelative(1)}
             className="inline-flex size-9 items-center justify-center border-2 border-[var(--color-primary)] text-[var(--color-primary)] transition-colors duration-200 hover:bg-[var(--color-primary)] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-secondary)]"
           >
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            <FontAwesomeIcon icon={faArrowRight} className="h-4 w-4" aria-hidden />
           </button>
         </div>
       ) : null}

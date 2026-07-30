@@ -16,6 +16,7 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "knip": "knip",
+    "media:hero-parallax": "tsx scripts/media/hero-parallax/index.ts",
     "sanity": "sanity",
     "sanity:dev": "sanity dev",
     "sanity:deploy": "sanity deploy",
@@ -23,6 +24,10 @@
     "sanity:seed": "tsx scripts/sanity/seed/index.ts"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^7.3.1",
+    "@fortawesome/free-brands-svg-icons": "^7.3.1",
+    "@fortawesome/free-solid-svg-icons": "^7.3.1",
+    "@fortawesome/react-fontawesome": "^3.5.0",
     "@gsap/react": "^2.1.2",
     "@opennextjs/cloudflare": "^1.20.2",
     "@sanity/client": "^7.24.0",
@@ -62,6 +67,7 @@
     "eslint-config-next": "16.2.11",
     "jsdom": "^29.1.1",
     "knip": "^6.25.0",
+    "sharp": "^0.35.3",
     "tailwindcss": "^4",
     "tsx": "^4.23.1",
     "typescript": "^5.9.3",

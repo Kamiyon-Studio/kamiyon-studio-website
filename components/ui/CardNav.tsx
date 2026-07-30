@@ -9,6 +9,8 @@ import {
   type CSSProperties,
   type KeyboardEvent,
 } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 
 import type { CardNavItem } from "@/lib/config/card-nav";
 import { gsap } from "@/lib/gsap";
@@ -31,26 +33,6 @@ export type CardNavProps = {
   /** Collapsed bar is see-through; expands to solid surface. */
   transparent?: boolean;
 };
-
-function ArrowUpRightIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M7 17L17 7" />
-      <path d="M7 7h10v10" />
-    </svg>
-  );
-}
 
 function isExternalHref(href: string): boolean {
   return (
@@ -368,7 +350,12 @@ export function CardNav({
                         ? { target: "_blank", rel: "noopener noreferrer" }
                         : {})}
                     >
-                      <ArrowUpRightIcon className="nav-card-link-icon" />
+                      <FontAwesomeIcon
+                        icon={faArrowUpRightFromSquare}
+                        className="nav-card-link-icon"
+                        style={{ width: 14, height: 14 }}
+                        aria-hidden
+                      />
                       {lnk.label}
                     </a>
                   ) : (
@@ -379,7 +366,12 @@ export function CardNav({
                       aria-label={lnk.ariaLabel}
                       tabIndex={isExpanded ? undefined : -1}
                     >
-                      <ArrowUpRightIcon className="nav-card-link-icon" />
+                      <FontAwesomeIcon
+                        icon={faArrowUpRightFromSquare}
+                        className="nav-card-link-icon"
+                        style={{ width: 14, height: 14 }}
+                        aria-hidden
+                      />
                       {lnk.label}
                     </Link>
                   ),

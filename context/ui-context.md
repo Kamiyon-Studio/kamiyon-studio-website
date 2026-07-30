@@ -179,7 +179,7 @@ Marketing site patterns — full-width heroes, constrained content columns.
 
 | Page | Layout |
 | --- | --- |
-| Home | Combined full-bleed opening stage (brand + motto upper; **continuous partners logo marquee** lower — larger logos, grayscale→color on hover, `/#home-partners`, `data-nav-theme="dark"`, ADR-023 + ADR-026) → projects bento → **services vertical marquee** (`/#home-services`, ADR-021) → contact CTA |
+| Home | Combined full-bleed opening stage — **4-plate layered parallax** backdrop from R2 with the original single-plate hero as fallback (ADR-029); brand + motto upper; **continuous partners logo marquee** lower — larger logos, grayscale→color on hover, `/#home-partners`, `data-nav-theme="dark"`, ADR-023 + ADR-026) → projects bento → **services vertical marquee** (`/#home-services`, ADR-021) → contact CTA |
 | About | Full-viewport `ABOUT US` hero (`data-nav-theme="dark"`, homepage-like bg/parallax/opening) → two-column `OUR STORY` editorial intro → **Kamiyon milestone timeline** (`/#timeline`, ADR-025) → team **FocusRail** 3D carousel with click-to-expand card modal (`/#team`, ADR-028) — important section titles use **WordPullUp** / `DISPLAY_HEADING_CLASS` (Projects-style). Vision / Values / Culture **removed** (ADR-027; archived) |
 | Services | Intro → category groups → service card grid → industries callout → CTA |
 | Products | Intro → product card grid → detail: hero media + features + goals |
@@ -214,12 +214,15 @@ Animations should communicate delight, not distraction:
 | About story timeline | Centre progress line via GSAP ScrollTrigger scrub; sticky year rail + cumulative roster aside (`xl+`); bordered frames + optional Embla; static / full roster under reduced motion | `components/ui/timeline` (+ entry card / media / aside) via `StoryTimeline` — do **not** wrap in outer `AnimatedSection` (ADR-025) |
 | Contact FAQ accordion | Numbered spring height reveal (`motion/react`); single-open | `components/ui/InteractiveAccordion` (ADR-020) |
 | Home services discovery | Vertical text marquee; each row is a link to `/services/{slug}`; static list under reduced motion | `components/ui/cta-with-text-marquee` via `ServicesStack` (ADR-021) |
+| Home hero layered parallax | 4 alpha-keyed plates scrubbed to different `yPercent` (70/55/40/10) over the hero's own scroll range; brand rides the depth-3 slot; fine-pointer + motion-allowed only | `hooks/useLayeredParallax` via `HeroParallaxOpening` (ADR-029) |
 
 Do not wrap an entire section in `AnimatedSection` when the heading should pull up independently — animate the heading with `WordPullUp` and fade the remaining copy/content separately.
 
 > **Source:** visual-identity Motion Design
 
 Always honor `prefers-reduced-motion: reduce`.
+
+**Reading the preference:** inside effects, GSAP handlers, and event handlers call `prefersReducedMotion()` directly — those are client-only. When the value affects **rendered markup** (classes, inline styles, element structure), use `hooks/useReducedMotion` instead. Calling `prefersReducedMotion()` in a render body makes the server render the motion variant and the client render the reduced variant, and React throws away the whole tree on hydration.
 
 ---
 

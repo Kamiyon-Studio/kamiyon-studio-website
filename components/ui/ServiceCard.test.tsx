@@ -56,7 +56,7 @@ describe("ServiceCard", () => {
   it("renders a full-bleed placeholder background image", () => {
     const { container } = render(<ServiceCard service={baseService} />);
 
-    expect(container.querySelector('img[src="/assets/background.jpg"]')).toBeInTheDocument();
+    expect(container.querySelector('img[src="/assets/background.avif"]')).toBeInTheDocument();
   });
 
   it("shows a Placeholder badge only when isPlaceholder is true", () => {

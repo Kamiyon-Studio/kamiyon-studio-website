@@ -8,6 +8,28 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "."),
+      // Font Awesome packages are used in UI but may be absent from
+      // package.json locally — hermetic stubs keep the suite green.
+      "@fortawesome/react-fontawesome": path.resolve(
+        __dirname,
+        "test/mocks/fortawesome/react-fontawesome.tsx",
+      ),
+      "@fortawesome/fontawesome-svg-core/styles.css": path.resolve(
+        __dirname,
+        "test/mocks/fortawesome/styles.css",
+      ),
+      "@fortawesome/fontawesome-svg-core": path.resolve(
+        __dirname,
+        "test/mocks/fortawesome/fontawesome-svg-core.ts",
+      ),
+      "@fortawesome/free-solid-svg-icons": path.resolve(
+        __dirname,
+        "test/mocks/fortawesome/free-solid-svg-icons.ts",
+      ),
+      "@fortawesome/free-brands-svg-icons": path.resolve(
+        __dirname,
+        "test/mocks/fortawesome/free-brands-svg-icons.ts",
+      ),
     },
   },
   test: {

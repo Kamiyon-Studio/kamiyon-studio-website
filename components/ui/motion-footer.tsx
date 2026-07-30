@@ -17,9 +17,13 @@ import {
   GSAP_ALLOW_MOTION,
   GSAP_REDUCE_MOTION,
 } from "@/lib/gsap";
+import { SCROLL_SCRUB_SMOOTH } from "@/lib/motion/constants";
 import { prefersReducedMotion } from "@/lib/motion/reduced-motion";
 import { STUDIO_LOCATION } from "@/lib/seo/constants";
 import { cn } from "@/lib/utils";
+
+/** Full-viewport footer travel needs softer lag than SCROLL_SCRUB_UI. */
+const FOOTER_SCROLL_SCRUB = SCROLL_SCRUB_SMOOTH;
 
 const currentYear = new Date().getFullYear();
 
@@ -222,7 +226,7 @@ export function CinematicFooter({
               trigger: wrapperRef.current,
               start: "top 80%",
               end: "bottom bottom",
-              scrub: 1,
+              scrub: FOOTER_SCROLL_SCRUB,
             },
           },
         );
@@ -239,7 +243,7 @@ export function CinematicFooter({
               trigger: wrapperRef.current,
               start: "top 40%",
               end: "bottom bottom",
-              scrub: 1,
+              scrub: FOOTER_SCROLL_SCRUB,
             },
           },
         );

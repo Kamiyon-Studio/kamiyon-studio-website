@@ -11,6 +11,7 @@ import {
   GSAP_ALLOW_MOTION,
   GSAP_REDUCE_MOTION,
 } from "@/lib/gsap";
+import { SCROLL_SCRUB_SMOOTH } from "@/lib/motion/constants";
 import { cn } from "@/lib/utils";
 
 import "./parallax-scrolling.css";
@@ -29,7 +30,7 @@ const LAYER_Y_PERCENTS = [
 ] as const;
 
 const LAYER_IMAGES = {
-  back: "/assets/background.jpg",
+  back: "/assets/background.avif",
   mid: "/assets/youtube-banner.png",
   front: "/assets/kami-chan-concept-art.png",
 } as const;
@@ -81,7 +82,7 @@ export function ParallaxScrolling({
             trigger: triggerElement,
             start: "0% 0%",
             end: "100% 0%",
-            scrub: 0,
+            scrub: SCROLL_SCRUB_SMOOTH,
           }),
         });
 

@@ -27,3 +27,9 @@ export const MOTION_STAGGER = {
 } as const;
 
 export const SCROLL_TRIGGER_START = "top 85%";
+
+/** Soft scrub lag for parallax / continuous scroll-linked motion (seconds). */
+export const SCROLL_SCRUB_SMOOTH = 0.65;
+
+/** Shorter scrub lag for timeline / compact UI scrubs (seconds). */
+export const SCROLL_SCRUB_UI = 0.45;

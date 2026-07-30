@@ -19,9 +19,9 @@ type PartnersMarqueeProps = {
   layout?: "section" | "band";
 };
 
-/** ~3/4 of the prior h-14 / md:h-16 / lg:h-20 sizes. */
+/** Standard marquee logo height (~32–36px). */
 const PARTNER_LOGO_IMAGE_CLASS =
-  "h-[2.625rem] w-auto max-w-[7.5rem] md:h-12 md:max-w-[9rem] lg:h-[3.75rem] lg:max-w-[10.5rem]";
+  "h-8 w-auto max-w-[6rem] md:h-9 md:max-w-[7rem]";
 
 export function PartnersMarquee({
   eyebrow,

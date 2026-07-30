@@ -17,6 +17,7 @@ import {
   GSAP_ALLOW_MOTION,
   GSAP_REDUCE_MOTION,
 } from "@/lib/gsap";
+import { SCROLL_SCRUB_UI } from "@/lib/motion/constants";
 import { cn } from "@/lib/utils";
 
 import { WordPullUp } from "./WordPullUp";
@@ -111,7 +112,7 @@ export function Timeline({
             trigger: track,
             start: "top center",
             end: "bottom center",
-            scrub: 0.35,
+            scrub: SCROLL_SCRUB_UI,
           }),
         });
       });

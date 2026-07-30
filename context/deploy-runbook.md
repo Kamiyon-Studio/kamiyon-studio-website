@@ -10,18 +10,51 @@
 | `main` | production (default) | `kamiyon-studio-website` | `pnpm deploy:prod` |
 | `test` (feature) | — | — | no auto-deploy; merge → `staging` / `main` |
 
-CI: [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) on push to `staging` / `main` (also `workflow_dispatch`).
+CI: [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) on push to `staging` / `main` (also `workflow_dispatch`). The repo is `owenlim225/kamiyon-studio-website` (the `Kamiyon-Studio/…` remote URL is a rename redirect) and it is **public**, so every workflow log is world-readable — never `echo` a secret in a step.
 
-### GitHub secrets (required for Actions)
+### GitHub Environments (deploy credentials live here, not on the repo)
+
+| Environment | Gate | Branches | Job |
+| --- | --- | --- | --- |
+| `staging` | none — auto-deploys | `staging` only | `deploy-staging` |
+| `Production` | **required reviewer** (`owenlim225`) | `main` only | `deploy-production` |
+
+Repository-level secrets are deliberately empty. Each environment holds its own copy of:
 
 | Secret | Purpose |
 | --- | --- |
 | `CLOUDFLARE_API_TOKEN` | Wrangler / OpenNext deploy auth |
 | `CLOUDFLARE_ACCOUNT_ID` | Target Cloudflare account |
 
-### GitHub Actions variables (build-time `NEXT_PUBLIC_*`)
+A run can only read the environment it was approved for, so a `main` build cannot reach staging credentials and a production deploy pauses for approval before the token is ever injected. Set or rotate a value with (never pass `--body`, it lands in shell history and the process list):
 
-Set per environment as documented in the workflow (e.g. `NEXT_PUBLIC_SITE_URL_STAGING`, `NEXT_PUBLIC_SITE_URL_PRODUCTION`, R2 public base URLs, Sanity project/dataset, CF Web Analytics tokens).
+```powershell
+gh secret set CLOUDFLARE_API_TOKEN --env Production --repo owenlim225/kamiyon-studio-website
+gh secret set CLOUDFLARE_API_TOKEN --env staging    --repo owenlim225/kamiyon-studio-website
+```
+
+**Cloudflare API token scope** (Dashboard → My Profile → API Tokens → Create Custom Token), least privilege for `pnpm deploy:*`:
+
+| Kind | Permission | Access |
+| --- | --- | --- |
+| Account | Workers Scripts | Edit |
+| Account | Workers R2 Storage | Edit |
+| Account | Account Settings | Read |
+
+Account Resources: **this account only**. Zone Resources: none — attaching custom domains (WS4b step 6) stays a dashboard action so CI never holds DNS write.
+
+### GitHub Actions variables (build-time `NEXT_PUBLIC_*`, repository level)
+
+These are inlined into the client bundle, so they are public by definition and are stored as variables rather than secrets: `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `APP_ENV_STAGING`, `APP_ENV_PRODUCTION`, `NEXT_PUBLIC_SITE_URL_STAGING`, `NEXT_PUBLIC_SITE_URL_PRODUCTION`, `NEXT_PUBLIC_R2_PUBLIC_BASE_URL_STAGING`, `NEXT_PUBLIC_R2_PUBLIC_BASE_URL_PRODUCTION`.
+
+`NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN_STAGING` / `_PRODUCTION` are intentionally unset — the beacon renders nothing until a T14 token exists. The workflow carries a literal fallback for every other value so a deleted variable cannot silently ship `Disallow: /`.
+
+### Actions hardening applied
+
+- Workflow actions are pinned to commit SHAs, and **SHA pinning is enforced repo-wide** — a workflow referencing a moving tag is rejected.
+- Default `GITHUB_TOKEN` permission is **read**, and Actions may not approve pull requests.
+- Fork pull requests from **all external contributors** require approval before any workflow runs.
+- `actions/checkout` runs with `persist-credentials: false`, so no job token is left in `.git/config` for a dependency install script to pick up.
 
 Worker **runtime** secrets (`SANITY_REVALIDATE_SECRET`, `MEDIA_UPLOAD_SECRET`, `SANITY_API_READ_TOKEN`, `RESEND_API_KEY`, …) are configured in the Cloudflare dashboard / `wrangler secret put`, not in this repo.
 
@@ -40,7 +73,7 @@ Worker **runtime** secrets (`SANITY_REVALIDATE_SECRET`, `MEDIA_UPLOAD_SECRET`, `
 | `CONTACT_TO_EMAIL` | optional (defaults to public Gmail) | Worker var | Worker var |
 | `CONTACT_FROM_EMAIL` | `Kamiyon Studio <noreply@send.kamiyonstudio.com>` | Worker var | Worker var (after DKIM/SPF) |
 | `NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN` | optional | staging token | prod token |
-| `CLOUDFLARE_ACCOUNT_ID` | optional local Wrangler | GitHub secret | GitHub secret |
+| `CLOUDFLARE_ACCOUNT_ID` | optional local Wrangler | `staging` env secret | `Production` env secret |
 
 Also document Sanity: `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, optional `SANITY_API_READ_TOKEN`. For **hosted Studio** deploy, also set `SANITY_STUDIO_PROJECT_ID` / `SANITY_STUDIO_DATASET` (static `process.env` only — see ADR-009). Repo defaults: `c6ej1xoj` / `kamiyon`.
 
@@ -56,6 +89,19 @@ Also document Sanity: `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATAS
 Incremental cache buckets (OpenNext): `kamiyon-next-cache-staging` / `kamiyon-next-cache-prod`.
 
 These names are wired in [`wrangler.jsonc`](../wrangler.jsonc). Track F provisioned all four buckets; media custom domains respond over HTTPS (empty `/` → 404 is expected).
+
+### Home hero parallax plates (ADR-029)
+
+The four layered-hero plates are R2-only assets under `site/hero/parallax/v1/` (originals archived at `…/v1/sources/`). They are **not** in the repo, and `deploy.yml` does not publish them — republish by hand when the art changes:
+
+```powershell
+# dry run first (prints keys, sizes, and the composite preview path)
+pnpm media:hero-parallax -- --source <folder-with-layer-1..4> --target staging
+pnpm media:hero-parallax -- --source <folder-with-layer-1..4> --target staging --apply
+pnpm media:hero-parallax -- --source <folder-with-layer-1..4> --target production --apply
+```
+
+Requires `wrangler login`. Bump the `v1` segment in `lib/home/hero-parallax-layers.ts` for a cache bust rather than overwriting keys. If `NEXT_PUBLIC_R2_PUBLIC_BASE_URL` is unset at **build** time the home hero silently falls back to the original single-plate `HeroOpening`, so verify the plates load after a domain change.
 
 ---
 
@@ -251,7 +297,7 @@ Two operational gotchas found while deploying:
 | `NEXT_PRIVATE_MINIMAL_MODE=1` | `wrangler.jsonc` vars (runtime) — required or Workers 500s |
 | `SANITY_REVALIDATE_SECRET`, `MEDIA_UPLOAD_SECRET` | `wrangler secret put … --env production` (never in config, never printed) |
 | `SANITY_API_READ_TOKEN` | Not required — dataset `kamiyon` reads publicly; add only if the dataset becomes private |
-| `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | GitHub repo secrets (Actions) |
+| `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | GitHub **environment** secrets on `staging` / `Production` (Actions) |
 
 Bindings are identical to staging except the bucket names: `ASSETS`, `WORKER_SELF_REFERENCE` → `kamiyon-studio-website`, `MEDIA_BUCKET` → `kamiyon-media-prod`, `NEXT_INC_CACHE_R2_BUCKET` → `kamiyon-next-cache-prod`. No KV/D1/Queues are used.
 
@@ -259,7 +305,9 @@ Bindings are identical to staging except the bucket names: `ASSETS`, `WORKER_SEL
 
 - [x] Production Worker deployed and green on `https://kamiyon-studio-website.limosnerosherwin.workers.dev` (2026-07-26; re-smoked 2026-07-30)
 - [x] Prod Worker secrets `SANITY_REVALIDATE_SECRET` + `MEDIA_UPLOAD_SECRET` set (2026-07-26; both endpoints answer `401`, not `503`)
-- [ ] GitHub secrets `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` confirmed (Actions deploys `main` → production)
+- [x] GitHub Environments `staging` / `Production` created, branch-restricted, production gated on reviewer approval (2026-07-30)
+- [x] `CLOUDFLARE_ACCOUNT_ID` set as an environment secret in both environments (2026-07-30)
+- [ ] `CLOUDFLARE_API_TOKEN` minted with the least-privilege scope above and set in both environments — **CI cannot deploy until this exists**
 - [x] Sanity CORS includes `https://kamiyonstudio.com` (+ `www`) — added 2026-07-30
 - [ ] Production revalidate webhook created with `Authorization: Bearer <prod SANITY_REVALIDATE_SECRET>`
 - [ ] Cloudflare Web Analytics token for the apex created and set as a **build** variable (T14) — otherwise the beacon silently no-ops

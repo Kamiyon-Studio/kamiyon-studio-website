@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 
 import {
   ensureGsapPlugins,
@@ -12,6 +13,9 @@ import { revealScrollTriggeredAncestors } from "@/lib/motion/hash-reveal";
 type GsapScrollProviderProps = {
   children: ReactNode;
 };
+
+/** Single delayed refresh for late-loading images after route change. */
+const LATE_IMAGE_REFRESH_MS = 400;
 
 function focusHashTarget(hash: string): void {
   if (!hash || hash === "#") {
@@ -73,8 +77,13 @@ function NativeHashFocus() {
 /**
  * Native document scroll + ScrollTrigger sync (no Lenis).
  * Keeps hash-link focus behavior for skip links and in-page anchors.
+ * Refreshes ScrollTrigger on App Router pathname changes (never mass-kills).
  */
 export function GsapScrollProvider({ children }: GsapScrollProviderProps) {
+  const pathname = usePathname();
+  /** null until first effect — skips initial mount refresh (fonts/load handle it). */
+  const prevPathnameRef = useRef<string | null>(null);
+
   useEffect(() => {
     ensureGsapPlugins();
 
@@ -99,6 +108,44 @@ export function GsapScrollProvider({ children }: GsapScrollProviderProps) {
       window.removeEventListener("load", onLoad);
     };
   }, []);
+
+  useEffect(() => {
+    if (prevPathnameRef.current === null) {
+      prevPathnameRef.current = pathname;
+      return;
+    }
+
+    if (prevPathnameRef.current === pathname) {
+      return;
+    }
+
+    // Sync before rAF so A→B→A (cancelled frames) still schedules a refresh.
+    prevPathnameRef.current = pathname;
+
+    let cancelled = false;
+    let lateTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const rafId = requestAnimationFrame(() => {
+      if (cancelled) {
+        return;
+      }
+      refreshScrollTrigger();
+      // One delayed refresh for late images; cancelled on rapid route changes.
+      lateTimer = setTimeout(() => {
+        if (!cancelled) {
+          refreshScrollTrigger();
+        }
+      }, LATE_IMAGE_REFRESH_MS);
+    });
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(rafId);
+      if (lateTimer !== undefined) {
+        clearTimeout(lateTimer);
+      }
+    };
+  }, [pathname]);
 
   return (
     <>

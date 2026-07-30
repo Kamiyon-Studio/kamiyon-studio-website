@@ -6,6 +6,7 @@ import { AnimationProviders } from "@/components/providers/AnimationProviders";
 import { DEFAULT_DESCRIPTION, SITE_NAME } from "@/lib/seo/constants";
 import { getOrganizationJsonLd } from "@/lib/seo/organization-jsonld";
 import { SITE_URL } from "@/lib/seo/site-url";
+import "@/lib/fontawesome";
 import "../globals.css";
 
 const geologica = Geologica({

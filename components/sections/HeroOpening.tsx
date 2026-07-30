@@ -2,22 +2,21 @@
 
 import Image from "next/image";
 
+import { HeroBrand } from "@/components/sections/HeroBrand";
 import { HeroScrollHelper } from "@/components/sections/HeroScrollHelper";
 import { PartnersMarquee } from "@/components/sections/PartnersMarquee";
 import { Container } from "@/components/ui/Container";
-import { SplitText } from "@/components/ui/SplitText";
 import { useOpeningAnimation } from "@/hooks/useOpeningAnimation";
 import { useParallax } from "@/hooks/useParallax";
 import type { HomeHero } from "@/lib/cms/types";
 import type { PartnerPlaceholder } from "@/lib/home/partner-placeholders";
-import { SITE_MOTTO } from "@/lib/seo/constants";
 
 type HeroOpeningProps = {
   hero: HomeHero;
   partners: PartnerPlaceholder[];
 };
 
-const HERO_BACKGROUND = "/assets/background.jpg";
+const HERO_BACKGROUND = "/assets/background.avif";
 
 /**
  * Full-bleed opening stage: brand + motto upper, partners marquee band lower.
@@ -74,23 +73,7 @@ export function HeroOpening({ hero: _hero, partners }: HeroOpeningProps) {
             data-testid="hero-brand-zone"
             className="flex flex-1 flex-col items-center justify-center text-center"
           >
-            <SplitText
-              tag="h1"
-              text="KAMIYON STUDIO"
-              className="font-display text-[clamp(2.5rem,8vw,6rem)] font-bold tracking-tight text-[var(--color-ivory)]"
-              delay={80}
-              duration={0.6}
-              ease="power3.out"
-              splitType="chars"
-              from={{ opacity: 0, y: 40 }}
-              to={{ opacity: 1, y: 0 }}
-              threshold={0.1}
-              rootMargin="-100px"
-              textAlign="center"
-            />
-            <p className="mt-4 font-sans text-sm tracking-[0.22em] text-[var(--color-ivory)]/70 uppercase md:mt-5 md:text-base">
-              {SITE_MOTTO}
-            </p>
+            <HeroBrand />
           </div>
         </Container>
 
