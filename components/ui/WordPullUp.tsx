@@ -72,25 +72,26 @@ function WordPullUp({
     { scope: containerRef, dependencies: [words, delayMultiple, startOnView] },
   );
 
-  if (prefersReducedMotion()) {
-    return (
-      <Tag id={id} className={classNames}>
-        {words}
-      </Tag>
-    );
-  }
-
+  // Rendered identically regardless of motion preference: the effect above bails
+  // out before hiding anything, so the words stay visible without a second tree.
   return (
     <Tag ref={containerRef as never} id={id} className={classNames}>
-      {words.split(" ").map((word, i, arr) => (
-        <span
-          key={`${word}-${i}`}
-          className="word-pull-up-word inline-block pr-[0.35em]"
-        >
-          {word === "" ? "\u00a0" : word}
-          {i < arr.length - 1 ? "\u00a0" : null}
-        </span>
-      ))}
+      {words.split(" ").flatMap((word, i, arr) => {
+        const span = (
+          <span
+            key={`${word}-${i}`}
+            className="word-pull-up-word inline-block pr-[0.35em]"
+          >
+            {word === "" ? "\u00a0" : word}
+          </span>
+        );
+
+        // Separator sits *outside* the span on purpose: accessible-name
+        // computation trims each element's own text, so a space kept inside
+        // would be dropped and the heading would announce as one run-on word.
+        // Must stay breaking whitespace, or long headings cannot wrap.
+        return i < arr.length - 1 ? [span, " "] : [span];
+      })}
     </Tag>
   );
 }

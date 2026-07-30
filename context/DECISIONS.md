@@ -657,3 +657,37 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 
 ---
 
+## ADR-029 — Home hero layered parallax on R2 plates, original hero as fallback (2026-07-30)
+
+**Status:** Accepted
+
+**Context:** The combined home opening (ADR-023) used one static plate (`/assets/background.jpg`) with a single-layer `useParallax` drift. Operator supplied four hand-painted depth plates (sunset range → lit ridge + lake → pagoda hillside → foreground rocks) and asked for a multi-plate parallax, with the plates hosted on R2 rather than committed to the repo, and the existing hero kept as the fallback.
+
+**Decision:**
+
+- Plates live **only** in R2 under the versioned prefix `site/hero/parallax/v1/layer-{1..4}.webp`; unprocessed originals are archived beside them under `sources/`. Nothing is committed to `public/`.
+- `pnpm media:hero-parallax` (`scripts/media/hero-parallax/**`) is the one-way build+publish pipeline: `sharp` keys the black voids to alpha, resizes, encodes WebP, then `wrangler r2 object put` uploads to `kamiyon-media-{staging,prod}`. Dry-run by default; `--apply` writes.
+- Alpha comes from **preprocessing, not CSS** — the source plates are JPEG composites over black. A 1-pass 3×3 erosion of the coverage map plus a `smoothstep(8, 28)` luminance ramp removes the premultiplied dark fringe on ridge edges.
+- `Hero` is a server component that calls `resolveHeroParallaxLayers()`: it returns `null` when `NEXT_PUBLIC_R2_PUBLIC_BASE_URL` is unset or not an allowed `next/image` host, and `Hero` then renders the original `HeroOpening`. No client-side error handling or feature flag.
+- Brand + motto extracted to `HeroBrand` so both hero variants share one wordmark, and the brand occupies the depth-3 parallax slot (plates 1–2 behind it, plate 4 in front).
+- Motion generalized into `hooks/useLayeredParallax`, gated on `GSAP_ALLOW_MOTION and (pointer: fine)` — touch and reduced-motion users get the static composition.
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| Hero art is an env-dependent runtime asset, not a repo asset | Keeps four ~1 MB plates out of git; R2 + CDN already serve all other media |
+| Alpha baked at build time vs `mix-blend-mode` / `mask-image` | Blend modes wash out the sunset plate and mask support is uneven; preprocessing is deterministic and cheap to serve |
+| Versioned key prefix instead of content hashes | Plates change rarely; bumping `v1` → `v2` is an explicit, reviewable cache bust |
+| Parallax skipped on coarse pointers | Four full-bleed plates scrubbing on mobile is a battery/jank cost for little payoff |
+| Radial brand scrim + strengthened bottom scrim | Wordmark and partner logos need contrast against a light-topped sunset plate |
+
+**Consequences:**
+
+- New: `lib/home/hero-parallax-layers.ts`, `components/sections/HeroParallaxOpening.tsx`, `components/sections/HeroBrand.tsx`, `hooks/useLayeredParallax.ts`, `scripts/media/hero-parallax/**`; `sharp` added as a dev dependency.
+- `HeroOpening` keeps its single-plate `useParallax` path and is now brand-free (delegates to `HeroBrand`).
+- Republishing plates is an operator step, not part of `deploy.yml` — see `.env.example` for the gating variable.
+- Home layout + motion rows in `ui-context.md` updated.
+
+---
+

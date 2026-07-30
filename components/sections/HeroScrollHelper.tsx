@@ -3,13 +3,14 @@
 import { useCallback, useRef, type PointerEventHandler } from "react";
 
 import { useHeroScrollBounce } from "@/hooks/useHeroScrollBounce";
-import { prefersReducedMotion } from "@/lib/motion/reduced-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 export function HeroScrollHelper() {
   const { visible, dismiss } = useHeroScrollBounce({
     threshold: 24,
     maxBounces: 1,
   });
+  const reduceMotion = useReducedMotion();
   const dismissOnceRef = useRef(false);
 
   const dismissOnce = useCallback(() => {
@@ -32,7 +33,6 @@ export function HeroScrollHelper() {
     return null;
   }
 
-  const reduceMotion = prefersReducedMotion();
   const enterClass = reduceMotion
     ? ""
     : "animate-[hero-scroll-helper-in_0.3s_ease-out_both]";

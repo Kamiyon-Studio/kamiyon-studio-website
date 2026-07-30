@@ -1,22 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { CustomEase } from "gsap/CustomEase";
 
 import { SameRouteLink } from "@/components/ui/SameRouteLink";
 import { useNavTheme } from "@/hooks/useNavTheme";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { gsap } from "@/lib/gsap";
-import {
-  prefersReducedMotion,
-  REDUCED_MOTION_QUERY,
-} from "@/lib/motion/reduced-motion";
-
-function subscribeReducedMotion(onStoreChange: () => void) {
-  const mediaQuery = window.matchMedia(REDUCED_MOTION_QUERY);
-  mediaQuery.addEventListener("change", onStoreChange);
-  return () => mediaQuery.removeEventListener("change", onStoreChange);
-}
 
 import "./sterling-gate-kinetic-navigation.css";
 
@@ -168,11 +159,7 @@ export function SterlingGateKineticNavigation({
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdownHref, setOpenDropdownHref] = useState<string | null>(null);
-  const reduceMotion = useSyncExternalStore(
-    subscribeReducedMotion,
-    prefersReducedMotion,
-    () => false,
-  );
+  const reduceMotion = useReducedMotion();
   const menuId = useId();
   const navTheme = useNavTheme({
     forcedTheme: isMenuOpen ? "dark" : null,

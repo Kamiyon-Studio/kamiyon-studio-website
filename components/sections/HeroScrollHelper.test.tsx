@@ -110,4 +110,22 @@ describe("HeroScrollHelper", () => {
       maxBounces: 1,
     });
   });
+
+  // Read through useReducedMotion (subscription-based) rather than during render,
+  // so the server and hydration passes agree on these classes.
+  it("drops the animation classes when the user prefers reduced motion", () => {
+    vi.spyOn(window, "matchMedia").mockReturnValue({
+      matches: true,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+    } as unknown as MediaQueryList);
+
+    const { container } = render(<HeroScrollHelper />);
+
+    const balloon = container.querySelector(".rounded-2xl");
+    expect(balloon).not.toHaveClass("animate-bounce");
+    expect(screen.getByRole("status").className).not.toContain("animate-[");
+
+    vi.restoreAllMocks();
+  });
 });

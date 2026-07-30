@@ -90,6 +90,19 @@ Incremental cache buckets (OpenNext): `kamiyon-next-cache-staging` / `kamiyon-ne
 
 These names are wired in [`wrangler.jsonc`](../wrangler.jsonc). Track F provisioned all four buckets; media custom domains respond over HTTPS (empty `/` → 404 is expected).
 
+### Home hero parallax plates (ADR-029)
+
+The four layered-hero plates are R2-only assets under `site/hero/parallax/v1/` (originals archived at `…/v1/sources/`). They are **not** in the repo, and `deploy.yml` does not publish them — republish by hand when the art changes:
+
+```powershell
+# dry run first (prints keys, sizes, and the composite preview path)
+pnpm media:hero-parallax -- --source <folder-with-layer-1..4> --target staging
+pnpm media:hero-parallax -- --source <folder-with-layer-1..4> --target staging --apply
+pnpm media:hero-parallax -- --source <folder-with-layer-1..4> --target production --apply
+```
+
+Requires `wrangler login`. Bump the `v1` segment in `lib/home/hero-parallax-layers.ts` for a cache bust rather than overwriting keys. If `NEXT_PUBLIC_R2_PUBLIC_BASE_URL` is unset at **build** time the home hero silently falls back to the original single-plate `HeroOpening`, so verify the plates load after a domain change.
+
 ---
 
 ## Webhook URLs
