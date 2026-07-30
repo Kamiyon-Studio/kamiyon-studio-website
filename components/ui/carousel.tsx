@@ -3,7 +3,8 @@
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
@@ -218,7 +219,7 @@ const CarouselPrevious = React.forwardRef<HTMLButtonElement, CarouselControlProp
         onClick={scrollPrev}
         {...props}
       >
-        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" aria-hidden />
         <span className="sr-only">Previous slide</span>
       </button>
     );
@@ -245,7 +246,7 @@ const CarouselNext = React.forwardRef<HTMLButtonElement, CarouselControlProps>(
         onClick={scrollNext}
         {...props}
       >
-        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        <FontAwesomeIcon icon={faArrowRight} className="h-4 w-4" aria-hidden />
         <span className="sr-only">Next slide</span>
       </button>
     );

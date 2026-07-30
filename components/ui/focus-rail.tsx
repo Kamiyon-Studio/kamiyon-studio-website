@@ -2,7 +2,13 @@
 
 import * as React from "react";
 import { motion, AnimatePresence, type PanInfo } from "motion/react";
-import { ChevronLeft, ChevronRight, ArrowUpRight, X } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faArrowUpRightFromSquare,
+  faChevronLeft,
+  faChevronRight,
+  faXmark,
+} from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
@@ -119,7 +125,7 @@ function FocusRailCardModal({
             className="absolute top-3 right-3 z-20 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20 md:top-4 md:right-4"
             aria-label="Close"
           >
-            <X className="h-5 w-5" />
+            <FontAwesomeIcon icon={faXmark} className="h-5 w-5" />
           </button>
 
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pt-5 pb-4 pr-14 sm:px-6 sm:pt-6 md:px-8 md:pt-8">
@@ -152,7 +158,10 @@ function FocusRailCardModal({
                 className="group inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition-transform hover:scale-105 active:scale-95"
               >
                 Explore
-                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <FontAwesomeIcon
+                  icon={faArrowUpRightFromSquare}
+                  className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                />
               </Link>
             ) : null}
             <button
@@ -431,7 +440,7 @@ export function FocusRail({
                 className="rounded-full p-3 text-neutral-400 transition hover:bg-white/10 hover:text-white active:scale-95"
                 aria-label="Previous"
               >
-                <ChevronLeft className="h-5 w-5" />
+                <FontAwesomeIcon icon={faChevronLeft} className="h-5 w-5" />
               </button>
               <span className="min-w-[40px] text-center font-mono text-xs text-neutral-500">
                 {activeIndex + 1} / {count}
@@ -442,7 +451,7 @@ export function FocusRail({
                 className="rounded-full p-3 text-neutral-400 transition hover:bg-white/10 hover:text-white active:scale-95"
                 aria-label="Next"
               >
-                <ChevronRight className="h-5 w-5" />
+                <FontAwesomeIcon icon={faChevronRight} className="h-5 w-5" />
               </button>
             </div>
           </div>
