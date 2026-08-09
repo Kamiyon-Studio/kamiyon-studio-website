@@ -10,7 +10,15 @@ describe("buildRobotsPolicy", () => {
       rules: {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin", "/admin/", "/api/", "/studio", "/studio/"],
+        disallow: [
+          "/admin",
+          "/admin/",
+          "/api/",
+          "/studio",
+          "/studio/",
+          "/motion-lab",
+          "/motion-lab/",
+        ],
       },
       sitemap: "https://kamiyonstudio.com/sitemap.xml",
       host: "kamiyonstudio.com",
@@ -24,7 +32,15 @@ describe("buildRobotsPolicy", () => {
       rules: {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin", "/admin/", "/api/", "/studio", "/studio/"],
+        disallow: [
+          "/admin",
+          "/admin/",
+          "/api/",
+          "/studio",
+          "/studio/",
+          "/motion-lab",
+          "/motion-lab/",
+        ],
       },
       sitemap: "https://kamiyonstudio.com/sitemap.xml",
       host: "kamiyonstudio.com",

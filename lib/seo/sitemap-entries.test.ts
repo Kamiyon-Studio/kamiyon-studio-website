@@ -127,6 +127,17 @@ describe("buildPublicSitemapEntries", () => {
           seo: { noIndex: false },
         },
       ],
+      posts: [
+        {
+          slug: { current: "studio-notes-july-update" },
+          publishedAt: "2026-07-24T10:00:00.000Z",
+          seo: { noIndex: false },
+        },
+        {
+          slug: { current: "draft-hidden" },
+          seo: { noIndex: true },
+        },
+      ],
       appEnv: "production",
     });
     const urls = entries.map((entry) => entry.url);
@@ -142,6 +153,10 @@ describe("buildPublicSitemapEntries", () => {
       "https://kamiyonstudio.com/services/community-events",
     ]);
     expect(urls).toContain("https://kamiyonstudio.com/portfolio/visible-case");
+    expect(urls).toContain(
+      "https://kamiyonstudio.com/blog/studio-notes-july-update",
+    );
+    expect(urls).not.toContain("https://kamiyonstudio.com/blog/draft-hidden");
     expect(urls).not.toContain(
       "https://kamiyonstudio.com/services/mvp-development"
     );

@@ -6,6 +6,7 @@ import { AnimationProviders } from "@/components/providers/AnimationProviders";
 import { DEFAULT_DESCRIPTION, SITE_NAME } from "@/lib/seo/constants";
 import { getOrganizationJsonLd } from "@/lib/seo/organization-jsonld";
 import { SITE_URL } from "@/lib/seo/site-url";
+import { getWebsiteJsonLd } from "@/lib/seo/website-jsonld";
 import "@/lib/fontawesome";
 import "../globals.css";
 
@@ -49,6 +50,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const organizationJsonLd = getOrganizationJsonLd();
+  const websiteJsonLd = getWebsiteJsonLd();
 
   return (
     <html
@@ -61,6 +63,12 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(organizationJsonLd),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteJsonLd),
           }}
         />
         <AnimationProviders>

@@ -6,6 +6,8 @@ import { PortableText } from "@/components/ui/PortableText";
 import { postsFallback, resolveWithFallback } from "@/lib/cms/fallbacks";
 import { getPostBySlug, getPosts } from "@/lib/cms/queries";
 import type { PortableTextBlock, Post } from "@/lib/cms/types";
+import { getBlogPostingJsonLd } from "@/lib/seo/blog-posting-jsonld";
+import { getBreadcrumbJsonLd } from "@/lib/seo/breadcrumb-jsonld";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 type BlogPostPageProps = {
@@ -56,6 +58,7 @@ export async function generateMetadata({
     title: post.seo.title || post.title,
     description: post.seo.description,
     path: `/blog/${post.slug.current}`,
+    ogImage: post.seo.ogImage ?? post.featuredImage,
     noIndex: post.seo.noIndex,
   });
 }
@@ -72,32 +75,48 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const bodyBlocks = post.body.filter(
     (block): block is PortableTextBlock => block._type === "block",
   );
+  const breadcrumbJsonLd = getBreadcrumbJsonLd([
+    { name: "Home", href: "/" },
+    { name: "Blog", href: "/blog" },
+    { name: post.title, href: `/blog/${post.slug.current}` },
+  ]);
+  const blogPostingJsonLd = getBlogPostingJsonLd(post);
 
   return (
-    <article className="bg-[var(--bg-primary)] py-16 md:py-24">
-      <Container>
-        <div className="mx-auto max-w-[680px]">
-          {dateLabel ? (
-            <time
-              dateTime={post.publishedAt}
-              className="text-sm text-[var(--text-muted)]"
-            >
-              {dateLabel}
-            </time>
-          ) : null}
-          <h1 className="mt-3 font-display text-3xl font-bold text-[var(--text-primary)] md:text-4xl">
-            {post.title}
-          </h1>
-          {post.authors[0]?.name ? (
-            <p className="mt-3 text-sm text-[var(--text-secondary)]">
-              {post.authors[0].name}
-            </p>
-          ) : null}
-          <div className="mt-10">
-            <PortableText blocks={bodyBlocks} />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingJsonLd) }}
+      />
+      <article className="bg-[var(--bg-primary)] py-16 md:py-24">
+        <Container>
+          <div className="mx-auto max-w-[680px]">
+            {dateLabel ? (
+              <time
+                dateTime={post.publishedAt}
+                className="text-sm text-[var(--text-muted)]"
+              >
+                {dateLabel}
+              </time>
+            ) : null}
+            <h1 className="mt-3 font-display text-3xl font-bold text-[var(--text-primary)] md:text-4xl">
+              {post.title}
+            </h1>
+            {post.authors[0]?.name ? (
+              <p className="mt-3 text-sm text-[var(--text-secondary)]">
+                {post.authors[0].name}
+              </p>
+            ) : null}
+            <div className="mt-10">
+              <PortableText blocks={bodyBlocks} />
+            </div>
           </div>
-        </div>
-      </Container>
-    </article>
+        </Container>
+      </article>
+    </>
   );
 }

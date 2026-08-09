@@ -6,7 +6,15 @@ import {
   PRODUCTION_CANONICAL_ORIGIN,
 } from "./site-url";
 
-const PRODUCTION_DISALLOW = ["/admin", "/admin/", "/api/", "/studio", "/studio/"] as const;
+const PRODUCTION_DISALLOW = [
+  "/admin",
+  "/admin/",
+  "/api/",
+  "/studio",
+  "/studio/",
+  "/motion-lab",
+  "/motion-lab/",
+] as const;
 
 /**
  * Security-first robots policy:

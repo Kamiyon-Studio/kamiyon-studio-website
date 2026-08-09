@@ -31,6 +31,8 @@ export type BuildPublicSitemapEntriesInput = {
   siteUrl: string;
   services: SitemapSlugDoc[];
   portfolioItems: SitemapSlugDoc[];
+  /** Published blog posts (omit to skip blog detail URLs). */
+  posts?: SitemapSlugDoc[];
   /** Deployment env (`APP_ENV`); staging/preview/development always fail-closed. */
   appEnv?: string | null;
 };
@@ -106,5 +108,14 @@ export function buildPublicSitemapEntries(
     .map((item) => entryForSlug("/portfolio", item))
     .filter((entry): entry is MetadataRoute.Sitemap[number] => entry !== null);
 
-  return [...staticEntries, ...serviceEntries, ...portfolioEntries];
+  const postEntries = (input.posts ?? [])
+    .map((post) => entryForSlug("/blog", post))
+    .filter((entry): entry is MetadataRoute.Sitemap[number] => entry !== null);
+
+  return [
+    ...staticEntries,
+    ...serviceEntries,
+    ...portfolioEntries,
+    ...postEntries,
+  ];
 }

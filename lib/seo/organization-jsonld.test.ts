@@ -8,13 +8,16 @@ import {
 import { getOrganizationJsonLd } from "./organization-jsonld";
 
 describe("getOrganizationJsonLd", () => {
-  it("returns Organization JSON-LD with operator-provided contact channels", () => {
+  it("returns Organization JSON-LD with canonical url, logo, and contact channels", () => {
     const jsonLd = getOrganizationJsonLd();
 
     expect(jsonLd).toEqual({
       "@context": "https://schema.org",
       "@type": "Organization",
+      "@id": "https://kamiyonstudio.com/#organization",
       name: "Kamiyon Studio",
+      url: "https://kamiyonstudio.com",
+      logo: "https://kamiyonstudio.com/logo.svg",
       description: expect.stringContaining("Kamiyon Studio"),
       foundingDate: "2024",
       email: PUBLIC_EMAIL,
@@ -26,6 +29,5 @@ describe("getOrganizationJsonLd", () => {
         addressCountry: "PH",
       },
     });
-    expect(jsonLd).not.toHaveProperty("url");
   });
 });

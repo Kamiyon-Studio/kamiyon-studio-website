@@ -6,6 +6,8 @@
 
 > **The official source of truth for Kamiyon Studio.**
 
+Website technical SEO & Search Console runbook: [`SEO.md`](./SEO.md).
+
 
 Welcome to the **Kamiyon Studio Knowledge Base**, the official documentation repository for Kamiyon Studio.
 

@@ -43,6 +43,12 @@ yarn-error.log*
 .env*
 !.env.example
 
+# Google API credentials (Search Console automation) — never commit
+**/google-service-account*.json
+**/*-googleapis*.json
+**/gsc-credentials*.json
+secrets/
+
 # Cloudflare Wrangler local secrets (never commit)
 .dev.vars
 .dev.vars.*
