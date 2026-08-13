@@ -90,46 +90,33 @@ describe("WS8b core seed builders", () => {
     );
   });
 
-  it("maps home featuredWork slug arrays to Sanity references", () => {
+  it("maps home named fields to Sanity references (no blocks)", () => {
     const home = buildHomePageDocument();
-    const blocks = home.blocks;
-    expect(Array.isArray(blocks)).toBe(true);
 
-    const featured = (blocks as unknown[]).find(
-      (block) => isRecord(block) && block._type === "featuredWork"
+    expect(home).not.toHaveProperty("blocks");
+    expect(Array.isArray(home.partners)).toBe(true);
+    expect(Array.isArray(home.portfolioItems)).toBe(true);
+    expect(Array.isArray(home.awards)).toBe(true);
+    expect(Array.isArray(home.services)).toBe(true);
+    expect(isRecord(home.contactCta)).toBe(true);
+
+    expect(home.contactCta).toMatchObject({
+      title: homePageFallback.contactCta.title,
+      body: homePageFallback.contactCta.body,
+      ctaLabel: homePageFallback.contactCta.ctaLabel,
+      ctaHref: homePageFallback.contactCta.ctaHref,
+    });
+
+    const portfolioRefs = home.portfolioItems as unknown[];
+    expect(portfolioRefs.length).toBeGreaterThan(0);
+    expect(portfolioRefs.every((ref) => isRecord(ref) && ref._type === "reference")).toBe(
+      true,
     );
-    expect(featured).toBeDefined();
-    if (!isRecord(featured)) throw new Error("expected featuredWork block");
 
-    expect(featured).not.toHaveProperty("featuredProductSlugs");
-    expect(featured).not.toHaveProperty("featuredCaseStudySlugs");
-
-    const products = featured.featuredProducts;
-    const caseStudies = featured.featuredCaseStudies;
-    expect(Array.isArray(products)).toBe(true);
-    expect(Array.isArray(caseStudies)).toBe(true);
-
-    const featuredFallback = homePageFallback.blocks.find(
-      (b) => b._type === "featuredWork"
-    );
-    expect(featuredFallback?._type).toBe("featuredWork");
-    if (featuredFallback?._type !== "featuredWork") {
-      throw new Error("expected featuredWork in home fallback");
-    }
-
-    expect(products).toEqual(
-      featuredFallback.featuredProductSlugs.map((slug, i) => ({
-        _type: "reference",
-        _ref: `product-${slug}`,
-        _key: `featured-product-${i}`,
-      }))
-    );
-    expect(caseStudies).toEqual(
-      featuredFallback.featuredCaseStudySlugs.map((slug, i) => ({
-        _type: "reference",
-        _ref: `portfolio-${slug}`,
-        _key: `featured-portfolio-${i}`,
-      }))
+    const serviceRefs = home.services as unknown[];
+    expect(serviceRefs).toHaveLength(5);
+    expect(serviceRefs.every((ref) => isRecord(ref) && ref._type === "reference")).toBe(
+      true,
     );
   });
 
@@ -166,10 +153,8 @@ describe("WS8b core seed builders", () => {
     }
 
     const home = buildHomePageDocument();
-    const hero = (home.blocks as unknown[]).find(
-      (block) => isRecord(block) && block._type === "hero"
-    );
-    expect(isRecord(hero) && !("image" in hero)).toBe(true);
+    expect(home).not.toHaveProperty("blocks");
+    expect(JSON.stringify(home)).not.toMatch(/"_type":"hero"/);
 
     const site = buildSiteSettingsDocument();
     expect(isRecord(site.defaultSeo) && !("ogImage" in site.defaultSeo)).toBe(

@@ -23,6 +23,13 @@ describe("service schema (Gate 0 flat five)", () => {
     expect(names).not.toContain("outcomes");
   });
 
+  it("omits unused relatedIndustries and icon fields (Scout-Rest / RFC §1.5)", () => {
+    const names = fieldNames(service);
+
+    expect(names).not.toContain("relatedIndustries");
+    expect(names).not.toContain("icon");
+  });
+
   it("keeps seo, order, and placeholder for Studio editors", () => {
     const names = fieldNames(service);
 

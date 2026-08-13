@@ -81,10 +81,19 @@ export type SiteSettings = {
   defaultSeo: SeoMetadata;
   globalCtas: Cta[];
   footerText?: string;
+  footerMarqueeKeywords?: string[];
+  footerCtaHeading?: string;
+  footerSecondaryCtaLabel?: string;
+  footerSecondaryCtaHref?: string;
+  footerCopyrightSuffix?: string;
+  footerLocationPrefix?: string;
+  footerLocation?: string;
 };
 
-/** Spec 03 — homePage blocks */
-
+/**
+ * @deprecated Legacy home block shapes — UI may still import until HomeWire (L3).
+ * Home singleton no longer stores blocks; see HomePage named fields.
+ */
 export type HomeHero = {
   _type: "hero";
   headline: string;
@@ -94,13 +103,14 @@ export type HomeHero = {
   image?: CmsImage;
 };
 
+/** @deprecated See HomeHero. */
 export type HomeMission = {
   _type: "mission";
   title: string;
   body: string;
 };
 
-/** GROQ projects featuredProducts/featuredCaseStudies refs → slug arrays */
+/** @deprecated See HomeHero. */
 export type HomeFeaturedWork = {
   _type: "featuredWork";
   title: string;
@@ -109,6 +119,7 @@ export type HomeFeaturedWork = {
   featuredCaseStudySlugs: string[];
 };
 
+/** @deprecated See HomeHero. */
 export type HomeHighlight = {
   _key?: string;
   title: string;
@@ -116,12 +127,14 @@ export type HomeHighlight = {
   icon?: string;
 };
 
+/** @deprecated See HomeHero. */
 export type HomeHighlights = {
   _type: "highlights";
   title: string;
   items: HomeHighlight[];
 };
 
+/** @deprecated Prefer HomeContactCta on HomePage. */
 export type HomeCtaBanner = {
   _type: "ctaBanner";
   title: string;
@@ -130,6 +143,7 @@ export type HomeCtaBanner = {
   ctaHref: string;
 };
 
+/** @deprecated HomePage no longer uses a block array. */
 export type HomeBlock =
   | HomeHero
   | HomeMission
@@ -137,10 +151,23 @@ export type HomeBlock =
   | HomeHighlights
   | HomeCtaBanner;
 
+/** Home contact CTA (former ctaBanner fields). */
+export type HomeContactCta = {
+  title: string;
+  body: string;
+  ctaLabel: string;
+  ctaHref: string;
+};
+
+/** Spec 03 — homePage named fields (not a block renderer) */
 export type HomePage = {
   _type: "homePage";
   title: string;
-  blocks: HomeBlock[];
+  partners: Partner[];
+  portfolioItems: Portfolio[];
+  awards: Award[];
+  services: Service[];
+  contactCta: HomeContactCta;
   seo: SeoMetadata;
 };
 
@@ -260,7 +287,6 @@ export type Service = {
   summary: string;
   body: PortableTextBlock[];
   capabilities: string[];
-  icon?: string;
   order: number;
   isPlaceholder: boolean;
   seo: SeoMetadata;
@@ -356,6 +382,8 @@ export type Award = {
   year?: string;
   order: number;
   isPlaceholder: boolean;
+  /** Badge copy when `isPlaceholder` — CMS field, default "Placeholder". */
+  placeholderLabel?: string;
 };
 
 /** Spec 05 — communityItem */
@@ -412,13 +440,9 @@ export type Post = {
   title: string;
   slug: Slug;
   authors: TeamMember[];
-  categories: BlogCategory[];
-  tags: BlogTag[];
   featuredImage?: CmsImage;
   body: BlogBodyBlock[];
   seo: SeoMetadata;
-  readingTimeMinutes?: number;
   publishedAt: string;
   updatedAt?: string;
-  relatedPostSlugs: string[];
 };

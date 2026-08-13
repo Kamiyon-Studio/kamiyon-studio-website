@@ -35,31 +35,106 @@ describe("mapSiteSettings", () => {
       globalCtas: [{ label: "Contact", href: "/contact", variant: "primary" }],
     });
   });
+
+  it("maps footer* fields when present", () => {
+    expect(
+      mapSiteSettings({
+        siteName: "Kamiyon Studio",
+        tagline: "Tag",
+        defaultSeo: { title: "SEO", description: "Desc" },
+        footerMarqueeKeywords: ["Games", "EdTech"],
+        footerCtaHeading: "Ready to begin?",
+        footerSecondaryCtaLabel: "View portfolio",
+        footerSecondaryCtaHref: "/portfolio",
+        footerCopyrightSuffix: "All rights reserved.",
+        footerLocationPrefix: "Based in ",
+        footerLocation: "Biñan City, Laguna, Philippines",
+      }),
+    ).toMatchObject({
+      footerMarqueeKeywords: ["Games", "EdTech"],
+      footerCtaHeading: "Ready to begin?",
+      footerSecondaryCtaLabel: "View portfolio",
+      footerSecondaryCtaHref: "/portfolio",
+      footerCopyrightSuffix: "All rights reserved.",
+      footerLocationPrefix: "Based in ",
+      footerLocation: "Biñan City, Laguna, Philippines",
+    });
+  });
 });
 
 describe("mapHomePage", () => {
-  it("projects featured work refs into slug arrays", () => {
+  it("returns null without title or seo", () => {
+    expect(mapHomePage({ title: "Home" })).toBeNull();
+    expect(mapHomePage({ seo: { title: "Home", description: "Desc" } })).toBeNull();
+  });
+
+  it("maps named fields and keeps empty ref arrays empty", () => {
     const page = mapHomePage({
       title: "Home",
-      blocks: [
+      partners: [],
+      portfolioItems: [],
+      awards: [],
+      services: [],
+      contactCta: {
+        title: "Let’s build",
+        body: "Body",
+        ctaLabel: "Contact",
+        ctaHref: "/contact",
+      },
+      seo: { title: "Home", description: "Desc" },
+    });
+
+    expect(page).toMatchObject({
+      _type: "homePage",
+      title: "Home",
+      partners: [],
+      portfolioItems: [],
+      awards: [],
+      services: [],
+      contactCta: {
+        title: "Let’s build",
+        body: "Body",
+        ctaLabel: "Contact",
+        ctaHref: "/contact",
+      },
+      seo: { title: "Home", description: "Desc", noIndex: false },
+    });
+  });
+
+  it("resolves partner/award refs without substituting full collections", () => {
+    const page = mapHomePage({
+      title: "Home",
+      partners: [
         {
-          _type: "featuredWork",
-          title: "Featured",
-          body: "Body",
-          featuredProductSlugs: ["eclipse"],
-          featuredCaseStudySlugs: ["case-a"],
+          _id: "partner-1",
+          label: "Acme",
+          slug: { current: "acme" },
+          order: 1,
+          isPlaceholder: false,
+        },
+      ],
+      awards: [
+        {
+          _id: "award-1",
+          title: "Design Award",
+          order: 1,
+          isPlaceholder: true,
+          placeholderLabel: "Coming soon",
         },
       ],
       seo: { title: "Home", description: "Desc" },
     });
 
-    expect(page?.blocks[0]).toEqual({
-      _type: "featuredWork",
-      title: "Featured",
-      body: "Body",
-      featuredProductSlugs: ["eclipse"],
-      featuredCaseStudySlugs: ["case-a"],
+    expect(page?.partners).toHaveLength(1);
+    expect(page?.partners[0]).toMatchObject({ id: "acme", label: "Acme" });
+    expect(page?.awards).toHaveLength(1);
+    expect(page?.awards[0]).toMatchObject({
+      id: "award-1",
+      placeholderLabel: "Coming soon",
+      isPlaceholder: true,
     });
+    expect(page?.portfolioItems).toEqual([]);
+    expect(page?.services).toEqual([]);
   });
 });
 
@@ -394,6 +469,7 @@ describe("mapService", () => {
     expect(mapped).not.toHaveProperty("category");
     expect(mapped).not.toHaveProperty("categorySlug");
     expect(mapped).not.toHaveProperty("relatedIndustries");
+    expect(mapped).not.toHaveProperty("icon");
   });
 
   it("returns null for non-canonical service slugs", () => {
@@ -442,7 +518,7 @@ describe("mapPost", () => {
     expect(mapPost({ title: "Draft", slug: { current: "draft" } })).toBeNull();
   });
 
-  it("maps teamMember authors, string taxonomies, and inline images", () => {
+  it("maps teamMember authors and inline images without taxonomy fields", () => {
     const post = mapPost({
       title: "Hello",
       slug: { current: "hello" },
@@ -458,7 +534,7 @@ describe("mapPost", () => {
         },
       ],
       categories: ["updates"],
-      tags: ["coming-soon", "announcement"],
+      tags: ["coming-soon"],
       body: [
         { _type: "block", children: [{ _type: "span", text: "Hi" }] },
         {
@@ -469,17 +545,12 @@ describe("mapPost", () => {
       ],
       seo: { title: "Hello", description: "Desc" },
       relatedPostSlugs: ["other"],
+      readingTimeMinutes: 3,
     });
 
     expect(post).toMatchObject({
       _type: "post",
       authors: [{ _type: "teamMember", name: "Ada", role: "CEO" }],
-      categories: [{ title: "Updates", slug: { current: "updates" } }],
-      tags: [
-        { title: "Coming soon", slug: { current: "coming-soon" } },
-        { title: "Announcement", slug: { current: "announcement" } },
-      ],
-      relatedPostSlugs: ["other"],
       body: [
         { _type: "block" },
         {
@@ -488,6 +559,10 @@ describe("mapPost", () => {
         },
       ],
     });
+    expect(post).not.toHaveProperty("categories");
+    expect(post).not.toHaveProperty("tags");
+    expect(post).not.toHaveProperty("readingTimeMinutes");
+    expect(post).not.toHaveProperty("relatedPostSlugs");
   });
 });
 
@@ -562,7 +637,7 @@ describe("mapAward", () => {
     expect(mapAward(null)).toBeNull();
   });
 
-  it("maps the full award shape", () => {
+  it("maps the full award shape including placeholderLabel", () => {
     expect(
       mapAward({
         _id: "award-slot-1",
@@ -572,6 +647,7 @@ describe("mapAward", () => {
         year: "2026",
         order: 2,
         isPlaceholder: false,
+        placeholderLabel: "Placeholder",
       }),
     ).toEqual({
       _type: "award",
@@ -582,6 +658,21 @@ describe("mapAward", () => {
       year: "2026",
       order: 2,
       isPlaceholder: false,
+      placeholderLabel: "Placeholder",
+    });
+  });
+
+  it("defaults placeholderLabel when isPlaceholder and field is missing", () => {
+    expect(
+      mapAward({
+        _id: "award-slot-2",
+        title: "Award slot",
+        order: 1,
+        isPlaceholder: true,
+      }),
+    ).toMatchObject({
+      isPlaceholder: true,
+      placeholderLabel: "Placeholder",
     });
   });
 

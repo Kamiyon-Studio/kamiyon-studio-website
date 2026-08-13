@@ -61,6 +61,14 @@ export const award = defineType({
         "Leave on for an unfilled slot. Turn off only once this is a real, verifiable award.",
       initialValue: true,
     }),
+    defineField({
+      name: "placeholderLabel",
+      title: "Placeholder badge text",
+      type: "string",
+      description:
+        "Badge copy shown when Placeholder is on. Replaces the hard-coded LaurelBadge string.",
+      initialValue: "Placeholder",
+    }),
   ],
   orderings: [
     {
@@ -75,9 +83,11 @@ export const award = defineType({
       label: "label",
       year: "year",
       isPlaceholder: "isPlaceholder",
+      placeholderLabel: "placeholderLabel",
     },
-    prepare({ title, label, year, isPlaceholder }) {
-      const bits = [label, year, isPlaceholder ? "Placeholder" : null].filter(Boolean);
+    prepare({ title, label, year, isPlaceholder, placeholderLabel }) {
+      const badge = typeof placeholderLabel === "string" ? placeholderLabel : "Placeholder";
+      const bits = [label, year, isPlaceholder ? badge : null].filter(Boolean);
       return {
         title: title || "Award",
         subtitle: bits.join(" · "),

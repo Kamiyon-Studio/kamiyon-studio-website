@@ -17,6 +17,15 @@ When a task/phase is marked complete:
 
 ## Current Phase
 
+### Sanity ↔ frontend align (2026-08-14)
+
+**Plan:** `.claude/plans/sanity-frontend-align.md` · **ADR:** ADR-030  
+**Status:** In progress — Home named fields (replace `blocks[]`), About WhoWeAreBand between story and timeline, awards `placeholderLabel`, footer `siteSettings` string lifts, RestSchema unused field drops. Layer 4 Docs appending ADR-030 + context sync; Hub / HomeWire / Studio deploy follow Layer DAG.
+
+| Tracker item | Status |
+| --- | --- |
+| Home testimonials section — waiting on custom design prompt from operator. | Stub only (no UI) |
+
 ### About team FocusRail carousel (2026-07-30)
 
 **ADR:** ADR-028  
@@ -24,8 +33,8 @@ When a task/phase is marked complete:
 
 ### About page — drop Vision / Values / Culture (2026-07-30)
 
-**ADR:** ADR-027 · **Archive:** [`archive/about-vision-values-culture/`](../archive/about-vision-values-culture/README.md)  
-**Status:** Done — `/about` is hero → story → timeline → team. CMS fields retained unused.
+**ADR:** ADR-027 (display unused **superseded by ADR-030**) · **Archive:** [`archive/about-vision-values-culture/`](../archive/about-vision-values-culture/README.md)  
+**Status:** Done — archived VisionBand / ValuesGrid / CultureClosing stay archived. `/about` is hero → story → **WhoWeAreBand** (Mission/Vision/Motto/Values/Culture/Team intro shown) → timeline → team.
 
 ### About milestone timeline + cumulative roster (2026-07-30)
 

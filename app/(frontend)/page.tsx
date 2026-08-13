@@ -26,26 +26,48 @@ import {
 } from "@/lib/cms/queries";
 import { PARTNER_PLACEHOLDERS } from "@/lib/home/partner-placeholders";
 import { buildPageMetadata } from "@/lib/seo/metadata";
-import type { HomeCtaBanner, HomeHero, Service } from "@/lib/cms/types";
+import type { HomeHero, HomePage, Service } from "@/lib/cms/types";
+
+/** Static-path stub — parallax Hero ignores these fields. */
+const HERO_STUB: HomeHero = {
+  _type: "hero",
+  headline: "",
+  subheadline: "",
+  ctaLabel: "",
+  ctaHref: "",
+};
 
 async function getHomePageContent() {
-  const [home, portfolioItems, services, partners, awards] = await Promise.all([
-    getHomePage(),
-    getPortfolioItems(),
-    getServices(),
-    getPartners(),
-    getAwards(),
-  ]);
+  const homeCms = await getHomePage();
 
+  if (homeCms === null) {
+    // CMS unreachable → keep existing resolveWithFallback placeholders
+    const [portfolioItems, services, partners, awards] = await Promise.all([
+      getPortfolioItems(),
+      getServices(),
+      getPartners(),
+      getAwards(),
+    ]);
+
+    return {
+      home: homePageFallback as HomePage,
+      portfolioItems: resolveWithFallback(portfolioItems, portfolioItemsFallback),
+      services: resolveWithFallback(services, servicesFallback),
+      awards: resolveWithFallback(awards, awardsFallback),
+      partners: resolveWithFallback(
+        partners?.map(mapPartnerToMarqueeItem) ?? null,
+        PARTNER_PLACEHOLDERS,
+      ),
+    };
+  }
+
+  // CMS loaded singleton — named fields ONLY. Empty arrays stay empty.
   return {
-    home: resolveWithFallback(home, homePageFallback),
-    portfolioItems: resolveWithFallback(portfolioItems, portfolioItemsFallback),
-    services: resolveWithFallback(services, servicesFallback),
-    awards: resolveWithFallback(awards, awardsFallback),
-    partners: resolveWithFallback(
-      partners?.map(mapPartnerToMarqueeItem) ?? null,
-      PARTNER_PLACEHOLDERS
-    ),
+    home: homeCms,
+    portfolioItems: homeCms.portfolioItems,
+    services: homeCms.services,
+    awards: homeCms.awards,
+    partners: homeCms.partners.map(mapPartnerToMarqueeItem),
   };
 }
 
@@ -77,26 +99,20 @@ export default async function Home() {
   const { home, portfolioItems, services, partners, awards } =
     await getHomePageContent();
 
-  const hero = home.blocks.find((block) => block._type === "hero") as
-    | HomeHero
-    | undefined;
-  const ctaBanner = home.blocks.find((block) => block._type === "ctaBanner") as
-    | HomeCtaBanner
-    | undefined;
-
-  const contactDefaults = homePageFallback.blocks.find(
-    (block) => block._type === "ctaBanner"
-  ) as HomeCtaBanner;
-
-  const contact = ctaBanner ?? contactDefaults;
+  const contact = home.contactCta ?? homePageFallback.contactCta;
+  const serviceSlides = toServiceStackSlides(services);
 
   return (
     <>
       <HomeScrollMarker />
-      {hero ? <Hero hero={hero} partners={partners} /> : null}
-      <ProjectsBento caseStudies={portfolioItems} />
-      <RecognitionAwards awards={awards} />
-      <ServicesStack slides={toServiceStackSlides(services)} />
+      <Hero hero={HERO_STUB} partners={partners} />
+      {portfolioItems.length > 0 ? (
+        <ProjectsBento caseStudies={portfolioItems} />
+      ) : null}
+      {awards.length > 0 ? <RecognitionAwards awards={awards} /> : null}
+      {serviceSlides.length > 0 ? (
+        <ServicesStack slides={serviceSlides} />
+      ) : null}
       <HomeContact
         heading={contact.title}
         body={contact.body}

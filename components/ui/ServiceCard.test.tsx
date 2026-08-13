@@ -40,7 +40,6 @@ const baseService: Service = {
   summary: "Full-cycle game development services.",
   body: [],
   capabilities: ["Full-cycle game development"],
-  icon: "gamepad",
   order: 1,
   isPlaceholder: false,
   seo: { title: "", description: "" },

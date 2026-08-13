@@ -108,6 +108,8 @@ export type LaurelBadgeProps = {
   year?: string;
   /** Marks the entry as an unfilled slot rather than a real accolade. */
   isPlaceholder?: boolean;
+  /** Badge copy when `isPlaceholder` (CMS `placeholderLabel`). */
+  placeholderLabel?: string;
   className?: string;
 };
 
@@ -124,6 +126,7 @@ export function LaurelBadge({
   organization,
   year,
   isPlaceholder = false,
+  placeholderLabel = "Placeholder",
   className,
 }: LaurelBadgeProps) {
   const eyebrow = [label, year].filter(Boolean).join(" · ");
@@ -167,7 +170,7 @@ export function LaurelBadge({
           ) : null}
 
           {isPlaceholder ? (
-            <Badge>Placeholder</Badge>
+            <Badge>{placeholderLabel}</Badge>
           ) : (
             <span
               aria-hidden="true"

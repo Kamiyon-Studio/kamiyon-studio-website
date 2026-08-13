@@ -21,7 +21,7 @@ describe("buildServiceDocuments (Gate 0 flat shape)", () => {
     expect(docs.every((d) => d._type === "service")).toBe(true);
   });
 
-  it("maps tagline and capabilities; omits category, outcomes, relatedIndustries", () => {
+  it("maps tagline and capabilities; omits category, outcomes, relatedIndustries, icon", () => {
     const docs = buildServiceDocuments();
     expect(docs).toHaveLength(servicesFallback.length);
 
@@ -49,13 +49,14 @@ describe("buildServiceDocuments (Gate 0 flat shape)", () => {
       expect(doc).not.toHaveProperty("categorySlug");
       expect(doc).not.toHaveProperty("outcomes");
       expect(doc).not.toHaveProperty("relatedIndustries");
+      expect(doc).not.toHaveProperty("icon");
     }
   });
 
-  it("preserves optional icon when present on the fallback", () => {
-    const withIcon = servicesFallback.find((s) => s.icon);
-    expect(withIcon).toBeDefined();
-    const doc = buildServiceDocument(withIcon!);
-    expect(doc.icon).toBe(withIcon!.icon);
+  it("never emits icon (schema + fallback no longer carry icon)", () => {
+    for (const source of servicesFallback) {
+      expect(source).not.toHaveProperty("icon");
+      expect(buildServiceDocument(source)).not.toHaveProperty("icon");
+    }
   });
 });

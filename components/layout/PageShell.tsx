@@ -56,6 +56,13 @@ export async function PageShell({ children }: PageShellProps) {
         siteName={shellProps.siteName}
         footerMotto={shellProps.footerMotto}
         contactCta={shellProps.contactCta}
+        footerMarqueeKeywords={shellProps.footerMarqueeKeywords}
+        footerCtaHeading={shellProps.footerCtaHeading}
+        footerSecondaryCtaLabel={shellProps.footerSecondaryCtaLabel}
+        footerSecondaryCtaHref={shellProps.footerSecondaryCtaHref}
+        footerCopyrightSuffix={shellProps.footerCopyrightSuffix}
+        footerLocationPrefix={shellProps.footerLocationPrefix}
+        footerLocation={shellProps.footerLocation}
       />
     </>
   );

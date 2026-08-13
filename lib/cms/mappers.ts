@@ -1,23 +1,15 @@
 import { getCmsImageUrl } from "./image";
 import { mapR2AssetToCmsImage, type R2AssetRef } from "./media";
-import {
-  findTaxonomyTitle,
-  isServiceCategoryValue,
-  POST_CATEGORIES,
-  POST_TAGS,
-  SERVICE_CATEGORIES,
-} from "./taxonomies";
+import { isServiceCategoryValue, SERVICE_CATEGORIES } from "./taxonomies";
 import type {
   AboutPage,
   Award,
   BlogBodyBlock,
   StoryTimelineEntry,
-  BlogCategory,
-  BlogTag,
   CommunityItem,
   ContactPage,
   Cta,
-  HomeBlock,
+  HomeContactCta,
   HomePage,
   Partner,
   PortableTextBlock,
@@ -144,70 +136,18 @@ function mapBlogBody(value: unknown): BlogBodyBlock[] {
     .filter((block): block is BlogBodyBlock => block !== null);
 }
 
-function mapHomeBlocks(value: unknown): HomeBlock[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
+function mapContactCta(value: unknown): HomeContactCta {
+  const row = asRecord(value) ?? {};
+  return {
+    title: asString(row.title),
+    body: asString(row.body),
+    ctaLabel: asString(row.ctaLabel),
+    ctaHref: asString(row.ctaHref),
+  };
+}
 
-  return value
-    .map((block): HomeBlock | null => {
-      const row = asRecord(block);
-      if (!row) {
-        return null;
-      }
-
-      switch (row._type) {
-        case "hero":
-          return {
-            _type: "hero",
-            headline: asString(row.headline),
-            subheadline: asString(row.subheadline),
-            ctaLabel: asString(row.ctaLabel),
-            ctaHref: asString(row.ctaHref),
-            image: mapR2AssetToCmsImage(row.image as R2AssetRef | null | undefined),
-          };
-        case "mission":
-          return {
-            _type: "mission",
-            title: asString(row.title),
-            body: asString(row.body),
-          };
-        case "featuredWork":
-          return {
-            _type: "featuredWork",
-            title: asString(row.title),
-            body: asString(row.body),
-            featuredProductSlugs: asStringArray(row.featuredProductSlugs),
-            featuredCaseStudySlugs: asStringArray(row.featuredCaseStudySlugs),
-          };
-        case "highlights":
-          return {
-            _type: "highlights",
-            title: asString(row.title),
-            items: (Array.isArray(row.items) ? row.items : []).map((item, index) => {
-              const highlight = asRecord(item) ?? {};
-              return {
-                _key:
-                  typeof highlight._key === "string" ? highlight._key : `highlight-${index}`,
-                title: asString(highlight.title),
-                description: asString(highlight.description),
-                icon: typeof highlight.icon === "string" ? highlight.icon : undefined,
-              };
-            }),
-          };
-        case "ctaBanner":
-          return {
-            _type: "ctaBanner",
-            title: asString(row.title),
-            body: asString(row.body),
-            ctaLabel: asString(row.ctaLabel),
-            ctaHref: asString(row.ctaHref),
-          };
-        default:
-          return null;
-      }
-    })
-    .filter((block): block is HomeBlock => block !== null);
+function mapOptionalString(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
 }
 
 export function mapSiteSettings(doc: unknown): SiteSettings | null {
@@ -225,19 +165,47 @@ export function mapSiteSettings(doc: unknown): SiteSettings | null {
     defaultSeo: mapSeo(row.defaultSeo),
     globalCtas: mapCtas(row.globalCtas),
     footerText: typeof row.footerText === "string" ? row.footerText : undefined,
+    footerMarqueeKeywords: Array.isArray(row.footerMarqueeKeywords)
+      ? asStringArray(row.footerMarqueeKeywords)
+      : undefined,
+    footerCtaHeading: mapOptionalString(row.footerCtaHeading),
+    footerSecondaryCtaLabel: mapOptionalString(row.footerSecondaryCtaLabel),
+    footerSecondaryCtaHref: mapOptionalString(row.footerSecondaryCtaHref),
+    footerCopyrightSuffix: mapOptionalString(row.footerCopyrightSuffix),
+    footerLocationPrefix: mapOptionalString(row.footerLocationPrefix),
+    footerLocation: mapOptionalString(row.footerLocation),
   };
 }
 
+/**
+ * Maps home singleton named fields.
+ * Empty ref arrays stay [] — never substitute full collections.
+ */
 export function mapHomePage(doc: unknown): HomePage | null {
   const row = asRecord(doc);
-  if (!row || typeof row.title !== "string" || !Array.isArray(row.blocks) || row.blocks.length === 0) {
+  if (!row || typeof row.title !== "string" || !row.title.trim()) {
+    return null;
+  }
+  if (!asRecord(row.seo)) {
     return null;
   }
 
   return {
     _type: "homePage",
     title: row.title,
-    blocks: mapHomeBlocks(row.blocks),
+    partners: (Array.isArray(row.partners) ? row.partners : [])
+      .map(mapPartner)
+      .filter((item): item is Partner => item !== null),
+    portfolioItems: (Array.isArray(row.portfolioItems) ? row.portfolioItems : [])
+      .map(mapPortfolio)
+      .filter((item): item is Portfolio => item !== null),
+    awards: (Array.isArray(row.awards) ? row.awards : [])
+      .map(mapAward)
+      .filter((item): item is Award => item !== null),
+    services: (Array.isArray(row.services) ? row.services : [])
+      .map(mapService)
+      .filter((item): item is Service => item !== null),
+    contactCta: mapContactCta(row.contactCta),
     seo: mapSeo(row.seo),
   };
 }
@@ -456,7 +424,6 @@ export function mapService(doc: unknown): Service | null {
     summary: asString(row.summary),
     body: mapPortableBody(row.body),
     capabilities: asStringArray(row.capabilities),
-    icon: typeof row.icon === "string" ? row.icon : undefined,
     order: asNumber(row.order),
     isPlaceholder: asBoolean(row.isPlaceholder),
     seo: mapSeo(row.seo),
@@ -641,6 +608,13 @@ export function mapAward(doc: unknown): Award | null {
   const label = asString(row.label).trim();
   const organization = asString(row.organization).trim();
   const year = asString(row.year).trim();
+  const rawPlaceholder = asString(row.placeholderLabel).trim();
+  const isPlaceholder = asBoolean(row.isPlaceholder);
+  const placeholderLabel = rawPlaceholder
+    ? rawPlaceholder
+    : isPlaceholder
+      ? "Placeholder"
+      : "";
 
   return {
     _type: "award",
@@ -650,25 +624,9 @@ export function mapAward(doc: unknown): Award | null {
     ...(organization ? { organization } : {}),
     ...(year ? { year } : {}),
     order: asNumber(row.order),
-    isPlaceholder: asBoolean(row.isPlaceholder),
+    isPlaceholder,
+    ...(placeholderLabel ? { placeholderLabel } : {}),
   };
-}
-
-function mapBlogTaxonomyFromValues(
-  value: unknown,
-  options: readonly { value: string; title: string }[],
-): BlogCategory[] {
-  return asStringArray(value).map((slug) => ({
-    title: findTaxonomyTitle(options, slug) ?? slug,
-    slug: { current: slug },
-  }));
-}
-
-function mapBlogTagsFromValues(value: unknown): BlogTag[] {
-  return asStringArray(value).map((slug) => ({
-    title: findTaxonomyTitle(POST_TAGS, slug) ?? slug,
-    slug: { current: slug },
-  }));
 }
 
 export function mapPost(doc: unknown): Post | null {
@@ -684,16 +642,11 @@ export function mapPost(doc: unknown): Post | null {
     authors: (Array.isArray(row.authors) ? row.authors : [])
       .map(mapTeamMember)
       .filter((author): author is TeamMember => Boolean(author)),
-    categories: mapBlogTaxonomyFromValues(row.categories, POST_CATEGORIES),
-    tags: mapBlogTagsFromValues(row.tags),
     featuredImage: mapR2AssetToCmsImage(row.featuredImage as R2AssetRef | null | undefined),
     body: mapBlogBody(row.body),
     seo: mapSeo(row.seo),
-    readingTimeMinutes:
-      typeof row.readingTimeMinutes === "number" ? row.readingTimeMinutes : undefined,
     publishedAt: row.publishedAt,
     updatedAt: typeof row.updatedAt === "string" ? row.updatedAt : undefined,
-    relatedPostSlugs: asStringArray(row.relatedPostSlugs),
   };
 }
 

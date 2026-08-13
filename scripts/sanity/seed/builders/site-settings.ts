@@ -1,4 +1,7 @@
-import { siteSettingsFallback } from "@/lib/cms/fallbacks/site-settings";
+import {
+  siteSettingsFallback,
+  type FooterSettingsFields,
+} from "@/lib/cms/fallbacks/site-settings";
 import type { Cta, SiteSettings, SocialLink } from "@/lib/cms/types";
 
 import { arrayKey, toSeo } from "../helpers";
@@ -31,6 +34,9 @@ function mapCta(cta: Cta, index: number) {
 export function buildSiteSettingsDocument(
   source: SiteSettings = siteSettingsFallback
 ): SeedDocument {
+  // Cast until Hub Layer 2 adds footer* to SiteSettings.
+  const footer = source as SiteSettings & FooterSettingsFields;
+
   return {
     _id: SINGLETON_IDS.siteSettings,
     _type: "siteSettings",
@@ -41,5 +47,26 @@ export function buildSiteSettingsDocument(
     defaultSeo: toSeo(source.defaultSeo),
     globalCtas: source.globalCtas.map(mapCta),
     ...(source.footerText ? { footerText: source.footerText } : {}),
+    ...(footer.footerMarqueeKeywords
+      ? { footerMarqueeKeywords: footer.footerMarqueeKeywords }
+      : {}),
+    ...(footer.footerCtaHeading
+      ? { footerCtaHeading: footer.footerCtaHeading }
+      : {}),
+    ...(footer.footerSecondaryCtaLabel
+      ? { footerSecondaryCtaLabel: footer.footerSecondaryCtaLabel }
+      : {}),
+    ...(footer.footerSecondaryCtaHref
+      ? { footerSecondaryCtaHref: footer.footerSecondaryCtaHref }
+      : {}),
+    ...(footer.footerCopyrightSuffix
+      ? { footerCopyrightSuffix: footer.footerCopyrightSuffix }
+      : {}),
+    ...(footer.footerLocationPrefix
+      ? { footerLocationPrefix: footer.footerLocationPrefix }
+      : {}),
+    ...(footer.footerLocation
+      ? { footerLocation: footer.footerLocation }
+      : {}),
   };
 }

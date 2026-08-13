@@ -57,8 +57,7 @@ export const servicesFallback: Service[] = [
       "Multiplayer implementation",
       "Educational games",
       "Serious games",
-    ],
-    icon: "gamepad",
+    ],
     order: 1,
     isPlaceholder: true,
     seo: {
@@ -82,8 +81,7 @@ export const servicesFallback: Service[] = [
       "Web applications",
       "Mobile applications",
       "AI-powered features",
-    ],
-    icon: "rocket",
+    ],
     order: 2,
     isPlaceholder: true,
     seo: {
@@ -108,8 +106,7 @@ export const servicesFallback: Service[] = [
       "Graphic design",
       "Marketing assets",
       "Social media creatives",
-    ],
-    icon: "palette",
+    ],
     order: 3,
     isPlaceholder: true,
     seo: {
@@ -134,8 +131,7 @@ export const servicesFallback: Service[] = [
       "Visual identity systems",
       "Brand guidelines",
       "Presentation design",
-    ],
-    icon: "brush",
+    ],
     order: 4,
     isPlaceholder: true,
     seo: {
@@ -164,8 +160,7 @@ export const servicesFallback: Service[] = [
       "Meetups",
       "Developer programs",
       "Partnership activations",
-    ],
-    icon: "users",
+    ],
     order: 5,
     isPlaceholder: true,
     seo: {

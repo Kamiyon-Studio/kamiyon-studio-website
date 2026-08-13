@@ -113,6 +113,19 @@ describe("LaurelBadge", () => {
     expect(container.querySelector(".badge")).toBeNull();
   });
 
+  it("renders CMS placeholderLabel when provided", () => {
+    render(
+      <LaurelBadge
+        title="Award slot"
+        isPlaceholder
+        placeholderLabel="Coming soon"
+      />,
+    );
+
+    expect(screen.getByText("Coming soon")).toBeInTheDocument();
+    expect(screen.queryByText("Placeholder")).not.toBeInTheDocument();
+  });
+
   it("breaks multi-line titles into separate display lines", () => {
     render(<LaurelBadge title={"Gameplay\nDesign Award"} />);
 

@@ -23,8 +23,8 @@ function refsOf(field: unknown): SanityReference[] {
   );
 }
 
-describe("blog seed builders (teamMember authors + string taxonomies)", () => {
-  it("builds each fallback post with teamMember author and string taxonomies", () => {
+describe("blog seed builders (teamMember authors; unused fields omitted)", () => {
+  it("builds each fallback post with teamMember author; omits unused taxonomies", () => {
     const comingSoon =
       postsFallback.find((post) => post.slug.current === "coming-soon") ??
       postsFallback[0]!;
@@ -37,9 +37,6 @@ describe("blog seed builders (teamMember authors + string taxonomies)", () => {
       title: comingSoon.title,
       slug: { _type: "slug", current: "coming-soon" },
       publishedAt: comingSoon.publishedAt,
-      readingTimeMinutes: 1,
-      categories: ["updates"],
-      tags: ["coming-soon", "announcement"],
       seo: {
         title: comingSoon.seo.title,
         noIndex: false,
@@ -50,6 +47,10 @@ describe("blog seed builders (teamMember authors + string taxonomies)", () => {
     expect(Array.isArray(post.body)).toBe(true);
     expect((post.body as unknown[]).length).toBeGreaterThanOrEqual(1);
     expect(post).not.toHaveProperty("featuredImage");
+    expect(post).not.toHaveProperty("categories");
+    expect(post).not.toHaveProperty("tags");
+    expect(post).not.toHaveProperty("readingTimeMinutes");
+    expect(post).not.toHaveProperty("relatedPosts");
   });
 
   it("seeds at least 10 posts with distinct publishedAt values", () => {

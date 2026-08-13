@@ -96,12 +96,6 @@ export const SANITY_OBJECT_TYPES = [
   "contactChannel",
   "faqItem",
   "productMedia",
-  "homeHighlight",
-  "hero",
-  "mission",
-  "featuredWork",
-  "highlights",
-  "ctaBanner",
 ] as const;
 
 type SanityObjectType = (typeof SANITY_OBJECT_TYPES)[number];

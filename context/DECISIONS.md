@@ -691,3 +691,54 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 
 ---
 
+## ADR-030 — Sanity ↔ frontend align: Home named fields, About WhoWeAreBand, Footer lifts (2026-08-14)
+
+**Status:** Accepted (RFC Layer 4 docs; product layers land separately)
+
+**Context:** Scouts found Home still described as a `blocks[]` renderer while the live page is a fixed section stack; About kept Mission/Vision/Motto/Values/Culture/Team intro in CMS but ADR-027 left them unused on `/about`; awards placeholder badge text was hardcoded; footer marketing strings were hardcoded despite `siteSettings`; testimonials UI is not ready.
+
+**Decision:**
+
+### About band supersession (ADR-027)
+
+- **ADR-027 keep:** CMS fields (`mission`, `vision`, `motto`, `values`, `cultureSummary`, `teamIntro`), GROQ, mappers, fallbacks, and seed remain. Archived `VisionBand` / `ValuesGrid` / `CultureClosing` stay archived — **do not restore**.
+- **Supersedes ADR-027 display clauses:** “do not show on `/about`” and the tradeoff “Leave CMS fields unused” — those fields now surface in a new **WhoWeAreBand** (`WHO WE ARE`) OurStory-style two-column charcoal band **between** story and timeline.
+- **Order:** AboutHero → OurStory → WhoWeAreBand → StoryTimeline → TeamGrid. Skip empty cells. Vision labeled **Vision** (never as current fact).
+
+### Home named fields (not a block renderer)
+
+- Replace `homePage.blocks[]` (and block types hero / mission / featuredWork / highlights / ctaBanner) with named fields: `partners`, `portfolioItems`, `awards`, `services`, `contactCta`, `seo` (+ `title` for Studio).
+- Remove unused hero CMS copy fields (headline, subheadline, CTA, image). **Hero UI + partners marquee remain** (ADR-023 / ADR-026 / ADR-029).
+- **Empty refs:** loaded singleton with empty `partners` / `portfolioItems` / `awards` / `services` → render **nothing** for that section (do not substitute full collections).
+- **CMS null / unreachable:** keep `resolveWithFallback` placeholders.
+
+### Awards
+
+- Unbounded list (no UI 3-cap). Home shows selected `homePage.awards` in array order.
+- CMS `placeholderLabel` on `award` drives LaurelBadge when `isPlaceholder` — never fabricate real wins.
+
+### Testimonials
+
+- Tracker stub only — **no UI** this pass: “Home testimonials section — waiting on custom design prompt from operator.”
+
+### Footer / nav
+
+- Lift Scout-proven footer marketing strings onto `siteSettings` (`footerMarqueeKeywords`, `footerCtaHeading`, `footerSecondaryCtaLabel` / `Href`, `footerCopyrightSuffix`, `footerLocationPrefix`, `footerLocation`). No footer restyle.
+- **Nav intentionally hardcoded** (`PRIMARY_NAV_ITEMS`). Aria labels / decorative glyphs stay hardcoded (a11y/chrome, not marketing copy).
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| Named Home fields vs block renderer | Matches live JSX order; editors pick refs without inventing page composition |
+| WhoWeAreBand vs restore archived sections | Reuses OurStory layout language; avoids resurrecting VisionBand/ValuesGrid/CultureClosing |
+| Empty arrays = nothing; null = placeholders | Editors can clear a Home section without a silent full-collection fallback |
+| Testimonials stub only | Operator must supply design before UI work |
+
+**Consequences:**
+
+- ADR-027 body stays historical; display unused → WhoWeAreBand via this ADR.
+- Plan: `.claude/plans/sanity-frontend-align.md` · tracker + `ui-context` + essential CMS map updated.
+
+---
+

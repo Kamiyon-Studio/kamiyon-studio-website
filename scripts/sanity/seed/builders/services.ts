@@ -6,8 +6,8 @@ import { serviceId } from "../ids";
 import type { SeedDocument } from "../types";
 
 /**
- * Flat service seed (ADR-016 / Gate 0).
- * Emits tagline + capabilities; no category ref, outcomes, or relatedIndustries.
+ * Flat service seed (ADR-016 / Gate 0 / RFC §1.5).
+ * Emits tagline + capabilities; no category, outcomes, relatedIndustries, or icon.
  */
 export function buildServiceDocument(service: Service): SeedDocument {
   return {
@@ -19,7 +19,6 @@ export function buildServiceDocument(service: Service): SeedDocument {
     summary: service.summary,
     body: toPortableBody(service.body, `service-${service.slug.current}`),
     capabilities: [...service.capabilities],
-    ...(service.icon ? { icon: service.icon } : {}),
     order: service.order,
     isPlaceholder: service.isPlaceholder,
     seo: toSeo(service.seo),

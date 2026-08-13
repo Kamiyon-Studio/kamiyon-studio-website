@@ -16,7 +16,6 @@ import { serviceCategory } from "./documents/serviceCategory";
 import { siteSettings } from "./documents/siteSettings";
 import { teamMember } from "./documents/teamMember";
 import { cta } from "./objects/cta";
-import { ctaBanner, featuredWork, hero, highlights, mission } from "./objects/homeBlocks";
 import { blogBody, portableBody } from "./objects/portableText";
 import { r2Asset } from "./objects/r2Asset";
 import { seoMetadata } from "./objects/seoMetadata";
@@ -24,7 +23,6 @@ import {
   contactChannel,
   coreValue,
   faqItem,
-  homeHighlight,
   productMedia,
   storySection,
   storyTimelineEntry,
@@ -46,12 +44,6 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     contactChannel,
     faqItem,
     productMedia,
-    homeHighlight,
-    hero,
-    mission,
-    featuredWork,
-    highlights,
-    ctaBanner,
     // Singleton pages
     siteSettings,
     homePage,

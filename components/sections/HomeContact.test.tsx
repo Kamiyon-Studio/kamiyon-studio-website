@@ -35,17 +35,13 @@ vi.mock("@/components/animation/AnimatedSection", () => ({
 
 import { HomeContact } from "./HomeContact";
 
-const ctaBanner = homePageFallback.blocks.find((block) => block._type === "ctaBanner");
-
-if (!ctaBanner || ctaBanner._type !== "ctaBanner") {
-  throw new Error("Expected homePageFallback to include a ctaBanner block");
-}
+const contactCta = homePageFallback.contactCta;
 
 const defaultProps = {
-  heading: ctaBanner.title,
-  body: ctaBanner.body,
-  ctaLabel: ctaBanner.ctaLabel,
-  ctaHref: ctaBanner.ctaHref,
+  heading: contactCta.title,
+  body: contactCta.body,
+  ctaLabel: contactCta.ctaLabel,
+  ctaHref: contactCta.ctaHref,
 };
 
 describe("HomeContact", () => {
