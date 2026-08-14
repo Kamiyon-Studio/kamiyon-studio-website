@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/lib/utils";
 
 /**
@@ -104,11 +103,11 @@ export type LaurelBadgeProps = {
   title: string;
   /** Awarding body. Newlines split into balanced display lines. */
   organization?: string;
-  /** Rendered beside the label as "WINNER · 2026". */
+  /** Year shown between the wreath stems, replacing the footer placeholder. */
   year?: string;
   /** Marks the entry as an unfilled slot rather than a real accolade. */
   isPlaceholder?: boolean;
-  /** Badge copy when `isPlaceholder` (CMS `placeholderLabel`). */
+  /** Footer copy when `isPlaceholder` and no year is set (CMS `placeholderLabel`). */
   placeholderLabel?: string;
   className?: string;
 };
@@ -129,7 +128,7 @@ export function LaurelBadge({
   placeholderLabel = "Placeholder",
   className,
 }: LaurelBadgeProps) {
-  const eyebrow = [label, year].filter(Boolean).join(" · ");
+  const footerText = year || (isPlaceholder ? placeholderLabel : undefined);
 
   return (
     <div
@@ -145,9 +144,9 @@ export function LaurelBadge({
         </div>
 
         <div className="mx-[-8%] flex min-w-0 flex-1 flex-col items-center gap-[6.5cqw] text-center">
-          {eyebrow ? (
-            <p className="whitespace-nowrap text-[3.3cqw] font-medium uppercase leading-none tracking-[0.42em] text-[var(--accent-premium)] [text-indent:0.42em]">
-              {eyebrow}
+          {label ? (
+            <p className="max-w-[46cqw] whitespace-nowrap text-[3cqw] font-medium uppercase leading-none tracking-[0.1em] text-[var(--accent-premium)] [text-indent:0.1em]">
+              {label}
             </p>
           ) : null}
 
@@ -169,8 +168,10 @@ export function LaurelBadge({
             </p>
           ) : null}
 
-          {isPlaceholder ? (
-            <Badge>{placeholderLabel}</Badge>
+          {footerText ? (
+            <p className="text-[3.2cqw] font-bold uppercase leading-none tracking-[0.18em] text-[var(--accent-premium)] [text-indent:0.18em]">
+              {footerText}
+            </p>
           ) : (
             <span
               aria-hidden="true"
