@@ -11,7 +11,7 @@ import { gsap } from "@/lib/gsap";
 
 import "./sterling-gate-kinetic-navigation.css";
 
-export type SterlingGateNavItem = {
+type SterlingGateNavItem = {
   label: string;
   href: string;
   children?: readonly { label: string; href: string }[];

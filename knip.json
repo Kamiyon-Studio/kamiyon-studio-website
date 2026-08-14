@@ -2,9 +2,12 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "tags": ["-lintignore"],
   "entry": [
+    "open-next.config.ts",
     "sanity/lib/client.ts",
     "sanity/lib/image.ts",
-    "sanity/lib/live.ts"
+    "sanity/lib/live.ts",
+    "scripts/sanity/migrate-services/index.ts",
+    "scripts/sanity/migrate-services/inspect-inventory.ts"
   ],
-  "ignore": ["lib/cms/types.ts"]
+  "ignore": ["lib/cms/types.ts", "archive/**", "test/mocks/**"]
 }

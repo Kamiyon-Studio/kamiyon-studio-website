@@ -2,7 +2,7 @@
 
 import "./ScrollMarker.css";
 
-export type ScrollMarkerItem = {
+type ScrollMarkerItem = {
   label: string;
   pointer?: string;
 };

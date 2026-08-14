@@ -29,9 +29,6 @@ import "./timeline.css";
 const IVORY_DISPLAY_HEADING =
   "text-[var(--color-ivory)] [background:none] [filter:none] [-webkit-text-fill-color:var(--color-ivory)] [&_.word-pull-up-word]:[background:none] [&_.word-pull-up-word]:[filter:none] [&_.word-pull-up-word]:[-webkit-text-fill-color:var(--color-ivory)]";
 
-/** @deprecated Prefer `TimelineEntryV2` from `@/lib/timeline`. Soft landing re-export. */
-export type TimelineEntry = TimelineEntryV2;
-
 export type TimelineProps = {
   heading: string;
   summary: string;

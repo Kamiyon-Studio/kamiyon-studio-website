@@ -38,7 +38,7 @@ type VerticalMarqueeProps = {
   speed?: number;
 };
 
-export function VerticalMarquee({
+function VerticalMarquee({
   children,
   clone,
   pauseOnHover = false,

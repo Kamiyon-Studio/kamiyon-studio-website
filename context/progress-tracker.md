@@ -20,11 +20,13 @@ When a task/phase is marked complete:
 ### Sanity ↔ frontend align (2026-08-14)
 
 **Plan:** `.claude/plans/sanity-frontend-align.md` · **ADR:** ADR-030  
-**Status:** In progress — Home named fields (replace `blocks[]`), About WhoWeAreBand between story and timeline, awards `placeholderLabel`, footer `siteSettings` string lifts, RestSchema unused field drops. Layer 4 Docs appending ADR-030 + context sync; Hub / HomeWire / Studio deploy follow Layer DAG.
+**Status:** **Done in-repo** — Home named fields (no `blocks[]`), About WhoWeAreBand, awards `placeholderLabel`, footer `siteSettings` lifts, Rest unused Studio field drops, hosted Studio redeployed. Commit: `930b386` on `features`.
 
 | Tracker item | Status |
 | --- | --- |
 | Home testimonials section — waiting on custom design prompt from operator. | Stub only (no UI) |
+| Re-seed dataset for Home named refs (`pnpm sanity:seed`) | **Operator** — schema live; dataset may still hold legacy `blocks` until seed/editors fill refs |
+| Rotate `SANITY_STUDIO_MEDIA_UPLOAD_SECRET` if it must stay server-only | **Operator** — deploy warned secret is client-bundled in hosted Studio |
 
 ### About team FocusRail carousel (2026-07-30)
 
@@ -117,7 +119,7 @@ When a task/phase is marked complete:
 | --- | --- | --- |
 | **WS-A** `cta-with-text-marquee` + CSS keyframes + tests | **Done in-repo** | `components/ui/cta-with-text-marquee{,.test}.tsx`; `globals.css` animate tokens |
 | **WS-B** `ServicesStack` rewrite + section tests | **Done in-repo** | Each title → `/services/{slug}`; no ScrollStack cards |
-| **WS-C** ScrollStack retirement | **Deferred** | Still only orphaned after B; optional knip hygiene |
+| **WS-C** ScrollStack retirement | **Done** | Deleted unused `ScrollStack` + test/CSS (knip hygiene 2026-08-14) |
 | **WS-D** ADR-021 + tracker + ui-context | **Done** | Soft finalize with A+B |
 | **WS-E** Verify gate (vitest / lint / tsc / visual `/#home-services`) | **Done (local tests)** | Vitest 9/9 on A+B; founder visual ack still open |
 
@@ -218,23 +220,29 @@ When a task/phase is marked complete:
 
 ## Current Goal
 
-1. **Ops:** **WS4b** apex DNS cutover (operator dashboard) — CORS already set.  
-2. **Resend:** verify `send.kamiyonstudio.com` in Resend (DKIM/SPF) + apex DMARC `p=none`; then `wrangler secret put RESEND_API_KEY` (+ set `CONTACT_FROM_EMAIL` / `CONTACT_TO_EMAIL` Worker vars).  
-3. **Human:** optional non-prod WS-C `--apply` after dry-run sign-off (prod still forbidden).  
-4. Optional: WS6 blog UI (T9); WS7 E2E once Resend is live.
+1. **Ops (manual):** Re-seed Sanity Home named refs; confirm Studio Home lists populate staging/prod without blank sections.  
+2. **Ops:** **WS4b** apex DNS cutover (operator dashboard) — CORS already set.  
+3. **Resend:** verify `send.kamiyonstudio.com` in Resend (DKIM/SPF) + apex DMARC `p=none`; then `wrangler secret put RESEND_API_KEY` (+ set `CONTACT_FROM_EMAIL` / `CONTACT_TO_EMAIL` Worker vars).  
+4. **Security (manual):** Decide whether to rotate `SANITY_STUDIO_MEDIA_UPLOAD_SECRET` (hosted Studio deploy bundles `SANITY_STUDIO_*`).  
+5. **Human:** optional non-prod services migrate `--apply` after dry-run sign-off (prod still forbidden).  
+6. Optional: WS6 blog UI (T9 / #29); WS7 E2E once Resend is live; Home testimonials after design prompt.
 
 ---
 
 ## Next Up (resume here)
 
-### Human / ops blockers
+### Human / ops blockers (cannot be fully automated by agents)
 
-1. **Services migrate `--apply`** — dry-run sign-off required; **prod forbidden**. Command lives under `scripts/sanity/migrate-services`.  
-2. **WS4b DNS cutover** — operator checklist above.  
-3. **Resend domain** — verify subdomain + DMARC before relying on form in prod; set Worker `RESEND_API_KEY` secret.  
-4. **GitHub Actions** — Confirm repo secrets `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` exist for `staging`/`main` deploys (workflow: `.github/workflows/deploy.yml`). Agent cannot set GitHub secrets without auth — operator must confirm in repo Settings → Secrets. Optional Actions **variables**: `NEXT_PUBLIC_*` / analytics tokens per env (see workflow comments).  
-5. **WS7** — Expand Playwright for contact form submit (mock or staging with Resend test key).  
-6. **WS6 (optional)** — Blog UI (T9).
+1. **Sanity re-seed for ADR-030 Home named refs** — run `pnpm sanity:seed` (write token) against the non-prod dataset so `homePage` gets `partners` / `portfolioItems` / `awards` / `services` / `contactCta`. Confirm https://kamiyon.sanity.studio Home fields match the live page.  
+2. **Visual smoke after seed** — staging Worker: Home sections + About WhoWeAreBand + footer CMS strings.  
+3. **WS4b DNS cutover** — operator checklist above (Cloudflare custom domains, prod webhook, Studio `SANITY_STUDIO_API_ORIGIN`, pause Vercel).  
+4. **Resend domain + Worker secrets** — verify subdomain + DMARC; `wrangler secret put RESEND_API_KEY`; set from/to vars.  
+5. **Studio media upload secret** — if upload auth must stay server-only, rotate secret and stop baking it into Studio client env.  
+6. **Services migrate `--apply`** — dry-run sign-off required; **prod forbidden**.  
+7. **GitHub Actions secrets** — confirm `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` (and optional `NEXT_PUBLIC_*` vars).  
+8. **CMS content edits (Studio only)** — Luis role (#27); add Harvey/Danielle/Kien (#24); real portraits (#23); team social links (#26).  
+9. **WS7 / WS6** — Playwright contact form after Resend live; blog UI (#29).  
+10. **Home testimonials** — waiting on custom design prompt from operator (no UI until then).
 
 ### Deferred — do not implement
 
@@ -271,4 +279,4 @@ When a task/phase is marked complete:
 
 ## Architecture Decisions (active)
 
-See [`DECISIONS.md`](./DECISIONS.md) (incl. ADR-016/017/018/019/020/021/022/023/024/025).
+See [`DECISIONS.md`](./DECISIONS.md) (incl. ADR-016/017/018/019/020/021/022/023/024/025/026/027/028/029/030).

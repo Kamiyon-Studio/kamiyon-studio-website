@@ -82,7 +82,7 @@ void main() {
 }
 `;
 
-export type SpecularButtonSize = "sm" | "md" | "lg";
+type SpecularButtonSize = "sm" | "md" | "lg";
 
 type SpecularButtonBaseProps = {
   children?: ReactNode;
@@ -429,5 +429,3 @@ export function SpecularButton({
     </button>
   );
 }
-
-export default SpecularButton;
