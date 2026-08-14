@@ -52,7 +52,7 @@ describe("toLines", () => {
 });
 
 describe("LaurelBadge", () => {
-  it("renders the tier and year as a single eyebrow", () => {
+  it("renders the tier as the eyebrow and the year in the footer", () => {
     render(
       <LaurelBadge
         label="Winner"
@@ -62,11 +62,30 @@ describe("LaurelBadge", () => {
       />,
     );
 
-    expect(screen.getByText("Winner · 2026")).toBeInTheDocument();
+    expect(screen.getByText("Winner")).toBeInTheDocument();
+    expect(screen.queryByText("Winner · 2026")).not.toBeInTheDocument();
+    expect(screen.getByText("2026")).toBeInTheDocument();
     expect(screen.getByText("Gameplay Design Award")).toBeInTheDocument();
     expect(
       screen.getByText("Montreal Independent Games Festival"),
     ).toBeInTheDocument();
+  });
+
+  it("styles the footer year bold and without a placeholder border", () => {
+    render(<LaurelBadge label="Winner" title="Gameplay Design Award" year="2026" />);
+
+    const year = screen.getByText("2026");
+    expect(year.className).toMatch(/font-bold/);
+    expect(year.className).not.toMatch(/\bborder\b/);
+    expect(year.className).not.toContain("badge");
+  });
+
+  it("keeps the eyebrow inside the wreath gap", () => {
+    render(<LaurelBadge label="Official Selection" title="Indie Game Star 2026" />);
+
+    const eyebrow = screen.getByText("Official Selection");
+    expect(eyebrow.className).toMatch(/max-w-/);
+    expect(eyebrow.className).not.toMatch(/tracking-\[0\.42em\]/);
   });
 
   it("omits the eyebrow and organization lines when only a title is given", () => {
@@ -113,7 +132,21 @@ describe("LaurelBadge", () => {
     expect(container.querySelector(".badge")).toBeNull();
   });
 
-  it("renders CMS placeholderLabel when provided", () => {
+  it("prefers the year over placeholderLabel in the footer", () => {
+    render(
+      <LaurelBadge
+        title="Award slot"
+        year="2026"
+        isPlaceholder
+        placeholderLabel="Placeholder"
+      />,
+    );
+
+    expect(screen.getByText("2026")).toBeInTheDocument();
+    expect(screen.queryByText("Placeholder")).not.toBeInTheDocument();
+  });
+
+  it("renders CMS placeholderLabel when provided and no year is set", () => {
     render(
       <LaurelBadge
         title="Award slot"

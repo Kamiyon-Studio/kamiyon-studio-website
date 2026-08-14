@@ -124,14 +124,21 @@ describe("RecognitionAwards", () => {
   it("marks placeholder slots so they never read as real accolades", () => {
     render(
       <RecognitionAwards
-        awards={[makeAward({ id: "slot", title: "Award slot", isPlaceholder: true })]}
+        awards={[
+          makeAward({
+            id: "slot",
+            title: "Award slot",
+            isPlaceholder: true,
+            year: undefined,
+          }),
+        ]}
       />,
     );
 
     expect(screen.getByText("Placeholder")).toBeInTheDocument();
   });
 
-  it("passes CMS placeholderLabel through to LaurelBadge", () => {
+  it("passes CMS placeholderLabel through to LaurelBadge when no year is set", () => {
     render(
       <RecognitionAwards
         awards={[
@@ -139,6 +146,7 @@ describe("RecognitionAwards", () => {
             id: "slot",
             title: "Award slot",
             isPlaceholder: true,
+            year: undefined,
             placeholderLabel: "TBD",
           }),
         ]}
