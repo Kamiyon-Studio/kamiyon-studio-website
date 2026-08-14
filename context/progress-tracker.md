@@ -17,14 +17,30 @@ When a task/phase is marked complete:
 
 ## Current Phase
 
+### Home testimonials marquee (2026-08-14)
+
+**Plan:** `.claude/plans/home-testimonials-marquee.plan.md` · **ADR:** ADR-031  
+**Status:** **Done in-repo** — `testimonial` docs + `homePage.testimonials[]`; section after awards; empty/CMS-null hides; marquee at 3+ quotes. No seed quotes.
+
+| Stream | Status | Notes |
+| --- | --- | --- |
+| **WS-A** Sanity schema + desk | **Done in-repo** | `testimonial` type; Home field after `awards` |
+| **WS-B** Types / GROQ / mapper / empty seed | **Done in-repo** | `mapTestimonial`; fallback + seed `[]` |
+| **WS-C** `testimonial-marquee` primitive | **Done in-repo** | 0 hide · 1–2 static · 3+ CSS vertical marquee; `motion/react` card springs |
+| **WS-D** Section + Home page + nav | **Done in-repo** | `/#home-testimonials`; `--bg-secondary` trust chapter |
+| **WS-E** ADR-031 + tracker + ui-context + essential | **Done** | This tracker |
+| **WS-F** Verify gate | **Done (local tests)** | Focused 83/83; eslint clean on touched (pre-existing `SanityObjectType` unused warning in constants.ts); tsc noise is pre-existing and off-path |
+
+**Ship gate:** WS-A–E required. Founder visual ack (level 5) on `/#home-testimonials` after operators add real Studio quotes. Hosted Studio redeploy required for the new type.
+
 ### Sanity ↔ frontend align (2026-08-14)
 
 **Plan:** `.claude/plans/sanity-frontend-align.md` · **ADR:** ADR-030  
-**Status:** **Done in-repo** — Home named fields (no `blocks[]`), About WhoWeAreBand, awards `placeholderLabel`, footer `siteSettings` lifts, Rest unused Studio field drops, hosted Studio redeployed. Commit: `930b386` on `features`.
+**Status:** **Done in-repo** — Home named fields (no `blocks[]`), About WhoWeAreBand, awards `placeholderLabel`, footer `siteSettings` lifts, Rest unused Studio field drops, hosted Studio redeployed. Commit: `930b386` on `features`. Testimonials UI moved to ADR-031.
 
 | Tracker item | Status |
 | --- | --- |
-| Home testimonials section — waiting on custom design prompt from operator. | Stub only (no UI) |
+| Home testimonials section | **Done in-repo** — ADR-031 (hidden until real CMS quotes) |
 | Re-seed dataset for Home named refs (`pnpm sanity:seed`) | **Operator** — schema live; dataset may still hold legacy `blocks` until seed/editors fill refs |
 | Rotate `SANITY_STUDIO_MEDIA_UPLOAD_SECRET` if it must stay server-only | **Operator** — deploy warned secret is client-bundled in hosted Studio |
 
@@ -225,7 +241,7 @@ When a task/phase is marked complete:
 3. **Resend:** verify `send.kamiyonstudio.com` in Resend (DKIM/SPF) + apex DMARC `p=none`; then `wrangler secret put RESEND_API_KEY` (+ set `CONTACT_FROM_EMAIL` / `CONTACT_TO_EMAIL` Worker vars).  
 4. **Security (manual):** Decide whether to rotate `SANITY_STUDIO_MEDIA_UPLOAD_SECRET` (hosted Studio deploy bundles `SANITY_STUDIO_*`).  
 5. **Human:** optional non-prod services migrate `--apply` after dry-run sign-off (prod still forbidden).  
-6. Optional: WS6 blog UI (T9 / #29); WS7 E2E once Resend is live; Home testimonials after design prompt.
+6. Optional: WS6 blog UI (T9 / #29); WS7 E2E once Resend is live. Home testimonials UI is in-repo (ADR-031); operators add real Studio quotes + redeploy hosted Studio.
 
 ---
 
@@ -242,7 +258,7 @@ When a task/phase is marked complete:
 7. **GitHub Actions secrets** — confirm `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` (and optional `NEXT_PUBLIC_*` vars).  
 8. **CMS content edits (Studio only)** — Luis role (#27); add Harvey/Danielle/Kien (#24); real portraits (#23); team social links (#26).  
 9. **WS7 / WS6** — Playwright contact form after Resend live; blog UI (#29).  
-10. **Home testimonials** — waiting on custom design prompt from operator (no UI until then).
+10. **Home testimonials content** — redeploy hosted Studio; publish real `testimonial` docs and attach on Home (band stays hidden until then). Founder visual ack on `/#home-testimonials`.
 
 ### Deferred — do not implement
 
@@ -279,4 +295,4 @@ When a task/phase is marked complete:
 
 ## Architecture Decisions (active)
 
-See [`DECISIONS.md`](./DECISIONS.md) (incl. ADR-016/017/018/019/020/021/022/023/024/025/026/027/028/029/030).
+See [`DECISIONS.md`](./DECISIONS.md) (incl. ADR-016/017/018/019/020/021/022/023/024/025/026/027/028/029/030/031).

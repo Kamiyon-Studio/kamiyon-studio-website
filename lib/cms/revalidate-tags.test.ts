@@ -40,6 +40,7 @@ describe("tagsForSanityType", () => {
     ]);
     expect(tagsForSanityType("communityItem")).toEqual(["sanity", "communityItem"]);
     expect(tagsForSanityType("partner")).toEqual(["sanity", "partner"]);
+    expect(tagsForSanityType("testimonial")).toEqual(["sanity", "testimonial"]);
   });
 
   it("adds slug-scoped tags for service, product, portfolio, and post", () => {

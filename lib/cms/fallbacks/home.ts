@@ -22,6 +22,7 @@ export type HomePageFallbackShape = {
   partners: [];
   portfolioItems: [];
   awards: [];
+  testimonials: [];
   services: [];
   contactCta: HomePageContactCta;
   seo: {
@@ -36,6 +37,7 @@ export const homePageFallback: HomePageFallbackShape = {
   partners: [],
   portfolioItems: [],
   awards: [],
+  testimonials: [],
   services: [],
   contactCta: {
     title: "Let’s build something meaningful.",

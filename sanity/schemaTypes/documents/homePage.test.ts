@@ -1,6 +1,6 @@
 /**
  * RFC — Sanity ↔ Frontend Align §1.1 Home
- * Studio field order: title → partners → portfolioItems → awards → services → contactCta → seo
+ * Studio field order: title → partners → portfolioItems → awards → testimonials → services → contactCta → seo
  */
 import { describe, expect, it } from "vitest";
 
@@ -21,14 +21,21 @@ describe("homePage schema (RFC §1.1 named fields)", () => {
       "partners",
       "portfolioItems",
       "awards",
+      "testimonials",
       "services",
       "contactCta",
       "seo",
     ]);
   });
 
-  it("partners / portfolioItems / awards / services are reference arrays", () => {
-    for (const name of ["partners", "portfolioItems", "awards", "services"] as const) {
+  it("partners / portfolioItems / awards / testimonials / services are reference arrays", () => {
+    for (const name of [
+      "partners",
+      "portfolioItems",
+      "awards",
+      "testimonials",
+      "services",
+    ] as const) {
       const field = fieldByName(homePage, name);
       expect(field?.type).toBe("array");
     }
@@ -48,6 +55,12 @@ describe("homePage schema (RFC §1.1 named fields)", () => {
       of?: Array<{ type?: string; to?: Array<{ type: string }> }>;
     };
     expect(awardsOf.of?.[0]?.to?.[0]?.type).toBe("award");
+
+    const testimonialsOf = fieldByName(homePage, "testimonials") as {
+      of?: Array<{ type?: string; to?: Array<{ type: string }> }>;
+    };
+    expect(testimonialsOf.of?.[0]?.type).toBe("reference");
+    expect(testimonialsOf.of?.[0]?.to?.[0]?.type).toBe("testimonial");
 
     const servicesOf = fieldByName(homePage, "services") as {
       of?: Array<{ type?: string; to?: Array<{ type: string }> }>;

@@ -28,6 +28,10 @@ describe("homePageFallback (RFC named fields)", () => {
     });
   });
 
+  it("keeps testimonials empty so fallback never invents social proof", () => {
+    expect(homePageFallback.testimonials).toEqual([]);
+  });
+
   it("preserves former ctaBanner copy on contactCta", () => {
     expect(homePageFallback.contactCta).toMatchObject({
       title: "Let’s build something meaningful.",

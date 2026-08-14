@@ -89,6 +89,16 @@ const awardProjection = /* groq */ `{
   placeholderLabel
 }`;
 
+const testimonialProjection = /* groq */ `{
+  _id,
+  _type,
+  quote,
+  name,
+  role,
+  photo ${r2AssetProjection},
+  order
+}`;
+
 const serviceProjection = /* groq */ `{
   _type,
   title,
@@ -109,6 +119,7 @@ export const homePageQuery = defineQuery(/* groq */ `
     partners[]-> ${partnerProjection},
     portfolioItems[]-> ${portfolioProjection},
     awards[]-> ${awardProjection},
+    testimonials[]-> ${testimonialProjection},
     services[]-> ${serviceProjection},
     contactCta{ title, body, ctaLabel, ctaHref },
     seo ${seoProjection}

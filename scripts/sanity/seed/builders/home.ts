@@ -1,6 +1,7 @@
 /**
  * RFC — Sanity ↔ Frontend Align §4
  * Home seed emits named refs (partners, portfolio, awards, services) + contactCta.
+ * Testimonials stay [] — no invented quotes (ADR-031).
  * No hero / blocks.
  */
 
@@ -52,6 +53,7 @@ export function buildHomePageDocument(
     awards: awardsFallback.map((_, i) =>
       toReference(awardId(`slot-${i + 1}`), arrayKey("award", i)),
     ),
+    testimonials: [],
     services: servicesFallback.map((service, i) =>
       toReference(serviceId(service.slug.current), arrayKey("service", i)),
     ),

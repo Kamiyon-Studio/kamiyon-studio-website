@@ -11,6 +11,8 @@ import {
   mapPost,
   mapService,
   mapSiteSettings,
+  mapTestimonial,
+  mapTestimonialToMarqueeItem,
 } from "./mappers";
 
 describe("mapSiteSettings", () => {
@@ -90,6 +92,7 @@ describe("mapHomePage", () => {
       partners: [],
       portfolioItems: [],
       awards: [],
+      testimonials: [],
       services: [],
       contactCta: {
         title: "Let’s build",
@@ -99,6 +102,21 @@ describe("mapHomePage", () => {
       },
       seo: { title: "Home", description: "Desc", noIndex: false },
     });
+  });
+
+  it("keeps testimonials empty when missing or empty", () => {
+    const missing = mapHomePage({
+      title: "Home",
+      seo: { title: "Home", description: "Desc" },
+    });
+    expect(missing?.testimonials).toEqual([]);
+
+    const empty = mapHomePage({
+      title: "Home",
+      testimonials: [],
+      seo: { title: "Home", description: "Desc" },
+    });
+    expect(empty?.testimonials).toEqual([]);
   });
 
   it("resolves partner/award refs without substituting full collections", () => {
@@ -134,6 +152,32 @@ describe("mapHomePage", () => {
       isPlaceholder: true,
     });
     expect(page?.portfolioItems).toEqual([]);
+    expect(page?.services).toEqual([]);
+    expect(page?.testimonials).toEqual([]);
+  });
+
+  it("resolves testimonial refs without substituting a collection", () => {
+    const page = mapHomePage({
+      title: "Home",
+      testimonials: [
+        {
+          _id: "testimonial-1",
+          quote: "Fixture quote for tests.",
+          name: "Fixture Author",
+          order: 1,
+        },
+      ],
+      seo: { title: "Home", description: "Desc" },
+    });
+
+    expect(page?.testimonials).toHaveLength(1);
+    expect(page?.testimonials[0]).toMatchObject({
+      id: "testimonial-1",
+      quote: "Fixture quote for tests.",
+      name: "Fixture Author",
+    });
+    expect(page?.partners).toEqual([]);
+    expect(page?.awards).toEqual([]);
     expect(page?.services).toEqual([]);
   });
 });
@@ -693,6 +737,118 @@ describe("mapAward", () => {
   it("derives a stable id from the title when _id is missing", () => {
     expect(mapAward({ title: "Best Student Game 2026" })).toMatchObject({
       id: "best-student-game-2026",
+    });
+  });
+});
+
+describe("mapTestimonial", () => {
+  it("returns null without quote or name", () => {
+    expect(mapTestimonial({ name: "Fixture Author" })).toBeNull();
+    expect(mapTestimonial({ quote: "Fixture quote for tests." })).toBeNull();
+    expect(mapTestimonial({ quote: "   ", name: "Fixture Author" })).toBeNull();
+    expect(mapTestimonial({ quote: "Fixture quote for tests.", name: "   " })).toBeNull();
+    expect(mapTestimonial(null)).toBeNull();
+  });
+
+  it("maps the full shape with photo", () => {
+    expect(
+      mapTestimonial({
+        _id: "testimonial-1",
+        quote: "Fixture quote for tests.",
+        name: "Fixture Author",
+        role: "Creative Director",
+        photo: {
+          url: "https://media.kamiyonstudio.com/testimonials/author.png",
+          alt: "Fixture Author",
+        },
+        order: 2,
+      }),
+    ).toEqual({
+      _type: "testimonial",
+      id: "testimonial-1",
+      quote: "Fixture quote for tests.",
+      name: "Fixture Author",
+      role: "Creative Director",
+      photo: {
+        url: "https://media.kamiyonstudio.com/testimonials/author.png",
+        alt: "Fixture Author",
+        caption: null,
+      },
+      order: 2,
+    });
+  });
+
+  it("omits blank role and missing photo", () => {
+    const mapped = mapTestimonial({
+      _id: "testimonial-2",
+      quote: "Fixture quote for tests.",
+      name: "Fixture Author",
+      role: "  ",
+    });
+
+    expect(mapped).not.toHaveProperty("role");
+    expect(mapped).not.toHaveProperty("photo");
+    expect(mapped).toMatchObject({
+      _type: "testimonial",
+      id: "testimonial-2",
+      quote: "Fixture quote for tests.",
+      name: "Fixture Author",
+      order: 0,
+    });
+  });
+
+  it("derives a stable id from the name when _id is missing", () => {
+    expect(
+      mapTestimonial({
+        quote: "Fixture quote for tests.",
+        name: "Fixture Author",
+      }),
+    ).toMatchObject({
+      id: "fixture-author",
+    });
+  });
+});
+
+describe("mapTestimonialToMarqueeItem", () => {
+  it("maps photo via allowlisted URL and includes role when present", () => {
+    expect(
+      mapTestimonialToMarqueeItem({
+        _type: "testimonial",
+        id: "testimonial-1",
+        quote: "Fixture quote for tests.",
+        name: "Fixture Author",
+        role: "Creative Director",
+        photo: {
+          url: "https://media.kamiyonstudio.com/testimonials/author.png",
+          alt: "Portrait",
+        },
+        order: 1,
+      }),
+    ).toEqual({
+      id: "testimonial-1",
+      quote: "Fixture quote for tests.",
+      name: "Fixture Author",
+      role: "Creative Director",
+      photoUrl: "https://media.kamiyonstudio.com/testimonials/author.png",
+      photoAlt: "Portrait",
+    });
+  });
+
+  it("returns null photoUrl when photo is missing and omits role when absent", () => {
+    expect(
+      mapTestimonialToMarqueeItem({
+        _type: "testimonial",
+        id: "testimonial-1",
+        quote: "Fixture quote for tests.",
+        name: "Fixture Author",
+        order: 1,
+      }),
+    ).toEqual({
+      id: "testimonial-1",
+      quote: "Fixture quote for tests.",
+      name: "Fixture Author",
+      photoUrl: null,
+      photoAlt: "Fixture Author",
     });
   });
 });
