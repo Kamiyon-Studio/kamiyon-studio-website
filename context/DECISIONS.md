@@ -859,5 +859,3 @@ Operator locked 21st.dev `testimonial-v2` **LAYOUT**, not demo data. CMS / hide 
 - ADR-030 About display clause (WhoWeAreBand between story and timeline) is superseded for the live page. CMS keep clauses from ADR-027 / ADR-030 still apply.
 - `ui-context.md` About row and essential CMS map updated.
 
----
-
