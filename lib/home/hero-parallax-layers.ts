@@ -66,6 +66,10 @@ export type HeroParallaxLayer = {
   video?: HeroParallaxVideoFiles;
 };
 
+/**
+ * Live stack is landscape-only for now (foreground plate parked).
+ * Re-add `foreground.avif` at depth 2 / yPercent 0 when previewing the cliff again.
+ */
 export const HERO_PARALLAX_LAYERS: readonly HeroParallaxLayer[] = [
   {
     depth: 1,
@@ -74,17 +78,11 @@ export const HERO_PARALLAX_LAYERS: readonly HeroParallaxLayer[] = [
     yPercent: 70,
     video: { mp4: "homepage.mp4" },
   },
-  {
-    depth: 2,
-    file: "foreground.avif",
-    subject: "Grassy cliff foreground",
-    yPercent: 0,
-  },
 ];
 
 /**
- * Travel for the wordmark plate. Sits between the video and the planted
- * foreground so the cliff rises over the wordmark as the hero exits.
+ * Travel for the wordmark plate. Kept below the landscape travel so the brand
+ * stays in front of the video plate while scrolling.
  */
 export const HERO_PARALLAX_BRAND_Y_PERCENT = 25;
 

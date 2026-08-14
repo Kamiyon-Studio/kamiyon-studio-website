@@ -90,9 +90,8 @@ function ParallaxPlate({ layer }: { layer: ResolvedHeroParallaxLayer }) {
 
 /**
  * Full-bleed opening stage built from stacked R2 plates that drift apart on
- * scroll. Content matches the static opening: wordmark + motto. The foreground
- * plate is planted (no extra travel). Bottom padding hangs the cliff into
- * Recent Projects so the earth plate can tuck under it.
+ * scroll. Content matches the static opening: wordmark + motto. Bottom padding
+ * keeps the handoff into Recent Projects (earth plate) aligned.
  */
 export function HeroParallaxOpening({
   layers,

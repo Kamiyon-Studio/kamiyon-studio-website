@@ -36,8 +36,11 @@ afterEach(() => {
 });
 
 describe("HERO_PARALLAX_LAYERS", () => {
-  it("declares two plates ordered from furthest to nearest", () => {
-    expect(HERO_PARALLAX_LAYERS.map((layer) => layer.depth)).toEqual([1, 2]);
+  it("declares the landscape plate only while the foreground is parked", () => {
+    expect(HERO_PARALLAX_LAYERS.map((layer) => layer.depth)).toEqual([1]);
+    expect(HERO_PARALLAX_LAYERS.map((layer) => layer.file)).toEqual([
+      "fallback.avif",
+    ]);
   });
 
   it("versions the R2 prefix so a new stack can bust immutable CDN caches", () => {
@@ -61,13 +64,8 @@ describe("HERO_PARALLAX_LAYERS", () => {
     expect(new Set(files).size).toBe(files.length);
   });
 
-  it("attaches MP4 only to the landscape video plate", () => {
+  it("attaches MP4 to the landscape video plate", () => {
     expect(HERO_PARALLAX_LAYERS[0]?.video).toEqual({ mp4: "homepage.mp4" });
-    expect(HERO_PARALLAX_LAYERS[1]?.video).toBeUndefined();
-  });
-
-  it("pins the foreground plate so it can meet the projects section on scroll", () => {
-    expect(HERO_PARALLAX_LAYERS[1]?.yPercent).toBe(0);
   });
 });
 
@@ -94,21 +92,18 @@ describe("resolveHeroParallaxLayers", () => {
   it("resolves the MP4 beside the freeze-frame for the video plate", () => {
     const layers = resolveHeroParallaxLayers();
     const video = layers?.[0];
-    const foreground = layers?.[1];
 
     expect(video?.mp4Src).toBe(
       `https://media.kamiyonstudio.com/${HERO_PARALLAX_KEY_PREFIX}/homepage.mp4`,
     );
     expect(video?.webmSrc).toBeUndefined();
-    expect(foreground?.mp4Src).toBeUndefined();
-    expect(foreground?.webmSrc).toBeUndefined();
   });
 
   it("works against the staging media host", () => {
     setBaseUrl("https://media-staging.kamiyonstudio.com");
 
-    expect(resolveHeroParallaxLayers()?.[1]?.src).toBe(
-      `https://media-staging.kamiyonstudio.com/${HERO_PARALLAX_KEY_PREFIX}/foreground.avif`,
+    expect(resolveHeroParallaxLayers()?.[0]?.src).toBe(
+      `https://media-staging.kamiyonstudio.com/${HERO_PARALLAX_KEY_PREFIX}/fallback.avif`,
     );
   });
 
@@ -194,7 +189,7 @@ describe("splitHeroParallaxLayers", () => {
     );
 
     expect(behindBrand.map((layer) => layer.depth)).toEqual([1]);
-    expect(inFrontOfBrand.map((layer) => layer.depth)).toEqual([2]);
+    expect(inFrontOfBrand).toEqual([]);
   });
 
   it("keeps every plate in exactly one group", () => {

@@ -129,7 +129,7 @@ describe("HeroParallaxOpening", () => {
     expect(seam?.getAttribute("style") ?? "").toContain("var(--color-charcoal)");
     expect(
       container.querySelector("[data-testid='hero-parallax-plate-2']"),
-    ).not.toHaveAttribute("data-seam-fade");
+    ).not.toBeInTheDocument();
   });
 
   it("renders one plate per configured layer", () => {
@@ -201,10 +201,10 @@ describe("HeroParallaxOpening", () => {
     expect(screen.queryAllByRole("img")).toHaveLength(0);
   });
 
-  it("stacks the wordmark behind the nearest plate so the foreground occludes it", () => {
+  it("stacks the wordmark in front of the landscape plate", () => {
     const { container } = renderHero();
 
-    expect(layerOrder(container)).toEqual(["1", "brand", "2"]);
+    expect(layerOrder(container)).toEqual(["1", "brand"]);
   });
 
   it("renders the wordmark and motto inside the wordmark plate", () => {
@@ -230,7 +230,6 @@ describe("HeroParallaxOpening", () => {
     expect(layeredParallaxMock).toHaveBeenCalledTimes(1);
     expect(layeredParallaxMock.mock.calls[0]?.[0]).toEqual([
       { layer: "1", yPercent: 70 },
-      { layer: "2", yPercent: 0 },
       { layer: "brand", yPercent: HERO_PARALLAX_BRAND_Y_PERCENT },
     ]);
   });

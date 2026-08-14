@@ -17,6 +17,10 @@ When a task/phase is marked complete:
 
 ## Current Phase
 
+### Home hero — park foreground plate (2026-08-15)
+
+**Status:** **In preview** — parallax stack is landscape video + freeze-frame only. `foreground.avif` removed from `HERO_PARALLAX_LAYERS` so the cliff can be evaluated off. Ground plate on `#home-projects` unchanged.
+
 ### Home partners standalone section (2026-08-15)
 
 **ADR:** ADR-036 (supersedes ADR-023 combined opening for partners placement)  
