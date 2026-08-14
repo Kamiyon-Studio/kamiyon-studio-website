@@ -90,18 +90,30 @@ Incremental cache buckets (OpenNext): `kamiyon-next-cache-staging` / `kamiyon-ne
 
 These names are wired in [`wrangler.jsonc`](../wrangler.jsonc). Track F provisioned all four buckets; media custom domains respond over HTTPS (empty `/` → 404 is expected).
 
-### Home hero parallax plates (ADR-029)
+### Home hero parallax plates (ADR-029 / ADR-033)
 
-The four layered-hero plates are R2-only assets under `site/hero/parallax/v1/` (originals archived at `…/v1/sources/`). They are **not** in the repo, and `deploy.yml` does not publish them — republish by hand when the art changes:
+The four layered-hero plates plus motion siblings and the earth underlay live in R2 under `site/hero/parallax/v2/` (PNG originals archived at `…/v2/source/`). They are **not** in the repo, and `deploy.yml` does not publish them — republish by hand when the art changes:
 
 ```powershell
-# dry run first (prints keys, sizes, and the composite preview path)
-pnpm media:hero-parallax -- --source <folder-with-layer-1..4> --target staging
-pnpm media:hero-parallax -- --source <folder-with-layer-1..4> --target staging --apply
-pnpm media:hero-parallax -- --source <folder-with-layer-1..4> --target production --apply
+# dry run first (prints keys, sizes, and which files will upload)
+pnpm media:hero-parallax -- --source <folder-with-webp-webm-mp4>
+pnpm media:hero-parallax -- --source <folder-with-webp-webm-mp4> --target staging --apply
+pnpm media:hero-parallax -- --source <folder-with-webp-webm-mp4> --target production --apply
 ```
 
-Requires `wrangler login`. Bump the `v1` segment in `lib/home/hero-parallax-layers.ts` for a cache bust rather than overwriting keys. If `NEXT_PUBLIC_R2_PUBLIC_BASE_URL` is unset at **build** time the home hero silently falls back to the original single-plate `HeroOpening`, so verify the plates load after a domain change.
+Requires `wrangler login`. Bump the `v2` segment in `lib/home/hero-parallax-layers.ts` for a cache bust rather than overwriting keys. If `NEXT_PUBLIC_R2_PUBLIC_BASE_URL` is unset at **build** time the home hero silently falls back to the original single-plate `HeroOpening`, so verify the plates load after a domain change.
+
+Published objects (8 stack files + underlay):
+
+| Key | Role |
+| --- | --- |
+| `layer-1.webp` + `.webm` + `.mp4` | Sky / clouds — WebP is the freeze-frame |
+| `layer-2.webp` | Mountain still |
+| `layer-3.webp` + `.webm` + `.mp4` | Ocean — WebP is the freeze-frame |
+| `layer-4.webp` | Foreground still |
+| `background.webp` | Earth plate for `#home-projects` (Recent Projects), not a hero underlay |
+
+The v1 prefix is left in place so cached URLs keep resolving until the Worker is rebuilt against v2.
 
 ---
 

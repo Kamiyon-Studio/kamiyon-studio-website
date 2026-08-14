@@ -7,6 +7,7 @@ import { awardsFallback } from "@/lib/cms/fallbacks/awards";
 import { homePageFallback } from "@/lib/cms/fallbacks/home";
 import { portfolioItemsFallback } from "@/lib/cms/fallbacks/portfolio";
 import { servicesFallback } from "@/lib/cms/fallbacks/services";
+import { testimonialsFallback } from "@/lib/cms/fallbacks/testimonials";
 import { PARTNER_PLACEHOLDERS } from "@/lib/home/partner-placeholders";
 
 import { buildHomePageDocument } from "./home";
@@ -25,6 +26,7 @@ describe("home seed builder (RFC §4 named refs)", () => {
     expect(home).toHaveProperty("partners");
     expect(home).toHaveProperty("portfolioItems");
     expect(home).toHaveProperty("awards");
+    expect(home).toHaveProperty("testimonials");
     expect(home).toHaveProperty("services");
     expect(home).toHaveProperty("contactCta");
     expect(home).toHaveProperty("seo");
@@ -65,15 +67,22 @@ describe("home seed builder (RFC §4 named refs)", () => {
       })),
     );
     expect((home.services as unknown[]).length).toBe(5);
-    expect(home.testimonials).toEqual([]);
+    expect(home.testimonials).toEqual(
+      testimonialsFallback.map((item, i) => ({
+        _type: "reference",
+        _ref: item.id,
+        _key: `testimonial-${i}`,
+      })),
+    );
+    expect((home.testimonials as unknown[]).length).toBe(6);
   });
 
-  it("emits an empty testimonials array with no testimonial documents or invented quotes", () => {
+  it("pre-fills testimonials as refs to team-roster preview quotes", () => {
     const home = buildHomePageDocument();
     const serialized = JSON.stringify(home);
 
-    expect(home.testimonials).toEqual([]);
-    expect(serialized).not.toMatch(/"_type":"testimonial"/);
+    expect(home.testimonials).toHaveLength(6);
+    expect(serialized).toMatch(/"testimonial-sherwin-limosnero"/);
     expect(serialized).not.toMatch(/"quote":/);
   });
 

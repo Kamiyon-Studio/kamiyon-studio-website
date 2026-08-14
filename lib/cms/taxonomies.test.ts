@@ -2,9 +2,15 @@ import { describe, expect, it } from "vitest";
 
 import {
   findTaxonomyTitle,
+  isPortfolioLinkKind,
+  isPortfolioProjectType,
+  isPortfolioStatus,
   isPostCategoryValue,
   isPostTagValue,
   isServiceCategoryValue,
+  PORTFOLIO_LINK_KINDS,
+  PORTFOLIO_PROJECT_TYPES,
+  PORTFOLIO_STATUSES,
   POST_CATEGORIES,
   POST_TAGS,
   SERVICE_CATEGORIES,
@@ -46,6 +52,40 @@ describe("POST_CATEGORIES", () => {
 
   it("includes the updates category from blog seed", () => {
     expect(POST_CATEGORIES.map((o) => o.value)).toEqual(["updates"]);
+  });
+});
+
+describe("PORTFOLIO_PROJECT_TYPES", () => {
+  it("covers original-ip and client-work only", () => {
+    expect(PORTFOLIO_PROJECT_TYPES.map((o) => o.value)).toEqual([
+      "original-ip",
+      "client-work",
+    ]);
+  });
+});
+
+describe("PORTFOLIO_STATUSES", () => {
+  it("covers prototype through archived", () => {
+    expect(PORTFOLIO_STATUSES.map((o) => o.value)).toEqual([
+      "prototype",
+      "in-development",
+      "released",
+      "archived",
+    ]);
+  });
+});
+
+describe("PORTFOLIO_LINK_KINDS", () => {
+  it("does not invent storefront kinds beyond the lean list", () => {
+    expect(PORTFOLIO_LINK_KINDS.map((o) => o.value)).toEqual([
+      "website",
+      "trailer",
+      "store",
+      "press",
+      "source",
+      "other",
+    ]);
+    expect(PORTFOLIO_LINK_KINDS.map((o) => o.value)).not.toContain("steam");
   });
 });
 
@@ -95,5 +135,15 @@ describe("type guards", () => {
     expect(isPostCategoryValue("news")).toBe(false);
     expect(isPostTagValue("coming-soon")).toBe(true);
     expect(isPostTagValue("draft")).toBe(false);
+  });
+
+  it("narrows portfolio project type, status, and link kind", () => {
+    expect(isPortfolioProjectType("original-ip")).toBe(true);
+    expect(isPortfolioProjectType("client-work")).toBe(true);
+    expect(isPortfolioProjectType("product")).toBe(false);
+    expect(isPortfolioStatus("in-development")).toBe(true);
+    expect(isPortfolioStatus("live")).toBe(false);
+    expect(isPortfolioLinkKind("website")).toBe(true);
+    expect(isPortfolioLinkKind("demo")).toBe(false);
   });
 });

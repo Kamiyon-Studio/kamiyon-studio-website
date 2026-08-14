@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ParallaxLayerMotion } from "@/hooks/useLayeredParallax";
 import {
   HERO_PARALLAX_BRAND_Y_PERCENT,
+  HERO_PARALLAX_KEY_PREFIX,
   HERO_PARALLAX_LAYERS,
   type ResolvedHeroParallaxLayer,
 } from "@/lib/home/hero-parallax-layers";
@@ -74,7 +75,13 @@ vi.mock("@/components/sections/PartnersMarquee", () => ({
 
 const layers: ResolvedHeroParallaxLayer[] = HERO_PARALLAX_LAYERS.map((layer) => ({
   ...layer,
-  src: `https://media.kamiyonstudio.com/site/hero/parallax/v1/${layer.file}`,
+  src: `https://media.kamiyonstudio.com/${HERO_PARALLAX_KEY_PREFIX}/${layer.file}`,
+  ...(layer.video
+    ? {
+        webmSrc: `https://media.kamiyonstudio.com/${HERO_PARALLAX_KEY_PREFIX}/${layer.video.webm}`,
+        mp4Src: `https://media.kamiyonstudio.com/${HERO_PARALLAX_KEY_PREFIX}/${layer.video.mp4}`,
+      }
+    : {}),
 }));
 
 const samplePartners: PartnerPlaceholder[] = [
@@ -109,9 +116,6 @@ describe("HeroParallaxOpening", () => {
     expect(section).toHaveAttribute("data-nav-theme", "dark");
     expect(section).toHaveClass("min-h-[100svh]", "overflow-hidden");
     expect(container.querySelector("[data-opening-curtain]")).toBeInTheDocument();
-    expect(
-      container.querySelector("[data-testid='hero-bottom-scrim']"),
-    ).toBeInTheDocument();
   });
 
   it("renders one plate per configured layer", () => {
@@ -125,8 +129,50 @@ describe("HeroParallaxOpening", () => {
         `[data-testid='hero-parallax-plate-${layer.depth}']`,
       );
       expect(plate).toBeInTheDocument();
-      expect(plate?.getAttribute("src")).toContain(layer.file);
+      expect(plate?.querySelector("img")?.getAttribute("src")).toContain(layer.file);
     }
+  });
+
+  it("uses the WebP as a freeze-frame and plays WebM or MP4 on motion plates", () => {
+    const { container } = renderHero();
+
+    for (const layer of HERO_PARALLAX_LAYERS) {
+      const plate = container.querySelector(
+        `[data-testid='hero-parallax-plate-${layer.depth}']`,
+      );
+      const video = plate?.querySelector("video");
+
+      if (layer.video) {
+        expect(video).toBeInTheDocument();
+        expect(video).toHaveAttribute("autoplay");
+        expect(video).toHaveProperty("muted", true);
+        expect(video).toHaveAttribute("loop");
+        expect(video).toHaveAttribute("playsinline");
+        expect(video?.querySelector("source[type='video/webm']")?.getAttribute("src")).toContain(
+          layer.video.webm,
+        );
+        expect(video?.querySelector("source[type='video/mp4']")?.getAttribute("src")).toContain(
+          layer.video.mp4,
+        );
+        const sourceTypes = Array.from(video?.querySelectorAll("source") ?? []).map((node) =>
+          node.getAttribute("type"),
+        );
+        expect(sourceTypes).toEqual(["video/webm", "video/mp4"]);
+        expect(video?.getAttribute("style")).toContain(`url("${
+          layers.find((resolved) => resolved.depth === layer.depth)?.src
+        }")`);
+        expect(video?.getAttribute("style")).toMatch(/mask-image/i);
+      } else {
+        expect(video).toBeNull();
+      }
+    }
+  });
+
+  it("does not place the earth plate behind the hero stack", () => {
+    const { container } = renderHero();
+
+    expect(container.querySelector("[data-testid='hero-parallax-underlay']")).toBeNull();
+    expect(container.querySelector('img[src*="background.webp"]')).toBeNull();
   });
 
   it("marks plates as decorative so the wordmark carries the accessible name", () => {
@@ -134,7 +180,7 @@ describe("HeroParallaxOpening", () => {
 
     const plates = Array.from(
       container.querySelectorAll<HTMLImageElement>(
-        "[data-testid^='hero-parallax-plate-']",
+        "[data-testid^='hero-parallax-plate-'] img",
       ),
     );
 
@@ -168,7 +214,7 @@ describe("HeroParallaxOpening", () => {
       { layer: "1", yPercent: 70 },
       { layer: "2", yPercent: 55 },
       { layer: "3", yPercent: 40 },
-      { layer: "4", yPercent: 10 },
+      { layer: "4", yPercent: 0 },
       { layer: "brand", yPercent: HERO_PARALLAX_BRAND_Y_PERCENT },
     ]);
   });

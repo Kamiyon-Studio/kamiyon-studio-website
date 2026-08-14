@@ -693,7 +693,7 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 
 ## ADR-030 — Sanity ↔ frontend align: Home named fields, About WhoWeAreBand, Footer lifts (2026-08-14)
 
-**Status:** Accepted (RFC Layer 4 docs; product layers land separately)
+**Status:** Accepted (RFC Layer 4 docs; product layers land separately). **About WhoWeAreBand display superseded by ADR-034** (component + CMS fields still kept).
 
 **Context:** Scouts found Home still described as a `blocks[]` renderer while the live page is a fixed section stack; About kept Mission/Vision/Motto/Values/Culture/Team intro in CMS but ADR-027 left them unused on `/about`; awards placeholder badge text was hardcoded; footer marketing strings were hardcoded despite `siteSettings`; testimonials UI is not ready.
 
@@ -755,7 +755,7 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 - `homePage.testimonials[]` named refs after `awards`. Home uses array order (not `document.order`).
 - **Empty refs = hide. CMS unreachable = hide.** Do not `resolveWithFallback` a quote list; do not seed testimonial documents; do not fetch the full collection onto Home. This is an explicit exception to ADR-030 “CMS null = placeholders.”
 - UI after Recognition Awards, before Services. Trust-chapter band shares awards `--bg-secondary`; cards on `--bg-surface`. Eyebrow `Testimonials`; heading `Kind words`; no volume claims.
-- Display threshold: 0 hide · 1–2 static cards · 3+ CSS `--animate-marquee-vertical` columns (1 / 2 / 3 at sm/md/lg so every quote stays visible). Never pad columns by repeating a person. Pause on hover/focus. `hooks/useReducedMotion` → static unique cards, no clone.
+- Display threshold: **superseded 2026-08-15** — 0 hide · ≥1 `motion/react` `translateY` marquee; extra columns hidden until md/lg. Never pad columns by repeating a person. Pause on hover/focus. `hooks/useReducedMotion` → static unique cards, no clone. See Visual restyle addendum.
 - Avatar: allowlisted R2 `next/image`, else initials. No Unsplash, stars, or social hrefs.
 - Adapt `testimonial-v2` structure only: `motion/react` card springs + Kamiyon tokens. Drop dark-mode toggle and demo ERP quotes.
 
@@ -764,7 +764,7 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 | Tradeoff | Rationale |
 | --- | --- |
 | Hide until real quotes exist | Attributed speech cannot use labeled placeholders |
-| Marquee only at 3+ items | Looping one person looks like fake density |
+| Marquee only at 3+ items | **Superseded 2026-08-15:** operator locked v2 layout — marquee at ≥1; looping one person is accepted |
 | Null CMS also hides | Avoids dumping a full collection or inventing quotes |
 | Same `--bg-secondary` as awards | One trust chapter (laurels then kind words), then services |
 
@@ -772,6 +772,92 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 
 - Plan: `.claude/plans/home-testimonials-marquee.plan.md`
 - Hosted Studio must redeploy for the new type. Operators attach real refs on Home before `/#home-testimonials` appears.
+
+### Visual restyle (2026-08-15)
+
+Operator locked 21st.dev `testimonial-v2` **LAYOUT**, not demo data. CMS / hide / no-seed / no-placeholder rules above stay.
+
+- Centered pill `Testimonials` + heading `Kind words` + optional summary only
+- Cards stay `--bg-surface` (not v2 white/neutral)
+- Columns: chunk of 3; hide col2 until md, col3 until lg
+- Marquee at ≥1 quote; empty still hides
+- `motion/react` `translateY` loop (not framer-motion, not Unsplash, no dark toggle)
+- Plan: `.claude/plans/home-testimonials-v2-restyle.plan.md`
+
+---
+
+## ADR-032 — Lean portfolio case-study model + Eclipse original IP (2026-08-15)
+
+**Status:** Accepted
+
+**Context:** Original IP had nowhere honest to live after ADR-017 archived `product` / `caseStudy`. The active `portfolio` type only modeled a client Challenge → Solution → Impact spine. Eclipse is a real Kamiyon original IP (GGJ 2026 → present) and needs those optional depth fields without turning every client branding entry into a 20-section wiki.
+
+**Decision:**
+
+- Keep original IP on **`portfolio`** with required `projectType`: `original-ip` | `client-work`. Do **not** revive archived `product` or `caseStudy`.
+- Keep field key `clientName`; Studio title is **Client / Owner**. Sidebar labels original IP as **Studio**, never **Client**.
+- Required spine stays: `shortDescription`, `challenge`, `solution`, `impact`, `serviceType`, `seo`, plus existing listing flags (`featured`, `isPlaceholder`, `coverImage`/`gallery` via `r2Asset`).
+- Eclipse-depth groups are **optional** and hidden on the page when empty: `status`, `developmentPeriod`, `positioning`, `gameplay`, `narrative`, `technicalDevelopment`, `creativeDirection`, `process`, `credits[]`, `recognition[]`, `videos[]`, `externalLinks[]`.
+- Credits are inline `{ name, role, person? }`. `person` may reference existing `teamMember` (Sherwin only). Project role lives on the credit; About roster role is unchanged (CEO). Do not add jam collaborators to the About roster.
+- Project `recognition[]` is not the home `award` document. CIIT Most Fun Award is seeded on Eclipse only — not on home laurels.
+- Seed `portfolio-eclipse` (`isPlaceholder: false`, `featured: true`) alongside the existing sample client placeholder (`client-work`). No invented engine, PGDX, metrics, trailers, or gallery images.
+
+**Consequences:**
+
+- `/portfolio/eclipse` is the original-IP case study. `/portfolio/sample-client-project-placeholder` stays a sparse client entry (no empty Gameplay/Technical blocks).
+- Hosted Studio must redeploy for the new fields. Operators re-seed the dataset (`pnpm sanity:seed`) so Eclipse exists in Sanity, not only in fallbacks.
+- Home `portfolioItems[]` refs follow the fallback list (Eclipse + placeholder). CIIT is not a home laurel unless a later task says so.
+
+---
+
+## ADR-033 — Home hero parallax v2: motion plates + earth underlay (2026-08-15)
+
+**Status:** Accepted
+
+**Context:** ADR-029 shipped four still WebP plates at `site/hero/parallax/v1` (1024×682, black-keyed JPEGs). New art is 1920×1080 with real alpha, two looping videos (sky + ocean), and an earth cross-section meant to sit permanently behind the stack. The browser plays **one** of WebM or MP4; the WebP is the freeze-frame until (or instead of) the video — not a third movie. The wordmark stays a motion layer, not a file.
+
+**Decision:**
+
+- Bump the key prefix to `site/hero/parallax/v2/` (immutable cache bust). Leave v1 objects in place.
+- Eight CDN stack files: `layer-1.webp|webm|mp4`, `layer-2.webp`, `layer-3.webp|webm|mp4`, `layer-4.webp`. Plus `background.webp` as a **static** underlay behind the plates (not a fifth parallax layer). PNG originals archived under `v2/source/`.
+- Intrinsic plate size is 1920×1080. Ready-made WebP is published as-is (no black-key, no re-encode). The black-key pass remains for JPEG-over-black exports.
+- Motion plates render `<img>` (next/image, priority) under `<video autoplay muted loop playsinline>` with `<source>` order WebM then MP4. `prefers-reduced-motion: reduce` hides the video (`motion-reduce:hidden`); the freeze-frame stays.
+- Scroll/GSAP stack, brand slot (`yPercent` 25), and `HeroOpening` fallback are unchanged. `/assets/background.avif` stays the static-hero scenic plate and other-section placeholder — the new earth art is the parallax underlay only.
+- `pnpm media:hero-parallax -- --source <dir> --apply` still publishes to staging + production R2.
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| Dual video sources, not Cloudflare Stream | Matches the supplied files; R2 already serves the stills; one of WebM/MP4 is enough per browser |
+| CSS-hide videos under reduced motion rather than omitting them from the DOM | Avoids a hydration mismatch (ADR-029 / ui-context: markup that depends on the preference must not fork SSR vs client) |
+| Earth underlay is static | Operator asked to replace the background underneath the hero, not to add a fifth scrubbed plate |
+
+**Consequences:**
+
+- `HeroParallaxOpening` plates are wrappers (`data-parallax-layer` on the wrapper so still + video travel together).
+- Republish remains an operator step (`context/deploy-runbook.md`). A Worker rebuild is required before production HTML points at v2.
+
+**Amendment (same day):** Earth `background.webp` is the **Recent Projects** section backdrop (`#home-projects`), not a hero underlay. `/assets/background.avif` is unchanged. Motion videos are CSS-masked with the WebP alpha so black backing cannot cover sky/mountains. Foreground plate travel is `yPercent: 0` so its ground line can meet the projects earth plate. Hero bottom charcoal scrim is omitted on the parallax stage for that join.
+
+---
+
+## ADR-034 — Hide WhoWeAreBand on /about (2026-08-15)
+
+**Status:** Accepted
+
+**Context:** ADR-030 surfaced Mission/Vision/Motto/Values/Culture/Team intro in a WhoWeAreBand between story and timeline. The operator asked to hide that band on `/about` again.
+
+**Decision:**
+
+- Do **not** mount `WhoWeAreBand` on `/about`. Order is AboutHero → OurStory → StoryTimeline → TeamGrid.
+- Keep `WhoWeAreBand` in-repo. Keep CMS fields (`mission`, `vision`, `motto`, `values`, `cultureSummary`, `teamIntro`), GROQ, mappers, fallbacks, and seed.
+- Do **not** restore archived VisionBand / ValuesGrid / CultureClosing.
+
+**Consequences:**
+
+- ADR-030 About display clause (WhoWeAreBand between story and timeline) is superseded for the live page. CMS keep clauses from ADR-027 / ADR-030 still apply.
+- `ui-context.md` About row and essential CMS map updated.
 
 ---
 

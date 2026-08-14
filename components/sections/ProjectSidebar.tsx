@@ -3,6 +3,12 @@ import { Button } from "@/components/ui/Button";
 import type { CaseStudy } from "@/lib/cms/types";
 import { CONTACT_CTA } from "@/lib/config/navigation";
 import {
+  getPortfolioCtaLabel,
+  getPortfolioOwnerLabel,
+  getPortfolioProjectTypeLabel,
+  getPortfolioStatusLabel,
+} from "@/lib/portfolio/case-study";
+import {
   getPortfolioServiceHref,
   getPortfolioServiceLabel,
 } from "@/lib/portfolio/service-labels";
@@ -29,14 +35,38 @@ export function ProjectSidebar({ caseStudy }: ProjectSidebarProps) {
   const publishedLabel = formatPublishedDate(caseStudy.publishedAt);
   const serviceLabel = getPortfolioServiceLabel(caseStudy.serviceType);
   const serviceHref = getPortfolioServiceHref(caseStudy.serviceType);
+  const ownerLabel = getPortfolioOwnerLabel(caseStudy.projectType);
+  const projectTypeLabel = getPortfolioProjectTypeLabel(caseStudy.projectType);
+  const statusLabel = caseStudy.status
+    ? getPortfolioStatusLabel(caseStudy.status)
+    : undefined;
+  const ctaLabel = getPortfolioCtaLabel(caseStudy.projectType);
 
   return (
     <aside className="rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--bg-surface)] p-6 shadow-[var(--shadow-sm)]">
       <dl className="space-y-4 text-sm">
         <div>
-          <dt className="font-medium text-[var(--text-muted)]">Client</dt>
+          <dt className="font-medium text-[var(--text-muted)]">{ownerLabel}</dt>
           <dd className="mt-1 text-[var(--text-primary)]">{caseStudy.clientName}</dd>
         </div>
+        {projectTypeLabel ? (
+          <div>
+            <dt className="font-medium text-[var(--text-muted)]">Type</dt>
+            <dd className="mt-1 text-[var(--text-primary)]">{projectTypeLabel}</dd>
+          </div>
+        ) : null}
+        {statusLabel ? (
+          <div>
+            <dt className="font-medium text-[var(--text-muted)]">Status</dt>
+            <dd className="mt-1 text-[var(--text-primary)]">{statusLabel}</dd>
+          </div>
+        ) : null}
+        {caseStudy.developmentPeriod ? (
+          <div>
+            <dt className="font-medium text-[var(--text-muted)]">Period</dt>
+            <dd className="mt-1 text-[var(--text-primary)]">{caseStudy.developmentPeriod}</dd>
+          </div>
+        ) : null}
         {serviceLabel && serviceHref ? (
           <div>
             <dt className="font-medium text-[var(--text-muted)]">Service</dt>
@@ -50,17 +80,19 @@ export function ProjectSidebar({ caseStudy }: ProjectSidebarProps) {
             </dd>
           </div>
         ) : null}
-        <div>
-          <dt className="font-medium text-[var(--text-muted)]">Industry</dt>
-          <dd className="mt-1">
-            <Link
-              href="/portfolio"
-              className="text-[var(--text-primary)] transition-colors hover:text-sakura-ink focus-visible:outline-offset-2"
-            >
-              {caseStudy.industry}
-            </Link>
-          </dd>
-        </div>
+        {caseStudy.industry ? (
+          <div>
+            <dt className="font-medium text-[var(--text-muted)]">Industry</dt>
+            <dd className="mt-1">
+              <Link
+                href="/portfolio"
+                className="text-[var(--text-primary)] transition-colors hover:text-sakura-ink focus-visible:outline-offset-2"
+              >
+                {caseStudy.industry}
+              </Link>
+            </dd>
+          </div>
+        ) : null}
         {publishedLabel ? (
           <div>
             <dt className="font-medium text-[var(--text-muted)]">Published</dt>
@@ -70,7 +102,7 @@ export function ProjectSidebar({ caseStudy }: ProjectSidebarProps) {
       </dl>
 
       <Button href={CONTACT_CTA.href} variant="primary" className="mt-6 w-full">
-        Discuss a similar project
+        {ctaLabel}
       </Button>
     </aside>
   );

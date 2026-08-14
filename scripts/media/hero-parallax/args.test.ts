@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { ALL_TARGETS, DEFAULT_OUT_DIR, parseHeroParallaxArgs } from "./args";
 import {
   buildWranglerPutArgs,
+  contentTypeForFile,
   IMMUTABLE_CACHE_CONTROL,
   isMediaTarget,
   MEDIA_BUCKETS,
@@ -116,5 +117,18 @@ describe("buildWranglerPutArgs", () => {
     });
 
     expect(args[args.indexOf("--cache-control") + 1]).toBe("no-store");
+  });
+});
+
+describe("contentTypeForFile", () => {
+  it("maps plate extensions to the MIME type R2 should serve", () => {
+    expect(contentTypeForFile("layer-1.webp")).toBe("image/webp");
+    expect(contentTypeForFile("layer-1.webm")).toBe("video/webm");
+    expect(contentTypeForFile("layer-1.mp4")).toBe("video/mp4");
+    expect(contentTypeForFile("layer-1.png")).toBe("image/png");
+  });
+
+  it("rejects an extension the hero pipeline does not publish", () => {
+    expect(() => contentTypeForFile("layer-1.psd")).toThrow(/Unsupported media extension/);
   });
 });

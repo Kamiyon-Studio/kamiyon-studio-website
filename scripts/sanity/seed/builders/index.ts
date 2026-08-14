@@ -16,6 +16,7 @@ import { buildPortfolioDocuments } from "./portfolio";
 import { buildServiceDocuments } from "./services";
 import { buildSiteSettingsDocument } from "./site-settings";
 import { buildTeamMemberDocuments } from "./team";
+import { buildTestimonialDocuments } from "./testimonials";
 
 export { buildAboutPageDocument } from "./about";
 export { buildAwardDocument, buildAwardDocuments } from "./awards";
@@ -47,6 +48,10 @@ export {
 } from "./services";
 export { buildSiteSettingsDocument } from "./site-settings";
 export { buildTeamMemberDocument, buildTeamMemberDocuments } from "./team";
+export {
+  buildTestimonialDocument,
+  buildTestimonialDocuments,
+} from "./testimonials";
 
 /**
  * Core seed documents — no archived types, no partners/blog.
@@ -58,6 +63,7 @@ export function buildCoreSeedDocuments(): SeedDocument[] {
     ...buildServiceDocuments(),
     ...buildPortfolioDocuments(),
     ...buildTeamMemberDocuments(),
+    ...buildTestimonialDocuments(),
     buildAboutPageDocument(),
     buildContactPageDocument(),
     buildHomePageDocument(),
@@ -71,7 +77,8 @@ export function listCoreSeedDocumentIds(): string[] {
 
 /**
  * Full seed set in mutation order:
- * services → portfolio → team → singletons → partners → awards → blog → home LAST.
+ * services → portfolio → team → singletons → partners → awards →
+ * testimonials → blog → home LAST.
  */
 export function buildAllSeedDocuments(): SeedDocument[] {
   return [
@@ -83,6 +90,7 @@ export function buildAllSeedDocuments(): SeedDocument[] {
     buildSiteSettingsDocument(),
     ...buildPartnerDocuments(),
     ...buildAwardDocuments(),
+    ...buildTestimonialDocuments(),
     ...buildBlogSeedDocuments(),
     buildHomePageDocument(),
   ];

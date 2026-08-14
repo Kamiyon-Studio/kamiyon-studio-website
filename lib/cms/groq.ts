@@ -62,13 +62,47 @@ const portfolioProjection = /* groq */ `{
   _type,
   title,
   slug,
+  projectType,
   clientName,
   industry,
   serviceType,
+  status,
+  developmentPeriod,
+  shortDescription,
+  positioning,
   challenge,
   solution,
   impact,
   lessonsLearned,
+  creativeDirection,
+  process,
+  narrative,
+  technicalDevelopment{
+    engine,
+    platforms,
+    input,
+    origin,
+    systems,
+    body
+  },
+  gameplay{
+    mechanics,
+    dualStateTable{
+      leftLabel,
+      rightLabel,
+      rows[]{ _key, aspect, left, right }
+    },
+    controls[]{ _key, input, action }
+  },
+  credits[]{
+    _key,
+    name,
+    role,
+    person->{ _id, name }
+  },
+  recognition[]{ _key, title, organization, year, url, note },
+  videos[]{ _key, url, title },
+  externalLinks[]{ _key, label, url, kind },
   coverImage ${r2AssetProjection},
   gallery[] ${r2AssetProjection},
   featured,
@@ -249,45 +283,11 @@ export const productBySlugQuery = defineQuery(/* groq */ `
 `);
 
 export const portfolioItemsQuery = defineQuery(/* groq */ `
-  *[_type == "portfolio"] | order(coalesce(publishedAt, _createdAt) desc) {
-    _type,
-    title,
-    slug,
-    clientName,
-    industry,
-    serviceType,
-    challenge,
-    solution,
-    impact,
-    lessonsLearned,
-    coverImage ${r2AssetProjection},
-    gallery[] ${r2AssetProjection},
-    featured,
-    isPlaceholder,
-    publishedAt,
-    seo ${seoProjection}
-  }
+  *[_type == "portfolio"] | order(coalesce(publishedAt, _createdAt) desc) ${portfolioProjection}
 `);
 
 export const portfolioItemBySlugQuery = defineQuery(/* groq */ `
-  *[_type == "portfolio" && slug.current == $slug][0]{
-    _type,
-    title,
-    slug,
-    clientName,
-    industry,
-    serviceType,
-    challenge,
-    solution,
-    impact,
-    lessonsLearned,
-    coverImage ${r2AssetProjection},
-    gallery[] ${r2AssetProjection},
-    featured,
-    isPlaceholder,
-    publishedAt,
-    seo ${seoProjection}
-  }
+  *[_type == "portfolio" && slug.current == $slug][0] ${portfolioProjection}
 `);
 
 export const communityItemsQuery = defineQuery(/* groq */ `

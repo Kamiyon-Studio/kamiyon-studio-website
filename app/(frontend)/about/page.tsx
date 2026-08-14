@@ -5,7 +5,6 @@ import { AboutHero } from "@/components/sections/AboutHero";
 import { OurStory } from "@/components/sections/OurStory";
 import { StoryTimeline } from "@/components/sections/StoryTimeline";
 import { TeamGrid } from "@/components/sections/TeamGrid";
-import { WhoWeAreBand } from "@/components/sections/WhoWeAreBand";
 import {
   aboutPageFallback,
   resolveWithFallback,
@@ -109,16 +108,7 @@ export default async function AboutPage() {
       <AnimatedSection as="div" distance={28}>
         <OurStory storySections={storySections} />
       </AnimatedSection>
-      <AnimatedSection as="div" distance={28}>
-        <WhoWeAreBand
-          mission={aboutPage.mission}
-          vision={aboutPage.vision}
-          motto={aboutPage.motto}
-          values={aboutPage.values}
-          cultureSummary={aboutPage.cultureSummary}
-          teamIntro={aboutPage.teamIntro}
-        />
-      </AnimatedSection>
+      {/* WhoWeAreBand kept in-repo; hidden on /about (ADR-034). */}
       {/* Scroll timeline owns its own GSAP ScrollTrigger — no outer AnimatedSection. */}
       <StoryTimeline
         heading={timelineHeading}

@@ -40,6 +40,7 @@ describe("WS8b core seed builders", () => {
       "product-afterschool-cleanup",
     ]);
     expect(buildCaseStudyDocuments().map((d) => d._id)).toEqual([
+      "portfolio-eclipse",
       "portfolio-sample-client-project-placeholder",
     ]);
     expect(buildTeamMemberDocuments().map((d) => d._id)).toEqual([
@@ -68,7 +69,11 @@ describe("WS8b core seed builders", () => {
       expect(doc.isPlaceholder).toBe(true);
     }
     for (const doc of buildCaseStudyDocuments()) {
-      expect(doc.isPlaceholder).toBe(true);
+      if (doc._id === "portfolio-eclipse") {
+        expect(doc.isPlaceholder).toBe(false);
+      } else {
+        expect(doc.isPlaceholder).toBe(true);
+      }
     }
     for (const doc of buildTeamMemberDocuments()) {
       expect(doc.isPlaceholder).toBe(true);
@@ -82,7 +87,10 @@ describe("WS8b core seed builders", () => {
 
     // Sanity-check against source fallbacks so we don't invent flags.
     expect(productsFallback.every((p) => p.isPlaceholder === true)).toBe(true);
-    expect(caseStudiesFallback.every((c) => c.isPlaceholder === true)).toBe(true);
+    expect(caseStudiesFallback.some((c) => c.isPlaceholder === true)).toBe(true);
+    expect(caseStudiesFallback.some((c) => c.slug.current === "eclipse" && c.isPlaceholder === false)).toBe(
+      true,
+    );
     expect(teamMembersFallback.every((m) => m.isPlaceholder === true)).toBe(true);
     expect(servicesFallback.every((s) => s.isPlaceholder === true)).toBe(true);
     expect(communityItemsFallback.every((c) => c.isPlaceholder === true)).toBe(
@@ -175,8 +183,8 @@ describe("WS8b core seed builders", () => {
 
   it("buildCoreSeedDocuments gathers expected counts and unique IDs", () => {
     const docs = buildCoreSeedDocuments();
-    // site + 5 services + 1 portfolio + 6 team + about + contact + home = 16
-    expect(docs).toHaveLength(16);
+    // site + 5 services + 2 portfolio + 6 team + 6 testimonials + about + contact + home = 23
+    expect(docs).toHaveLength(23);
 
     const ids = docs.map((d) => d._id);
     expect(new Set(ids).size).toBe(ids.length);
@@ -188,6 +196,7 @@ describe("WS8b core seed builders", () => {
       "portfolio-sample-client-project-placeholder",
     );
     expect(homeIndex).toBeGreaterThan(portfolioIndex);
+    expect(ids).toContain("testimonial-sherwin-limosnero");
     expect(ids).not.toContain("product-eclipse");
     expect(ids).not.toContain("communityItem-workshop-details-coming-soon");
   });

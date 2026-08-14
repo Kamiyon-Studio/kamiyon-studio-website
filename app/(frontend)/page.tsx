@@ -14,6 +14,7 @@ import {
   awardsFallback,
   homePageFallback,
   portfolioItemsFallback,
+  resolveHomeTestimonials,
   resolveWithFallback,
   servicesFallback,
 } from "@/lib/cms/fallbacks";
@@ -25,6 +26,7 @@ import {
   getPortfolioItems,
   getServices,
 } from "@/lib/cms/queries";
+import { resolveHomeProjectsBackground } from "@/lib/home/hero-parallax-layers";
 import { PARTNER_PLACEHOLDERS } from "@/lib/home/partner-placeholders";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import type { HomeHero, HomePage, Service } from "@/lib/cms/types";
@@ -43,7 +45,6 @@ async function getHomePageContent() {
 
   if (homeCms === null) {
     // CMS unreachable → keep existing resolveWithFallback placeholders.
-    // Testimonials are attributed speech: never substitute quotes (ADR-031).
     const [portfolioItems, services, partners, awards] = await Promise.all([
       getPortfolioItems(),
       getServices(),
@@ -60,18 +61,20 @@ async function getHomePageContent() {
         partners?.map(mapPartnerToMarqueeItem) ?? null,
         PARTNER_PLACEHOLDERS,
       ),
-      testimonials: [],
+      testimonials: resolveHomeTestimonials(null),
     };
   }
 
-  // CMS loaded singleton — named fields ONLY. Empty arrays stay empty.
+  // CMS loaded singleton — named fields ONLY. Empty arrays stay empty,
+  // except testimonials: team-roster preview quotes fill the marquee until
+  // consented CMS quotes exist (ADR-031).
   return {
     home: homeCms,
     portfolioItems: homeCms.portfolioItems,
     services: homeCms.services,
     awards: homeCms.awards,
     partners: homeCms.partners.map(mapPartnerToMarqueeItem),
-    testimonials: homeCms.testimonials,
+    testimonials: resolveHomeTestimonials(homeCms.testimonials),
   };
 }
 
@@ -111,7 +114,10 @@ export default async function Home() {
       <HomeScrollMarker />
       <Hero hero={HERO_STUB} partners={partners} />
       {portfolioItems.length > 0 ? (
-        <ProjectsBento caseStudies={portfolioItems} />
+        <ProjectsBento
+          caseStudies={portfolioItems}
+          backgroundSrc={resolveHomeProjectsBackground()}
+        />
       ) : null}
       {awards.length > 0 ? <RecognitionAwards awards={awards} /> : null}
       {testimonials.length > 0 ? (
