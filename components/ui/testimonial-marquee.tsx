@@ -1,8 +1,8 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, useAnimationControls } from "motion/react";
 import Image from "next/image";
-import { type CSSProperties } from "react";
+import { useEffect } from "react";
 
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { isAllowedNextImageSrc } from "@/lib/cms/image";
@@ -22,27 +22,31 @@ export type TestimonialMarqueeProps = {
   className?: string;
 };
 
-const COLUMN_COUNT = 3;
-const COLUMN_DURATIONS_S = [10, 15, 20] as const;
+const COLUMN_DURATIONS_S = [15, 19, 17] as const;
+const COLUMN_VISIBILITY = ["", "hidden md:block", "hidden lg:block"] as const;
 
-const CARD_LIFT = { scale: 1.03, y: -8 };
-const CARD_SPRING = { type: "spring" as const, stiffness: 400, damping: 22 };
+const CARD_LIFT = {
+  scale: 1.03,
+  y: -8,
+  boxShadow: "var(--shadow-lg)",
+};
+const CARD_SPRING = { type: "spring" as const, stiffness: 400, damping: 17 };
 
 const cardChromeClassName = cn(
-  "flex h-full flex-col rounded-[var(--radius-card-lg)] border border-[var(--border-default)]",
-  "bg-[var(--bg-surface)] p-8 shadow-[var(--shadow-lg)]",
+  "group flex h-full w-full max-w-xs flex-col rounded-[var(--radius-card-lg)]",
+  "border border-[var(--border-default)] bg-[var(--bg-surface)] p-10",
+  "shadow-[var(--shadow-lg)]",
 );
 
-const trackClassName = cn(
-  "flex shrink-0 flex-col gap-4 animate-marquee-vertical motion-reduce:animate-none",
-  "group-hover/track:[animation-play-state:paused]",
-  "group-focus-within/track:[animation-play-state:paused]",
+const avatarClassName = cn(
+  "h-10 w-10 shrink-0 rounded-full object-cover ring-2",
+  "ring-[var(--border-default)] group-hover:ring-[var(--color-sakura)]",
 );
 
-const columnMaskClassName = cn(
-  "group/track relative h-[32rem] overflow-hidden",
-  "[mask-image:linear-gradient(to_bottom,transparent,black_12%,black_88%,transparent)]",
-  "[-webkit-mask-image:linear-gradient(to_bottom,transparent,black_12%,black_88%,transparent)]",
+const scrollerClassName = cn(
+  "flex max-h-[740px] justify-center gap-6 overflow-hidden",
+  "[mask-image:linear-gradient(to_bottom,transparent,black_10%,black_90%,transparent)]",
+  "[-webkit-mask-image:linear-gradient(to_bottom,transparent,black_10%,black_90%,transparent)]",
 );
 
 /** First letters of up to two name words, e.g. "Fixture Author" → "FA". */
@@ -56,20 +60,29 @@ export function initialsFromName(name: string): string {
     .join("");
 }
 
-function splitRoundRobin(
+function chunkColumns(
   items: TestimonialMarqueeItem[],
-  columnCount: number,
-): TestimonialMarqueeItem[][] {
-  const columns: TestimonialMarqueeItem[][] = Array.from(
-    { length: columnCount },
-    () => [],
-  );
+): [
+  TestimonialMarqueeItem[],
+  TestimonialMarqueeItem[],
+  TestimonialMarqueeItem[],
+] {
+  return [items.slice(0, 3), items.slice(3, 6), items.slice(6, 9)];
+}
 
-  items.forEach((item, index) => {
-    columns[index % columnCount]?.push(item);
+function startMarqueeLoop(
+  controls: ReturnType<typeof useAnimationControls>,
+  durationS: number,
+) {
+  return controls.start({
+    translateY: "-50%",
+    transition: {
+      duration: durationS,
+      repeat: Infinity,
+      ease: "linear",
+      repeatType: "loop",
+    },
   });
-
-  return columns.filter((column) => column.length > 0);
 }
 
 function TestimonialAvatar({ item }: { item: TestimonialMarqueeItem }) {
@@ -81,9 +94,9 @@ function TestimonialAvatar({ item }: { item: TestimonialMarqueeItem }) {
       <Image
         src={photoSrc}
         alt={item.photoAlt?.trim() || item.name}
-        width={48}
-        height={48}
-        className="size-12 shrink-0 rounded-full object-cover"
+        width={40}
+        height={40}
+        className={avatarClassName}
       />
     );
   }
@@ -91,7 +104,10 @@ function TestimonialAvatar({ item }: { item: TestimonialMarqueeItem }) {
   return (
     <span
       aria-hidden="true"
-      className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[var(--bg-accent)] text-sm font-semibold text-sakura-ink"
+      className={cn(
+        avatarClassName,
+        "flex items-center justify-center bg-[var(--bg-accent)] text-sm font-semibold text-sakura-ink",
+      )}
     >
       {initialsFromName(item.name)}
     </span>
@@ -102,16 +118,14 @@ function TestimonialCardBody({ item }: { item: TestimonialMarqueeItem }) {
   return (
     <figure className={cardChromeClassName}>
       <blockquote className="m-0">
-        <p className="font-body text-base leading-relaxed text-[var(--text-primary)]">
-          {item.quote}
-        </p>
+        <p className="leading-relaxed text-[var(--text-secondary)]">{item.quote}</p>
       </blockquote>
       <figcaption className="mt-6 flex items-center gap-3">
         <TestimonialAvatar item={item} />
         <div className="min-w-0">
           <p className="font-semibold text-[var(--text-primary)]">{item.name}</p>
           {item.role ? (
-            <p className="text-sm text-[var(--text-secondary)]">{item.role}</p>
+            <p className="text-sm text-[var(--text-muted)]">{item.role}</p>
           ) : null}
         </div>
       </figcaption>
@@ -124,48 +138,36 @@ function TestimonialCard({
   interactive,
   enableHover,
   inert = false,
-  className,
 }: {
   item: TestimonialMarqueeItem;
   interactive: boolean;
   enableHover: boolean;
-  /** Clone-track cards: hide from AT, no focus. */
   inert?: boolean;
-  className?: string;
 }) {
   const lift = enableHover && !inert ? CARD_LIFT : undefined;
 
   return (
     <motion.li
       aria-hidden={inert ? true : undefined}
+      inert={inert || undefined}
       tabIndex={interactive && !inert ? 0 : -1}
       whileHover={lift}
       whileFocus={lift}
       transition={CARD_SPRING}
-      className={cn("list-none", className)}
+      className="list-none"
     >
       <TestimonialCardBody item={item} />
     </motion.li>
   );
 }
 
-function StaticCards({
-  items,
-  enableHover,
-}: {
-  items: TestimonialMarqueeItem[];
-  enableHover: boolean;
-}) {
+function StaticCards({ items }: { items: TestimonialMarqueeItem[] }) {
   return (
     <ul className="m-0 flex list-none flex-wrap justify-center gap-6 p-0">
       {items.map((item) => (
-        <TestimonialCard
-          key={item.id}
-          item={item}
-          interactive
-          enableHover={enableHover}
-          className={items.length === 1 ? "w-full max-w-md" : "w-full max-w-sm"}
-        />
+        <li key={item.id} className="list-none">
+          <TestimonialCardBody item={item} />
+        </li>
       ))}
     </ul>
   );
@@ -174,81 +176,101 @@ function StaticCards({
 function MarqueeColumn({
   items,
   durationS,
+  col,
+  className,
 }: {
   items: TestimonialMarqueeItem[];
   durationS: number;
+  col: 0 | 1 | 2;
+  className?: string;
 }) {
+  const controls = useAnimationControls();
+
+  useEffect(() => {
+    if (items.length === 0) {
+      return;
+    }
+
+    void startMarqueeLoop(controls, durationS);
+
+    return () => {
+      controls.stop();
+    };
+  }, [controls, durationS, items.length]);
+
+  const pause = () => {
+    controls.stop();
+  };
+
+  const resume = () => {
+    if (items.length === 0) {
+      return;
+    }
+    void startMarqueeLoop(controls, durationS);
+  };
+
   return (
     <div
-      className={columnMaskClassName}
-      style={{ "--duration": `${durationS}s` } as CSSProperties}
+      data-testid="testimonial-marquee-col"
+      data-col={String(col)}
+      className={className}
+      onFocus={pause}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+          resume();
+        }
+      }}
     >
-      {/* One track containing primary + clone so translateY(-50%) loops cleanly. */}
-      <ul className={cn("m-0 list-none p-0", trackClassName)}>
-        {items.map((item) => (
-          <TestimonialCard
-            key={item.id}
-            item={item}
-            interactive
-            enableHover
-          />
-        ))}
-        {items.map((item) => (
-          <TestimonialCard
-            key={`${item.id}-clone`}
-            item={item}
-            interactive={false}
-            enableHover={false}
-            inert
-          />
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function MarqueeColumnRow({
-  items,
-  columnCount,
-}: {
-  items: TestimonialMarqueeItem[];
-  columnCount: 1 | 2 | 3;
-}) {
-  const columns = splitRoundRobin(items, columnCount);
-
-  return (
-    <div
-      className={cn(
-        "gap-4 md:gap-6",
-        columnCount === 1 && "grid grid-cols-1",
-        columnCount === 2 && "grid grid-cols-2",
-        columnCount === 3 && "grid grid-cols-3",
+      {items.length === 0 ? null : (
+        <motion.ul
+          animate={controls}
+          onHoverStart={pause}
+          onHoverEnd={resume}
+          className="m-0 flex list-none flex-col gap-6 p-0"
+        >
+          {items.map((item) => (
+            <TestimonialCard
+              key={item.id}
+              item={item}
+              interactive
+              enableHover
+            />
+          ))}
+          {items.map((item) => (
+            <TestimonialCard
+              key={`${item.id}-clone`}
+              item={item}
+              interactive={false}
+              enableHover={false}
+              inert
+            />
+          ))}
+        </motion.ul>
       )}
-    >
-      {columns.map((columnItems, index) => (
-        <MarqueeColumn
-          key={`${columnCount}-${columnItems[0]?.id ?? index}`}
-          items={columnItems}
-          durationS={COLUMN_DURATIONS_S[index] ?? COLUMN_DURATIONS_S[0]}
-        />
-      ))}
     </div>
   );
 }
 
-function MarqueeTracks({ items }: { items: TestimonialMarqueeItem[] }) {
+function MarqueeScroller({ items }: { items: TestimonialMarqueeItem[] }) {
+  const columns = chunkColumns(items);
+
   return (
-    <>
-      <div className="md:hidden">
-        <MarqueeColumnRow items={items} columnCount={1} />
-      </div>
-      <div className="hidden md:block lg:hidden">
-        <MarqueeColumnRow items={items} columnCount={2} />
-      </div>
-      <div className="hidden lg:block">
-        <MarqueeColumnRow items={items} columnCount={COLUMN_COUNT} />
-      </div>
-    </>
+    <div
+      data-testid="testimonial-marquee-scroller"
+      className={scrollerClassName}
+    >
+      {columns.map((columnItems, index) =>
+        columnItems.length === 0 ? null : (
+          <MarqueeColumn
+            key={index}
+            items={columnItems}
+            durationS={COLUMN_DURATIONS_S[index] ?? COLUMN_DURATIONS_S[0]}
+            col={index as 0 | 1 | 2}
+            className={COLUMN_VISIBILITY[index]}
+          />
+        ),
+      )}
+    </div>
   );
 }
 
@@ -262,18 +284,16 @@ export function TestimonialMarquee({
     return null;
   }
 
-  const useMarquee = items.length >= 3 && !reducedMotion;
-
   return (
     <div
       data-testid="testimonial-marquee"
-      data-mode={useMarquee ? "marquee" : "static"}
+      data-mode={reducedMotion ? "static" : "marquee"}
       className={className}
     >
-      {useMarquee ? (
-        <MarqueeTracks items={items} />
+      {reducedMotion ? (
+        <StaticCards items={items} />
       ) : (
-        <StaticCards items={items} enableHover={!reducedMotion} />
+        <MarqueeScroller items={items} />
       )}
     </div>
   );

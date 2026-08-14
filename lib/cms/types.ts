@@ -332,18 +332,114 @@ export type Product = {
 
 /** Spec 05 — portfolio (replaces caseStudy) */
 
+export type PortfolioProjectType = "original-ip" | "client-work";
+
+export type PortfolioStatus =
+  | "prototype"
+  | "in-development"
+  | "released"
+  | "archived";
+
+export type PortfolioLinkKind =
+  | "website"
+  | "trailer"
+  | "store"
+  | "press"
+  | "source"
+  | "other";
+
+export type PortfolioCredit = {
+  _key?: string;
+  name: string;
+  role: string;
+  /** Optional About-roster person. Project role lives on this credit, not on teamMember. */
+  person?: {
+    id: string;
+    name: string;
+  };
+};
+
+export type PortfolioRecognition = {
+  _key?: string;
+  title: string;
+  organization: string;
+  year: string;
+  url?: string;
+  note?: string;
+};
+
+export type PortfolioGameplayDualStateRow = {
+  _key?: string;
+  aspect: string;
+  left: string;
+  right: string;
+};
+
+export type PortfolioGameplay = {
+  mechanics?: PortableTextBlock[];
+  dualStateTable?: {
+    leftLabel: string;
+    rightLabel: string;
+    rows: PortfolioGameplayDualStateRow[];
+  };
+  controls: Array<{
+    _key?: string;
+    input: string;
+    action: string;
+  }>;
+};
+
+export type PortfolioTechnicalDevelopment = {
+  engine?: string;
+  platforms?: string;
+  input?: string;
+  origin?: string;
+  systems: string[];
+  body?: PortableTextBlock[];
+};
+
+export type PortfolioVideo = {
+  _key?: string;
+  url: string;
+  title?: string;
+};
+
+export type PortfolioExternalLink = {
+  _key?: string;
+  label: string;
+  url: string;
+  kind: PortfolioLinkKind;
+};
+
 export type Portfolio = {
   _type: "portfolio";
   title: string;
   slug: Slug;
+  /** Required. Mapper defaults missing docs to `client-work`. */
+  projectType: PortfolioProjectType;
   clientName: string;
   industry: string;
   /** Service category value from SERVICE_CATEGORIES. */
   serviceType: string;
+  status?: PortfolioStatus;
+  developmentPeriod?: string;
+  /** Required for cards/listing. Mapper falls back to `challenge` when missing. */
+  shortDescription: string;
+  /** Optional case-study hero one-liner. */
+  positioning?: string;
   challenge: string;
   solution: string;
   impact: string;
   lessonsLearned?: string;
+  creativeDirection?: PortableTextBlock[];
+  process?: PortableTextBlock[];
+  narrative?: PortableTextBlock[];
+  technicalDevelopment?: PortfolioTechnicalDevelopment;
+  gameplay?: PortfolioGameplay;
+  credits: PortfolioCredit[];
+  recognition: PortfolioRecognition[];
+  videos: PortfolioVideo[];
+  externalLinks: PortfolioExternalLink[];
   coverImage?: CmsImage;
   gallery: CmsImage[];
   featured: boolean;

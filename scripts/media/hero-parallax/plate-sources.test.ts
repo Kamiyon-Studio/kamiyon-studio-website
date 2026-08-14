@@ -4,8 +4,10 @@ import { HERO_PARALLAX_LAYERS } from "@/lib/home/hero-parallax-layers";
 
 import {
   isSupportedSourceFile,
+  matchBackgroundSource,
   matchPlateSources,
   matchSourceForDepth,
+  matchVideoForDepth,
 } from "./plate-sources";
 
 const EXPORTS = [
@@ -57,6 +59,12 @@ describe("matchSourceForDepth", () => {
     const candidates = ["layer-1-b.png", "layer-1-a.png"];
     expect(matchSourceForDepth(candidates, 1)).toBe("layer-1-a.png");
   });
+
+  it("prefers a WebP freeze-frame over a PNG of the same depth", () => {
+    expect(
+      matchSourceForDepth(["png/layer-1.png", "webp/layer-1.webp"], 1),
+    ).toBe("webp/layer-1.webp");
+  });
 });
 
 describe("matchPlateSources", () => {
@@ -72,5 +80,33 @@ describe("matchPlateSources", () => {
     expect(() => matchPlateSources(["layer-1.png"], "/exports")).toThrow(
       /No source image for layer 2 .* in \/exports/,
     );
+  });
+});
+
+describe("matchVideoForDepth", () => {
+  it("finds WebM and MP4 siblings in format subfolders", () => {
+    const files = [
+      "webp/layer-1.webp",
+      "webm/layer-1.webm",
+      "mp4/layer-1.mp4",
+      "webm/layer-3.webm",
+    ];
+
+    expect(matchVideoForDepth(files, 1, ".webm")).toBe("webm/layer-1.webm");
+    expect(matchVideoForDepth(files, 1, ".mp4")).toBe("mp4/layer-1.mp4");
+    expect(matchVideoForDepth(files, 3, ".mp4")).toBeNull();
+    expect(matchVideoForDepth(files, 2, ".webm")).toBeNull();
+  });
+});
+
+describe("matchBackgroundSource", () => {
+  it("prefers the WebP underlay at the export root", () => {
+    expect(
+      matchBackgroundSource(["background.png", "background.webp", "webp/layer-1.webp"]),
+    ).toBe("background.webp");
+  });
+
+  it("returns null when the underlay is missing", () => {
+    expect(matchBackgroundSource(["webp/layer-1.webp"])).toBeNull();
   });
 });

@@ -17,21 +17,58 @@ When a task/phase is marked complete:
 
 ## Current Phase
 
+### About page — hide WhoWeAreBand (2026-08-15)
+
+**ADR:** ADR-034 (supersedes ADR-030 About display)  
+**Status:** **Done in-repo** — `/about` is hero → story → timeline → team. `WhoWeAreBand` component + CMS fields kept, not mounted.
+
+### Home hero parallax v2 — motion plates + earth underlay (2026-08-15)
+
+**ADR:** ADR-033 (extends ADR-029)  
+**Status:** **Done in-repo** — v2 plates + videos + underlay published to staging and production R2. Worker rebuild still required for hosted HTML to point at v2.
+
+| Stream | Status | Notes |
+| --- | --- | --- |
+| Layer config `site/hero/parallax/v2`, 1920×1080 | **Done** | Sky + ocean carry WebM/MP4 (WebP alpha mask); mountain still; foreground planted (`yPercent` 0) |
+| `HeroParallaxOpening` freeze-frame + video | **Done** | WebP under video; videos masked so black backing cannot cover sky/mountains |
+| Recent Projects earth plate | **Done** | `background.webp` on `#home-projects`; `/assets/background.avif` unchanged |
+| `pnpm media:hero-parallax` passthrough publish | **Done** | Ready WebP copied as-is; nested `webp/` `webm/` `mp4/` `png/` sources |
+| R2 upload staging + production | **Done** | 8 stack files + `background.webp` + PNG sources; CDN HEAD 200 |
+| Context (ADR-033, ui-context, deploy-runbook) | **Done** | This tracker |
+
+**Ship gate:** Redeploy staging/production Workers so `HERO_PARALLAX_KEY_PREFIX` is v2 in the built HTML. Confirm sky/ocean loop, freeze-frame before first frame, and reduced-motion stills.
+
+### Lean portfolio case study + Eclipse original IP (2026-08-15)
+
+**ADR:** ADR-032  
+**Status:** **Done in-repo** — `portfolio` gained a lean case-study contract (`projectType`, optional Eclipse-depth groups). `/portfolio/[slug]` renders new fields when present. Seed includes real Eclipse (`portfolio-eclipse`) plus the sample client placeholder. About roster unchanged.
+
+| Stream | Status | Notes |
+| --- | --- | --- |
+| Schema + Studio groups | **Done in-repo** | Information / Overview / Case study / Gameplay / Development / Credits & recognition / Media / SEO |
+| Types / GROQ / mapper / fallbacks | **Done in-repo** | Optional groups omitted when empty; legacy docs default to `client-work` |
+| Seed Eclipse + placeholder | **Done in-repo** | `portfolio-eclipse` `isPlaceholder: false`; placeholder stays `client-work` |
+| Case study UI | **Done in-repo** | Original IP sidebar says Studio; empty Gameplay/Technical hidden |
+| ADR-032 + tracker | **Done** | This tracker |
+
+**Ship gate:** Hosted Studio redeploy + `pnpm sanity:seed` (write token, non-prod first) so Eclipse is in the dataset. Do not add CIIT to home `award` in this pass.
+
 ### Home testimonials marquee (2026-08-14)
 
 **Plan:** `.claude/plans/home-testimonials-marquee.plan.md` · **ADR:** ADR-031  
-**Status:** **Done in-repo** — `testimonial` docs + `homePage.testimonials[]`; section after awards; empty/CMS-null hides; marquee at 3+ quotes. No seed quotes.
+**Status:** **Done in-repo** — `testimonial` docs + `homePage.testimonials[]`; section after awards; v2 layout marquee at ≥1 quote. **Preview fill (2026-08-15):** team-roster names (Sherwin, Christian, Ken, Luis, Lucky, Yushua) so `/#home-testimonials` is visible; replace with consented quotes before treating as social proof.
 
 | Stream | Status | Notes |
 | --- | --- | --- |
 | **WS-A** Sanity schema + desk | **Done in-repo** | `testimonial` type; Home field after `awards` |
-| **WS-B** Types / GROQ / mapper / empty seed | **Done in-repo** | `mapTestimonial`; fallback + seed `[]` |
-| **WS-C** `testimonial-marquee` primitive | **Done in-repo** | 0 hide · 1–2 static · 3+ CSS vertical marquee; `motion/react` card springs |
+| **WS-B** Types / GROQ / mapper / preview seed | **Done in-repo** | `mapTestimonial`; team-roster preview quotes (2026-08-15) |
+| **WS-C** `testimonial-marquee` primitive | **Done in-repo** | 0 hide · ≥1 `motion/react` `translateY` marquee; reduced-motion static |
 | **WS-D** Section + Home page + nav | **Done in-repo** | `/#home-testimonials`; `--bg-secondary` trust chapter |
 | **WS-E** ADR-031 + tracker + ui-context + essential | **Done** | This tracker |
 | **WS-F** Verify gate | **Done (local tests)** | Focused 83/83; eslint clean on touched (pre-existing `SanityObjectType` unused warning in constants.ts); tsc noise is pre-existing and off-path |
+| **WS-V** Visual restyle (v2 layout) | **Done (local tests)** | Centered pill + Kind words; v2 columns hide at md/lg; marquee ≥1. Combined 11/11 + eslint clean. |
 
-**Ship gate:** WS-A–E required. Founder visual ack (level 5) on `/#home-testimonials` after operators add real Studio quotes. Hosted Studio redeploy required for the new type.
+**Ship gate:** WS-A–F + WS-V local **PASS**. Hosted Studio **redeployed 2026-08-15**. Preview quotes on Home for visual ack; replace with consented quotes later.
 
 ### Sanity ↔ frontend align (2026-08-14)
 
@@ -40,7 +77,7 @@ When a task/phase is marked complete:
 
 | Tracker item | Status |
 | --- | --- |
-| Home testimonials section | **Done in-repo** — ADR-031 (hidden until real CMS quotes) |
+| Home testimonials section | **Done in-repo** — ADR-031; team-roster preview quotes visible until consented CMS quotes exist |
 | Re-seed dataset for Home named refs (`pnpm sanity:seed`) | **Operator** — schema live; dataset may still hold legacy `blocks` until seed/editors fill refs |
 | Rotate `SANITY_STUDIO_MEDIA_UPLOAD_SECRET` if it must stay server-only | **Operator** — deploy warned secret is client-bundled in hosted Studio |
 
@@ -51,8 +88,8 @@ When a task/phase is marked complete:
 
 ### About page — drop Vision / Values / Culture (2026-07-30)
 
-**ADR:** ADR-027 (display unused **superseded by ADR-030**) · **Archive:** [`archive/about-vision-values-culture/`](../archive/about-vision-values-culture/README.md)  
-**Status:** Done — archived VisionBand / ValuesGrid / CultureClosing stay archived. `/about` is hero → story → **WhoWeAreBand** (Mission/Vision/Motto/Values/Culture/Team intro shown) → timeline → team.
+**ADR:** ADR-027 (display unused superseded by ADR-030, then **hidden again by ADR-034**) · **Archive:** [`archive/about-vision-values-culture/`](../archive/about-vision-values-culture/README.md)  
+**Status:** Done — archived VisionBand / ValuesGrid / CultureClosing stay archived. `/about` is hero → story → timeline → team. **WhoWeAreBand is hidden** (component + CMS fields kept).
 
 ### About milestone timeline + cumulative roster (2026-07-30)
 
@@ -250,7 +287,7 @@ When a task/phase is marked complete:
 ### Human / ops blockers (cannot be fully automated by agents)
 
 1. **Sanity re-seed for ADR-030 Home named refs** — run `pnpm sanity:seed` (write token) against the non-prod dataset so `homePage` gets `partners` / `portfolioItems` / `awards` / `services` / `contactCta`. Confirm https://kamiyon.sanity.studio Home fields match the live page.  
-2. **Visual smoke after seed** — staging Worker: Home sections + About WhoWeAreBand + footer CMS strings.  
+2. **Visual smoke after seed** — staging Worker: Home sections + About (no WhoWeAreBand) + footer CMS strings.  
 3. **WS4b DNS cutover** — operator checklist above (Cloudflare custom domains, prod webhook, Studio `SANITY_STUDIO_API_ORIGIN`, pause Vercel).  
 4. **Resend domain + Worker secrets** — verify subdomain + DMARC; `wrangler secret put RESEND_API_KEY`; set from/to vars.  
 5. **Studio media upload secret** — if upload auth must stay server-only, rotate secret and stop baking it into Studio client env.  
@@ -258,7 +295,7 @@ When a task/phase is marked complete:
 7. **GitHub Actions secrets** — confirm `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` (and optional `NEXT_PUBLIC_*` vars).  
 8. **CMS content edits (Studio only)** — Luis role (#27); add Harvey/Danielle/Kien (#24); real portraits (#23); team social links (#26).  
 9. **WS7 / WS6** — Playwright contact form after Resend live; blog UI (#29).  
-10. **Home testimonials content** — redeploy hosted Studio; publish real `testimonial` docs and attach on Home (band stays hidden until then). Founder visual ack on `/#home-testimonials`.
+10. **Home testimonials content** — preview quotes use the current team roster so `/#home-testimonials` is visible. Replace with consented client/partner quotes before treating the band as social proof. Founder visual ack still open.
 
 ### Deferred — do not implement
 
@@ -295,4 +332,4 @@ When a task/phase is marked complete:
 
 ## Architecture Decisions (active)
 
-See [`DECISIONS.md`](./DECISIONS.md) (incl. ADR-016/017/018/019/020/021/022/023/024/025/026/027/028/029/030/031).
+See [`DECISIONS.md`](./DECISIONS.md) (incl. ADR-016/017/018/019/020/021/022/023/024/025/026/027/028/029/030/031/032).

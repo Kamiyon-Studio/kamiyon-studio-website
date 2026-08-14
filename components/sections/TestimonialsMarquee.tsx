@@ -1,7 +1,10 @@
-import { AnimatedSection } from "@/components/animation/AnimatedSection";
+"use client";
+
+import { motion } from "motion/react";
+
 import { Container } from "@/components/ui/Container";
 import { TestimonialMarquee } from "@/components/ui/testimonial-marquee";
-import { WordPullUp } from "@/components/ui/WordPullUp";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { mapTestimonialToMarqueeItem } from "@/lib/cms/mappers";
 import type { Testimonial } from "@/lib/cms/types";
 
@@ -18,6 +21,8 @@ export function TestimonialsMarquee({
   heading = "Kind words",
   summary,
 }: TestimonialsMarqueeProps) {
+  const reduceMotion = useReducedMotion();
+
   if (testimonials.length === 0) {
     return null;
   }
@@ -30,33 +35,39 @@ export function TestimonialsMarquee({
       id="home-testimonials"
       data-nav-theme="dark"
       aria-labelledby="home-testimonials-heading"
-      className="scroll-mt-4 bg-[var(--bg-secondary)] py-16 md:py-24"
+      className="scroll-mt-4 bg-[var(--bg-secondary)] py-24"
     >
       <Container>
-        <div className="max-w-[680px]">
-          <AnimatedSection as="div">
-            <p className="text-sm font-semibold uppercase tracking-wide text-sakura-ink">
-              {eyebrow}
-            </p>
-          </AnimatedSection>
-          <WordPullUp
-            as="h2"
-            id="home-testimonials-heading"
-            words={heading}
-            className="mt-3"
-          />
-          {summary ? (
-            <AnimatedSection as="div" delay={0.08}>
-              <p className="mt-4 text-base leading-relaxed text-[var(--text-secondary)] md:text-lg">
-                {summary}
+        <motion.div
+          initial={
+            reduceMotion
+              ? { opacity: 1 }
+              : { opacity: 0, y: 50, rotate: -2 }
+          }
+          whileInView={
+            reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, rotate: 0 }
+          }
+          viewport={{ once: true, amount: 0.15 }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="mx-auto mb-16 max-w-[540px] text-center">
+            <div className="flex justify-center">
+              <p className="rounded-full border border-[var(--border-default)] px-4 py-1 text-xs font-semibold tracking-wide uppercase text-[var(--text-secondary)]">
+                {eyebrow}
               </p>
-            </AnimatedSection>
-          ) : null}
-        </div>
-
-        <AnimatedSection as="div" className="mt-10 md:mt-14" delay={0.12}>
+            </div>
+            <h2
+              id="home-testimonials-heading"
+              className="text-4xl md:text-5xl font-extrabold tracking-tight mt-6 text-[var(--text-primary)]"
+            >
+              {heading}
+            </h2>
+            {summary ? (
+              <p className="mt-5 text-[var(--text-muted)] text-lg">{summary}</p>
+            ) : null}
+          </div>
           <TestimonialMarquee items={items} />
-        </AnimatedSection>
+        </motion.div>
       </Container>
     </section>
   );

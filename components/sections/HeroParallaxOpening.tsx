@@ -14,6 +14,7 @@ import {
   HERO_PARALLAX_BRAND_Y_PERCENT,
   HERO_PARALLAX_LAYER_HEIGHT,
   HERO_PARALLAX_LAYER_WIDTH,
+  heroParallaxVideoMaskStyle,
   splitHeroParallaxLayers,
   type ResolvedHeroParallaxLayer,
 } from "@/lib/home/hero-parallax-layers";
@@ -32,10 +33,13 @@ const BRAND_LAYER = "brand";
  * edge into view, and every plate shares one crop so they stay in register.
  */
 const PLATE_CLASS =
-  "pointer-events-none absolute -top-[18%] left-0 h-[118%] w-full max-w-none object-cover object-[center_62%] will-change-transform";
+  "pointer-events-none absolute -top-[18%] left-0 h-[118%] w-full max-w-none will-change-transform";
 
-/** Plates are 1024px wide; asking for more would only upscale the source. */
-const PLATE_SIZES = "(max-width: 1024px) 100vw, 1024px";
+const PLATE_MEDIA_CLASS =
+  "absolute inset-0 h-full w-full max-w-none object-cover object-[center_62%]";
+
+/** Plates are 1920px wide; asking for more would only upscale the source. */
+const PLATE_SIZES = "(max-width: 1920px) 100vw, 1920px";
 
 /**
  * Halo behind the wordmark. `closest-side` puts the gradient's transparent stop
@@ -45,30 +49,65 @@ const PLATE_SIZES = "(max-width: 1024px) 100vw, 1024px";
 const BRAND_SCRIM_CLASS =
   "pointer-events-none absolute -inset-x-[24%] -inset-y-[70%] -z-10 bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--color-charcoal)_88%,transparent)_0%,color-mix(in_srgb,var(--color-charcoal)_52%,transparent)_45%,transparent_100%)]";
 
+function muteHeroParallaxVideo(video: HTMLVideoElement | null): void {
+  if (!video) {
+    return;
+  }
+
+  video.muted = true;
+  video.defaultMuted = true;
+}
+
 function ParallaxPlate({ layer }: { layer: ResolvedHeroParallaxLayer }) {
+  const hasVideo = Boolean(layer.webmSrc && layer.mp4Src);
+
   return (
-    <Image
-      src={layer.src}
-      alt=""
-      width={HERO_PARALLAX_LAYER_WIDTH}
-      height={HERO_PARALLAX_LAYER_HEIGHT}
-      sizes={PLATE_SIZES}
-      // The scene only reads correctly once every plate has arrived.
-      priority
+    <div
       data-parallax-layer={String(layer.depth)}
       data-testid={`hero-parallax-plate-${layer.depth}`}
       className={PLATE_CLASS}
-    />
+    >
+      <Image
+        src={layer.src}
+        alt=""
+        width={HERO_PARALLAX_LAYER_WIDTH}
+        height={HERO_PARALLAX_LAYER_HEIGHT}
+        sizes={PLATE_SIZES}
+        // The scene only reads correctly once every plate has arrived.
+        priority
+        className={PLATE_MEDIA_CLASS}
+      />
+      {hasVideo ? (
+        <video
+          className={`${PLATE_MEDIA_CLASS} bg-transparent motion-reduce:hidden`}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+          disablePictureInPicture
+          style={heroParallaxVideoMaskStyle(layer.src)}
+          ref={muteHeroParallaxVideo}
+        >
+          <source src={layer.webmSrc} type="video/webm" />
+          <source src={layer.mp4Src} type="video/mp4" />
+        </video>
+      ) : null}
+    </div>
   );
 }
 
 /**
  * Full-bleed opening stage built from stacked R2 plates that drift apart on
  * scroll. Content matches the static opening: wordmark + motto upper, partners
- * band lower. The wordmark is itself a plate, so the foreground rocks rise over
- * it as the hero exits.
+ * band lower. The foreground plate is planted (no extra travel) so its ground
+ * line can meet the Recent Projects earth plate.
  */
-export function HeroParallaxOpening({ layers, partners }: HeroParallaxOpeningProps) {
+export function HeroParallaxOpening({
+  layers,
+  partners,
+}: HeroParallaxOpeningProps) {
   const rootRef = useOpeningAnimation<HTMLElement>();
   const { behindBrand, inFrontOfBrand } = splitHeroParallaxLayers(layers);
 
@@ -127,17 +166,6 @@ export function HeroParallaxOpening({ layers, partners }: HeroParallaxOpeningPro
           <ParallaxPlate key={layer.depth} layer={layer} />
         ))}
       </div>
-
-      {/*
-        Bottom scrim — logo legibility only, not a section handoff. Reaches
-        further and darker than the static hero's because the foreground plate
-        puts lit rock and water directly behind the partner band.
-      */}
-      <div
-        data-testid="hero-bottom-scrim"
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[var(--color-charcoal)]/95 via-[var(--color-charcoal)]/60 to-transparent md:h-56"
-      />
 
       <div
         data-opening-curtain

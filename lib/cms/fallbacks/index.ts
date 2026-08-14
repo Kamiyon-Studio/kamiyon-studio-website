@@ -9,3 +9,7 @@ export { productsFallback } from "./products";
 export { resolveWithFallback } from "./resolve";
 export { servicesFallback } from "./services";
 export { siteSettingsFallback } from "./site-settings";
+export {
+  resolveHomeTestimonials,
+  testimonialsFallback,
+} from "./testimonials";

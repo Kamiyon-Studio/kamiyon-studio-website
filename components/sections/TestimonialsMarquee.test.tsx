@@ -4,26 +4,23 @@ import { describe, expect, it, vi } from "vitest";
 import type { Testimonial } from "@/lib/cms/types";
 import { TestimonialsMarquee } from "./TestimonialsMarquee";
 
-vi.mock("@/components/ui/WordPullUp", () => ({
-  WordPullUp: ({
-    words,
-    as: Tag = "h1",
-    id,
+vi.mock("@/components/ui/testimonial-marquee", () => ({
+  TestimonialMarquee: ({
+    items,
   }: {
-    words: string;
-    as?: "h1" | "h2" | "h3";
-    id?: string;
-  }) => <Tag id={id}>{words}</Tag>,
-}));
-
-vi.mock("@/components/animation/AnimatedSection", () => ({
-  AnimatedSection: ({
-    children,
-    className,
-  }: {
-    children: React.ReactNode;
-    className?: string;
-  }) => <div className={className}>{children}</div>,
+    items: { id: string; name: string; quote: string }[];
+  }) => (
+    <div data-testid="testimonial-marquee">
+      <ul>
+        {items.map((item) => (
+          <li key={item.id}>
+            {item.name}
+            {item.quote}
+          </li>
+        ))}
+      </ul>
+    </div>
+  ),
 }));
 
 function makeTestimonial(
@@ -54,6 +51,20 @@ describe("TestimonialsMarquee", () => {
     const section = container.querySelector("#home-testimonials");
     expect(section).not.toBeNull();
     expect(section).toHaveAttribute("data-nav-theme", "dark");
+  });
+
+  it("centers the header cluster", () => {
+    render(
+      <TestimonialsMarquee
+        testimonials={[makeTestimonial({ id: "fixture-a" })]}
+      />,
+    );
+
+    const heading = screen.getByRole("heading", { level: 2, name: "Kind words" });
+    const cluster = heading.parentElement;
+
+    expect(cluster?.className).toMatch(/text-center/);
+    expect(cluster?.className).toMatch(/mx-auto/);
   });
 
   it("preserves homePage.testimonials array order (does not re-sort by document.order)", () => {

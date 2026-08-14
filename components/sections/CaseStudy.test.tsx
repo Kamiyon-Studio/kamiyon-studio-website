@@ -12,12 +12,18 @@ const baseCaseStudy: CaseStudyType = {
   _type: "portfolio",
   title: "Sample Client Project — Placeholder",
   slug: { current: "sample-client-project-placeholder" },
+  projectType: "client-work",
   clientName: "TBD",
   industry: "Education",
   serviceType: "game-development",
+  shortDescription: "A dual-state movement-platformer card blurb.",
   challenge: "A generic challenge.",
   solution: "A generic solution.",
   impact: "A generic impact.",
+  credits: [],
+  recognition: [],
+  videos: [],
+  externalLinks: [],
   gallery: [],
   featured: false,
   isPlaceholder: true,
@@ -83,5 +89,133 @@ describe("CaseStudy", () => {
     render(<CaseStudy caseStudy={{ ...baseCaseStudy, coverImage: {} }} />);
 
     expect(screen.getByAltText(baseCaseStudy.title)).toBeInTheDocument();
+  });
+
+  it("hides empty Gameplay and Technical sections on the client placeholder", () => {
+    render(<CaseStudy caseStudy={baseCaseStudy} />);
+
+    expect(screen.queryByRole("heading", { name: "Gameplay" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Technical" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Narrative" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Credits" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Recognition" })).not.toBeInTheDocument();
+  });
+
+  it("renders Eclipse-depth sections when they have content", () => {
+    render(
+      <CaseStudy
+        caseStudy={{
+          ...baseCaseStudy,
+          title: "Eclipse",
+          projectType: "original-ip",
+          clientName: "Kamiyon Studio",
+          isPlaceholder: false,
+          positioning: "Changing realities changes the rules of physics.",
+          shortDescription: "A dual-state movement-platformer.",
+          gameplay: {
+            mechanics: [
+              { _type: "block", children: [{ _type: "span", text: "State is the interaction model." }] },
+            ],
+            dualStateTable: {
+              leftLabel: "Fragment",
+              rightLabel: "Resonance",
+              rows: [{ aspect: "Combat", left: "Melee", right: "Sonic pulses" }],
+            },
+            controls: [{ input: "Right Click", action: "Toggle Visage" }],
+          },
+          narrative: [
+            { _type: "block", children: [{ _type: "span", text: "The Fragmented One." }] },
+          ],
+          technicalDevelopment: {
+            platforms: "PC",
+            systems: ["Dual-state world"],
+          },
+          credits: [{ name: "Sherwin Limosnero", role: "Sound Designer" }],
+          recognition: [
+            {
+              title: "Most Fun Award",
+              organization: "CIIT College of Innovation and Integrated Technology",
+              year: "2026",
+              note: "Global Game Jam 2026 entry",
+            },
+          ],
+        }}
+      />
+    );
+
+    expect(screen.getByText("Changing realities changes the rules of physics.")).toBeInTheDocument();
+    expect(screen.getByText("State is the interaction model.")).toBeInTheDocument();
+    expect(screen.getByText("Fragment")).toBeInTheDocument();
+    expect(screen.getByText("Toggle Visage")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Narrative" })).toBeInTheDocument();
+    expect(screen.getByText("The Fragmented One.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Technical" })).toBeInTheDocument();
+    expect(screen.getByText("Dual-state world")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Credits" })).toBeInTheDocument();
+    expect(screen.getByText("Sherwin Limosnero")).toBeInTheDocument();
+    expect(screen.getByText(/Sound Designer/)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Recognition" })).toBeInTheDocument();
+    expect(screen.getByText("Most Fun Award")).toBeInTheDocument();
+  });
+
+  it("renders optional creative, process, engine, video, and link sections only when present", () => {
+    render(
+      <CaseStudy
+        caseStudy={{
+          ...baseCaseStudy,
+          isPlaceholder: false,
+          creativeDirection: [
+            { _type: "block", children: [{ _type: "span", text: "Contrast communicates state." }] },
+          ],
+          process: [
+            { _type: "block", children: [{ _type: "span", text: "Jam first, then continue." }] },
+          ],
+          technicalDevelopment: {
+            engine: "Unspecified",
+            systems: [],
+          },
+          videos: [
+            { url: "https://example.com/trailer", title: "Trailer" },
+            { url: "https://example.com/raw" },
+          ],
+          recognition: [
+            {
+              title: "Most Fun Award",
+              organization: "CIIT",
+              year: "2026",
+              url: "https://example.com/award",
+            },
+          ],
+          externalLinks: [
+            { label: "Press kit", url: "https://example.com/press", kind: "press" },
+          ],
+        }}
+      />
+    );
+
+    expect(screen.getByRole("heading", { name: "Creative direction" })).toBeInTheDocument();
+    expect(screen.getByText("Contrast communicates state.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Process" })).toBeInTheDocument();
+    expect(screen.getByText("Jam first, then continue.")).toBeInTheDocument();
+    expect(screen.getByText("Engine")).toBeInTheDocument();
+    expect(screen.getByText("Unspecified")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Videos" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Trailer" })).toHaveAttribute(
+      "href",
+      "https://example.com/trailer",
+    );
+    expect(screen.getByRole("link", { name: "https://example.com/raw" })).toHaveAttribute(
+      "href",
+      "https://example.com/raw",
+    );
+    expect(screen.getByRole("link", { name: "https://example.com/award" })).toHaveAttribute(
+      "href",
+      "https://example.com/award",
+    );
+    expect(screen.getByRole("heading", { name: "Links" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Press kit" })).toHaveAttribute(
+      "href",
+      "https://example.com/press",
+    );
   });
 });

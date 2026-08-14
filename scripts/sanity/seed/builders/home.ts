@@ -1,7 +1,8 @@
 /**
  * RFC — Sanity ↔ Frontend Align §4
- * Home seed emits named refs (partners, portfolio, awards, services) + contactCta.
- * Testimonials stay [] — no invented quotes (ADR-031).
+ * Home seed emits named refs (partners, portfolio, awards, testimonials,
+ * services) + contactCta. Testimonials are team-roster preview quotes so the
+ * Home marquee can be reviewed; replace with consented quotes (ADR-031).
  * No hero / blocks.
  */
 
@@ -12,6 +13,7 @@ import {
 } from "@/lib/cms/fallbacks/home";
 import { portfolioItemsFallback } from "@/lib/cms/fallbacks/portfolio";
 import { servicesFallback } from "@/lib/cms/fallbacks/services";
+import { testimonialsFallback } from "@/lib/cms/fallbacks/testimonials";
 import { PARTNER_PLACEHOLDERS } from "@/lib/home/partner-placeholders";
 
 import { arrayKey, toReference, toSeo } from "../helpers";
@@ -21,6 +23,8 @@ import {
   portfolioId,
   serviceId,
   SINGLETON_IDS,
+  slugifyName,
+  testimonialId,
 } from "../ids";
 import type { SeedDocument } from "../types";
 
@@ -35,7 +39,8 @@ function mapContactCta(source: HomePageFallbackShape["contactCta"]) {
 
 /**
  * Pre-fill Home refs with what the site shows today (partners, portfolio,
- * award slots, five Gate 0 services). title / contactCta / seo come from source.
+ * award slots, team-roster testimonials, five Gate 0 services).
+ * title / contactCta / seo come from source.
  */
 export function buildHomePageDocument(
   source: HomePageFallbackShape = homePageFallback,
@@ -53,7 +58,9 @@ export function buildHomePageDocument(
     awards: awardsFallback.map((_, i) =>
       toReference(awardId(`slot-${i + 1}`), arrayKey("award", i)),
     ),
-    testimonials: [],
+    testimonials: testimonialsFallback.map((item, i) =>
+      toReference(testimonialId(slugifyName(item.name)), arrayKey("testimonial", i)),
+    ),
     services: servicesFallback.map((service, i) =>
       toReference(serviceId(service.slug.current), arrayKey("service", i)),
     ),

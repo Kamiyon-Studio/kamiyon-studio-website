@@ -60,6 +60,7 @@ describe("WS8d partner seed builders", () => {
 
     expect(ids).toContain("partner-partner-1");
     expect(ids).toContain("post-coming-soon");
+    expect(ids).toContain("portfolio-eclipse");
     expect(ids).toContain("portfolio-sample-client-project-placeholder");
     expect(ids[ids.length - 1]).toBe("homePage");
     expect(ids).not.toContain("product-eclipse");
@@ -83,7 +84,7 @@ describe("WS8d partner seed builders", () => {
     expect(new Set(ids).size).toBe(ids.length);
     expect(listAllSeedDocumentIds()).toEqual(ids);
 
-    // services(5)+portfolio(1)+team(6)+about+contact+siteSettings+partners(7)+awards(3)+blog(10)+home = 36
-    expect(docs).toHaveLength(36);
+    // services(5)+portfolio(2)+team(6)+about+contact+siteSettings+partners(7)+awards(3)+testimonials(6)+blog(10)+home = 43
+    expect(docs).toHaveLength(43);
   });
 });

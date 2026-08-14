@@ -12,12 +12,18 @@ const baseCaseStudy: CaseStudy = {
   _type: "portfolio",
   title: "Sample Client Project — Placeholder",
   slug: { current: "sample-client-project-placeholder" },
+  projectType: "client-work",
   clientName: "TBD",
   industry: "Education",
   serviceType: "game-development",
+  shortDescription: "",
   challenge: "A generic challenge summary.",
   solution: "A generic solution summary.",
   impact: "A generic impact summary.",
+  credits: [],
+  recognition: [],
+  videos: [],
+  externalLinks: [],
   gallery: [],
   featured: false,
   isPlaceholder: true,
@@ -95,5 +101,45 @@ describe("ProjectCard", () => {
 
     expect(screen.queryByText("MVP Development")).not.toBeInTheDocument();
     expect(screen.queryByText("Education")).not.toBeInTheDocument();
+  });
+
+  it("uses shortDescription on the card and marks original IP without extra chrome", async () => {
+    const { getCmsImageUrl } = await import("@/lib/cms/image");
+    vi.mocked(getCmsImageUrl).mockReturnValue(null);
+
+    render(
+      <ProjectCard
+        caseStudy={{
+          ...baseCaseStudy,
+          projectType: "original-ip",
+          shortDescription: "A dual-state movement-platformer.",
+          challenge: "A jam timebox.",
+          isPlaceholder: false,
+        }}
+      />
+    );
+
+    expect(screen.getByText("A dual-state movement-platformer.")).toBeInTheDocument();
+    expect(screen.queryByText("A jam timebox.")).not.toBeInTheDocument();
+    expect(screen.getByText(/Original IP/)).toBeInTheDocument();
+  });
+
+  it("still marks original IP when the service type is unknown", async () => {
+    const { getCmsImageUrl } = await import("@/lib/cms/image");
+    vi.mocked(getCmsImageUrl).mockReturnValue(null);
+
+    render(
+      <ProjectCard
+        caseStudy={{
+          ...baseCaseStudy,
+          projectType: "original-ip",
+          serviceType: "not-a-service",
+          isPlaceholder: false,
+        }}
+      />
+    );
+
+    expect(screen.getByText("Original IP")).toBeInTheDocument();
+    expect(screen.queryByText("Game Development")).not.toBeInTheDocument();
   });
 });

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/Badge";
 import { TiltedCard, marketingCardTiltProps } from "@/components/ui/TiltedCard";
 import { getCmsImageUrl } from "@/lib/cms/image";
 import type { CaseStudy } from "@/lib/cms/types";
+import { getPortfolioCardDescription } from "@/lib/portfolio/case-study";
 import { getPortfolioServiceLabel } from "@/lib/portfolio/service-labels";
 
 type ProjectCardProps = {
@@ -13,6 +14,8 @@ type ProjectCardProps = {
 export function ProjectCard({ caseStudy }: ProjectCardProps) {
   const coverImageUrl = getCmsImageUrl(caseStudy.coverImage);
   const serviceLabel = getPortfolioServiceLabel(caseStudy.serviceType);
+  const description = getPortfolioCardDescription(caseStudy);
+  const isOriginalIp = caseStudy.projectType === "original-ip";
 
   return (
     <TiltedCard {...marketingCardTiltProps}>
@@ -46,14 +49,18 @@ export function ProjectCard({ caseStudy }: ProjectCardProps) {
         <div className="flex shrink-0 flex-1 flex-col p-6">
           {serviceLabel ? (
             <p className="text-sm font-medium uppercase tracking-wide text-sakura-ink">
-              {serviceLabel}
+              {isOriginalIp ? `${serviceLabel} · Original IP` : serviceLabel}
+            </p>
+          ) : isOriginalIp ? (
+            <p className="text-sm font-medium uppercase tracking-wide text-sakura-ink">
+              Original IP
             </p>
           ) : null}
           <h3 className="mt-2 line-clamp-2 font-display text-lg font-semibold text-[var(--text-primary)]">
             {caseStudy.title}
           </h3>
           <p className="mt-2 line-clamp-3 text-sm text-[var(--text-secondary)]">
-            {caseStudy.challenge}
+            {description}
           </p>
           <span className="mt-4 text-sm font-medium text-sakura-ink transition-colors group-hover:opacity-80">
             View case study →

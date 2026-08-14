@@ -36,7 +36,7 @@ export function PortfolioListing({ caseStudies }: PortfolioListingProps) {
             Portfolio
           </h1>
           <p className="mt-4 text-base text-[var(--text-secondary)] md:text-lg">
-            A look at how we approach client work — the challenge each project
+            A look at client work and original IP — the challenge each project
             presented, the solution we built, and the impact it had.
           </p>
         </div>

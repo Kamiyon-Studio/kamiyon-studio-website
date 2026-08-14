@@ -8,6 +8,7 @@ import {
   mapHomePage,
   mapPartner,
   mapPartnerToMarqueeItem,
+  mapPortfolio,
   mapPost,
   mapService,
   mapSiteSettings,
@@ -554,6 +555,143 @@ describe("mapPortfolio", () => {
     expect(study?.coverImage?.url).toBe("https://cdn.example.com/cover.png");
     expect(study?.gallery).toHaveLength(1);
     expect(study?.gallery[0]?.url).toBe("https://cdn.example.com/g1.png");
+  });
+
+  it("defaults missing optional groups for legacy client-work documents", () => {
+    const study = mapPortfolio({
+      title: "Legacy",
+      slug: { current: "legacy" },
+      clientName: "Acme",
+      industry: "Brand",
+      serviceType: "branding",
+      challenge: "A branding challenge.",
+      solution: "A branding solution.",
+      impact: "A branding impact.",
+      featured: false,
+      isPlaceholder: true,
+      seo: { title: "Legacy", description: "Desc" },
+    });
+
+    expect(study).toMatchObject({
+      projectType: "client-work",
+      shortDescription: "A branding challenge.",
+      credits: [],
+      recognition: [],
+      videos: [],
+      externalLinks: [],
+    });
+    expect(study?.gameplay).toBeUndefined();
+    expect(study?.technicalDevelopment).toBeUndefined();
+    expect(study?.narrative).toBeUndefined();
+    expect(study?.status).toBeUndefined();
+  });
+
+  it("maps Eclipse-depth groups including credit person refs and recognition", () => {
+    const study = mapPortfolio({
+      title: "Eclipse",
+      slug: { current: "eclipse" },
+      projectType: "original-ip",
+      clientName: "Kamiyon Studio",
+      industry: "Games / Interactive Entertainment",
+      serviceType: "game-development",
+      status: "in-development",
+      developmentPeriod: "Global Game Jam 2026 → Present",
+      shortDescription: "A dual-state movement-platformer.",
+      positioning: "Changing realities changes the rules of physics.",
+      challenge: "Jam timebox.",
+      solution: "Visage is the interaction model.",
+      impact: "Playable original IP.",
+      narrative: [{ _type: "block", children: [{ _type: "span", text: "The Veiled." }] }],
+      technicalDevelopment: {
+        platforms: "PC",
+        input: "Keyboard + Mouse",
+        origin: "Global Game Jam 2026",
+        systems: ["Dual-state world", "Visage switch"],
+      },
+      gameplay: {
+        mechanics: [{ _type: "block", children: [{ _type: "span", text: "State is the model." }] }],
+        dualStateTable: {
+          leftLabel: "Fragment",
+          rightLabel: "Resonance",
+          rows: [{ _key: "r1", aspect: "Combat", left: "Melee", right: "Sonic pulses" }],
+        },
+        controls: [{ _key: "c1", input: "Right Click", action: "Toggle Visage" }],
+      },
+      credits: [
+        { _key: "sh", name: "Sherwin Limosnero", role: "Sound Designer", person: { _id: "teamMember-sherwin-limosnero", name: "Sherwin Limosnero" } },
+      ],
+      recognition: [
+        {
+          title: "Most Fun Award",
+          organization: "CIIT College of Innovation and Integrated Technology",
+          year: "2026",
+          note: "Global Game Jam 2026 entry",
+        },
+      ],
+      featured: true,
+      isPlaceholder: false,
+      seo: { title: "Eclipse", description: "Desc" },
+    });
+
+    expect(study?.projectType).toBe("original-ip");
+    expect(study?.technicalDevelopment?.engine).toBeUndefined();
+    expect(study?.gameplay?.dualStateTable?.leftLabel).toBe("Fragment");
+    expect(study?.credits[0]).toMatchObject({
+      role: "Sound Designer",
+      person: { id: "teamMember-sherwin-limosnero", name: "Sherwin Limosnero" },
+    });
+    expect(study?.recognition[0]?.title).toBe("Most Fun Award");
+    expect(study?.narrative?.[0]?.children[0]?.text).toBe("The Veiled.");
+  });
+
+  it("maps videos, links, and drops empty optional groups", () => {
+    const study = mapPortfolio({
+      title: "Linked",
+      slug: { current: "linked" },
+      projectType: "not-a-type",
+      status: "shipping",
+      clientName: "Studio",
+      industry: "Games",
+      serviceType: "game-development",
+      challenge: "C",
+      solution: "S",
+      impact: "I",
+      creativeDirection: [{ _type: "block", children: [{ _type: "span", text: "   " }] }],
+      technicalDevelopment: { engine: "  ", platforms: "", systems: [] },
+      gameplay: { mechanics: [], controls: [] },
+      credits: [{ name: "  ", role: "  " }, { name: "Ada", role: "Lead", person: { id: "teamMember-ada", name: "Ada" } }],
+      recognition: [{ title: "  " }, { title: "Jury prize", organization: "Org", year: "2026", url: "https://example.com" }],
+      videos: [{ url: "https://example.com/watch", title: "Watch" }, { url: "" }, { url: "javascript:alert(1)" }],
+      externalLinks: [
+        { label: "Site", url: "https://example.com", kind: "website" },
+        { label: "Odd", url: "https://example.com/x", kind: "mystery" },
+        { label: "", url: "https://example.com/skip" },
+        { label: "Bad", url: "javascript:alert(1)", kind: "website" },
+      ],
+      seo: { title: "Linked", description: "Desc" },
+    });
+
+    expect(study?.projectType).toBe("client-work");
+    expect(study?.status).toBeUndefined();
+    expect(study?.creativeDirection).toBeUndefined();
+    expect(study?.technicalDevelopment).toBeUndefined();
+    expect(study?.gameplay).toBeUndefined();
+    expect(study?.credits).toEqual([
+      expect.objectContaining({
+        name: "Ada",
+        person: { id: "teamMember-ada", name: "Ada" },
+      }),
+    ]);
+    expect(study?.recognition).toEqual([
+      expect.objectContaining({ title: "Jury prize", url: "https://example.com" }),
+    ]);
+    expect(study?.videos).toEqual([
+      expect.objectContaining({ url: "https://example.com/watch", title: "Watch" }),
+    ]);
+    expect(study?.externalLinks).toEqual([
+      expect.objectContaining({ kind: "website" }),
+      expect.objectContaining({ kind: "other" }),
+    ]);
   });
 });
 

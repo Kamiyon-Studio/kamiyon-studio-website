@@ -1,6 +1,12 @@
 import { getCmsImageUrl } from "./image";
 import { mapR2AssetToCmsImage, type R2AssetRef } from "./media";
-import { isServiceCategoryValue, SERVICE_CATEGORIES } from "./taxonomies";
+import {
+  isPortfolioLinkKind,
+  isPortfolioProjectType,
+  isPortfolioStatus,
+  isServiceCategoryValue,
+  SERVICE_CATEGORIES,
+} from "./taxonomies";
 import type {
   AboutPage,
   Award,
@@ -14,6 +20,15 @@ import type {
   Partner,
   PortableTextBlock,
   Portfolio,
+  PortfolioCredit,
+  PortfolioExternalLink,
+  PortfolioGameplay,
+  PortfolioLinkKind,
+  PortfolioProjectType,
+  PortfolioRecognition,
+  PortfolioStatus,
+  PortfolioTechnicalDevelopment,
+  PortfolioVideo,
   Post,
   Product,
   ProductMedia,
@@ -149,6 +164,259 @@ function mapContactCta(value: unknown): HomeContactCta {
 
 function mapOptionalString(value: unknown): string | undefined {
   return typeof value === "string" ? value : undefined;
+}
+
+function mapHttpUrl(value: unknown): string | undefined {
+  const url = mapOptionalString(value)?.trim();
+  if (!url) {
+    return undefined;
+  }
+
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+      return url;
+    }
+  } catch {
+    return undefined;
+  }
+
+  return undefined;
+}
+
+function optionalPortableBody(value: unknown): PortableTextBlock[] | undefined {
+  const blocks = mapPortableBody(value).filter((block) =>
+    block.children.some((child) => child.text.trim().length > 0),
+  );
+  return blocks.length > 0 ? blocks : undefined;
+}
+
+function mapPortfolioProjectType(value: unknown): PortfolioProjectType {
+  return typeof value === "string" && isPortfolioProjectType(value)
+    ? value
+    : "client-work";
+}
+
+function mapPortfolioStatus(value: unknown): PortfolioStatus | undefined {
+  return typeof value === "string" && isPortfolioStatus(value) ? value : undefined;
+}
+
+function mapPortfolioCredits(value: unknown): PortfolioCredit[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item, index): PortfolioCredit | null => {
+      const row = asRecord(item);
+      if (!row) {
+        return null;
+      }
+
+      const name = asString(row.name).trim();
+      const role = asString(row.role).trim();
+      if (!name && !role) {
+        return null;
+      }
+
+      const personRow = asRecord(row.person);
+      const personId = asString(personRow?._id) || asString(personRow?.id);
+      const personName = asString(personRow?.name);
+      const person =
+        personId || personName
+          ? { id: personId, name: personName || name }
+          : undefined;
+
+      return {
+        _key: typeof row._key === "string" ? row._key : `credit-${index}`,
+        name,
+        role,
+        ...(person ? { person } : {}),
+      };
+    })
+    .filter((credit): credit is PortfolioCredit => credit !== null);
+}
+
+function mapPortfolioRecognition(value: unknown): PortfolioRecognition[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item, index): PortfolioRecognition | null => {
+      const row = asRecord(item);
+      if (!row) {
+        return null;
+      }
+
+      const title = asString(row.title).trim();
+      if (!title) {
+        return null;
+      }
+
+      return {
+        _key: typeof row._key === "string" ? row._key : `recognition-${index}`,
+        title,
+        organization: asString(row.organization),
+        year: asString(row.year),
+        url: mapHttpUrl(row.url),
+        note: mapOptionalString(row.note),
+      };
+    })
+    .filter((item): item is PortfolioRecognition => item !== null);
+}
+
+function mapPortfolioVideos(value: unknown): PortfolioVideo[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item, index): PortfolioVideo | null => {
+      const row = asRecord(item);
+      const url = mapHttpUrl(row?.url);
+      if (!url) {
+        return null;
+      }
+
+      return {
+        _key: typeof row?._key === "string" ? row._key : `video-${index}`,
+        url,
+        title: mapOptionalString(row?.title),
+      };
+    })
+    .filter((item): item is PortfolioVideo => item !== null);
+}
+
+function mapPortfolioExternalLinks(value: unknown): PortfolioExternalLink[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item, index): PortfolioExternalLink | null => {
+      const row = asRecord(item);
+      const label = asString(row?.label).trim();
+      const url = mapHttpUrl(row?.url);
+      const kindValue = asString(row?.kind);
+      if (!label || !url) {
+        return null;
+      }
+
+      const kind: PortfolioLinkKind = isPortfolioLinkKind(kindValue)
+        ? kindValue
+        : "other";
+
+      return {
+        _key: typeof row?._key === "string" ? row._key : `link-${index}`,
+        label,
+        url,
+        kind,
+      };
+    })
+    .filter((item): item is PortfolioExternalLink => item !== null);
+}
+
+function mapPortfolioGameplay(value: unknown): PortfolioGameplay | undefined {
+  const row = asRecord(value);
+  if (!row) {
+    return undefined;
+  }
+
+  const tableRow = asRecord(row.dualStateTable);
+  const rows = Array.isArray(tableRow?.rows)
+    ? tableRow.rows
+        .map((item, index) => {
+          const entry = asRecord(item);
+          if (!entry) {
+            return null;
+          }
+          return {
+            _key: typeof entry._key === "string" ? entry._key : `row-${index}`,
+            aspect: asString(entry.aspect),
+            left: asString(entry.left),
+            right: asString(entry.right),
+          };
+        })
+        .filter((item): item is NonNullable<typeof item> => item !== null)
+    : [];
+
+  const dualStateTable =
+    tableRow &&
+    (asString(tableRow.leftLabel).trim() ||
+      asString(tableRow.rightLabel).trim() ||
+      rows.length > 0)
+      ? {
+          leftLabel: asString(tableRow.leftLabel),
+          rightLabel: asString(tableRow.rightLabel),
+          rows,
+        }
+      : undefined;
+
+  const controls = Array.isArray(row.controls)
+    ? row.controls
+        .map((item, index) => {
+          const entry = asRecord(item);
+          if (!entry) {
+            return null;
+          }
+          return {
+            _key: typeof entry._key === "string" ? entry._key : `control-${index}`,
+            input: asString(entry.input),
+            action: asString(entry.action),
+          };
+        })
+        .filter((item): item is NonNullable<typeof item> => item !== null)
+    : [];
+
+  const gameplay: PortfolioGameplay = {
+    mechanics: optionalPortableBody(row.mechanics),
+    ...(dualStateTable ? { dualStateTable } : {}),
+    controls,
+  };
+
+  if (
+    !gameplay.mechanics &&
+    !gameplay.dualStateTable &&
+    gameplay.controls.length === 0
+  ) {
+    return undefined;
+  }
+
+  return gameplay;
+}
+
+function mapPortfolioTechnical(
+  value: unknown,
+): PortfolioTechnicalDevelopment | undefined {
+  const row = asRecord(value);
+  if (!row) {
+    return undefined;
+  }
+
+  const technical: PortfolioTechnicalDevelopment = {
+    engine: mapOptionalString(row.engine)?.trim() || undefined,
+    platforms: mapOptionalString(row.platforms)?.trim() || undefined,
+    input: mapOptionalString(row.input)?.trim() || undefined,
+    origin: mapOptionalString(row.origin)?.trim() || undefined,
+    systems: asStringArray(row.systems)
+      .map((system) => system.trim())
+      .filter(Boolean),
+    body: optionalPortableBody(row.body),
+  };
+
+  if (
+    !technical.engine &&
+    !technical.platforms &&
+    !technical.input &&
+    !technical.origin &&
+    technical.systems.length === 0 &&
+    !technical.body
+  ) {
+    return undefined;
+  }
+
+  return technical;
 }
 
 export function mapSiteSettings(doc: unknown): SiteSettings | null {
@@ -499,17 +767,34 @@ export function mapPortfolio(doc: unknown): Portfolio | null {
     return null;
   }
 
+  const challenge = asString(row.challenge);
+  const shortDescription = asString(row.shortDescription) || challenge;
+
   return {
     _type: "portfolio",
     title: row.title,
     slug: mapSlug(row.slug),
+    projectType: mapPortfolioProjectType(row.projectType),
     clientName: asString(row.clientName),
     industry: asString(row.industry),
     serviceType: asString(row.serviceType),
-    challenge: asString(row.challenge),
+    status: mapPortfolioStatus(row.status),
+    developmentPeriod: mapOptionalString(row.developmentPeriod),
+    shortDescription,
+    positioning: mapOptionalString(row.positioning),
+    challenge,
     solution: asString(row.solution),
     impact: asString(row.impact),
     lessonsLearned: typeof row.lessonsLearned === "string" ? row.lessonsLearned : undefined,
+    creativeDirection: optionalPortableBody(row.creativeDirection),
+    process: optionalPortableBody(row.process),
+    narrative: optionalPortableBody(row.narrative),
+    technicalDevelopment: mapPortfolioTechnical(row.technicalDevelopment),
+    gameplay: mapPortfolioGameplay(row.gameplay),
+    credits: mapPortfolioCredits(row.credits),
+    recognition: mapPortfolioRecognition(row.recognition),
+    videos: mapPortfolioVideos(row.videos),
+    externalLinks: mapPortfolioExternalLinks(row.externalLinks),
     coverImage: mapR2AssetToCmsImage(row.coverImage as R2AssetRef | null | undefined),
     gallery: (Array.isArray(row.gallery) ? row.gallery : [])
       .map((item, index) =>

@@ -209,7 +209,7 @@ Separate chrome CTA: **Get in touch** → interim Google Form URL (unchanged).
 | --- | --- | --- |
 | `siteSettings` | Singleton | Name, tagline, socials, default SEO, footer |
 | `homePage` | Singleton | Named fields (not `blocks[]`): `title`, `partners[]`, `portfolioItems[]`, `awards[]`, `testimonials[]`, `services[]`, `contactCta`, `seo` — Hero UI + partners remain without hero CMS copy; empty refs = nothing (ADR-030). Testimonials: empty **or** CMS-null hides (ADR-031; no quote fallbacks) |
-| `aboutPage` | Singleton | Story, timeline, team + Mission/Vision/Motto/`values`/`cultureSummary`/`teamIntro` shown in WhoWeAreBand between story and timeline (ADR-030; archived VisionBand/ValuesGrid/CultureClosing not restored) |
+| `aboutPage` | Singleton | Story, timeline, team. Mission/Vision/Motto/`values`/`cultureSummary`/`teamIntro` stay in CMS; **WhoWeAreBand is hidden** on `/about` (ADR-034). Archived VisionBand/ValuesGrid/CultureClosing not restored |
 | `contactPage` | Singleton | Intro, channels, FAQ, form settings copy |
 | `teamMember` | Document | Order, role, R2 photo, `socialLinks[]`, `isPlaceholder` |
 | `service` | Document | Flat Gate 0 five; `tagline` + `capabilities` (no category) |

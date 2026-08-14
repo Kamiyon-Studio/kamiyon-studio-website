@@ -63,9 +63,40 @@ export const POST_TAGS = [
   },
 ] as const satisfies readonly TaxonomyOption[];
 
+export const PORTFOLIO_PROJECT_TYPES = [
+  {
+    value: "original-ip",
+    title: "Original IP",
+  },
+  {
+    value: "client-work",
+    title: "Client work",
+  },
+] as const satisfies readonly TaxonomyOption[];
+
+export const PORTFOLIO_STATUSES = [
+  { value: "prototype", title: "Prototype" },
+  { value: "in-development", title: "In development" },
+  { value: "released", title: "Released" },
+  { value: "archived", title: "Archived" },
+] as const satisfies readonly TaxonomyOption[];
+
+export const PORTFOLIO_LINK_KINDS = [
+  { value: "website", title: "Website" },
+  { value: "trailer", title: "Trailer" },
+  { value: "store", title: "Store" },
+  { value: "press", title: "Press" },
+  { value: "source", title: "Source" },
+  { value: "other", title: "Other" },
+] as const satisfies readonly TaxonomyOption[];
+
 export type ServiceCategoryValue = (typeof SERVICE_CATEGORIES)[number]["value"];
 export type PostCategoryValue = (typeof POST_CATEGORIES)[number]["value"];
 export type PostTagValue = (typeof POST_TAGS)[number]["value"];
+export type PortfolioProjectTypeValue =
+  (typeof PORTFOLIO_PROJECT_TYPES)[number]["value"];
+export type PortfolioStatusValue = (typeof PORTFOLIO_STATUSES)[number]["value"];
+export type PortfolioLinkKindValue = (typeof PORTFOLIO_LINK_KINDS)[number]["value"];
 
 /** Sanity `options.list` shape: `{ title, value }[]`. */
 export function toSanityListOptions(
@@ -93,4 +124,20 @@ export function isPostCategoryValue(value: string): value is PostCategoryValue {
 
 export function isPostTagValue(value: string): value is PostTagValue {
   return POST_TAGS.some((option) => option.value === value);
+}
+
+export function isPortfolioProjectType(
+  value: string,
+): value is PortfolioProjectTypeValue {
+  return PORTFOLIO_PROJECT_TYPES.some((option) => option.value === value);
+}
+
+export function isPortfolioStatus(value: string): value is PortfolioStatusValue {
+  return PORTFOLIO_STATUSES.some((option) => option.value === value);
+}
+
+export function isPortfolioLinkKind(
+  value: string,
+): value is PortfolioLinkKindValue {
+  return PORTFOLIO_LINK_KINDS.some((option) => option.value === value);
 }

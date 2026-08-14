@@ -49,10 +49,16 @@ function makeCaseStudy(overrides: Partial<CaseStudy> & { slug: string }): CaseSt
     slug: { current: slug },
     clientName: "Client name coming soon",
     industry: "Interactive Experience",
-  serviceType: "game-development",
+    serviceType: "game-development",
+    projectType: "client-work",
+    shortDescription: "",
     challenge: "",
     solution: "",
     impact: "",
+    credits: [],
+    recognition: [],
+    videos: [],
+    externalLinks: [],
     gallery: [],
     featured: false,
     isPlaceholder: true,
@@ -73,6 +79,30 @@ describe("ProjectsBento", () => {
     );
   });
 
+  it("paints the earth plate behind Recent Projects when a CDN URL is provided", () => {
+    const { container } = render(
+      <ProjectsBento
+        caseStudies={[]}
+        backgroundSrc="https://media.kamiyonstudio.com/site/hero/parallax/v2/background.webp"
+      />,
+    );
+
+    const underlay = container.querySelector(
+      "[data-testid='home-projects-background'] img",
+    );
+    expect(underlay?.getAttribute("src")).toContain("background.webp");
+    expect(underlay).toHaveAttribute("alt", "");
+  });
+
+  it("keeps the original section fill when no earth plate is provided", () => {
+    const { container } = render(<ProjectsBento caseStudies={[]} />);
+
+    expect(
+      container.querySelector("[data-testid='home-projects-background']"),
+    ).toBeNull();
+    expect(container.querySelector("#home-projects")).toHaveClass("bg-[var(--bg-primary)]");
+  });
+
   it("renders eight bento slots with honest placeholders when no case studies exist", () => {
     render(<ProjectsBento caseStudies={[]} />);
 
@@ -85,7 +115,11 @@ describe("ProjectsBento", () => {
     expect(
       screen.getByRole("link", { name: /Sample Client Project — Placeholder/ })
     ).toHaveAttribute("href", "/portfolio/sample-client-project-placeholder");
-    expect(screen.getAllByText("Project coming soon")).toHaveLength(7);
+    expect(screen.getByRole("link", { name: /Eclipse/ })).toHaveAttribute(
+      "href",
+      "/portfolio/eclipse"
+    );
+    expect(screen.getAllByText("Project coming soon")).toHaveLength(6);
   });
 
   it("uses a two-column row for large cards and three-column rows for small cards", () => {
