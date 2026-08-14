@@ -755,7 +755,7 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 - `homePage.testimonials[]` named refs after `awards`. Home uses array order (not `document.order`).
 - **Empty refs = hide. CMS unreachable = hide.** Do not `resolveWithFallback` a quote list; do not seed testimonial documents; do not fetch the full collection onto Home. This is an explicit exception to ADR-030 “CMS null = placeholders.”
 - UI after Recognition Awards, before Services. Trust-chapter band shares awards `--bg-secondary`; cards on `--bg-surface`. Eyebrow `Testimonials`; heading `Kind words`; no volume claims.
-- Display threshold: **superseded 2026-08-15** — 0 hide · ≥1 `motion/react` `translateY` marquee; extra columns hidden until md/lg. Never pad columns by repeating a person. Pause on hover/focus. `hooks/useReducedMotion` → static unique cards, no clone. See Visual restyle addendum.
+- Display threshold: **superseded 2026-08-15** — 0 hide · ≥1 CSS 3D marquee; extra columns hidden until md/lg. Pause on hover. `hooks/useReducedMotion` → static unique cards, no clone. See 3D CSS marquee addendum.
 - Avatar: allowlisted R2 `next/image`, else initials. No Unsplash, stars, or social hrefs.
 - Adapt `testimonial-v2` structure only: `motion/react` card springs + Kamiyon tokens. Drop dark-mode toggle and demo ERP quotes.
 
@@ -783,6 +783,17 @@ Operator locked 21st.dev `testimonial-v2` **LAYOUT**, not demo data. CMS / hide 
 - Marquee at ≥1 quote; empty still hides
 - `motion/react` `translateY` loop (not framer-motion, not Unsplash, no dark toggle)
 - Plan: `.claude/plans/home-testimonials-v2-restyle.plan.md`
+
+### Visual restyle — 3D CSS marquee (2026-08-15)
+
+Operator replaced the v2 `motion/react` column loop with a 21st.dev 3D testimonials marquee. CMS / hide / no-seed / no-placeholder / no-Unsplash rules above stay.
+
+- Primitive: `components/ui/3d-testimonials` `Marquee` (CSS `animate-marquee` / `animate-marquee-vertical`) plus shadcn `card` / `avatar`
+- Home visual: `testimonial-marquee` maps CMS items (quote, name, role, allowlisted R2 photo or initials) into four perspective columns; extra columns hide until md/lg
+- Cards stay `--bg-surface`; scene edge fades use `--bg-secondary`
+- Reduced motion: static unique cards, no 3D scene, no clones
+- Do not ship the demo Cascade / randomuser quotes
+- Full-bleed scene (no `Container` / max-width box). Header overlays the section and stays centered. Testimonials is its own `--bg-primary` band after awards — not a shared trust-chapter surface.
 
 ---
 

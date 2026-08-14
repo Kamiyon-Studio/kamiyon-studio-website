@@ -36,10 +36,13 @@
   --color-sakura-ink: #ff9aaf;
   --color-primary-ink: var(--color-sakura-ink);
 
-  /* shadcn-compat utilities used by cinematic footer (map to Kamiyon tokens) */
+  /* shadcn-compat utilities used by cinematic footer + 3D testimonials */
   --color-background: var(--bg-primary);
   --color-foreground: var(--text-primary);
+  --color-muted: var(--bg-accent);
   --color-muted-foreground: var(--text-muted);
+  --color-card: var(--bg-surface);
+  --color-card-foreground: var(--text-primary);
   --color-border: var(--border-default);
   --color-destructive: #ff9aaf;
 
@@ -59,7 +62,8 @@
   --animate-hero-ken-burns: hero-ken-burns 24s ease-out forwards;
   --animate-hero-fade-rise: hero-fade-rise 0.9s ease-out both;
 
-  /* Home services vertical marquee (ADR-021) */
+  /* Home services vertical marquee (ADR-021) + 3D testimonials (ADR-031) */
+  --animate-marquee: marquee var(--duration, 40s) infinite linear;
   --animate-marquee-vertical: marquee-vertical var(--duration, 30s) linear infinite;
   /* Home partners horizontal logo marquee (ADR-026) */
   --animate-marquee-horizontal: marquee-horizontal var(--duration, 40s) linear infinite;
@@ -184,6 +188,15 @@ body {
   }
 }
 
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - var(--gap, 0px)));
+  }
+}
+
 @keyframes marquee-horizontal {
   from {
     transform: translateX(0);
@@ -198,7 +211,7 @@ body {
     transform: translateY(0);
   }
   to {
-    transform: translateY(-100%);
+    transform: translateY(calc(-100% - var(--gap, 0px)));
   }
 }
 

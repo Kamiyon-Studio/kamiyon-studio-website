@@ -67,6 +67,22 @@ describe("TestimonialsMarquee", () => {
     expect(cluster?.className).toMatch(/mx-auto/);
   });
 
+  it("renders the marquee full-bleed on the section, not inside a max-width container", () => {
+    const { container } = render(
+      <TestimonialsMarquee
+        testimonials={[makeTestimonial({ id: "fixture-a" })]}
+      />,
+    );
+
+    const section = container.querySelector("#home-testimonials");
+    const marquee = screen.getByTestId("testimonial-marquee");
+
+    expect(section).not.toBeNull();
+    expect(section?.className).toMatch(/overflow-hidden/);
+    expect(section?.querySelector(".max-w-7xl")).toBeNull();
+    expect(marquee.parentElement).toBe(section);
+  });
+
   it("preserves homePage.testimonials array order (does not re-sort by document.order)", () => {
     render(
       <TestimonialsMarquee

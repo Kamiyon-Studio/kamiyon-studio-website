@@ -56,17 +56,18 @@ When a task/phase is marked complete:
 ### Home testimonials marquee (2026-08-14)
 
 **Plan:** `.claude/plans/home-testimonials-marquee.plan.md` · **ADR:** ADR-031  
-**Status:** **Done in-repo** — `testimonial` docs + `homePage.testimonials[]`; section after awards; v2 layout marquee at ≥1 quote. **Preview fill (2026-08-15):** team-roster names (Sherwin, Christian, Ken, Luis, Lucky, Yushua) so `/#home-testimonials` is visible; replace with consented quotes before treating as social proof.
+**Status:** **Done in-repo** — `testimonial` docs + `homePage.testimonials[]`; section after awards; 3D CSS marquee at ≥1 quote. **Preview fill (2026-08-15):** team-roster names (Sherwin, Christian, Ken, Luis, Lucky, Yushua) so `/#home-testimonials` is visible; replace with consented quotes before treating as social proof.
 
 | Stream | Status | Notes |
 | --- | --- | --- |
 | **WS-A** Sanity schema + desk | **Done in-repo** | `testimonial` type; Home field after `awards` |
 | **WS-B** Types / GROQ / mapper / preview seed | **Done in-repo** | `mapTestimonial`; team-roster preview quotes (2026-08-15) |
-| **WS-C** `testimonial-marquee` primitive | **Done in-repo** | 0 hide · ≥1 `motion/react` `translateY` marquee; reduced-motion static |
+| **WS-C** `testimonial-marquee` primitive | **Done in-repo** | 0 hide · ≥1 CSS 3D marquee (`3d-testimonials`); reduced-motion static |
 | **WS-D** Section + Home page + nav | **Done in-repo** | `/#home-testimonials`; `--bg-secondary` trust chapter |
 | **WS-E** ADR-031 + tracker + ui-context + essential | **Done** | This tracker |
 | **WS-F** Verify gate | **Done (local tests)** | Focused 83/83; eslint clean on touched (pre-existing `SanityObjectType` unused warning in constants.ts); tsc noise is pre-existing and off-path |
-| **WS-V** Visual restyle (v2 layout) | **Done (local tests)** | Centered pill + Kind words; v2 columns hide at md/lg; marquee ≥1. Combined 11/11 + eslint clean. |
+| **WS-V** Visual restyle (v2 layout) | **Superseded** | Replaced by 3D CSS marquee (2026-08-15) |
+| **WS-V2** 3D CSS marquee | **Done (local tests)** | Four perspective columns; Card/Avatar; CMS quotes; reduced-motion static |
 
 **Ship gate:** WS-A–F + WS-V local **PASS**. Hosted Studio **redeployed 2026-08-15**. Preview quotes on Home for visual ack; replace with consented quotes later.
 
