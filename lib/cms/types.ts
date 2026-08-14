@@ -166,6 +166,7 @@ export type HomePage = {
   partners: Partner[];
   portfolioItems: Portfolio[];
   awards: Award[];
+  testimonials: Testimonial[];
   services: Service[];
   contactCta: HomeContactCta;
   seo: SeoMetadata;
@@ -366,6 +367,19 @@ export type Partner = {
   /** Logo/icon only — home marquee displays without links. */
   logo?: CmsImage;
   isPlaceholder: boolean;
+};
+
+/** testimonial — home social-proof marquee */
+
+export type Testimonial = {
+  _type: "testimonial";
+  /** Marquee key: document `_id`, else a name-derived slug. */
+  id: string;
+  quote: string;
+  name: string;
+  role?: string;
+  photo?: CmsImage;
+  order: number;
 };
 
 /** award — home recognition laurels */

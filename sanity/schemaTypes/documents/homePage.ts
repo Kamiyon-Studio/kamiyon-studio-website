@@ -34,6 +34,14 @@ export const homePage = defineType({
       of: [defineArrayMember({ type: "reference", to: [{ type: "award" }] })],
     }),
     defineField({
+      name: "testimonials",
+      title: "Testimonials",
+      type: "array",
+      description:
+        "Quoted people shown on Home after Awards. Empty list hides the section — do not add invented quotes.",
+      of: [defineArrayMember({ type: "reference", to: [{ type: "testimonial" }] })],
+    }),
+    defineField({
       name: "services",
       title: "Services",
       type: "array",

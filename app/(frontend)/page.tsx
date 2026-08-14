@@ -9,6 +9,7 @@ import {
   ServicesStack,
   type ServiceStackSlide,
 } from "@/components/sections/ServicesStack";
+import { TestimonialsMarquee } from "@/components/sections/TestimonialsMarquee";
 import {
   awardsFallback,
   homePageFallback,
@@ -41,7 +42,8 @@ async function getHomePageContent() {
   const homeCms = await getHomePage();
 
   if (homeCms === null) {
-    // CMS unreachable → keep existing resolveWithFallback placeholders
+    // CMS unreachable → keep existing resolveWithFallback placeholders.
+    // Testimonials are attributed speech: never substitute quotes (ADR-031).
     const [portfolioItems, services, partners, awards] = await Promise.all([
       getPortfolioItems(),
       getServices(),
@@ -58,6 +60,7 @@ async function getHomePageContent() {
         partners?.map(mapPartnerToMarqueeItem) ?? null,
         PARTNER_PLACEHOLDERS,
       ),
+      testimonials: [],
     };
   }
 
@@ -68,6 +71,7 @@ async function getHomePageContent() {
     services: homeCms.services,
     awards: homeCms.awards,
     partners: homeCms.partners.map(mapPartnerToMarqueeItem),
+    testimonials: homeCms.testimonials,
   };
 }
 
@@ -96,7 +100,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  const { home, portfolioItems, services, partners, awards } =
+  const { home, portfolioItems, services, partners, awards, testimonials } =
     await getHomePageContent();
 
   const contact = home.contactCta ?? homePageFallback.contactCta;
@@ -110,6 +114,9 @@ export default async function Home() {
         <ProjectsBento caseStudies={portfolioItems} />
       ) : null}
       {awards.length > 0 ? <RecognitionAwards awards={awards} /> : null}
+      {testimonials.length > 0 ? (
+        <TestimonialsMarquee testimonials={testimonials} />
+      ) : null}
       {serviceSlides.length > 0 ? (
         <ServicesStack slides={serviceSlides} />
       ) : null}

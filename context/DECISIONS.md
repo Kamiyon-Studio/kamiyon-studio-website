@@ -739,6 +739,39 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 
 - ADR-027 body stays historical; display unused → WhoWeAreBand via this ADR.
 - Plan: `.claude/plans/sanity-frontend-align.md` · tracker + `ui-context` + essential CMS map updated.
+- Testimonials stub superseded by **ADR-031**.
+
+---
+
+## ADR-031 — Home testimonials marquee (2026-08-14)
+
+**Status:** Accepted
+
+**Context:** ADR-030 left Home testimonials as a tracker stub pending a design prompt. The operator supplied 21st.dev `testimonial-v2` (vertical quote cards, motion hover, three-column loop). Canon forbids fabricating testimonials. Awards-style placeholder slots would read as fake attributed speech.
+
+**Decision:**
+
+- New Sanity document `testimonial` (`quote`, `name`, required; `role`, `photo` r2Asset, `order`). No `isPlaceholder`. Studio copy: only publish quotes from people who agreed to be named.
+- `homePage.testimonials[]` named refs after `awards`. Home uses array order (not `document.order`).
+- **Empty refs = hide. CMS unreachable = hide.** Do not `resolveWithFallback` a quote list; do not seed testimonial documents; do not fetch the full collection onto Home. This is an explicit exception to ADR-030 “CMS null = placeholders.”
+- UI after Recognition Awards, before Services. Trust-chapter band shares awards `--bg-secondary`; cards on `--bg-surface`. Eyebrow `Testimonials`; heading `Kind words`; no volume claims.
+- Display threshold: 0 hide · 1–2 static cards · 3+ CSS `--animate-marquee-vertical` columns (1 / 2 / 3 at sm/md/lg so every quote stays visible). Never pad columns by repeating a person. Pause on hover/focus. `hooks/useReducedMotion` → static unique cards, no clone.
+- Avatar: allowlisted R2 `next/image`, else initials. No Unsplash, stars, or social hrefs.
+- Adapt `testimonial-v2` structure only: `motion/react` card springs + Kamiyon tokens. Drop dark-mode toggle and demo ERP quotes.
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| Hide until real quotes exist | Attributed speech cannot use labeled placeholders |
+| Marquee only at 3+ items | Looping one person looks like fake density |
+| Null CMS also hides | Avoids dumping a full collection or inventing quotes |
+| Same `--bg-secondary` as awards | One trust chapter (laurels then kind words), then services |
+
+**Consequences:**
+
+- Plan: `.claude/plans/home-testimonials-marquee.plan.md`
+- Hosted Studio must redeploy for the new type. Operators attach real refs on Home before `/#home-testimonials` appears.
 
 ---
 

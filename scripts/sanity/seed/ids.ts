@@ -38,6 +38,7 @@ export type CollectionType =
   | "communityItem"
   | "partner"
   | "award"
+  | "testimonial"
   | "author"
   | "category"
   | "tag"
@@ -98,6 +99,10 @@ export function partnerId(placeholderId: string): string {
 /** Award seed ID, e.g. `slot-1` → `award-slot-1` (matches `awardsFallback` ids). */
 export function awardId(slug: string): string {
   return collectionId("award", slug);
+}
+
+export function testimonialId(slug: string): string {
+  return collectionId("testimonial", slug);
 }
 
 export function authorId(slug: string): string {

@@ -1,0 +1,103 @@
+import { render, screen, within } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
+import type { Testimonial } from "@/lib/cms/types";
+import { TestimonialsMarquee } from "./TestimonialsMarquee";
+
+vi.mock("@/components/ui/WordPullUp", () => ({
+  WordPullUp: ({
+    words,
+    as: Tag = "h1",
+    id,
+  }: {
+    words: string;
+    as?: "h1" | "h2" | "h3";
+    id?: string;
+  }) => <Tag id={id}>{words}</Tag>,
+}));
+
+vi.mock("@/components/animation/AnimatedSection", () => ({
+  AnimatedSection: ({
+    children,
+    className,
+  }: {
+    children: React.ReactNode;
+    className?: string;
+  }) => <div className={className}>{children}</div>,
+}));
+
+function makeTestimonial(
+  overrides: Partial<Testimonial> & Pick<Testimonial, "id">,
+): Testimonial {
+  return {
+    _type: "testimonial",
+    quote: "Fixture quote for tests.",
+    name: "Fixture Author",
+    order: 1,
+    ...overrides,
+  };
+}
+
+describe("TestimonialsMarquee", () => {
+  it("renders heading Kind words, eyebrow Testimonials, and dark nav theme", () => {
+    const { container } = render(
+      <TestimonialsMarquee
+        testimonials={[makeTestimonial({ id: "fixture-a" })]}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Kind words" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Testimonials")).toBeInTheDocument();
+
+    const section = container.querySelector("#home-testimonials");
+    expect(section).not.toBeNull();
+    expect(section).toHaveAttribute("data-nav-theme", "dark");
+  });
+
+  it("preserves homePage.testimonials array order (does not re-sort by document.order)", () => {
+    render(
+      <TestimonialsMarquee
+        testimonials={[
+          makeTestimonial({
+            id: "fixture-b",
+            name: "Fixture Author B",
+            order: 2,
+          }),
+          makeTestimonial({
+            id: "fixture-a",
+            name: "Fixture Author A",
+            order: 1,
+          }),
+        ]}
+      />,
+    );
+
+    const names = within(screen.getByTestId("testimonial-marquee"))
+      .getAllByRole("listitem")
+      .map((item) => item.textContent);
+
+    expect(names[0]).toContain("Fixture Author B");
+    expect(names[1]).toContain("Fixture Author A");
+  });
+
+  it("renders nothing when there are no testimonials", () => {
+    const { container } = render(<TestimonialsMarquee testimonials={[]} />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it("renders an optional summary", () => {
+    render(
+      <TestimonialsMarquee
+        testimonials={[makeTestimonial({ id: "fixture-a" })]}
+        summary="Fixture summary for the testimonials band."
+      />,
+    );
+
+    expect(
+      screen.getByText("Fixture summary for the testimonials band."),
+    ).toBeInTheDocument();
+  });
+});

@@ -65,6 +65,16 @@ describe("home seed builder (RFC §4 named refs)", () => {
       })),
     );
     expect((home.services as unknown[]).length).toBe(5);
+    expect(home.testimonials).toEqual([]);
+  });
+
+  it("emits an empty testimonials array with no testimonial documents or invented quotes", () => {
+    const home = buildHomePageDocument();
+    const serialized = JSON.stringify(home);
+
+    expect(home.testimonials).toEqual([]);
+    expect(serialized).not.toMatch(/"_type":"testimonial"/);
+    expect(serialized).not.toMatch(/"quote":/);
   });
 
   it("copies contactCta from home fallback (former ctaBanner copy)", () => {

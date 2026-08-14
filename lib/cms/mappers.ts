@@ -23,6 +23,7 @@ import type {
   Slug,
   SocialLink,
   TeamMember,
+  Testimonial,
 } from "./types";
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -202,6 +203,9 @@ export function mapHomePage(doc: unknown): HomePage | null {
     awards: (Array.isArray(row.awards) ? row.awards : [])
       .map(mapAward)
       .filter((item): item is Award => item !== null),
+    testimonials: (Array.isArray(row.testimonials) ? row.testimonials : [])
+      .map(mapTestimonial)
+      .filter((item): item is Testimonial => item !== null),
     services: (Array.isArray(row.services) ? row.services : [])
       .map(mapService)
       .filter((item): item is Service => item !== null),
@@ -626,6 +630,56 @@ export function mapAward(doc: unknown): Award | null {
     order: asNumber(row.order),
     isPlaceholder,
     ...(placeholderLabel ? { placeholderLabel } : {}),
+  };
+}
+
+/** Maps a testimonial doc; drops entries without quote or name. */
+export function mapTestimonial(doc: unknown): Testimonial | null {
+  const row = asRecord(doc);
+  if (!row) {
+    return null;
+  }
+
+  const quote = asString(row.quote).trim();
+  const name = asString(row.name).trim();
+  if (!quote || !name) {
+    return null;
+  }
+
+  const documentId = typeof row._id === "string" ? row._id.trim() : "";
+  const role = asString(row.role).trim();
+  const photo = mapR2AssetToCmsImage(row.photo as R2AssetRef | null | undefined);
+
+  return {
+    _type: "testimonial",
+    id: documentId || rosterIdFromName(name),
+    quote,
+    name,
+    ...(role ? { role } : {}),
+    ...(photo ? { photo } : {}),
+    order: asNumber(row.order),
+  };
+}
+
+/** Marquee slot shape used by the home testimonials strip. */
+export function mapTestimonialToMarqueeItem(item: Testimonial): {
+  id: string;
+  quote: string;
+  name: string;
+  role?: string;
+  photoUrl: string | null;
+  photoAlt: string;
+} {
+  return {
+    id: item.id,
+    quote: item.quote,
+    name: item.name,
+    ...(item.role ? { role: item.role } : {}),
+    photoUrl: getCmsImageUrl(item.photo),
+    photoAlt:
+      typeof item.photo?.alt === "string" && item.photo.alt.trim()
+        ? item.photo.alt
+        : item.name,
   };
 }
 
