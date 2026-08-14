@@ -457,6 +457,8 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 - Homepage `page.tsx` mapper (`toServiceStackSlides`) unchanged.
 - See plan Wave 1–3 for multitask ownership.
 
+**Amendment (2026-08-15):** Marquee loop is JS (`translate3d` + rAF) so the list is pointer-draggable; CSS `@keyframes marquee-vertical` remains for other consumers (testimonials). Hover reveal images come from published portfolio `coverImage` / `gallery` on projects whose `serviceType` matches the row — not stock Unsplash. `toServiceStackSlides` now receives portfolio items.
+
 ---
 
 ## ADR-022 — Phase E closeout: OpenNext Workers + R2 + kinetic nav (2026-07-30)
@@ -680,7 +682,7 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 | Alpha baked at build time vs `mix-blend-mode` / `mask-image` | Blend modes wash out the sunset plate and mask support is uneven; preprocessing is deterministic and cheap to serve |
 | Versioned key prefix instead of content hashes | Plates change rarely; bumping `v1` → `v2` is an explicit, reviewable cache bust |
 | Parallax skipped on coarse pointers | Four full-bleed plates scrubbing on mobile is a battery/jank cost for little payoff |
-| Radial brand scrim + strengthened bottom scrim | Wordmark and partner logos need contrast against a light-topped sunset plate |
+| Subtle primary glow on the wordmark (replaces charcoal radial brand scrim) | Ivory type needs a lift off the sunset plate without a muddy drop shadow; partner logos still use the stage bottom/sky scrim |
 
 **Consequences:**
 
@@ -745,7 +747,7 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 
 ## ADR-031 — Home testimonials marquee (2026-08-14)
 
-**Status:** Accepted
+**Status:** Accepted. **Home display superseded by ADR-035** (component + CMS fields still kept).
 
 **Context:** ADR-030 left Home testimonials as a tracker stub pending a design prompt. The operator supplied 21st.dev `testimonial-v2` (vertical quote cards, motion hover, three-column loop). Canon forbids fabricating testimonials. Awards-style placeholder slots would read as fake attributed speech.
 
@@ -851,6 +853,8 @@ Operator replaced the v2 `motion/react` column loop with a 21st.dev 3D testimoni
 
 **Amendment (same day):** Earth `background.webp` is the **Recent Projects** section backdrop (`#home-projects`), not a hero underlay. `/assets/background.avif` is unchanged. Motion videos are CSS-masked with the WebP alpha so black backing cannot cover sky/mountains. Foreground plate travel is `yPercent: 0` so its ground line can meet the projects earth plate. Hero bottom charcoal scrim is omitted on the parallax stage for that join.
 
+**Amendment (v3, same day):** Operator replaced the four-plate v2 pack with a two-layer stack. Prefix bumps to `site/hero/parallax/v3/` (v1 and v2 objects stay). Landscape is an opaque `homepage.mp4` with `fallback.avif` as the freeze-frame — no WebM, no CSS alpha mask. Foreground is `foreground.avif` (real alpha, planted at `yPercent` 0). Earth plate is `ground.avif` on `#home-projects`. `/assets/background.avif` stays the static-hero / other-page plate. Pipeline passthroughs AVIF; MP4-only plates are valid.
+
 ---
 
 ## ADR-034 — Hide WhoWeAreBand on /about (2026-08-15)
@@ -869,4 +873,23 @@ Operator replaced the v2 `motion/react` column loop with a 21st.dev 3D testimoni
 
 - ADR-030 About display clause (WhoWeAreBand between story and timeline) is superseded for the live page. CMS keep clauses from ADR-027 / ADR-030 still apply.
 - `ui-context.md` About row and essential CMS map updated.
+
+---
+
+## ADR-035 — Hide TestimonialsMarquee on Home (2026-08-15)
+
+**Status:** Accepted
+
+**Context:** ADR-031 mounted a 3D testimonials marquee after Recognition Awards. Preview quotes used team-roster names so `/#home-testimonials` could be reviewed. The operator asked to hide that band on Home.
+
+**Decision:**
+
+- Do **not** mount `TestimonialsMarquee` on Home. Order is Hero → Projects → Recognition → Services → Contact.
+- Drop `home-testimonials` from `HOME_SECTION_NAV`.
+- Keep `TestimonialsMarquee`, `testimonial-marquee`, and `3d-testimonials` in-repo. Keep CMS type `testimonial`, `homePage.testimonials[]`, GROQ, mappers, fallbacks, and seed.
+
+**Consequences:**
+
+- ADR-031 display clause (section after awards, nav anchor) is superseded for the live page. CMS keep clauses from ADR-031 still apply.
+- `ui-context.md` Home row and essential CMS map updated.
 

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import path from "node:path";
 
 import { HERO_PARALLAX_LAYERS } from "@/lib/home/hero-parallax-layers";
 
@@ -10,7 +11,7 @@ import {
   matchVideoForDepth,
 } from "./plate-sources";
 
-const EXPORTS = [
+const LEGACY_EXPORTS = [
   "layer-1-7bd06eb8-61ba-45d5-b6bf-8837df430088.png",
   "layer-2-b1a74998-b497-4c88-b2f6-7926d9273710.png",
   "layer-3-fe6c3eca-98ae-45c9-9766-d190293497d9.png",
@@ -18,8 +19,19 @@ const EXPORTS = [
   "notes.txt",
 ];
 
+const V3_EXPORTS = [
+  "fallback.avif",
+  "fallback.png",
+  "foreground.avif",
+  "foreground.png",
+  "ground.avif",
+  "ground.png",
+  "homepage.mp4",
+];
+
 describe("isSupportedSourceFile", () => {
   it("accepts raster exports and rejects everything else", () => {
+    expect(isSupportedSourceFile("fallback.AVIF")).toBe(true);
     expect(isSupportedSourceFile("layer-1.JPG")).toBe(true);
     expect(isSupportedSourceFile("layer-1.jpeg")).toBe(true);
     expect(isSupportedSourceFile("layer-1.png")).toBe(true);
@@ -31,7 +43,7 @@ describe("isSupportedSourceFile", () => {
 
 describe("matchSourceForDepth", () => {
   it("matches a depth regardless of the suffix the export tool added", () => {
-    expect(matchSourceForDepth(EXPORTS, 3)).toBe(EXPORTS[2]);
+    expect(matchSourceForDepth(LEGACY_EXPORTS, 1)).toBe(LEGACY_EXPORTS[0]);
   });
 
   it("accepts underscore, space, and bare separators", () => {
@@ -52,7 +64,7 @@ describe("matchSourceForDepth", () => {
   });
 
   it("returns null when nothing matches", () => {
-    expect(matchSourceForDepth(EXPORTS, 9)).toBeNull();
+    expect(matchSourceForDepth(LEGACY_EXPORTS, 9)).toBeNull();
   });
 
   it("picks deterministically when several files match", () => {
@@ -60,24 +72,41 @@ describe("matchSourceForDepth", () => {
     expect(matchSourceForDepth(candidates, 1)).toBe("layer-1-a.png");
   });
 
-  it("prefers a WebP freeze-frame over a PNG of the same depth", () => {
+  it("prefers AVIF over WebP over PNG of the same depth", () => {
     expect(
-      matchSourceForDepth(["png/layer-1.png", "webp/layer-1.webp"], 1),
-    ).toBe("webp/layer-1.webp");
+      matchSourceForDepth(
+        ["png/layer-1.png", "webp/layer-1.webp", "avif/layer-1.avif"],
+        1,
+      ),
+    ).toBe("avif/layer-1.avif");
   });
 });
 
 describe("matchPlateSources", () => {
-  it("pairs every configured plate with its export in depth order", () => {
-    const sources = matchPlateSources(EXPORTS, "/exports");
+  it("pairs named v3 stills and attaches the homepage MP4 to the landscape plate", () => {
+    const sources = matchPlateSources(V3_EXPORTS, "/exports");
 
     expect(sources).toHaveLength(HERO_PARALLAX_LAYERS.length);
-    expect(sources.map(({ layer }) => layer.depth)).toEqual([1, 2, 3, 4]);
-    expect(sources[0]?.sourcePath).toContain(EXPORTS[0]);
+    expect(sources.map(({ layer }) => layer.depth)).toEqual([1, 2]);
+    expect(sources[0]?.sourcePath).toBe(path.join("/exports", "fallback.avif"));
+    expect(sources[0]?.pngPath).toBe(path.join("/exports", "fallback.png"));
+    expect(sources[0]?.mp4Path).toBe(path.join("/exports", "homepage.mp4"));
+    expect(sources[0]?.webmPath).toBeUndefined();
+    expect(sources[1]?.sourcePath).toBe(path.join("/exports", "foreground.avif"));
+    expect(sources[1]?.pngPath).toBe(path.join("/exports", "foreground.png"));
+    expect(sources[1]?.mp4Path).toBeUndefined();
+  });
+
+  it("still matches a leftover layer-N pack for the configured depths", () => {
+    const sources = matchPlateSources(LEGACY_EXPORTS, "/exports");
+
+    expect(sources).toHaveLength(HERO_PARALLAX_LAYERS.length);
+    expect(sources[0]?.sourcePath).toContain(LEGACY_EXPORTS[0]);
+    expect(sources[1]?.sourcePath).toContain(LEGACY_EXPORTS[1]);
   });
 
   it("names the missing depth so the operator knows what to export", () => {
-    expect(() => matchPlateSources(["layer-1.png"], "/exports")).toThrow(
+    expect(() => matchPlateSources(["fallback.avif"], "/exports")).toThrow(
       /No source image for layer 2 .* in \/exports/,
     );
   });
@@ -100,13 +129,24 @@ describe("matchVideoForDepth", () => {
 });
 
 describe("matchBackgroundSource", () => {
-  it("prefers the WebP underlay at the export root", () => {
+  it("prefers the named ground plate over a leftover background.webp", () => {
+    expect(
+      matchBackgroundSource([
+        "background.webp",
+        "ground.png",
+        "ground.avif",
+        "fallback.avif",
+      ]),
+    ).toBe("ground.avif");
+  });
+
+  it("falls back to a legacy background still", () => {
     expect(
       matchBackgroundSource(["background.png", "background.webp", "webp/layer-1.webp"]),
     ).toBe("background.webp");
   });
 
   it("returns null when the underlay is missing", () => {
-    expect(matchBackgroundSource(["webp/layer-1.webp"])).toBeNull();
+    expect(matchBackgroundSource(["fallback.avif"])).toBeNull();
   });
 });

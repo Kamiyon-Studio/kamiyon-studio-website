@@ -41,6 +41,18 @@ describe("GlowingShadow", () => {
     expect(screen.queryAllByRole("button")).toHaveLength(0);
   });
 
+  it("applies the card variant for full-bleed glowing strokes", () => {
+    const { container } = render(
+      <GlowingShadow variant="card">
+        <img alt="Member" src="/team.jpg" />
+      </GlowingShadow>,
+    );
+
+    expect(container.querySelector(".glowing-shadow")).toHaveClass(
+      "glowing-shadow--card",
+    );
+  });
+
   it("locks hue animation to the sakura band and sizes for CTA buttons", () => {
     const css = readFileSync(cssPath, "utf8");
 
@@ -50,5 +62,12 @@ describe("GlowingShadow", () => {
     expect(css).toMatch(/var\(--radius-button\)/);
     expect(css).toMatch(/min-height:\s*44px/);
     expect(css).toMatch(/min-width:\s*44px/);
+    expect(css).toMatch(/\.glowing-shadow--card/);
+    expect(css).toMatch(/var\(--color-primary\)/);
+    expect(css).toMatch(/var\(--radius-card\)/);
+    expect(css).toMatch(/\.glowing-shadow--card:hover::after/);
+    expect(css).toMatch(
+      /\.glowing-shadow--card::after[\s\S]*?opacity:\s*0/,
+    );
   });
 });

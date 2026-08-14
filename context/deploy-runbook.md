@@ -92,28 +92,26 @@ These names are wired in [`wrangler.jsonc`](../wrangler.jsonc). Track F provisio
 
 ### Home hero parallax plates (ADR-029 / ADR-033)
 
-The four layered-hero plates plus motion siblings and the earth underlay live in R2 under `site/hero/parallax/v2/` (PNG originals archived at `…/v2/source/`). They are **not** in the repo, and `deploy.yml` does not publish them — republish by hand when the art changes:
+The two layered-hero plates, the landscape MP4, and the earth plate live in R2 under `site/hero/parallax/v3/` (PNG originals archived at `…/v3/source/`). They are **not** in the repo, and `deploy.yml` does not publish them — republish by hand when the art changes:
 
 ```powershell
 # dry run first (prints keys, sizes, and which files will upload)
-pnpm media:hero-parallax -- --source <folder-with-webp-webm-mp4>
-pnpm media:hero-parallax -- --source <folder-with-webp-webm-mp4> --target staging --apply
-pnpm media:hero-parallax -- --source <folder-with-webp-webm-mp4> --target production --apply
+pnpm media:hero-parallax -- --source <folder-with-avif-mp4>
+pnpm media:hero-parallax -- --source <folder-with-avif-mp4> --target staging --apply
+pnpm media:hero-parallax -- --source <folder-with-avif-mp4> --target production --apply
 ```
 
-Requires `wrangler login`. Bump the `v2` segment in `lib/home/hero-parallax-layers.ts` for a cache bust rather than overwriting keys. If `NEXT_PUBLIC_R2_PUBLIC_BASE_URL` is unset at **build** time the home hero silently falls back to the original single-plate `HeroOpening`, so verify the plates load after a domain change.
+Requires `wrangler login`. Bump the `v3` segment in `lib/home/hero-parallax-layers.ts` for a cache bust rather than overwriting keys. If `NEXT_PUBLIC_R2_PUBLIC_BASE_URL` is unset at **build** time the home hero silently falls back to the original single-plate `HeroOpening`, so verify the plates load after a domain change.
 
-Published objects (8 stack files + underlay):
+Published objects:
 
 | Key | Role |
 | --- | --- |
-| `layer-1.webp` + `.webm` + `.mp4` | Sky / clouds — WebP is the freeze-frame |
-| `layer-2.webp` | Mountain still |
-| `layer-3.webp` + `.webm` + `.mp4` | Ocean — WebP is the freeze-frame |
-| `layer-4.webp` | Foreground still |
-| `background.webp` | Earth plate for `#home-projects` (Recent Projects), not a hero underlay |
+| `fallback.avif` + `homepage.mp4` | Landscape freeze-frame + looping video (opaque; no mask) |
+| `foreground.avif` | Grassy cliff, planted so it can meet the projects ground |
+| `ground.avif` | Earth plate for `#home-projects` (Recent Projects), not a hero underlay |
 
-The v1 prefix is left in place so cached URLs keep resolving until the Worker is rebuilt against v2.
+The v1 and v2 prefixes stay in place so cached URLs keep resolving until the Worker is rebuilt against v3.
 
 ---
 

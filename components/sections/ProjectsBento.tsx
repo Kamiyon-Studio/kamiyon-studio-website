@@ -16,6 +16,7 @@ import {
 import { WordPullUp } from "@/components/ui/WordPullUp";
 import { getCmsImageUrl } from "@/lib/cms/image";
 import type { CaseStudy } from "@/lib/cms/types";
+import { HERO_PROJECTS_SEAM_SVH } from "@/lib/home/hero-parallax-layers";
 import { cn } from "@/lib/utils";
 
 type ProjectsBentoProps = {
@@ -38,6 +39,15 @@ function featuredFirst(caseStudies: CaseStudy[]): CaseStudy[] {
   });
 }
 
+function earthSeamMaskStyle(): { maskImage: string; WebkitMaskImage: string } {
+  const fade = `linear-gradient(to bottom, transparent 0%, black ${HERO_PROJECTS_SEAM_SVH}svh)`;
+
+  return {
+    maskImage: fade,
+    WebkitMaskImage: fade,
+  };
+}
+
 export function ProjectsBento({ caseStudies, backgroundSrc }: ProjectsBentoProps) {
   const slides = featuredFirst(caseStudies);
   const hasEarth = Boolean(backgroundSrc);
@@ -47,9 +57,19 @@ export function ProjectsBento({ caseStudies, backgroundSrc }: ProjectsBentoProps
     <section
       id="home-projects"
       data-nav-theme="dark"
+      style={
+        hasEarth
+          ? {
+              marginTop: `-${HERO_PROJECTS_SEAM_SVH}svh`,
+              paddingTop: `calc(${HERO_PROJECTS_SEAM_SVH}svh + 2.5rem)`,
+            }
+          : undefined
+      }
       className={cn(
-        "relative scroll-mt-4 overflow-hidden py-16 md:py-24",
-        hasEarth ? "bg-[var(--color-charcoal)]" : "bg-[var(--bg-primary)]",
+        "relative scroll-mt-4 overflow-hidden",
+        hasEarth
+          ? "z-0 bg-[var(--color-charcoal)] pb-16 md:pb-24"
+          : "bg-[var(--bg-primary)] py-16 md:py-24",
       )}
     >
       {backgroundSrc ? (
@@ -57,6 +77,7 @@ export function ProjectsBento({ caseStudies, backgroundSrc }: ProjectsBentoProps
           data-testid="home-projects-background"
           aria-hidden="true"
           className="pointer-events-none absolute inset-0"
+          style={earthSeamMaskStyle()}
         >
           <Image
             src={backgroundSrc}

@@ -1,4 +1,4 @@
-/* Animated sakura chrome glow — primary CTA shell only (interactive control stays on Button). */
+/* Animated sakura chrome glow — CTA buttons and team cards. */
 .glowing-shadow {
   --glow-hue-start: 330;
   --glow-hue-end: 20;
@@ -46,10 +46,81 @@
   }
 }
 
+.glowing-shadow--card {
+  display: block;
+  border-radius: var(--radius-card);
+}
+
+.glowing-shadow--card .glowing-shadow__surface {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.glowing-shadow--card::before,
+.glowing-shadow--card::after {
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.glowing-shadow--card::before {
+  inset: -4px;
+  filter: blur(12px);
+  animation: none;
+}
+
+.glowing-shadow--card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 88%, white);
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--color-primary) 42%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 28%, transparent);
+  pointer-events: none;
+}
+
+.glowing-shadow--card:hover::before,
+.glowing-shadow--card:focus-visible::before,
+.focus-rail-card:hover .glowing-shadow--card::before,
+.focus-rail-card:focus-visible .glowing-shadow--card::before {
+  opacity: 0.88;
+  animation: hue-animation 4.5s ease-in-out infinite alternate;
+}
+
+.glowing-shadow--card:hover::after,
+.glowing-shadow--card:focus-visible::after,
+.focus-rail-card:hover .glowing-shadow--card::after,
+.focus-rail-card:focus-visible .glowing-shadow--card::after {
+  opacity: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .glowing-shadow::before {
     animation: none;
     opacity: 0.55;
     filter: blur(8px);
+  }
+
+  .glowing-shadow--card::before,
+  .glowing-shadow--card:hover::before,
+  .glowing-shadow--card:focus-visible::before,
+  .focus-rail-card:hover .glowing-shadow--card::before,
+  .focus-rail-card:focus-visible .glowing-shadow--card::before {
+    animation: none;
+    filter: blur(10px);
+  }
+
+  .glowing-shadow--card:hover::before,
+  .glowing-shadow--card:focus-visible::before,
+  .focus-rail-card:hover .glowing-shadow--card::before,
+  .focus-rail-card:focus-visible .glowing-shadow--card::before {
+    opacity: 0.7;
   }
 }

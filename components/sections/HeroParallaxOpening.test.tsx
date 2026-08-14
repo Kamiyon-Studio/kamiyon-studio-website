@@ -6,6 +6,7 @@ import {
   HERO_PARALLAX_BRAND_Y_PERCENT,
   HERO_PARALLAX_KEY_PREFIX,
   HERO_PARALLAX_LAYERS,
+  HERO_PROJECTS_SEAM_SVH,
   type ResolvedHeroParallaxLayer,
 } from "@/lib/home/hero-parallax-layers";
 import type { PartnerPlaceholder } from "@/lib/home/partner-placeholders";
@@ -78,7 +79,11 @@ const layers: ResolvedHeroParallaxLayer[] = HERO_PARALLAX_LAYERS.map((layer) => 
   src: `https://media.kamiyonstudio.com/${HERO_PARALLAX_KEY_PREFIX}/${layer.file}`,
   ...(layer.video
     ? {
-        webmSrc: `https://media.kamiyonstudio.com/${HERO_PARALLAX_KEY_PREFIX}/${layer.video.webm}`,
+        ...(layer.video.webm
+          ? {
+              webmSrc: `https://media.kamiyonstudio.com/${HERO_PARALLAX_KEY_PREFIX}/${layer.video.webm}`,
+            }
+          : {}),
         mp4Src: `https://media.kamiyonstudio.com/${HERO_PARALLAX_KEY_PREFIX}/${layer.video.mp4}`,
       }
     : {}),
@@ -118,6 +123,34 @@ describe("HeroParallaxOpening", () => {
     expect(container.querySelector("[data-opening-curtain]")).toBeInTheDocument();
   });
 
+  it("pins every plate to the viewport top so the sky is not cropped", () => {
+    const { container } = renderHero();
+
+    const plates = Array.from(
+      container.querySelectorAll("[data-testid^='hero-parallax-plate-']"),
+    );
+    expect(plates).not.toHaveLength(0);
+
+    for (const plate of plates) {
+      expect(plate).toHaveClass("top-0");
+      expect(plate.className).not.toMatch(/-top-\[18%\]/);
+      expect(plate.querySelector("img")).toHaveClass("object-top");
+      expect(plate.querySelector("img")?.className ?? "").not.toMatch(
+        /object-\[center_62%\]/,
+      );
+    }
+  });
+
+  it("hangs the planted cliff into Recent Projects so the earth can tuck under it", () => {
+    const { container } = renderHero();
+    const section = container.querySelector("section");
+
+    expect(section).toHaveClass("z-10");
+    expect(section).toHaveStyle({
+      paddingBottom: `${HERO_PROJECTS_SEAM_SVH}svh`,
+    });
+  });
+
   it("renders one plate per configured layer", () => {
     const { container } = renderHero();
 
@@ -133,7 +166,7 @@ describe("HeroParallaxOpening", () => {
     }
   });
 
-  it("uses the WebP as a freeze-frame and plays WebM or MP4 on motion plates", () => {
+  it("uses the freeze-frame and plays MP4 on the landscape plate", () => {
     const { container } = renderHero();
 
     for (const layer of HERO_PARALLAX_LAYERS) {
@@ -148,20 +181,15 @@ describe("HeroParallaxOpening", () => {
         expect(video).toHaveProperty("muted", true);
         expect(video).toHaveAttribute("loop");
         expect(video).toHaveAttribute("playsinline");
-        expect(video?.querySelector("source[type='video/webm']")?.getAttribute("src")).toContain(
-          layer.video.webm,
-        );
+        expect(video?.querySelector("source[type='video/webm']")).toBeNull();
         expect(video?.querySelector("source[type='video/mp4']")?.getAttribute("src")).toContain(
           layer.video.mp4,
         );
         const sourceTypes = Array.from(video?.querySelectorAll("source") ?? []).map((node) =>
           node.getAttribute("type"),
         );
-        expect(sourceTypes).toEqual(["video/webm", "video/mp4"]);
-        expect(video?.getAttribute("style")).toContain(`url("${
-          layers.find((resolved) => resolved.depth === layer.depth)?.src
-        }")`);
-        expect(video?.getAttribute("style")).toMatch(/mask-image/i);
+        expect(sourceTypes).toEqual(["video/mp4"]);
+        expect(video?.getAttribute("style") ?? "").not.toMatch(/mask-image/i);
       } else {
         expect(video).toBeNull();
       }
@@ -172,7 +200,10 @@ describe("HeroParallaxOpening", () => {
     const { container } = renderHero();
 
     expect(container.querySelector("[data-testid='hero-parallax-underlay']")).toBeNull();
-    expect(container.querySelector('img[src*="background.webp"]')).toBeNull();
+    const imageSrcs = Array.from(container.querySelectorAll("img")).map(
+      (node) => decodeURIComponent(node.getAttribute("src") ?? ""),
+    );
+    expect(imageSrcs.some((src) => src.includes("/ground.avif"))).toBe(false);
   });
 
   it("marks plates as decorative so the wordmark carries the accessible name", () => {
@@ -192,7 +223,7 @@ describe("HeroParallaxOpening", () => {
   it("stacks the wordmark behind the nearest plate so the foreground occludes it", () => {
     const { container } = renderHero();
 
-    expect(layerOrder(container)).toEqual(["1", "2", "3", "brand", "4"]);
+    expect(layerOrder(container)).toEqual(["1", "brand", "2"]);
   });
 
   it("renders the wordmark and motto inside the wordmark plate", () => {
@@ -206,15 +237,19 @@ describe("HeroParallaxOpening", () => {
     expect(brandLayer).toContainElement(screen.getByText(SITE_MOTTO));
   });
 
+  it("does not put a charcoal drop-shadow scrim behind the wordmark", () => {
+    const { container } = renderHero();
+
+    expect(container.querySelector("[data-testid='hero-brand-scrim']")).toBeNull();
+  });
+
   it("drives every plate plus the wordmark from the layered parallax hook", () => {
     renderHero();
 
     expect(layeredParallaxMock).toHaveBeenCalledTimes(1);
     expect(layeredParallaxMock.mock.calls[0]?.[0]).toEqual([
       { layer: "1", yPercent: 70 },
-      { layer: "2", yPercent: 55 },
-      { layer: "3", yPercent: 40 },
-      { layer: "4", yPercent: 0 },
+      { layer: "2", yPercent: 0 },
       { layer: "brand", yPercent: HERO_PARALLAX_BRAND_Y_PERCENT },
     ]);
   });

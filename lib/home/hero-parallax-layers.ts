@@ -5,24 +5,29 @@ import { buildMediaPublicUrl } from "@/lib/cms/media";
  * R2 key prefix for the hero parallax plates. The version segment lets a new
  * set of plates ship without waiting out CDN caches on the old keys.
  */
-export const HERO_PARALLAX_KEY_PREFIX = "site/hero/parallax/v2";
+export const HERO_PARALLAX_KEY_PREFIX = "site/hero/parallax/v3";
 
 /**
- * Intrinsic size of every plate. All four share one size on purpose: the layers
- * are cropped identically by `object-cover`, so a mismatch would slide them out
- * of register with each other.
+ * Intrinsic size of the stack. Foreground and ground share this; the video
+ * freeze-frame is the same aspect and is cropped by the shared `object-cover`.
  */
 export const HERO_PARALLAX_LAYER_WIDTH = 1920;
 export const HERO_PARALLAX_LAYER_HEIGHT = 1080;
 
-/** Earth cross-section used as the Recent Projects section backdrop. */
-export const HERO_PARALLAX_BACKGROUND_FILE = "background.webp";
+/** Earth plate used as the Recent Projects section backdrop. */
+export const HERO_PARALLAX_BACKGROUND_FILE = "ground.avif";
 
-/** Shared crop so stills, videos, and video masks stay in register. */
-export const HERO_PARALLAX_OBJECT_POSITION = "center 62%";
+/** Shared crop so stills and video stay in register. Pin the sky to the viewport top. */
+export const HERO_PARALLAX_OBJECT_POSITION = "center top";
+
+/**
+ * How far the planted cliff hangs into Recent Projects, in `svh`.
+ * Hero padding and the projects pull-up must stay in lockstep.
+ */
+export const HERO_PROJECTS_SEAM_SVH = 18;
 
 export type HeroParallaxVideoFiles = {
-  webm: string;
+  webm?: string;
   mp4: string;
 };
 
@@ -41,8 +46,8 @@ export type HeroParallaxLayer = {
    */
   yPercent: number;
   /**
-   * Optional motion plate. The WebP freeze-frame stays on screen until a
-   * browser plays one of these two files — never a third movie.
+   * Optional motion plate. The still is the freeze-frame until (or instead of)
+   * the video — never a second movie.
    */
   video?: HeroParallaxVideoFiles;
 };
@@ -50,25 +55,22 @@ export type HeroParallaxLayer = {
 export const HERO_PARALLAX_LAYERS: readonly HeroParallaxLayer[] = [
   {
     depth: 1,
-    file: "layer-1.webp",
-    subject: "Color and clouds",
+    file: "fallback.avif",
+    subject: "Sunset landscape video freeze-frame",
     yPercent: 70,
-    video: { webm: "layer-1.webm", mp4: "layer-1.mp4" },
+    video: { mp4: "homepage.mp4" },
   },
-  { depth: 2, file: "layer-2.webp", subject: "Mountain range", yPercent: 55 },
   {
-    depth: 3,
-    file: "layer-3.webp",
-    subject: "Ocean and islets",
-    yPercent: 40,
-    video: { webm: "layer-3.webm", mp4: "layer-3.mp4" },
+    depth: 2,
+    file: "foreground.avif",
+    subject: "Grassy cliff foreground",
+    yPercent: 0,
   },
-  { depth: 4, file: "layer-4.webp", subject: "Foreground rocks and pagoda", yPercent: 0 },
 ];
 
 /**
- * Travel for the wordmark plate. Sits between the ocean and the foreground so
- * the nearest plate rises over the wordmark as the hero exits.
+ * Travel for the wordmark plate. Sits between the video and the planted
+ * foreground so the cliff rises over the wordmark as the hero exits.
  */
 export const HERO_PARALLAX_BRAND_Y_PERCENT = 25;
 
@@ -97,9 +99,8 @@ export type HeroParallaxVideoMaskStyle = {
 /**
  * CSS mask that keeps a motion plate's transparent regions empty.
  *
- * The WebM/MP4 files are composited over black. Without this mask those black
- * pixels sit on top of the sky and mountains. The freeze-frame WebP already has
- * the correct alpha, so it is reused as the mask.
+ * Kept for plates whose video is composited over black. The v3 homepage video
+ * is a full opaque scene, so the hero does not apply this mask.
  */
 export function heroParallaxVideoMaskStyle(stillSrc: string): HeroParallaxVideoMaskStyle {
   const mask = `url("${stillSrc}")`;
@@ -128,13 +129,17 @@ function resolveVideoUrls(
     return {};
   }
 
-  const webmSrc = resolveParallaxFileUrl(video.webm);
   const mp4Src = resolveParallaxFileUrl(video.mp4);
-  if (!webmSrc || !mp4Src) {
+  if (!mp4Src) {
     return {};
   }
 
-  return { webmSrc, mp4Src };
+  const webmSrc = video.webm ? resolveParallaxFileUrl(video.webm) ?? undefined : undefined;
+
+  return {
+    mp4Src,
+    ...(webmSrc ? { webmSrc } : {}),
+  };
 }
 
 /**

@@ -24,6 +24,7 @@ export function isMediaTarget(value: string): value is MediaTarget {
 export const IMMUTABLE_CACHE_CONTROL = "public, max-age=31536000, immutable";
 
 const CONTENT_TYPES: Record<string, string> = {
+  ".avif": "image/avif",
   ".webp": "image/webp",
   ".png": "image/png",
   ".jpg": "image/jpeg",

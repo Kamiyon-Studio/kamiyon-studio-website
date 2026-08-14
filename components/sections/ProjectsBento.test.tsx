@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { caseStudiesFallback } from "@/lib/cms/fallbacks";
 import type { CaseStudy } from "@/lib/cms/types";
+import { HERO_PROJECTS_SEAM_SVH } from "@/lib/home/hero-parallax-layers";
 
 vi.mock("@/lib/cms/image", () => ({
   getCmsImageUrl: vi.fn(() => null),
@@ -83,15 +84,37 @@ describe("ProjectsBento", () => {
     const { container } = render(
       <ProjectsBento
         caseStudies={[]}
-        backgroundSrc="https://media.kamiyonstudio.com/site/hero/parallax/v2/background.webp"
+        backgroundSrc="https://media.kamiyonstudio.com/site/hero/parallax/v3/ground.avif"
       />,
     );
 
     const underlay = container.querySelector(
       "[data-testid='home-projects-background'] img",
     );
-    expect(underlay?.getAttribute("src")).toContain("background.webp");
+    expect(underlay?.getAttribute("src")).toContain("ground.avif");
     expect(underlay).toHaveAttribute("alt", "");
+  });
+
+  it("tucks the earth plate under the hero cliff and fades it in", () => {
+    const { container } = render(
+      <ProjectsBento
+        caseStudies={[]}
+        backgroundSrc="https://media.kamiyonstudio.com/site/hero/parallax/v3/ground.avif"
+      />,
+    );
+
+    const section = container.querySelector("#home-projects");
+    expect(section).toHaveStyle({
+      marginTop: `-${HERO_PROJECTS_SEAM_SVH}svh`,
+      paddingTop: `calc(${HERO_PROJECTS_SEAM_SVH}svh + 2.5rem)`,
+    });
+
+    const underlay = container.querySelector(
+      "[data-testid='home-projects-background']",
+    );
+    const style = underlay?.getAttribute("style") ?? "";
+    expect(style).toMatch(/mask-image/i);
+    expect(style).toContain(`${HERO_PROJECTS_SEAM_SVH}svh`);
   });
 
   it("keeps the original section fill when no earth plate is provided", () => {

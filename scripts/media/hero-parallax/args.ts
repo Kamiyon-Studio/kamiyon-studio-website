@@ -9,7 +9,7 @@ export const DEFAULT_OUT_DIR = ".cache/hero-parallax";
 export const ALL_TARGETS: readonly MediaTarget[] = ["staging", "production"];
 
 export type HeroParallaxCliOptions = {
-  /** Directory holding the raw `layer-<n>` exports. */
+  /** Directory holding the named stills (fallback/foreground/ground) and homepage.mp4. */
   sourceDir: string;
   /** Where keyed plates and the preview composite are written. */
   outDir: string;
@@ -67,7 +67,7 @@ export function parseHeroParallaxArgs(argv: readonly string[]): HeroParallaxCliO
 
   if (!sourceDir) {
     throw new Error(
-      "Missing --source <dir>. Point it at the directory holding the raw layer-1..layer-4 exports.",
+      "Missing --source <dir>. Point it at the directory holding fallback/foreground/ground stills and homepage.mp4.",
     );
   }
 
