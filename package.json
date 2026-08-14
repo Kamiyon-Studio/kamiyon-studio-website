@@ -36,6 +36,7 @@
     "@fortawesome/react-fontawesome": "^3.5.0",
     "@gsap/react": "^2.1.2",
     "@opennextjs/cloudflare": "^1.20.2",
+    "@radix-ui/react-avatar": "^1.2.6",
     "@sanity/client": "^7.24.0",
     "@sanity/image-url": "^2.1.1",
     "clsx": "^2.1.1",

@@ -102,6 +102,14 @@ describe("TeamGrid", () => {
     expect(container.querySelector("#team")).not.toBeNull();
   });
 
+  it("does not paint a grey secondary section background", () => {
+    const { container } = render(<TeamGrid teamMembers={members} />);
+    const section = container.querySelector("#team");
+
+    expect(section?.className).not.toMatch(/bg-\[var\(--bg-secondary\)\]/);
+    expect(section?.className).not.toMatch(/bg-neutral-/);
+  });
+
   it("renders duplicate-name members with unique keys via _id", () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
     const duplicateNames: TeamMember[] = [

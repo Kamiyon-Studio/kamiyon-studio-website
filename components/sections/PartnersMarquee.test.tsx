@@ -127,15 +127,15 @@ describe("PartnersMarquee", () => {
     expect(screen.queryByRole("group")).not.toBeInTheDocument();
   });
 
-  it("defaults to section layout on light: secondary background, large padding, light nav theme", () => {
+  it("defaults to section layout: secondary background, homepage padding, dark nav theme", () => {
     render(<PartnersMarquee />);
 
     const section = screen.getByRole("region", { name: "Partner logos" });
     expect(section.id).toBe("home-partners");
-    expect(section.getAttribute("data-nav-theme")).toBe("light");
+    expect(section.getAttribute("data-nav-theme")).toBe("dark");
     expect(section.className).toMatch(/bg-\[var\(--bg-secondary\)\]/);
-    expect(section.className).toMatch(/py-12/);
-    expect(section.className).toMatch(/md:py-16/);
+    expect(section.className).toMatch(/py-16/);
+    expect(section.className).toMatch(/md:py-24/);
   });
 
   it("band layout uses compact dark band without secondary background or large padding", () => {

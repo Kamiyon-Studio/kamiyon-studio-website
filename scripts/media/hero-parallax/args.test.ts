@@ -122,6 +122,7 @@ describe("buildWranglerPutArgs", () => {
 
 describe("contentTypeForFile", () => {
   it("maps plate extensions to the MIME type R2 should serve", () => {
+    expect(contentTypeForFile("fallback.avif")).toBe("image/avif");
     expect(contentTypeForFile("layer-1.webp")).toBe("image/webp");
     expect(contentTypeForFile("layer-1.webm")).toBe("video/webm");
     expect(contentTypeForFile("layer-1.mp4")).toBe("video/mp4");

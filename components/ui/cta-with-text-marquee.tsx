@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import {
-  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
   type ReactNode,
   useEffect,
   useRef,
@@ -38,6 +38,23 @@ type VerticalMarqueeProps = {
   speed?: number;
 };
 
+const DRAG_CLICK_THRESHOLD_PX = 8;
+
+function wrapOffset(offset: number, trackHeight: number): number {
+  if (trackHeight <= 0) {
+    return offset;
+  }
+
+  let next = offset;
+  while (next <= -trackHeight) {
+    next += trackHeight;
+  }
+  while (next > 0) {
+    next -= trackHeight;
+  }
+  return next;
+}
+
 function VerticalMarquee({
   children,
   clone,
@@ -46,24 +63,148 @@ function VerticalMarquee({
   className,
   speed = 30,
 }: VerticalMarqueeProps) {
-  const trackClassName = cn(
-    "flex shrink-0 flex-col animate-marquee-vertical motion-reduce:animate-none",
-    reverse && "[animation-direction:reverse]",
-    pauseOnHover && "group-hover/marquee:[animation-play-state:paused]",
-  );
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const firstLaneRef = useRef<HTMLDivElement>(null);
+  const offsetRef = useRef(0);
+  const draggingRef = useRef(false);
+  const didDragRef = useRef(false);
+  const suppressClickRef = useRef(false);
+  const hoveringRef = useRef(false);
+  const lastYRef = useRef(0);
+  const startYRef = useRef(0);
+  const lastTimeRef = useRef(0);
+  const [grabbing, setGrabbing] = useState(false);
+
+  const applyTransform = () => {
+    const track = trackRef.current;
+    if (!track) {
+      return;
+    }
+    track.style.transform = `translate3d(0, ${offsetRef.current}px, 0)`;
+  };
+
+  useEffect(() => {
+    let frameId = 0;
+
+    const tick = (time: number) => {
+      const dt = lastTimeRef.current === 0 ? 0 : time - lastTimeRef.current;
+      lastTimeRef.current = time;
+
+      const trackHeight = firstLaneRef.current?.offsetHeight ?? 0;
+      const paused =
+        draggingRef.current || (pauseOnHover && hoveringRef.current);
+
+      if (!paused && trackHeight > 0) {
+        const pxPerMs = trackHeight / (speed * 1000);
+        offsetRef.current += reverse ? pxPerMs * dt : -pxPerMs * dt;
+      }
+
+      offsetRef.current = wrapOffset(offsetRef.current, trackHeight);
+      applyTransform();
+      frameId = requestAnimationFrame(tick);
+    };
+
+    frameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameId);
+  }, [pauseOnHover, reverse, speed]);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) {
+      return;
+    }
+
+    const onClickCapture = (event: MouseEvent) => {
+      if (!suppressClickRef.current) {
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+      suppressClickRef.current = false;
+    };
+
+    viewport.addEventListener("click", onClickCapture, true);
+    return () => viewport.removeEventListener("click", onClickCapture, true);
+  }, []);
+
+  const endDrag = () => {
+    if (!draggingRef.current) {
+      return;
+    }
+    draggingRef.current = false;
+    setGrabbing(false);
+    if (didDragRef.current) {
+      suppressClickRef.current = true;
+      window.setTimeout(() => {
+        suppressClickRef.current = false;
+      }, 50);
+    }
+  };
+
+  const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0) {
+      return;
+    }
+    draggingRef.current = true;
+    didDragRef.current = false;
+    lastYRef.current = event.clientY;
+    startYRef.current = event.clientY;
+    setGrabbing(true);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!draggingRef.current) {
+      return;
+    }
+
+    const deltaY = event.clientY - lastYRef.current;
+    lastYRef.current = event.clientY;
+    offsetRef.current += deltaY;
+
+    if (Math.abs(event.clientY - startYRef.current) >= DRAG_CLICK_THRESHOLD_PX) {
+      didDragRef.current = true;
+    }
+
+    const trackHeight = firstLaneRef.current?.offsetHeight ?? 0;
+    offsetRef.current = wrapOffset(offsetRef.current, trackHeight);
+    applyTransform();
+  };
 
   return (
     <div
-      className={cn("group/marquee flex flex-col overflow-hidden", className)}
-      style={
-        {
-          "--duration": `${speed}s`,
-        } as CSSProperties
-      }
+      ref={viewportRef}
+      data-testid="vertical-marquee"
+      data-draggable="true"
+      className={cn(
+        "group/marquee flex flex-col overflow-hidden select-none touch-none",
+        grabbing ? "cursor-grabbing" : "cursor-grab",
+        className,
+      )}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
+      onLostPointerCapture={endDrag}
+      onPointerEnter={() => {
+        hoveringRef.current = true;
+      }}
+      onPointerLeave={() => {
+        hoveringRef.current = false;
+      }}
     >
-      <div className={trackClassName}>{children}</div>
-      <div className={trackClassName} aria-hidden="true">
-        {clone ?? children}
+      <div ref={trackRef} data-testid="vertical-marquee-track" className="flex flex-col will-change-transform">
+        <div ref={firstLaneRef} data-testid="vertical-marquee-items" className="flex shrink-0 flex-col">
+          {children}
+        </div>
+        <div
+          data-testid="vertical-marquee-clone"
+          className="flex shrink-0 flex-col"
+          aria-hidden="true"
+        >
+          {clone ?? children}
+        </div>
       </div>
     </div>
   );

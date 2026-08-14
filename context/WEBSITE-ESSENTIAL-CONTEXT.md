@@ -208,14 +208,14 @@ Separate chrome CTA: **Get in touch** → interim Google Form URL (unchanged).
 | Type | Kind | Notes |
 | --- | --- | --- |
 | `siteSettings` | Singleton | Name, tagline, socials, default SEO, footer |
-| `homePage` | Singleton | Named fields (not `blocks[]`): `title`, `partners[]`, `portfolioItems[]`, `awards[]`, `testimonials[]`, `services[]`, `contactCta`, `seo` — Hero UI + partners remain without hero CMS copy; empty refs = nothing (ADR-030). Testimonials: empty **or** CMS-null hides (ADR-031; no quote fallbacks) |
+| `homePage` | Singleton | Named fields (not `blocks[]`): `title`, `partners[]`, `portfolioItems[]`, `awards[]`, `testimonials[]`, `services[]`, `contactCta`, `seo` — Hero UI remains without hero CMS copy; partners render as a standalone Home section between projects and recognition (ADR-036); empty refs = nothing (ADR-030). **TestimonialsMarquee is hidden** on Home (ADR-035; `testimonials[]` + component kept) |
 | `aboutPage` | Singleton | Story, timeline, team. Mission/Vision/Motto/`values`/`cultureSummary`/`teamIntro` stay in CMS; **WhoWeAreBand is hidden** on `/about` (ADR-034). Archived VisionBand/ValuesGrid/CultureClosing not restored |
 | `contactPage` | Singleton | Intro, channels, FAQ, form settings copy |
 | `teamMember` | Document | Order, role, R2 photo, `socialLinks[]`, `isPlaceholder` |
 | `service` | Document | Flat Gate 0 five; `tagline` + `capabilities` (no category) |
 | `portfolio` | Document | Challenge / solution / impact, `serviceType`, gallery, featured |
 | `partner` | Document | Home marquee |
-| `testimonial` | Document | Home kind-words band (ADR-031); `quote` + `name` required; optional `role` + R2 `photo`; no placeholders / no seed quotes |
+| `testimonial` | Document | Home kind-words band (ADR-031); **hidden on Home** (ADR-035). `quote` + `name` required; optional `role` + R2 `photo`; no placeholders / no seed quotes |
 | `post` | Document | Authors → `teamMember`; categories/tags as string taxonomies |
 | `r2Asset` (or object) | Object/doc | `url` / `key`, alt — **no binary in Sanity** |
 | Shared | Objects | `seoMetadata`, `cta`, `socialLink`, portable text |

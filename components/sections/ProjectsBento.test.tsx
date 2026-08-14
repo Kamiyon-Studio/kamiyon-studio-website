@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { caseStudiesFallback } from "@/lib/cms/fallbacks";
 import type { CaseStudy } from "@/lib/cms/types";
+import { HERO_PROJECTS_SEAM_SVH } from "@/lib/home/hero-parallax-layers";
 
 vi.mock("@/lib/cms/image", () => ({
   getCmsImageUrl: vi.fn(() => null),
@@ -83,15 +84,37 @@ describe("ProjectsBento", () => {
     const { container } = render(
       <ProjectsBento
         caseStudies={[]}
-        backgroundSrc="https://media.kamiyonstudio.com/site/hero/parallax/v2/background.webp"
+        backgroundSrc="https://media.kamiyonstudio.com/site/hero/parallax/v3/ground.avif"
       />,
     );
 
     const underlay = container.querySelector(
       "[data-testid='home-projects-background'] img",
     );
-    expect(underlay?.getAttribute("src")).toContain("background.webp");
+    expect(underlay?.getAttribute("src")).toContain("ground.avif");
     expect(underlay).toHaveAttribute("alt", "");
+  });
+
+  it("tucks the earth plate under the hero cliff and fades it in", () => {
+    const { container } = render(
+      <ProjectsBento
+        caseStudies={[]}
+        backgroundSrc="https://media.kamiyonstudio.com/site/hero/parallax/v3/ground.avif"
+      />,
+    );
+
+    const section = container.querySelector("#home-projects");
+    expect(section).toHaveStyle({
+      marginTop: `-${HERO_PROJECTS_SEAM_SVH}svh`,
+      paddingTop: `calc(${HERO_PROJECTS_SEAM_SVH}svh + 2.5rem)`,
+    });
+
+    const underlay = container.querySelector(
+      "[data-testid='home-projects-background']",
+    );
+    const style = underlay?.getAttribute("style") ?? "";
+    expect(style).toMatch(/mask-image/i);
+    expect(style).toContain(`${HERO_PROJECTS_SEAM_SVH}svh`);
   });
 
   it("keeps the original section fill when no earth plate is provided", () => {
@@ -103,39 +126,26 @@ describe("ProjectsBento", () => {
     expect(container.querySelector("#home-projects")).toHaveClass("bg-[var(--bg-primary)]");
   });
 
-  it("renders eight bento slots with honest placeholders when no case studies exist", () => {
+  it("hides the carousel when no case studies exist", () => {
     render(<ProjectsBento caseStudies={[]} />);
 
-    expect(screen.getAllByText("Project coming soon")).toHaveLength(8);
+    expect(screen.queryByRole("link", { name: /Eclipse/ })).not.toBeInTheDocument();
+    expect(screen.queryByText("Project coming soon")).not.toBeInTheDocument();
   });
 
-  it("places the featured fallback case study in a large slot and fills the rest with placeholders", () => {
+  it("shows fallback case studies in the carousel", () => {
     render(<ProjectsBento caseStudies={caseStudiesFallback} />);
 
-    expect(
-      screen.getByRole("link", { name: /Sample Client Project — Placeholder/ })
-    ).toHaveAttribute("href", "/portfolio/sample-client-project-placeholder");
     expect(screen.getByRole("link", { name: /Eclipse/ })).toHaveAttribute(
       "href",
-      "/portfolio/eclipse"
+      "/portfolio/eclipse",
     );
-    expect(screen.getAllByText("Project coming soon")).toHaveLength(6);
+    expect(
+      screen.getByRole("button", { name: /Sample Client Project — Placeholder/ }),
+    ).toBeInTheDocument();
   });
 
-  it("uses a two-column row for large cards and three-column rows for small cards", () => {
-    const { container } = render(<ProjectsBento caseStudies={caseStudiesFallback} />);
-
-    const largeRow = container.querySelector('[data-bento-row="large"]');
-    const smallRows = container.querySelectorAll('[data-bento-row="small"]');
-
-    expect(largeRow?.className).toMatch(/grid-cols-2/);
-    expect(smallRows).toHaveLength(2);
-    for (const row of smallRows) {
-      expect(row.className).toMatch(/grid-cols-3/);
-    }
-  });
-
-  it("prioritizes featured case studies into the bento layout", () => {
+  it("prioritizes featured case studies as the active slide", () => {
     const caseStudies = [
       makeCaseStudy({ slug: "regular", title: "Regular project", featured: false }),
       makeCaseStudy({ slug: "featured", title: "Featured project", featured: true }),
@@ -143,7 +153,10 @@ describe("ProjectsBento", () => {
 
     render(<ProjectsBento caseStudies={caseStudies} />);
 
-    expect(screen.getByRole("link", { name: /Featured project/ })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Regular project/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Featured project/ })).toHaveAttribute(
+      "href",
+      "/portfolio/featured",
+    );
+    expect(screen.getByRole("button", { name: /Regular project/ })).toBeInTheDocument();
   });
 });

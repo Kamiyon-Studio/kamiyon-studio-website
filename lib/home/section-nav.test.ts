@@ -6,10 +6,9 @@ describe("HOME_SECTION_NAV", () => {
   it("lists unique section ids in home composition order", () => {
     expect(HOME_SECTION_NAV.map((item) => item.id)).toEqual([
       "home-hero",
-      "home-partners",
       "home-projects",
+      "home-partners",
       "home-recognition",
-      "home-testimonials",
       "home-services",
       "home-contact",
     ]);
@@ -21,10 +20,9 @@ describe("HOME_SECTION_NAV", () => {
   it("pairs each anchor with the expected label", () => {
     expect(HOME_SECTION_NAV.map((item) => item.label)).toEqual([
       "Hero",
-      "Trusted by",
       "Projects",
+      "Trusted by",
       "Recognition",
-      "Testimonials",
       "Services",
       "Contact",
     ]);

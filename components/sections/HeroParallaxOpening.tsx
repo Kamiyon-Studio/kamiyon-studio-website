@@ -4,7 +4,6 @@ import Image from "next/image";
 
 import { HeroBrand } from "@/components/sections/HeroBrand";
 import { HeroScrollHelper } from "@/components/sections/HeroScrollHelper";
-import { PartnersMarquee } from "@/components/sections/PartnersMarquee";
 import {
   useLayeredParallax,
   type ParallaxLayerMotion,
@@ -14,40 +13,32 @@ import {
   HERO_PARALLAX_BRAND_Y_PERCENT,
   HERO_PARALLAX_LAYER_HEIGHT,
   HERO_PARALLAX_LAYER_WIDTH,
-  heroParallaxVideoMaskStyle,
+  HERO_PROJECTS_SEAM_SVH,
+  heroProjectsSeamOverlayStyle,
   splitHeroParallaxLayers,
   type ResolvedHeroParallaxLayer,
 } from "@/lib/home/hero-parallax-layers";
-import type { PartnerPlaceholder } from "@/lib/home/partner-placeholders";
 
 type HeroParallaxOpeningProps = {
   layers: ResolvedHeroParallaxLayer[];
-  partners: PartnerPlaceholder[];
 };
 
 /** `data-parallax-layer` value for the wordmark plate. */
 const BRAND_LAYER = "brand";
 
 /**
- * Plates overhang the stage on both ends so the scrubbed travel never drags an
- * edge into view, and every plate shares one crop so they stay in register.
+ * Plates fill the stage from the top so the sky sits on the viewport edge.
+ * Extra height for parallax travel is not applied upward — that was cropping
+ * the top of the landscape.
  */
 const PLATE_CLASS =
-  "pointer-events-none absolute -top-[18%] left-0 h-[118%] w-full max-w-none will-change-transform";
+  "pointer-events-none absolute inset-x-0 top-0 h-full w-full max-w-none will-change-transform";
 
 const PLATE_MEDIA_CLASS =
-  "absolute inset-0 h-full w-full max-w-none object-cover object-[center_62%]";
+  "absolute inset-0 h-full w-full max-w-none object-cover object-top";
 
 /** Plates are 1920px wide; asking for more would only upscale the source. */
 const PLATE_SIZES = "(max-width: 1920px) 100vw, 1920px";
-
-/**
- * Halo behind the wordmark. `closest-side` puts the gradient's transparent stop
- * exactly on the nearest box edge, so the scrim's rectangle never shows up as a
- * seam over the artwork the way a `farthest-corner` ellipse does.
- */
-const BRAND_SCRIM_CLASS =
-  "pointer-events-none absolute -inset-x-[24%] -inset-y-[70%] -z-10 bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--color-charcoal)_88%,transparent)_0%,color-mix(in_srgb,var(--color-charcoal)_52%,transparent)_45%,transparent_100%)]";
 
 function muteHeroParallaxVideo(video: HTMLVideoElement | null): void {
   if (!video) {
@@ -59,7 +50,7 @@ function muteHeroParallaxVideo(video: HTMLVideoElement | null): void {
 }
 
 function ParallaxPlate({ layer }: { layer: ResolvedHeroParallaxLayer }) {
-  const hasVideo = Boolean(layer.webmSrc && layer.mp4Src);
+  const hasVideo = Boolean(layer.mp4Src);
 
   return (
     <div
@@ -87,10 +78,9 @@ function ParallaxPlate({ layer }: { layer: ResolvedHeroParallaxLayer }) {
           preload="auto"
           aria-hidden="true"
           disablePictureInPicture
-          style={heroParallaxVideoMaskStyle(layer.src)}
           ref={muteHeroParallaxVideo}
         >
-          <source src={layer.webmSrc} type="video/webm" />
+          {layer.webmSrc ? <source src={layer.webmSrc} type="video/webm" /> : null}
           <source src={layer.mp4Src} type="video/mp4" />
         </video>
       ) : null}
@@ -100,13 +90,11 @@ function ParallaxPlate({ layer }: { layer: ResolvedHeroParallaxLayer }) {
 
 /**
  * Full-bleed opening stage built from stacked R2 plates that drift apart on
- * scroll. Content matches the static opening: wordmark + motto upper, partners
- * band lower. The foreground plate is planted (no extra travel) so its ground
- * line can meet the Recent Projects earth plate.
+ * scroll. Content matches the static opening: wordmark + motto. Bottom padding
+ * keeps the handoff into Recent Projects (earth plate) aligned.
  */
 export function HeroParallaxOpening({
   layers,
-  partners,
 }: HeroParallaxOpeningProps) {
   const rootRef = useOpeningAnimation<HTMLElement>();
   const { behindBrand, inFrontOfBrand } = splitHeroParallaxLayers(layers);
@@ -123,7 +111,8 @@ export function HeroParallaxOpening({
       ref={rootRef}
       data-nav-theme="dark"
       data-testid="hero-parallax-opening"
-      className="relative min-h-[100svh] scroll-mt-0 overflow-hidden bg-[var(--color-charcoal)]"
+      className="relative z-10 min-h-[100svh] scroll-mt-0 overflow-hidden bg-[var(--color-charcoal)]"
+      style={{ paddingBottom: `${HERO_PROJECTS_SEAM_SVH}svh` }}
       aria-label="Studio opening"
     >
       <div
@@ -148,23 +137,19 @@ export function HeroParallaxOpening({
           data-testid="hero-brand-zone"
           className="absolute inset-x-0 top-0 flex h-[100svh] flex-col items-center justify-center px-6 pb-[22vh] text-center will-change-transform"
         >
-          <div className="relative isolate flex flex-col items-center">
-            {/*
-              Travels with the wordmark rather than the stage, so the motto keeps
-              its contrast wherever the scrub happens to put it over the artwork.
-            */}
-            <div
-              data-testid="hero-brand-scrim"
-              aria-hidden="true"
-              className={BRAND_SCRIM_CLASS}
-            />
-            <HeroBrand />
-          </div>
+          <HeroBrand />
         </div>
 
         {inFrontOfBrand.map((layer) => (
           <ParallaxPlate key={layer.depth} layer={layer} />
         ))}
+
+        <div
+          data-testid="hero-projects-seam"
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[1]"
+          style={heroProjectsSeamOverlayStyle()}
+        />
       </div>
 
       <div
@@ -178,19 +163,6 @@ export function HeroParallaxOpening({
         className="pointer-events-none relative z-10 flex min-h-[100svh] flex-col"
       >
         <HeroScrollHelper />
-        {/* Spacer: the wordmark lives in the plate stack, not in this column. */}
-        <div className="flex-1" aria-hidden="true" />
-        <div
-          data-testid="hero-partners-zone"
-          className="pointer-events-auto w-full shrink-0 pb-6 md:pb-8"
-        >
-          <PartnersMarquee
-            layout="band"
-            tone="onDark"
-            eyebrow="Trusted by"
-            partners={partners}
-          />
-        </div>
       </div>
     </section>
   );

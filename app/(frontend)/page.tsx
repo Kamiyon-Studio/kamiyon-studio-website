@@ -3,18 +3,17 @@ import type { Metadata } from "next";
 import { Hero } from "@/components/sections/Hero";
 import { HomeContact } from "@/components/sections/HomeContact";
 import { HomeScrollMarker } from "@/components/sections/HomeScrollMarker";
+import { PartnersMarquee } from "@/components/sections/PartnersMarquee";
 import { ProjectsBento } from "@/components/sections/ProjectsBento";
 import { RecognitionAwards } from "@/components/sections/RecognitionAwards";
 import {
   ServicesStack,
   type ServiceStackSlide,
 } from "@/components/sections/ServicesStack";
-import { TestimonialsMarquee } from "@/components/sections/TestimonialsMarquee";
 import {
   awardsFallback,
   homePageFallback,
   portfolioItemsFallback,
-  resolveHomeTestimonials,
   resolveWithFallback,
   servicesFallback,
 } from "@/lib/cms/fallbacks";
@@ -28,8 +27,9 @@ import {
 } from "@/lib/cms/queries";
 import { resolveHomeProjectsBackground } from "@/lib/home/hero-parallax-layers";
 import { PARTNER_PLACEHOLDERS } from "@/lib/home/partner-placeholders";
+import { pickServiceHoverImages } from "@/lib/portfolio/service-hover-images";
 import { buildPageMetadata } from "@/lib/seo/metadata";
-import type { HomeHero, HomePage, Service } from "@/lib/cms/types";
+import type { HomeHero, HomePage, Portfolio, Service } from "@/lib/cms/types";
 
 /** Static-path stub — parallax Hero ignores these fields. */
 const HERO_STUB: HomeHero = {
@@ -41,44 +41,52 @@ const HERO_STUB: HomeHero = {
 };
 
 async function getHomePageContent() {
-  const homeCms = await getHomePage();
+  const [homeCms, allPortfolioItems] = await Promise.all([
+    getHomePage(),
+    getPortfolioItems(),
+  ]);
 
   if (homeCms === null) {
     // CMS unreachable → keep existing resolveWithFallback placeholders.
-    const [portfolioItems, services, partners, awards] = await Promise.all([
-      getPortfolioItems(),
+    const [services, partners, awards] = await Promise.all([
       getServices(),
       getPartners(),
       getAwards(),
     ]);
 
+    const portfolioItems = resolveWithFallback(
+      allPortfolioItems,
+      portfolioItemsFallback,
+    );
+
     return {
       home: homePageFallback as HomePage,
-      portfolioItems: resolveWithFallback(portfolioItems, portfolioItemsFallback),
+      portfolioItems,
+      serviceHoverItems: portfolioItems,
       services: resolveWithFallback(services, servicesFallback),
       awards: resolveWithFallback(awards, awardsFallback),
       partners: resolveWithFallback(
         partners?.map(mapPartnerToMarqueeItem) ?? null,
         PARTNER_PLACEHOLDERS,
       ),
-      testimonials: resolveHomeTestimonials(null),
     };
   }
 
-  // CMS loaded singleton — named fields ONLY. Empty arrays stay empty,
-  // except testimonials: team-roster preview quotes fill the marquee until
-  // consented CMS quotes exist (ADR-031).
+  // CMS loaded singleton — named fields ONLY. Empty arrays stay empty.
   return {
     home: homeCms,
     portfolioItems: homeCms.portfolioItems,
+    serviceHoverItems: allPortfolioItems ?? homeCms.portfolioItems,
     services: homeCms.services,
     awards: homeCms.awards,
     partners: homeCms.partners.map(mapPartnerToMarqueeItem),
-    testimonials: resolveHomeTestimonials(homeCms.testimonials),
   };
 }
 
-function toServiceStackSlides(services: Service[]): ServiceStackSlide[] {
+function toServiceStackSlides(
+  services: Service[],
+  portfolioItems: Portfolio[],
+): ServiceStackSlide[] {
   return [...services]
     .sort((a, b) => a.order - b.order)
     .map((service) => ({
@@ -87,6 +95,7 @@ function toServiceStackSlides(services: Service[]): ServiceStackSlide[] {
       title: service.title,
       summary: service.tagline || service.summary,
       exploreHref: `/services/${service.slug.current}`,
+      images: pickServiceHoverImages(portfolioItems, service.slug.current),
     }));
 }
 
@@ -103,26 +112,27 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  const { home, portfolioItems, services, partners, awards, testimonials } =
+  const { home, portfolioItems, serviceHoverItems, services, partners, awards } =
     await getHomePageContent();
 
   const contact = home.contactCta ?? homePageFallback.contactCta;
-  const serviceSlides = toServiceStackSlides(services);
+  const serviceSlides = toServiceStackSlides(services, serviceHoverItems);
 
   return (
     <>
       <HomeScrollMarker />
-      <Hero hero={HERO_STUB} partners={partners} />
+      <Hero hero={HERO_STUB} />
       {portfolioItems.length > 0 ? (
         <ProjectsBento
           caseStudies={portfolioItems}
           backgroundSrc={resolveHomeProjectsBackground()}
         />
       ) : null}
-      {awards.length > 0 ? <RecognitionAwards awards={awards} /> : null}
-      {testimonials.length > 0 ? (
-        <TestimonialsMarquee testimonials={testimonials} />
+      {partners.length > 0 ? (
+        <PartnersMarquee eyebrow="Trusted by" partners={partners} />
       ) : null}
+      {awards.length > 0 ? <RecognitionAwards awards={awards} /> : null}
+      {/* TestimonialsMarquee kept in-repo; hidden on Home (ADR-035). */}
       {serviceSlides.length > 0 ? (
         <ServicesStack slides={serviceSlides} />
       ) : null}

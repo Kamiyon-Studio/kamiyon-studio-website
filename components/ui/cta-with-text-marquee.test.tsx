@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import CTAWithVerticalMarquee, {
@@ -66,6 +66,8 @@ describe("CTAWithVerticalMarquee", () => {
     mockMatchMedia(false);
     vi.spyOn(window, "requestAnimationFrame").mockImplementation(() => 1);
     vi.spyOn(window, "cancelAnimationFrame").mockImplementation(() => undefined);
+    HTMLElement.prototype.setPointerCapture = vi.fn();
+    HTMLElement.prototype.releasePointerCapture = vi.fn();
   });
 
   afterEach(() => {
@@ -114,17 +116,48 @@ describe("CTAWithVerticalMarquee", () => {
   });
 
   it("keeps duplicate marquee track non-interactive", () => {
-    const { container } = render(<CTAWithVerticalMarquee {...baseProps} />);
+    render(<CTAWithVerticalMarquee {...baseProps} />);
 
-    // Second animated track is aria-hidden for screen readers
-    const trackDivs = container.querySelectorAll(
-      ".animate-marquee-vertical[aria-hidden='true']",
-    );
-    expect(trackDivs.length).toBeGreaterThanOrEqual(1);
-    // None of the clone nodes should be focusable links
-    trackDivs.forEach((track) => {
-      expect(track.querySelectorAll("a")).toHaveLength(0);
-    });
+    const cloneTrack = screen.getByTestId("vertical-marquee-clone");
+    expect(cloneTrack).toHaveAttribute("aria-hidden", "true");
+    expect(cloneTrack.querySelectorAll("a")).toHaveLength(0);
+  });
+
+  it("exposes a draggable marquee viewport", () => {
+    render(<CTAWithVerticalMarquee {...baseProps} />);
+
+    const marquee = screen.getByTestId("vertical-marquee");
+    expect(marquee).toHaveAttribute("data-draggable", "true");
+    expect(marquee.className).toMatch(/cursor-grab/);
+  });
+
+  it("translates the track while dragging", () => {
+    render(<CTAWithVerticalMarquee {...baseProps} />);
+
+    const marquee = screen.getByTestId("vertical-marquee");
+    const track = screen.getByTestId("vertical-marquee-track");
+
+    fireEvent.pointerDown(marquee, { clientY: 200, pointerId: 1 });
+    fireEvent.pointerMove(marquee, { clientY: 260, pointerId: 1 });
+
+    expect(track.style.transform).toContain("60px");
+    expect(marquee.className).toMatch(/cursor-grabbing/);
+  });
+
+  it("does not follow a link after a drag gesture", () => {
+    render(<CTAWithVerticalMarquee {...baseProps} />);
+
+    const marquee = screen.getByTestId("vertical-marquee");
+    const link = screen.getByRole("link", { name: "Game Development" });
+    const click = vi.fn();
+    link.addEventListener("click", click);
+
+    fireEvent.pointerDown(marquee, { clientY: 200, pointerId: 1 });
+    fireEvent.pointerMove(marquee, { clientY: 240, pointerId: 1 });
+    fireEvent.pointerUp(marquee, { clientY: 240, pointerId: 1 });
+    fireEvent.click(link);
+
+    expect(click).not.toHaveBeenCalled();
   });
 
   it("renders a static link list when prefers-reduced-motion is set", () => {
@@ -152,16 +185,13 @@ describe("CTAWithVerticalMarquee", () => {
     });
 
     it("renders images in the interactive track when item has images", () => {
-      const { container } = render(
+      render(
         <CTAWithVerticalMarquee {...baseProps} items={itemsWithImages} />,
       );
 
-      // Images live inside the first (interactive) track only
-      const interactiveTrack = container.querySelector(
-        ".animate-marquee-vertical:not([aria-hidden])",
-      );
-      const imgs = interactiveTrack?.querySelectorAll("img") ?? [];
-      expect(imgs.length).toBe(2);
+      const interactiveTrack = screen.getByTestId("vertical-marquee-items");
+      const imgs = interactiveTrack.querySelectorAll("img");
+      expect(imgs).toHaveLength(2);
       // DOM order: back (images[1]) then front (images[0])
       expect(imgs[0]).toHaveAttribute("src", "/img-back.jpg");
       expect(imgs[1]).toHaveAttribute("src", "/img-front.jpg");
@@ -183,14 +213,12 @@ describe("CTAWithVerticalMarquee", () => {
     });
 
     it("keeps clone track image-free when decorative mode is used", () => {
-      const { container } = render(
+      render(
         <CTAWithVerticalMarquee {...baseProps} items={itemsWithImages} />,
       );
 
-      const cloneTrack = container.querySelector(
-        ".animate-marquee-vertical[aria-hidden='true']",
-      );
-      expect(cloneTrack?.querySelectorAll("img")).toHaveLength(0);
+      const cloneTrack = screen.getByTestId("vertical-marquee-clone");
+      expect(cloneTrack.querySelectorAll("img")).toHaveLength(0);
     });
   });
 });

@@ -62,6 +62,7 @@ export function RevealImageListItem({
           <img
             alt=""
             src={backImage.src}
+            draggable={false}
             className="h-full w-full object-cover"
           />
         </div>
@@ -77,6 +78,7 @@ export function RevealImageListItem({
           <img
             alt=""
             src={frontImage.src}
+            draggable={false}
             className="h-full w-full object-cover"
           />
         </div>

@@ -108,4 +108,45 @@ describe("ServicesStack", () => {
       "/contact",
     );
   });
+
+  it("does not fall back to stock Unsplash images", () => {
+    const { container } = render(<ServicesStack slides={slides} />);
+
+    const srcs = [...container.querySelectorAll("img")].map(
+      (img) => img.getAttribute("src") ?? "",
+    );
+    expect(srcs.every((src) => !src.includes("unsplash"))).toBe(true);
+  });
+
+  it("uses slide images from portfolio photos for the hover reveal", () => {
+    const slidesWithPhotos: ServiceStackSlide[] = [
+      {
+        ...slides[0],
+        images: [
+          {
+            src: "https://media.kamiyonstudio.com/eclipse-cover.png",
+            alt: "Eclipse cover",
+          },
+          {
+            src: "https://media.kamiyonstudio.com/eclipse-1.png",
+            alt: "Eclipse shot",
+          },
+        ],
+      },
+      ...slides.slice(1),
+    ];
+
+    render(<ServicesStack slides={slidesWithPhotos} />);
+
+    const interactiveTrack = screen.getByTestId("vertical-marquee-items");
+    const imgs = interactiveTrack.querySelectorAll("img");
+    expect(imgs[0]).toHaveAttribute(
+      "src",
+      "https://media.kamiyonstudio.com/eclipse-1.png",
+    );
+    expect(imgs[1]).toHaveAttribute(
+      "src",
+      "https://media.kamiyonstudio.com/eclipse-cover.png",
+    );
+  });
 });
