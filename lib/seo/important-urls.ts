@@ -1,7 +1,7 @@
 import { PRODUCTION_CANONICAL_ORIGIN } from "./site-url";
 
 /** Core public URLs for local SEO checks and Search Console inspection. */
-export const IMPORTANT_PATHS = [
+const IMPORTANT_PATHS = [
   "/",
   "/about",
   "/services",

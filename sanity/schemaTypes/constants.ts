@@ -80,8 +80,6 @@ export const SANITY_ARCHIVED_TYPES = [
   "mediaAsset",
 ] as const satisfies readonly SanityDocumentType[];
 
-export type SanityArchivedType = (typeof SANITY_ARCHIVED_TYPES)[number];
-
 /** Expected Sanity object type names used in schemas. */
 export const SANITY_OBJECT_TYPES = [
   "r2Asset",

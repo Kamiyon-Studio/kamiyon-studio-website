@@ -218,19 +218,3 @@ export const productMedia = defineType({
     defineField({ name: "caption", title: "Caption", type: "string" }),
   ],
 });
-
-export const homeHighlight = defineType({
-  name: "homeHighlight",
-  title: "Highlight",
-  type: "object",
-  fields: [
-    defineField({ name: "title", title: "Title", type: "string", validation: (r) => r.required() }),
-    defineField({
-      name: "description",
-      title: "Description",
-      type: "text",
-      validation: (r) => r.required(),
-    }),
-    defineField({ name: "icon", title: "Icon", type: "string" }),
-  ],
-});

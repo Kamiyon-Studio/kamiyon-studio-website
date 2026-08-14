@@ -33,7 +33,7 @@ export function getHostedStudioUrl(): string {
  * Origin for Studio → site API calls (media upload). No trailing slash.
  * Falls back to relative same-origin when unset (local `sanity dev` proxy / embedded).
  */
-export function getStudioApiOrigin(): string | null {
+function getStudioApiOrigin(): string | null {
   const origin =
     process.env.SANITY_STUDIO_API_ORIGIN?.trim() ||
     process.env.NEXT_PUBLIC_SITE_URL?.trim() ||

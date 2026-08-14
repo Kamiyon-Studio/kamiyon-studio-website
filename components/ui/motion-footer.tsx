@@ -50,7 +50,7 @@ export type CinematicFooterProps = {
   footerLocation?: string;
 };
 
-export type MagneticButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
+type MagneticButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
   React.AnchorHTMLAttributes<HTMLAnchorElement> & {
     as?: React.ElementType;
   };

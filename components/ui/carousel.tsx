@@ -3,8 +3,6 @@
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
@@ -198,70 +196,9 @@ const CarouselItem = React.forwardRef<
 });
 CarouselItem.displayName = "CarouselItem";
 
-type CarouselControlProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
-
-const carouselControlClasses =
-  "absolute inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-secondary)] disabled:pointer-events-none disabled:opacity-50";
-
-const CarouselPrevious = React.forwardRef<HTMLButtonElement, CarouselControlProps>(
-  ({ className, ...props }, ref) => {
-    const { orientation, scrollPrev, canScrollPrev } = useCarousel();
-
-    return (
-      <button
-        ref={ref}
-        type="button"
-        className={cn(
-          carouselControlClasses,
-          orientation === "horizontal"
-            ? "-left-12 top-1/2 -translate-y-1/2"
-            : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
-          className,
-        )}
-        disabled={!canScrollPrev}
-        onClick={scrollPrev}
-        {...props}
-      >
-        <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" aria-hidden />
-        <span className="sr-only">Previous slide</span>
-      </button>
-    );
-  },
-);
-CarouselPrevious.displayName = "CarouselPrevious";
-
-const CarouselNext = React.forwardRef<HTMLButtonElement, CarouselControlProps>(
-  ({ className, ...props }, ref) => {
-    const { orientation, scrollNext, canScrollNext } = useCarousel();
-
-    return (
-      <button
-        ref={ref}
-        type="button"
-        className={cn(
-          carouselControlClasses,
-          orientation === "horizontal"
-            ? "-right-12 top-1/2 -translate-y-1/2"
-            : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
-          className,
-        )}
-        disabled={!canScrollNext}
-        onClick={scrollNext}
-        {...props}
-      >
-        <FontAwesomeIcon icon={faArrowRight} className="h-4 w-4" aria-hidden />
-        <span className="sr-only">Next slide</span>
-      </button>
-    );
-  },
-);
-CarouselNext.displayName = "CarouselNext";
-
 export {
   type CarouselApi,
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselPrevious,
-  CarouselNext,
 };

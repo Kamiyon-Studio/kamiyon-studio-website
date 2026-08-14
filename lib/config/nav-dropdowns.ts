@@ -1,6 +1,6 @@
 import type { Service } from "@/lib/cms/types";
 
-export type NavDropdownChild = {
+type NavDropdownChild = {
   label: string;
   href: string;
 };

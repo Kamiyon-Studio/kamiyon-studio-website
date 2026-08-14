@@ -9,7 +9,7 @@ import { INTERIM_CONTACT_FORM_URL } from "@/lib/contact/channels";
  * List fields stay empty here so CMS-null still uses separate collection
  * fallbacks on the current page; seed pre-fills refs independently.
  */
-export type HomePageContactCta = {
+type HomePageContactCta = {
   title: string;
   body: string;
   ctaLabel: string;
