@@ -11,6 +11,7 @@ import {
   HERO_PARALLAX_OBJECT_POSITION,
   HERO_PROJECTS_SEAM_SVH,
   heroParallaxVideoMaskStyle,
+  heroProjectsSeamOverlayStyle,
   resolveHomeProjectsBackground,
   resolveHeroParallaxLayers,
   splitHeroParallaxLayers,
@@ -160,6 +161,15 @@ describe("HERO_PARALLAX_OBJECT_POSITION", () => {
 describe("HERO_PROJECTS_SEAM_SVH", () => {
   it("is a positive overlap so the cliff can hang into Recent Projects", () => {
     expect(HERO_PROJECTS_SEAM_SVH).toBeGreaterThan(0);
+  });
+});
+
+describe("heroProjectsSeamOverlayStyle", () => {
+  it("confines the charcoal dissolve to the hanging soil, not the first viewport", () => {
+    const style = heroProjectsSeamOverlayStyle();
+    expect(style.height).toBe(`${HERO_PROJECTS_SEAM_SVH}svh`);
+    expect(style.backgroundImage).toContain("var(--color-charcoal)");
+    expect(style.backgroundImage).toContain("transparent");
   });
 });
 

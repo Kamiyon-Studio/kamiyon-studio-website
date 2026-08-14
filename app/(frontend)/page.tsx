@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Hero } from "@/components/sections/Hero";
 import { HomeContact } from "@/components/sections/HomeContact";
 import { HomeScrollMarker } from "@/components/sections/HomeScrollMarker";
+import { PartnersMarquee } from "@/components/sections/PartnersMarquee";
 import { ProjectsBento } from "@/components/sections/ProjectsBento";
 import { RecognitionAwards } from "@/components/sections/RecognitionAwards";
 import {
@@ -120,12 +121,15 @@ export default async function Home() {
   return (
     <>
       <HomeScrollMarker />
-      <Hero hero={HERO_STUB} partners={partners} />
+      <Hero hero={HERO_STUB} />
       {portfolioItems.length > 0 ? (
         <ProjectsBento
           caseStudies={portfolioItems}
           backgroundSrc={resolveHomeProjectsBackground()}
         />
+      ) : null}
+      {partners.length > 0 ? (
+        <PartnersMarquee eyebrow="Trusted by" partners={partners} />
       ) : null}
       {awards.length > 0 ? <RecognitionAwards awards={awards} /> : null}
       {/* TestimonialsMarquee kept in-repo; hidden on Home (ADR-035). */}

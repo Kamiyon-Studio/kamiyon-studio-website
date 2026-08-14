@@ -893,3 +893,25 @@ Operator replaced the v2 `motion/react` column loop with a 21st.dev 3D testimoni
 - ADR-031 display clause (section after awards, nav anchor) is superseded for the live page. CMS keep clauses from ADR-031 still apply.
 - `ui-context.md` Home row and essential CMS map updated.
 
+---
+
+## ADR-036 — Home partners is a standalone section between projects and recognition (2026-08-15)
+
+**Status:** Accepted
+
+**Context:** ADR-023 combined partners into the hero opening as a lower band. The operator asked to restore partners as its own homepage section and place it between Recent Projects and Recognition.
+
+**Decision:**
+
+- Do **not** mount `PartnersMarquee` inside `Hero` / `HeroOpening` / `HeroParallaxOpening`.
+- Home order is Hero → Projects → Partners → Recognition → Services → Contact.
+- Mount `<PartnersMarquee eyebrow="Trusted by" partners={…} />` with default `layout="section"` when `partners.length > 0`. Empty CMS refs still render nothing (ADR-030).
+- Keep `#home-partners` and move it in `HOME_SECTION_NAV` to sit after `#home-projects`.
+- Section chrome: `--bg-secondary`, `py-16 md:py-24`, `data-nav-theme="dark"` (matches neighboring homepage sections).
+- Keep `layout="band"` on `PartnersMarquee` unused; do not delete the API in this pass.
+
+**Consequences:**
+
+- ADR-023 combined-opening clause (partners band in the hero) is superseded for the live page. CMS partner docs, marquee engine (ADR-026), and empty-ref rules (ADR-030) still apply.
+- `ui-context.md` Home row, essential CMS map, and progress tracker updated.
+

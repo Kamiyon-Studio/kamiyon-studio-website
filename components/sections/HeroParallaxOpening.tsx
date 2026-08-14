@@ -4,7 +4,6 @@ import Image from "next/image";
 
 import { HeroBrand } from "@/components/sections/HeroBrand";
 import { HeroScrollHelper } from "@/components/sections/HeroScrollHelper";
-import { PartnersMarquee } from "@/components/sections/PartnersMarquee";
 import {
   useLayeredParallax,
   type ParallaxLayerMotion,
@@ -15,14 +14,13 @@ import {
   HERO_PARALLAX_LAYER_HEIGHT,
   HERO_PARALLAX_LAYER_WIDTH,
   HERO_PROJECTS_SEAM_SVH,
+  heroProjectsSeamOverlayStyle,
   splitHeroParallaxLayers,
   type ResolvedHeroParallaxLayer,
 } from "@/lib/home/hero-parallax-layers";
-import type { PartnerPlaceholder } from "@/lib/home/partner-placeholders";
 
 type HeroParallaxOpeningProps = {
   layers: ResolvedHeroParallaxLayer[];
-  partners: PartnerPlaceholder[];
 };
 
 /** `data-parallax-layer` value for the wordmark plate. */
@@ -92,13 +90,12 @@ function ParallaxPlate({ layer }: { layer: ResolvedHeroParallaxLayer }) {
 
 /**
  * Full-bleed opening stage built from stacked R2 plates that drift apart on
- * scroll. Content matches the static opening: wordmark + motto upper, partners
- * band lower. The foreground plate is planted (no extra travel). Bottom padding
- * hangs the cliff into Recent Projects so the earth plate can tuck under it.
+ * scroll. Content matches the static opening: wordmark + motto. The foreground
+ * plate is planted (no extra travel). Bottom padding hangs the cliff into
+ * Recent Projects so the earth plate can tuck under it.
  */
 export function HeroParallaxOpening({
   layers,
-  partners,
 }: HeroParallaxOpeningProps) {
   const rootRef = useOpeningAnimation<HTMLElement>();
   const { behindBrand, inFrontOfBrand } = splitHeroParallaxLayers(layers);
@@ -147,6 +144,13 @@ export function HeroParallaxOpening({
         {inFrontOfBrand.map((layer) => (
           <ParallaxPlate key={layer.depth} layer={layer} />
         ))}
+
+        <div
+          data-testid="hero-projects-seam"
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[1]"
+          style={heroProjectsSeamOverlayStyle()}
+        />
       </div>
 
       <div
@@ -160,19 +164,6 @@ export function HeroParallaxOpening({
         className="pointer-events-none relative z-10 flex min-h-[100svh] flex-col"
       >
         <HeroScrollHelper />
-        {/* Spacer: the wordmark lives in the plate stack, not in this column. */}
-        <div className="flex-1" aria-hidden="true" />
-        <div
-          data-testid="hero-partners-zone"
-          className="pointer-events-auto w-full shrink-0 pb-6 md:pb-8"
-        >
-          <PartnersMarquee
-            layout="band"
-            tone="onDark"
-            eyebrow="Trusted by"
-            partners={partners}
-          />
-        </div>
       </div>
     </section>
   );

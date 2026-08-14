@@ -208,7 +208,7 @@ Separate chrome CTA: **Get in touch** → interim Google Form URL (unchanged).
 | Type | Kind | Notes |
 | --- | --- | --- |
 | `siteSettings` | Singleton | Name, tagline, socials, default SEO, footer |
-| `homePage` | Singleton | Named fields (not `blocks[]`): `title`, `partners[]`, `portfolioItems[]`, `awards[]`, `testimonials[]`, `services[]`, `contactCta`, `seo` — Hero UI + partners remain without hero CMS copy; empty refs = nothing (ADR-030). **TestimonialsMarquee is hidden** on Home (ADR-035; `testimonials[]` + component kept) |
+| `homePage` | Singleton | Named fields (not `blocks[]`): `title`, `partners[]`, `portfolioItems[]`, `awards[]`, `testimonials[]`, `services[]`, `contactCta`, `seo` — Hero UI remains without hero CMS copy; partners render as a standalone Home section between projects and recognition (ADR-036); empty refs = nothing (ADR-030). **TestimonialsMarquee is hidden** on Home (ADR-035; `testimonials[]` + component kept) |
 | `aboutPage` | Singleton | Story, timeline, team. Mission/Vision/Motto/`values`/`cultureSummary`/`teamIntro` stay in CMS; **WhoWeAreBand is hidden** on `/about` (ADR-034). Archived VisionBand/ValuesGrid/CultureClosing not restored |
 | `contactPage` | Singleton | Intro, channels, FAQ, form settings copy |
 | `teamMember` | Document | Order, role, R2 photo, `socialLinks[]`, `isPlaceholder` |

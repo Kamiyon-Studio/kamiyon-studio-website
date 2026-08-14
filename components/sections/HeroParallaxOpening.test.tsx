@@ -9,7 +9,6 @@ import {
   HERO_PROJECTS_SEAM_SVH,
   type ResolvedHeroParallaxLayer,
 } from "@/lib/home/hero-parallax-layers";
-import type { PartnerPlaceholder } from "@/lib/home/partner-placeholders";
 import { SITE_MOTTO } from "@/lib/seo/constants";
 import { HeroParallaxOpening } from "./HeroParallaxOpening";
 
@@ -46,34 +45,6 @@ vi.mock("@/components/ui/SplitText", () => ({
   }) => <Tag className={className}>{text}</Tag>,
 }));
 
-const partnersMarqueeMock = vi.fn(
-  ({
-    layout,
-    tone,
-    partners,
-  }: {
-    layout?: string;
-    tone?: string;
-    partners?: PartnerPlaceholder[];
-  }) => (
-    <div
-      data-testid="partners-marquee-mock"
-      data-layout={layout}
-      data-tone={tone}
-      data-partner-count={partners?.length ?? 0}
-    />
-  ),
-);
-
-vi.mock("@/components/sections/PartnersMarquee", () => ({
-  PartnersMarquee: (props: {
-    layout?: string;
-    tone?: string;
-    eyebrow?: string;
-    partners?: PartnerPlaceholder[];
-  }) => partnersMarqueeMock(props),
-}));
-
 const layers: ResolvedHeroParallaxLayer[] = HERO_PARALLAX_LAYERS.map((layer) => ({
   ...layer,
   src: `https://media.kamiyonstudio.com/${HERO_PARALLAX_KEY_PREFIX}/${layer.file}`,
@@ -89,14 +60,9 @@ const layers: ResolvedHeroParallaxLayer[] = HERO_PARALLAX_LAYERS.map((layer) => 
     : {}),
 }));
 
-const samplePartners: PartnerPlaceholder[] = [
-  { id: "partner-1", label: "Partner placeholder" },
-  { id: "partner-2", label: "Partner placeholder" },
-];
-
 function renderHero() {
   return render(
-    <HeroParallaxOpening layers={layers} partners={samplePartners} />,
+    <HeroParallaxOpening layers={layers} />,
   );
 }
 
@@ -109,7 +75,6 @@ function layerOrder(container: HTMLElement): string[] {
 
 beforeEach(() => {
   layeredParallaxMock.mockClear();
-  partnersMarqueeMock.mockClear();
 });
 
 describe("HeroParallaxOpening", () => {
@@ -149,6 +114,22 @@ describe("HeroParallaxOpening", () => {
     expect(section).toHaveStyle({
       paddingBottom: `${HERO_PROJECTS_SEAM_SVH}svh`,
     });
+  });
+
+  it("dissolves only the hanging soil into charcoal, leaving the first viewport solid", () => {
+    const { container } = renderHero();
+    const stage = container.querySelector("[data-testid='hero-parallax-stage']");
+    const children = Array.from(stage?.children ?? []);
+    const seam = container.querySelector("[data-testid='hero-projects-seam']");
+
+    expect(seam).toBe(children.at(-1));
+    expect(seam).toHaveStyle({
+      height: `${HERO_PROJECTS_SEAM_SVH}svh`,
+    });
+    expect(seam?.getAttribute("style") ?? "").toContain("var(--color-charcoal)");
+    expect(
+      container.querySelector("[data-testid='hero-parallax-plate-2']"),
+    ).not.toHaveAttribute("data-seam-fade");
   });
 
   it("renders one plate per configured layer", () => {
@@ -276,24 +257,13 @@ describe("HeroParallaxOpening", () => {
     expect(screen.getByTestId("hero-scroll-helper")).toBeInTheDocument();
   });
 
-  it("mounts PartnersMarquee as a band on dark in the lower zone", () => {
+  it("does not mount a partners band in the opening stage", () => {
     const { container } = renderHero();
 
-    expect(partnersMarqueeMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        layout: "band",
-        tone: "onDark",
-        eyebrow: "Trusted by",
-        partners: samplePartners,
-      }),
-    );
-
-    const partnersZone = container.querySelector(
-      "[data-testid='hero-partners-zone']",
-    );
-    expect(partnersZone).toContainElement(
-      screen.getByTestId("partners-marquee-mock"),
-    );
+    expect(
+      container.querySelector("[data-testid='hero-partners-zone']"),
+    ).not.toBeInTheDocument();
+    expect(container.querySelector("#home-partners")).not.toBeInTheDocument();
   });
 
   it("does not render the static hero background", () => {

@@ -22,9 +22,23 @@ export const HERO_PARALLAX_OBJECT_POSITION = "center top";
 
 /**
  * How far the planted cliff hangs into Recent Projects, in `svh`.
- * Hero padding and the projects pull-up must stay in lockstep.
+ * Hero padding, the charcoal dissolve, and the projects pull-up stay in lockstep
+ * so the fade never washes the first viewport (Trusted By, grass ridge).
  */
 export const HERO_PROJECTS_SEAM_SVH = 18;
+
+export type HeroProjectsSeamOverlayStyle = {
+  height: string;
+  backgroundImage: string;
+};
+
+/** Overlay that paints only the hanging soil into `--color-charcoal`. */
+export function heroProjectsSeamOverlayStyle(): HeroProjectsSeamOverlayStyle {
+  return {
+    height: `${HERO_PROJECTS_SEAM_SVH}svh`,
+    backgroundImage: `linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--color-charcoal) 55%, transparent) 45%, var(--color-charcoal) 100%)`,
+  };
+}
 
 export type HeroParallaxVideoFiles = {
   webm?: string;

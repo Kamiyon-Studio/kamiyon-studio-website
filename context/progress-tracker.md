@@ -17,6 +17,19 @@ When a task/phase is marked complete:
 
 ## Current Phase
 
+### Home partners standalone section (2026-08-15)
+
+**ADR:** ADR-036 (supersedes ADR-023 combined opening for partners placement)  
+**Status:** **Done in-repo** — `/` is hero → projects → partners → recognition → services → contact. `PartnersMarquee` is a full section (`#home-partners`) between portfolio and awards, not a hero band.
+
+| Stream | Status | Notes |
+| --- | --- | --- |
+| Lift partners out of Hero | **Done** | `Hero` / `HeroOpening` / `HeroParallaxOpening` no longer take `partners` |
+| Page composition + nav | **Done** | `page.tsx` + `HOME_SECTION_NAV` order: projects then partners then recognition |
+| Section chrome | **Done** | Secondary bg, `py-16 md:py-24`, dark nav theme, Trusted by eyebrow |
+
+**Ship gate:** Visual ack on `/#home-partners` between Recent Projects and Recognition.
+
 ### Home hero wordmark — primary glow (2026-08-15)
 
 **Status:** **Done in-repo** — homepage `KAMIYON STUDIO` uses a 0-offset primary glow on a wrapper around the glyphs. Charcoal brand-scrim drop shadow removed; stage sky scrim stays for contrast.
@@ -55,7 +68,7 @@ When a task/phase is marked complete:
 | Recent Projects earth plate | **Done** | `ground.avif` on `#home-projects`; `/assets/background.avif` unchanged |
 | `pnpm media:hero-parallax` AVIF passthrough | **Done** | Named stills + optional MP4; PNG originals archived under `v3/source/` |
 | R2 upload staging + production | **Done** | CDN HEAD 200 for stills + `homepage.mp4` on both hosts |
-| Viewport-top crop + hero/projects seam | **Done** | `object-top`; cliff hangs `18svh` into `#home-projects`; earth fades in under it |
+| Viewport-top crop + hero/projects seam | **Done** | `object-top`; `18svh` hang + charcoal dissolve; no plate mask (keeps Trusted By solid) |
 
 **Ship gate:** Publish v3 to both media buckets, then rebuild staging/production Workers so HTML points at v3. Confirm landscape loop, freeze-frame before first frame, reduced-motion stills, and the foreground/ground join into Recent Projects.
 

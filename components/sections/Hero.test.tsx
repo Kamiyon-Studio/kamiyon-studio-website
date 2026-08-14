@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { HomeHero } from "@/lib/cms/types";
 import { HERO_PARALLAX_LAYERS } from "@/lib/home/hero-parallax-layers";
-import type { PartnerPlaceholder } from "@/lib/home/partner-placeholders";
 import { SITE_MOTTO } from "@/lib/seo/constants";
 import { Hero } from "./Hero";
 
@@ -44,33 +43,6 @@ vi.mock("@/components/ui/SplitText", () => ({
   }) => <Tag className={className}>{text}</Tag>,
 }));
 
-const partnersMarqueeMock = vi.fn(
-  ({
-    layout,
-    tone,
-    partners,
-  }: {
-    layout?: string;
-    tone?: string;
-    partners?: PartnerPlaceholder[];
-  }) => (
-    <div
-      data-testid="partners-marquee-mock"
-      data-layout={layout}
-      data-tone={tone}
-      data-partner-count={partners?.length ?? 0}
-    />
-  ),
-);
-
-vi.mock("@/components/sections/PartnersMarquee", () => ({
-  PartnersMarquee: (props: {
-    layout?: string;
-    tone?: string;
-    partners?: PartnerPlaceholder[];
-  }) => partnersMarqueeMock(props),
-}));
-
 const baseHero: HomeHero = {
   _type: "hero",
   headline: "Meaningful interactive experiences, built with purpose.",
@@ -78,11 +50,6 @@ const baseHero: HomeHero = {
   ctaLabel: "Get in touch",
   ctaHref: "/contact",
 };
-
-const samplePartners: PartnerPlaceholder[] = [
-  { id: "partner-1", label: "Partner placeholder" },
-  { id: "partner-2", label: "Partner placeholder" },
-];
 
 const ORIGINAL_BASE_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL;
 
@@ -103,7 +70,7 @@ describe("Hero stage selection", () => {
   it("renders the parallax stage when the media CDN is configured", () => {
     process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL = "https://media.kamiyonstudio.com";
 
-    const { container } = render(<Hero hero={baseHero} partners={samplePartners} />);
+    const { container } = render(<Hero hero={baseHero} />);
 
     expect(
       container.querySelector("[data-testid='hero-parallax-stage']"),
@@ -115,7 +82,7 @@ describe("Hero stage selection", () => {
   });
 
   it("falls back to the static opening when the media CDN is not configured", () => {
-    const { container } = render(<Hero hero={baseHero} partners={samplePartners} />);
+    const { container } = render(<Hero hero={baseHero} />);
 
     expect(container.querySelector("[data-testid='hero-parallax-stage']")).toBeNull();
     expect(container.querySelector('img[src*="background.avif"]')).toBeInTheDocument();
@@ -124,13 +91,13 @@ describe("Hero stage selection", () => {
   it("falls back to the static opening for a host next/image would reject", () => {
     process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL = "https://untrusted.example.com";
 
-    const { container } = render(<Hero hero={baseHero} partners={samplePartners} />);
+    const { container } = render(<Hero hero={baseHero} />);
 
     expect(container.querySelector("[data-testid='hero-parallax-stage']")).toBeNull();
     expect(container.querySelector('img[src*="background.avif"]')).toBeInTheDocument();
   });
 
-  it("keeps the wordmark, motto, and partners band in both stages", () => {
+  it("keeps the wordmark and motto in both stages without a partners band", () => {
     for (const baseUrl of [undefined, "https://media.kamiyonstudio.com"]) {
       if (baseUrl) {
         process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL = baseUrl;
@@ -138,9 +105,7 @@ describe("Hero stage selection", () => {
         delete process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL;
       }
 
-      const { container, unmount } = render(
-        <Hero hero={baseHero} partners={samplePartners} />,
-      );
+      const { container, unmount } = render(<Hero hero={baseHero} />);
 
       expect(
         screen.getByRole("heading", { level: 1, name: "KAMIYON STUDIO" }),
@@ -149,7 +114,7 @@ describe("Hero stage selection", () => {
       expect(container.querySelector("#home-hero")).toBeInTheDocument();
       expect(
         container.querySelector("[data-testid='hero-partners-zone']"),
-      ).toBeInTheDocument();
+      ).not.toBeInTheDocument();
 
       unmount();
     }
@@ -158,7 +123,7 @@ describe("Hero stage selection", () => {
 
 describe("Hero", () => {
   it("renders KAMIYON STUDIO and motto without CMS copy or CTA", () => {
-    render(<Hero hero={baseHero} partners={samplePartners} />);
+    render(<Hero hero={baseHero} />);
 
     expect(
       screen.getByRole("heading", { level: 1, name: "KAMIYON STUDIO" }),
@@ -171,7 +136,7 @@ describe("Hero", () => {
   });
 
   it("does not render secondary quick links including the products link", () => {
-    render(<Hero hero={baseHero} partners={samplePartners} />);
+    render(<Hero hero={baseHero} />);
 
     expect(screen.queryByRole("link", { name: "View products" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "See our portfolio" })).not.toBeInTheDocument();
@@ -180,7 +145,7 @@ describe("Hero", () => {
   });
 
   it("uses a full-bleed stage image instead of a CMS inset card", () => {
-    const { container } = render(<Hero hero={baseHero} partners={samplePartners} />);
+    const { container } = render(<Hero hero={baseHero} />);
 
     const section = container.querySelector("section");
     expect(section).toHaveClass("relative");
@@ -193,7 +158,7 @@ describe("Hero", () => {
   });
 
   it("layers gradient scrims for text readability without a --bg-secondary handoff", () => {
-    const { container } = render(<Hero hero={baseHero} partners={samplePartners} />);
+    const { container } = render(<Hero hero={baseHero} />);
     expect(container.querySelector(".bg-gradient-to-b")).toBeInTheDocument();
     expect(container.querySelector(".bg-gradient-to-r")).toBeInTheDocument();
     expect(
@@ -205,7 +170,7 @@ describe("Hero", () => {
   });
 
   it("layers a parallax background wrapper and opening curtain", () => {
-    const { container } = render(<Hero hero={baseHero} partners={samplePartners} />);
+    const { container } = render(<Hero hero={baseHero} />);
 
     const background = container.querySelector('img[src*="background.avif"]');
     expect(background).toBeInTheDocument();
@@ -217,17 +182,12 @@ describe("Hero", () => {
     expect(container.querySelector("[data-opening-curtain]")).toBeInTheDocument();
   });
 
-  it("passes partners through to HeroOpening as a band marquee on dark", () => {
-    partnersMarqueeMock.mockClear();
+  it("does not mount PartnersMarquee inside the opening stage", () => {
+    const { container } = render(<Hero hero={baseHero} />);
 
-    render(<Hero hero={baseHero} partners={samplePartners} />);
-
-    expect(partnersMarqueeMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        layout: "band",
-        tone: "onDark",
-        partners: samplePartners,
-      }),
-    );
+    expect(
+      container.querySelector("[data-testid='hero-partners-zone']"),
+    ).not.toBeInTheDocument();
+    expect(container.querySelector("#home-partners")).not.toBeInTheDocument();
   });
 });

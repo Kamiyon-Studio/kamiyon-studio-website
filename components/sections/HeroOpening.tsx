@@ -4,25 +4,22 @@ import Image from "next/image";
 
 import { HeroBrand } from "@/components/sections/HeroBrand";
 import { HeroScrollHelper } from "@/components/sections/HeroScrollHelper";
-import { PartnersMarquee } from "@/components/sections/PartnersMarquee";
 import { Container } from "@/components/ui/Container";
 import { useOpeningAnimation } from "@/hooks/useOpeningAnimation";
 import { useParallax } from "@/hooks/useParallax";
 import type { HomeHero } from "@/lib/cms/types";
-import type { PartnerPlaceholder } from "@/lib/home/partner-placeholders";
 
 type HeroOpeningProps = {
   hero: HomeHero;
-  partners: PartnerPlaceholder[];
 };
 
 const HERO_BACKGROUND = "/assets/background.avif";
 
 /**
- * Full-bleed opening stage: brand + motto upper, partners marquee band lower.
+ * Full-bleed opening stage: brand + motto.
  * CMS headline/subheadline/CTA stay on the hero prop for typing — not rendered.
  */
-export function HeroOpening({ hero: _hero, partners }: HeroOpeningProps) {
+export function HeroOpening({ hero: _hero }: HeroOpeningProps) {
   const rootRef = useOpeningAnimation<HTMLElement>();
   const parallaxRef = useParallax<HTMLDivElement>({ speed: 100 });
 
@@ -76,15 +73,6 @@ export function HeroOpening({ hero: _hero, partners }: HeroOpeningProps) {
             <HeroBrand />
           </div>
         </Container>
-
-        <div data-testid="hero-partners-zone" className="relative z-10 w-full shrink-0 pb-6 md:pb-8">
-          <PartnersMarquee
-            layout="band"
-            tone="onDark"
-            eyebrow="Trusted by"
-            partners={partners}
-          />
-        </div>
       </div>
     </section>
   );
