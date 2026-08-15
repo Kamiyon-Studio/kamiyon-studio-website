@@ -1,4 +1,4 @@
-import { defineArrayMember, defineField, defineType } from "sanity";
+import { defineArrayMember, defineField, defineType, type SanityDocument } from "sanity";
 
 import {
   PORTFOLIO_LINK_KINDS,
@@ -8,7 +8,12 @@ import {
   toSanityListOptions,
 } from "@/lib/cms/taxonomies";
 
-function isGameRelated(document: { projectType?: unknown; serviceType?: unknown } | undefined) {
+type PortfolioDocument = SanityDocument & {
+  projectType?: unknown;
+  serviceType?: unknown;
+};
+
+function isGameRelated(document: PortfolioDocument | undefined) {
   return (
     document?.projectType === "original-ip" || document?.serviceType === "game-development"
   );

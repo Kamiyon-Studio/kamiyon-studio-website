@@ -1,0 +1,65 @@
+[shell_environment_policy]
+inherit = "core"
+
+[shell_environment_policy.set]
+CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1"
+CLAUDE_FLOW_V3_ENABLED = "true"
+CLAUDE_FLOW_HOOKS_ENABLED = "true"
+
+[mcp_servers.claude-flow]
+command = "cmd"
+args = [
+    "/c",
+    "npx",
+    "-y",
+    "ruflo@latest",
+    "mcp",
+    "start",
+]
+
+[mcp_servers.claude-flow.env]
+npm_config_update_notifier = "false"
+CLAUDE_FLOW_MODE = "v3"
+CLAUDE_FLOW_HOOKS_ENABLED = "true"
+CLAUDE_FLOW_TOPOLOGY = "hierarchical-mesh"
+CLAUDE_FLOW_MAX_AGENTS = "5"
+CLAUDE_FLOW_MEMORY_BACKEND = "hybrid"
+
+[mcp_servers.context7]
+command = "npx"
+args = [
+    "-y",
+    "@upstash/context7-mcp@2.1.4",
+]
+
+[mcp_servers.exa]
+url = "https://mcp.exa.ai/mcp"
+
+[mcp_servers.github]
+command = "npx"
+args = [
+    "-y",
+    "@modelcontextprotocol/server-github@2025.4.8",
+]
+
+[mcp_servers.memory]
+command = "npx"
+args = [
+    "-y",
+    "@modelcontextprotocol/server-memory@2026.1.26",
+]
+
+[mcp_servers.playwright]
+command = "npx"
+args = [
+    "-y",
+    "@playwright/mcp@0.0.69",
+    "--extension",
+]
+
+[mcp_servers.sequential-thinking]
+command = "npx"
+args = [
+    "-y",
+    "@modelcontextprotocol/server-sequential-thinking@2025.12.18",
+]
