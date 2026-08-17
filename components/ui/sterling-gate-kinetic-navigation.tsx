@@ -502,10 +502,7 @@ export function SterlingGateKineticNavigation({
                           className="nav-link w-inline-block"
                           onNavigate={closeMenu}
                         >
-                          <p
-                            className="nav-link-text"
-                            data-menu-fade={index > 2 ? "" : undefined}
-                          >
+                          <p className="nav-link-text" data-menu-fade="">
                             {item.label}
                           </p>
                           <div className="nav-link-hover-bg" aria-hidden="true" />
