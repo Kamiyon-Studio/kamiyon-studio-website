@@ -293,8 +293,8 @@ export function SterlingGateKineticNavigation({
         if (fadeTargets.length) {
           tl.fromTo(
             fadeTargets,
-            { autoAlpha: 0, yPercent: 100 },
-            { autoAlpha: 1, yPercent: 0, stagger: 0.04, clearProps: "all" },
+            { autoAlpha: 0, yPercent: 100, rotate: 15, transformOrigin: "left center" },
+            { autoAlpha: 1, yPercent: 0, rotate: 0, stagger: 0.04, clearProps: "all" },
             "<+=0.2",
           );
         }
