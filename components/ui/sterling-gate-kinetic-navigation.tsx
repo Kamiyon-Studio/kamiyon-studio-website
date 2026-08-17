@@ -246,6 +246,9 @@ export function SterlingGateKineticNavigation({
     const bgPanels = root.querySelectorAll(".backdrop-layer");
     const menuLinks = root.querySelectorAll(".nav-link");
     const fadeTargets = root.querySelectorAll("[data-menu-fade]");
+    const rotateTargets = root.querySelectorAll(
+      ".nav-link-text[data-menu-fade]",
+    );
 
     if (!navWrap || !menu || !overlay) {
       return;
@@ -293,8 +296,17 @@ export function SterlingGateKineticNavigation({
         if (fadeTargets.length) {
           tl.fromTo(
             fadeTargets,
-            { autoAlpha: 0, yPercent: 100, rotate: 15, transformOrigin: "left center" },
-            { autoAlpha: 1, yPercent: 0, rotate: 0, stagger: 0.04, duration: 0.4, clearProps: "all" },
+            { autoAlpha: 0, yPercent: 100 },
+            { autoAlpha: 1, yPercent: 0, stagger: 0.04, duration: 0.4, clearProps: "all" },
+            "<+=0.1",
+          );
+        }
+
+        if (rotateTargets.length) {
+          tl.fromTo(
+            rotateTargets,
+            { rotate: 5, transformOrigin: "left center" },
+            { rotate: 0, stagger: 0.04, duration: 0.4, clearProps: "all" },
             "<+=0.1",
           );
         }
