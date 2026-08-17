@@ -286,16 +286,16 @@ export function SterlingGateKineticNavigation({
           .fromTo(
             menuLinks,
             { yPercent: 140, rotate: 10 },
-            { yPercent: 0, rotate: 0, stagger: 0.05 },
-            "<+=0.35",
+            { yPercent: 0, rotate: 0, stagger: 0.05, duration: 0.45 },
+            "<+=0.30",
           );
 
         if (fadeTargets.length) {
           tl.fromTo(
             fadeTargets,
             { autoAlpha: 0, yPercent: 100, rotate: 15, transformOrigin: "left center" },
-            { autoAlpha: 1, yPercent: 0, rotate: 0, stagger: 0.04, clearProps: "all" },
-            "<+=0.2",
+            { autoAlpha: 1, yPercent: 0, rotate: 0, stagger: 0.04, duration: 0.4, clearProps: "all" },
+            "<+=0.1",
           );
         }
       } else {
