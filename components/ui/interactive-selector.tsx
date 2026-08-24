@@ -296,5 +296,3 @@ function TeamSocialLink({ link }: { link: SocialLink }) {
     </a>
   );
 }
-
-export default InteractiveSelector;

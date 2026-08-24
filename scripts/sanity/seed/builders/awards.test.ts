@@ -28,6 +28,7 @@ describe("award seed builders", () => {
         label: "Recognition",
         order: index + 1,
         isPlaceholder: true,
+        placeholderLabel: "Placeholder",
       });
       expect(doc).not.toHaveProperty("year");
     }
@@ -42,6 +43,7 @@ describe("award seed builders", () => {
       organization: "Details coming soon",
       order: 1,
       isPlaceholder: true,
+      placeholderLabel: "Placeholder",
     });
   });
 

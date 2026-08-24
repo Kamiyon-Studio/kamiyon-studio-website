@@ -11,7 +11,7 @@ import { gsap } from "@/lib/gsap";
 
 import "./sterling-gate-kinetic-navigation.css";
 
-export type SterlingGateNavItem = {
+type SterlingGateNavItem = {
   label: string;
   href: string;
   children?: readonly { label: string; href: string }[];
@@ -246,6 +246,9 @@ export function SterlingGateKineticNavigation({
     const bgPanels = root.querySelectorAll(".backdrop-layer");
     const menuLinks = root.querySelectorAll(".nav-link");
     const fadeTargets = root.querySelectorAll("[data-menu-fade]");
+    const rotateTargets = root.querySelectorAll(
+      ".nav-link-text[data-menu-fade]",
+    );
 
     if (!navWrap || !menu || !overlay) {
       return;
@@ -286,16 +289,25 @@ export function SterlingGateKineticNavigation({
           .fromTo(
             menuLinks,
             { yPercent: 140, rotate: 10 },
-            { yPercent: 0, rotate: 0, stagger: 0.05 },
-            "<+=0.35",
+            { yPercent: 0, rotate: 0, stagger: 0.05, duration: 0.45 },
+            "<+=0.30",
           );
 
         if (fadeTargets.length) {
           tl.fromTo(
             fadeTargets,
-            { autoAlpha: 0, yPercent: 50 },
-            { autoAlpha: 1, yPercent: 0, stagger: 0.04, clearProps: "all" },
-            "<+=0.2",
+            { autoAlpha: 0, yPercent: 100 },
+            { autoAlpha: 1, yPercent: 0, stagger: 0.04, duration: 0.4, clearProps: "all" },
+            "<+=0.1",
+          );
+        }
+
+        if (rotateTargets.length) {
+          tl.fromTo(
+            rotateTargets,
+            { rotate: 5, transformOrigin: "left center" },
+            { rotate: 0, stagger: 0.04, duration: 0.4, clearProps: "all" },
+            "<+=0.1",
           );
         }
       } else {
@@ -502,10 +514,7 @@ export function SterlingGateKineticNavigation({
                           className="nav-link w-inline-block"
                           onNavigate={closeMenu}
                         >
-                          <p
-                            className="nav-link-text"
-                            data-menu-fade={index > 2 ? "" : undefined}
-                          >
+                          <p className="nav-link-text" data-menu-fade="">
                             {item.label}
                           </p>
                           <div className="nav-link-hover-bg" aria-hidden="true" />

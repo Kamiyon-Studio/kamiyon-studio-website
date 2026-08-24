@@ -57,7 +57,7 @@ export function TeamGrid({ teamMembers }: TeamGridProps) {
   return (
     <section
       id="team"
-      className="bg-[var(--bg-secondary)] py-16 md:py-24"
+      className="py-16 md:py-24"
       aria-labelledby="team-heading"
     >
       <Container>

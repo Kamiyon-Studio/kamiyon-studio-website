@@ -37,48 +37,125 @@ export const siteSettingsQuery = defineQuery(/* groq */ `
     socialLinks[]{ platform, url, label, isPlaceholder },
     defaultSeo ${seoProjection},
     globalCtas[]{ label, href, variant },
-    footerText
+    footerText,
+    footerMarqueeKeywords,
+    footerCtaHeading,
+    footerSecondaryCtaLabel,
+    footerSecondaryCtaHref,
+    footerCopyrightSuffix,
+    footerLocationPrefix,
+    footerLocation
   }
 `);
+
+const partnerProjection = /* groq */ `{
+  _id,
+  _type,
+  label,
+  slug,
+  order,
+  logo ${r2AssetProjection},
+  isPlaceholder
+}`;
+
+const portfolioProjection = /* groq */ `{
+  _type,
+  title,
+  slug,
+  projectType,
+  clientName,
+  industry,
+  serviceType,
+  status,
+  developmentPeriod,
+  shortDescription,
+  positioning,
+  challenge,
+  solution,
+  impact,
+  lessonsLearned,
+  creativeDirection,
+  process,
+  narrative,
+  technicalDevelopment{
+    engine,
+    platforms,
+    input,
+    origin,
+    systems,
+    body
+  },
+  gameplay{
+    mechanics,
+    dualStateTable{
+      leftLabel,
+      rightLabel,
+      rows[]{ _key, aspect, left, right }
+    },
+    controls[]{ _key, input, action }
+  },
+  credits[]{
+    _key,
+    name,
+    role,
+    person->{ _id, name }
+  },
+  recognition[]{ _key, title, organization, year, url, note },
+  videos[]{ _key, url, title },
+  externalLinks[]{ _key, label, url, kind },
+  coverImage ${r2AssetProjection},
+  gallery[] ${r2AssetProjection},
+  featured,
+  isPlaceholder,
+  publishedAt,
+  seo ${seoProjection}
+}`;
+
+const awardProjection = /* groq */ `{
+  _id,
+  _type,
+  title,
+  label,
+  organization,
+  year,
+  order,
+  isPlaceholder,
+  placeholderLabel
+}`;
+
+const testimonialProjection = /* groq */ `{
+  _id,
+  _type,
+  quote,
+  name,
+  role,
+  photo ${r2AssetProjection},
+  order
+}`;
+
+const serviceProjection = /* groq */ `{
+  _type,
+  title,
+  slug,
+  tagline,
+  summary,
+  body,
+  capabilities,
+  order,
+  isPlaceholder,
+  seo ${seoProjection}
+}`;
 
 export const homePageQuery = defineQuery(/* groq */ `
   *[_type == "homePage" && _id == "homePage"][0]{
     _type,
     title,
-    blocks[]{
-      _type == "hero" => {
-        _type,
-        headline,
-        subheadline,
-        ctaLabel,
-        ctaHref,
-        image ${r2AssetProjection}
-      },
-      _type == "mission" => {
-        _type,
-        title,
-        body
-      },
-      _type == "featuredWork" => {
-        _type,
-        title,
-        body,
-        "featuredProductSlugs": featuredProducts[]->slug.current,
-        "featuredCaseStudySlugs": featuredCaseStudies[]->slug.current
-      },
-      _type == "highlights" => {
-        _type,
-        title,
-        items[]{ _key, title, description, icon }
-      },
-      _type == "ctaBanner" => {
-        _type,
-        title,
-        body,
-        ctaLabel,
-        ctaHref
-      }
-    },
+    partners[]-> ${partnerProjection},
+    portfolioItems[]-> ${portfolioProjection},
+    awards[]-> ${awardProjection},
+    testimonials[]-> ${testimonialProjection},
+    services[]-> ${serviceProjection},
+    contactCta{ title, body, ctaLabel, ctaHref },
     seo ${seoProjection}
   }
 `);
@@ -144,35 +221,11 @@ const CANONICAL_SERVICE_SLUGS_GROQ = JSON.stringify(
 );
 
 export const servicesQuery = defineQuery(/* groq */ `
-  *[_type == "service" && slug.current in ${CANONICAL_SERVICE_SLUGS_GROQ}] | order(order asc) {
-    _type,
-    title,
-    slug,
-    tagline,
-    summary,
-    body,
-    capabilities,
-    icon,
-    order,
-    isPlaceholder,
-    seo ${seoProjection}
-  }
+  *[_type == "service" && slug.current in ${CANONICAL_SERVICE_SLUGS_GROQ}] | order(order asc) ${serviceProjection}
 `);
 
 export const serviceBySlugQuery = defineQuery(/* groq */ `
-  *[_type == "service" && slug.current == $slug && slug.current in ${CANONICAL_SERVICE_SLUGS_GROQ}][0]{
-    _type,
-    title,
-    slug,
-    tagline,
-    summary,
-    body,
-    capabilities,
-    icon,
-    order,
-    isPlaceholder,
-    seo ${seoProjection}
-  }
+  *[_type == "service" && slug.current == $slug && slug.current in ${CANONICAL_SERVICE_SLUGS_GROQ}][0] ${serviceProjection}
 `);
 
 export const productsQuery = defineQuery(/* groq */ `
@@ -230,45 +283,11 @@ export const productBySlugQuery = defineQuery(/* groq */ `
 `);
 
 export const portfolioItemsQuery = defineQuery(/* groq */ `
-  *[_type == "portfolio"] | order(coalesce(publishedAt, _createdAt) desc) {
-    _type,
-    title,
-    slug,
-    clientName,
-    industry,
-    serviceType,
-    challenge,
-    solution,
-    impact,
-    lessonsLearned,
-    coverImage ${r2AssetProjection},
-    gallery[] ${r2AssetProjection},
-    featured,
-    isPlaceholder,
-    publishedAt,
-    seo ${seoProjection}
-  }
+  *[_type == "portfolio"] | order(coalesce(publishedAt, _createdAt) desc) ${portfolioProjection}
 `);
 
 export const portfolioItemBySlugQuery = defineQuery(/* groq */ `
-  *[_type == "portfolio" && slug.current == $slug][0]{
-    _type,
-    title,
-    slug,
-    clientName,
-    industry,
-    serviceType,
-    challenge,
-    solution,
-    impact,
-    lessonsLearned,
-    coverImage ${r2AssetProjection},
-    gallery[] ${r2AssetProjection},
-    featured,
-    isPlaceholder,
-    publishedAt,
-    seo ${seoProjection}
-  }
+  *[_type == "portfolio" && slug.current == $slug][0] ${portfolioProjection}
 `);
 
 export const communityItemsQuery = defineQuery(/* groq */ `
@@ -301,16 +320,7 @@ export const partnersQuery = defineQuery(/* groq */ `
 `);
 
 export const awardsQuery = defineQuery(/* groq */ `
-  *[_type == "award"] | order(order asc) {
-    _id,
-    _type,
-    title,
-    label,
-    organization,
-    year,
-    order,
-    isPlaceholder
-  }
+  *[_type == "award"] | order(order asc) ${awardProjection}
 `);
 
 export const postsQuery = defineQuery(/* groq */ `
@@ -319,15 +329,11 @@ export const postsQuery = defineQuery(/* groq */ `
     title,
     slug,
     authors[]-> ${teamMemberProjection},
-    categories,
-    tags,
     featuredImage ${r2AssetProjection},
     body,
     seo ${seoProjection},
-    readingTimeMinutes,
     publishedAt,
-    updatedAt,
-    "relatedPostSlugs": relatedPosts[]->slug.current
+    updatedAt
   }
 `);
 
@@ -337,14 +343,10 @@ export const postBySlugQuery = defineQuery(/* groq */ `
     title,
     slug,
     authors[]-> ${teamMemberProjection},
-    categories,
-    tags,
     featuredImage ${r2AssetProjection},
     body,
     seo ${seoProjection},
-    readingTimeMinutes,
     publishedAt,
-    updatedAt,
-    "relatedPostSlugs": relatedPosts[]->slug.current
+    updatedAt
   }
 `);

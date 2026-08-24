@@ -3,7 +3,7 @@
  * Tests inject a fake bucket; production resolves Cloudflare env.MEDIA_BUCKET.
  */
 
-export type MediaBucketPutOptions = {
+type MediaBucketPutOptions = {
   httpMetadata?: {
     contentType?: string;
   };

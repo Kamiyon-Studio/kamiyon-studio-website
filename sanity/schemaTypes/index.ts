@@ -2,6 +2,7 @@ import { type SchemaTypeDefinition } from "sanity";
 
 import { aboutPage } from "./documents/aboutPage";
 import { award } from "./documents/award";
+import { testimonial } from "./documents/testimonial";
 import { author, category, post, tag } from "./documents/blog";
 import { caseStudy } from "./documents/caseStudy";
 import { communityItem } from "./documents/communityItem";
@@ -16,7 +17,6 @@ import { serviceCategory } from "./documents/serviceCategory";
 import { siteSettings } from "./documents/siteSettings";
 import { teamMember } from "./documents/teamMember";
 import { cta } from "./objects/cta";
-import { ctaBanner, featuredWork, hero, highlights, mission } from "./objects/homeBlocks";
 import { blogBody, portableBody } from "./objects/portableText";
 import { r2Asset } from "./objects/r2Asset";
 import { seoMetadata } from "./objects/seoMetadata";
@@ -24,7 +24,6 @@ import {
   contactChannel,
   coreValue,
   faqItem,
-  homeHighlight,
   productMedia,
   storySection,
   storyTimelineEntry,
@@ -46,12 +45,6 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     contactChannel,
     faqItem,
     productMedia,
-    homeHighlight,
-    hero,
-    mission,
-    featuredWork,
-    highlights,
-    ctaBanner,
     // Singleton pages
     siteSettings,
     homePage,
@@ -63,6 +56,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     portfolio,
     partner,
     award,
+    testimonial,
     post,
     // Archived (readOnly — keep registered, never delete documents)
     serviceCategory,

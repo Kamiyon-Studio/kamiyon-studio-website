@@ -24,6 +24,7 @@ describe("sanity schema constants", () => {
       "communityItem",
       "partner",
       "award",
+      "testimonial",
       "mediaAsset",
       "author",
       "category",
@@ -61,7 +62,12 @@ describe("sanity schema constants", () => {
     expect(SANITY_OBJECT_TYPES).toContain("seoMetadata");
     expect(SANITY_OBJECT_TYPES).toContain("portableBody");
     expect(SANITY_OBJECT_TYPES).toContain("blogBody");
-    expect(SANITY_OBJECT_TYPES).toContain("hero");
+    expect(SANITY_OBJECT_TYPES).not.toContain("hero");
+    expect(SANITY_OBJECT_TYPES).not.toContain("mission");
+    expect(SANITY_OBJECT_TYPES).not.toContain("featuredWork");
+    expect(SANITY_OBJECT_TYPES).not.toContain("highlights");
+    expect(SANITY_OBJECT_TYPES).not.toContain("ctaBanner");
+    expect(SANITY_OBJECT_TYPES).not.toContain("homeHighlight");
     expect(SANITY_OBJECT_TYPES).toContain("storyTimelineEntry");
   });
 

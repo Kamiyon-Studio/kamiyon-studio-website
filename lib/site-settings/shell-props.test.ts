@@ -120,4 +120,45 @@ describe("buildShellNavProps", () => {
       platform: "x",
     });
   });
+
+  it("passes footer CMS fields with defaults matching current hardcoded copy", () => {
+    const props = buildShellNavProps(siteSettingsFallback);
+
+    expect(props.footerMarqueeKeywords).toEqual([
+      "Games",
+      "EdTech",
+      "Portfolio",
+      "Interactive Experiences",
+      "Contact",
+    ]);
+    expect(props.footerCtaHeading).toBe("Ready to begin?");
+    expect(props.footerSecondaryCtaLabel).toBe("View portfolio");
+    expect(props.footerSecondaryCtaHref).toBe("/portfolio");
+    expect(props.footerCopyrightSuffix).toBe("All rights reserved.");
+    expect(props.footerLocationPrefix).toBe("Based in ");
+    expect(props.footerLocation).toBe("Biñan City, Laguna, Philippines");
+  });
+
+  it("prefers CMS footer fields when present on site settings", () => {
+    const settings = {
+      ...siteSettingsFallback,
+      footerMarqueeKeywords: ["Custom", "Keywords"],
+      footerCtaHeading: "Custom heading",
+      footerSecondaryCtaLabel: "Custom label",
+      footerSecondaryCtaHref: "/custom",
+      footerCopyrightSuffix: "Custom suffix.",
+      footerLocationPrefix: "From ",
+      footerLocation: "Cebu City",
+    } as SiteSettings;
+
+    const props = buildShellNavProps(settings);
+
+    expect(props.footerMarqueeKeywords).toEqual(["Custom", "Keywords"]);
+    expect(props.footerCtaHeading).toBe("Custom heading");
+    expect(props.footerSecondaryCtaLabel).toBe("Custom label");
+    expect(props.footerSecondaryCtaHref).toBe("/custom");
+    expect(props.footerCopyrightSuffix).toBe("Custom suffix.");
+    expect(props.footerLocationPrefix).toBe("From ");
+    expect(props.footerLocation).toBe("Cebu City");
+  });
 });

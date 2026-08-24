@@ -11,6 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 
+import { GlowingShadow } from "@/components/ui/glowing-shadow";
 import { cn } from "@/lib/utils";
 
 export type FocusRailItem = {
@@ -293,7 +294,7 @@ export function FocusRail({
     <>
       <div
         className={cn(
-          "group relative flex h-[560px] w-full flex-col overflow-hidden overflow-x-hidden bg-neutral-950 text-white outline-none select-none",
+          "group relative flex w-full flex-col overflow-x-hidden bg-transparent text-white outline-none select-none",
           className,
         )}
         onMouseEnter={() => setIsHovering(true)}
@@ -306,30 +307,31 @@ export function FocusRail({
         onWheel={onWheel}
         data-testid="focus-rail"
       >
-        <div className="pointer-events-none absolute inset-0 z-0">
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
           <AnimatePresence mode="popLayout">
             <motion.div
               key={`bg-${activeItem.id}`}
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.4 }}
+              animate={{ opacity: 0.35 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="absolute inset-0"
+              data-testid="focus-rail-atmosphere"
             >
               {/* eslint-disable-next-line @next/next/no-img-element -- rail supports Unsplash + CMS hosts */}
               <img
                 src={activeItem.imageSrc}
                 alt=""
-                className="h-full w-full object-cover blur-3xl saturate-200"
+                className="h-full w-full object-cover blur-3xl"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-primary)] via-[var(--bg-primary)]/55 to-transparent" />
             </motion.div>
           </AnimatePresence>
         </div>
 
         <div className="relative z-10 flex flex-1 flex-col justify-center px-4 md:px-8">
           <motion.div
-            className="relative mx-auto flex h-[360px] w-full max-w-6xl cursor-grab items-center justify-center perspective-[1200px] active:cursor-grabbing"
+            className="relative mx-auto flex h-[480px] w-full max-w-6xl cursor-grab items-center justify-center perspective-[1200px] active:cursor-grabbing md:h-[520px]"
             drag={modalOpen ? false : "x"}
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.2}
@@ -350,24 +352,23 @@ export function FocusRail({
               const isCenter = offset === 0;
               const dist = Math.abs(offset);
 
-              const xOffset = offset * 320;
-              const zOffset = -dist * 180;
-              const scale = isCenter ? 1 : 0.85;
-              const rotateY = offset * -20;
+              const xOffset = offset * 270;
+              const zOffset = -dist * 140;
+              const scale = 1;
+              const rotateY = offset * -8;
 
-              const opacity = isCenter ? 1 : Math.max(0.1, 1 - dist * 0.5);
-              const blur = isCenter ? 0 : dist * 6;
-              const brightness = isCenter ? 1 : 0.5;
+              const opacity = isCenter ? 1 : Math.max(0.4, 1 - dist * 0.22);
+              const blur = isCenter ? 0 : dist * 2;
+              const brightness = isCenter ? 1 : 0.75;
 
               return (
                 <motion.div
                   key={absIndex}
                   className={cn(
-                    "absolute aspect-[3/4] w-[260px] rounded-2xl border-t border-white/20 bg-neutral-900 shadow-2xl transition-shadow duration-300 md:w-[300px]",
-                    isCenter
-                      ? "z-20 cursor-pointer shadow-white/10"
-                      : "z-10",
+                    "focus-rail-card absolute aspect-[9/16] w-[220px] md:w-[250px]",
+                    isCenter ? "z-20 cursor-pointer" : "z-10 cursor-pointer",
                   )}
+                  data-testid="focus-rail-card"
                   initial={false}
                   animate={{
                     x: xOffset,
@@ -375,7 +376,6 @@ export function FocusRail({
                     scale,
                     rotateY,
                     opacity,
-                    filter: `blur(${blur}px) brightness(${brightness})`,
                   }}
                   transition={{ default: BASE_SPRING, scale: TAP_SPRING }}
                   style={{
@@ -390,15 +390,26 @@ export function FocusRail({
                     openModal();
                   }}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element -- rail supports Unsplash + CMS hosts */}
-                  <img
-                    src={item.imageSrc}
-                    alt={item.title}
-                    className="pointer-events-none h-full w-full rounded-2xl object-cover"
-                  />
+                  <GlowingShadow variant="card" className="absolute inset-0">
+                    <motion.div
+                      className="h-full w-full"
+                      initial={false}
+                      animate={{
+                        filter: `blur(${blur}px) brightness(${brightness})`,
+                      }}
+                      transition={BASE_SPRING}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element -- rail supports Unsplash + CMS hosts */}
+                      <img
+                        src={item.imageSrc}
+                        alt={item.title}
+                        className="pointer-events-none h-full w-full object-cover"
+                      />
 
-                  <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-b from-white/10 to-transparent" />
-                  <div className="pointer-events-none absolute inset-0 rounded-2xl bg-black/10 mix-blend-multiply" />
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/10 to-transparent" />
+                      <div className="pointer-events-none absolute inset-0 bg-black/10 mix-blend-multiply" />
+                    </motion.div>
+                  </GlowingShadow>
                 </motion.div>
               );
             })}

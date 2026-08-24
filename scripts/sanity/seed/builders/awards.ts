@@ -2,16 +2,20 @@
  * Award seed builders from the static recognition slots.
  * Source: lib/cms/fallbacks/awards.ts (read-only). Never seed a real award —
  * canon forbids fabricating accolades, so every seeded slot is a placeholder.
+ *
+ * RFC §1.2: include placeholderLabel on each slot.
  */
 
-import { awardsFallback } from "@/lib/cms/fallbacks";
-import type { Award } from "@/lib/cms/types";
+import { awardsFallback, type AwardFallbackSlot } from "@/lib/cms/fallbacks/awards";
 
 import { awardId } from "../ids";
 import type { SeedDocument } from "../types";
 
 /** Build an award document from a placeholder slot. Stable ID: the slot `id`. */
-export function buildAwardDocument(slot: Award, orderIndex: number): SeedDocument {
+export function buildAwardDocument(
+  slot: AwardFallbackSlot,
+  orderIndex: number,
+): SeedDocument {
   return {
     _id: awardId(`slot-${orderIndex + 1}`),
     _type: "award",
@@ -21,11 +25,12 @@ export function buildAwardDocument(slot: Award, orderIndex: number): SeedDocumen
     ...(slot.year ? { year: slot.year } : {}),
     order: orderIndex + 1,
     isPlaceholder: true,
+    placeholderLabel: slot.placeholderLabel ?? "Placeholder",
   };
 }
 
 export function buildAwardDocuments(
-  source: readonly Award[] = awardsFallback,
+  source: readonly AwardFallbackSlot[] = awardsFallback,
 ): SeedDocument[] {
   return source.map((slot, index) => buildAwardDocument(slot, index));
 }

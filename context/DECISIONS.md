@@ -457,6 +457,8 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 - Homepage `page.tsx` mapper (`toServiceStackSlides`) unchanged.
 - See plan Wave 1–3 for multitask ownership.
 
+**Amendment (2026-08-15):** Marquee loop is JS (`translate3d` + rAF) so the list is pointer-draggable; CSS `@keyframes marquee-vertical` remains for other consumers (testimonials). Hover reveal images come from published portfolio `coverImage` / `gallery` on projects whose `serviceType` matches the row — not stock Unsplash. `toServiceStackSlides` now receives portfolio items.
+
 ---
 
 ## ADR-022 — Phase E closeout: OpenNext Workers + R2 + kinetic nav (2026-07-30)
@@ -680,7 +682,7 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 | Alpha baked at build time vs `mix-blend-mode` / `mask-image` | Blend modes wash out the sunset plate and mask support is uneven; preprocessing is deterministic and cheap to serve |
 | Versioned key prefix instead of content hashes | Plates change rarely; bumping `v1` → `v2` is an explicit, reviewable cache bust |
 | Parallax skipped on coarse pointers | Four full-bleed plates scrubbing on mobile is a battery/jank cost for little payoff |
-| Radial brand scrim + strengthened bottom scrim | Wordmark and partner logos need contrast against a light-topped sunset plate |
+| Subtle primary glow on the wordmark (replaces charcoal radial brand scrim) | Ivory type needs a lift off the sunset plate without a muddy drop shadow; partner logos still use the stage bottom/sky scrim |
 
 **Consequences:**
 
@@ -690,4 +692,226 @@ WS-G redirects for the three live service slugs: `/services/<old>` → correspon
 - Home layout + motion rows in `ui-context.md` updated.
 
 ---
+
+## ADR-030 — Sanity ↔ frontend align: Home named fields, About WhoWeAreBand, Footer lifts (2026-08-14)
+
+**Status:** Accepted (RFC Layer 4 docs; product layers land separately). **About WhoWeAreBand display superseded by ADR-034** (component + CMS fields still kept).
+
+**Context:** Scouts found Home still described as a `blocks[]` renderer while the live page is a fixed section stack; About kept Mission/Vision/Motto/Values/Culture/Team intro in CMS but ADR-027 left them unused on `/about`; awards placeholder badge text was hardcoded; footer marketing strings were hardcoded despite `siteSettings`; testimonials UI is not ready.
+
+**Decision:**
+
+### About band supersession (ADR-027)
+
+- **ADR-027 keep:** CMS fields (`mission`, `vision`, `motto`, `values`, `cultureSummary`, `teamIntro`), GROQ, mappers, fallbacks, and seed remain. Archived `VisionBand` / `ValuesGrid` / `CultureClosing` stay archived — **do not restore**.
+- **Supersedes ADR-027 display clauses:** “do not show on `/about`” and the tradeoff “Leave CMS fields unused” — those fields now surface in a new **WhoWeAreBand** (`WHO WE ARE`) OurStory-style two-column charcoal band **between** story and timeline.
+- **Order:** AboutHero → OurStory → WhoWeAreBand → StoryTimeline → TeamGrid. Skip empty cells. Vision labeled **Vision** (never as current fact).
+
+### Home named fields (not a block renderer)
+
+- Replace `homePage.blocks[]` (and block types hero / mission / featuredWork / highlights / ctaBanner) with named fields: `partners`, `portfolioItems`, `awards`, `services`, `contactCta`, `seo` (+ `title` for Studio).
+- Remove unused hero CMS copy fields (headline, subheadline, CTA, image). **Hero UI + partners marquee remain** (ADR-023 / ADR-026 / ADR-029).
+- **Empty refs:** loaded singleton with empty `partners` / `portfolioItems` / `awards` / `services` → render **nothing** for that section (do not substitute full collections).
+- **CMS null / unreachable:** keep `resolveWithFallback` placeholders.
+
+### Awards
+
+- Unbounded list (no UI 3-cap). Home shows selected `homePage.awards` in array order.
+- CMS `placeholderLabel` on `award` drives LaurelBadge when `isPlaceholder` — never fabricate real wins.
+
+### Testimonials
+
+- Tracker stub only — **no UI** this pass: “Home testimonials section — waiting on custom design prompt from operator.”
+
+### Footer / nav
+
+- Lift Scout-proven footer marketing strings onto `siteSettings` (`footerMarqueeKeywords`, `footerCtaHeading`, `footerSecondaryCtaLabel` / `Href`, `footerCopyrightSuffix`, `footerLocationPrefix`, `footerLocation`). No footer restyle.
+- **Nav intentionally hardcoded** (`PRIMARY_NAV_ITEMS`). Aria labels / decorative glyphs stay hardcoded (a11y/chrome, not marketing copy).
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| Named Home fields vs block renderer | Matches live JSX order; editors pick refs without inventing page composition |
+| WhoWeAreBand vs restore archived sections | Reuses OurStory layout language; avoids resurrecting VisionBand/ValuesGrid/CultureClosing |
+| Empty arrays = nothing; null = placeholders | Editors can clear a Home section without a silent full-collection fallback |
+| Testimonials stub only | Operator must supply design before UI work |
+
+**Consequences:**
+
+- ADR-027 body stays historical; display unused → WhoWeAreBand via this ADR.
+- Plan: `.claude/plans/sanity-frontend-align.md` · tracker + `ui-context` + essential CMS map updated.
+- Testimonials stub superseded by **ADR-031**.
+
+---
+
+## ADR-031 — Home testimonials marquee (2026-08-14)
+
+**Status:** Accepted. **Home display superseded by ADR-035** (component + CMS fields still kept).
+
+**Context:** ADR-030 left Home testimonials as a tracker stub pending a design prompt. The operator supplied 21st.dev `testimonial-v2` (vertical quote cards, motion hover, three-column loop). Canon forbids fabricating testimonials. Awards-style placeholder slots would read as fake attributed speech.
+
+**Decision:**
+
+- New Sanity document `testimonial` (`quote`, `name`, required; `role`, `photo` r2Asset, `order`). No `isPlaceholder`. Studio copy: only publish quotes from people who agreed to be named.
+- `homePage.testimonials[]` named refs after `awards`. Home uses array order (not `document.order`).
+- **Empty refs = hide. CMS unreachable = hide.** Do not `resolveWithFallback` a quote list; do not seed testimonial documents; do not fetch the full collection onto Home. This is an explicit exception to ADR-030 “CMS null = placeholders.”
+- UI after Recognition Awards, before Services. Trust-chapter band shares awards `--bg-secondary`; cards on `--bg-surface`. Eyebrow `Testimonials`; heading `Kind words`; no volume claims.
+- Display threshold: **superseded 2026-08-15** — 0 hide · ≥1 CSS 3D marquee; extra columns hidden until md/lg. Pause on hover. `hooks/useReducedMotion` → static unique cards, no clone. See 3D CSS marquee addendum.
+- Avatar: allowlisted R2 `next/image`, else initials. No Unsplash, stars, or social hrefs.
+- Adapt `testimonial-v2` structure only: `motion/react` card springs + Kamiyon tokens. Drop dark-mode toggle and demo ERP quotes.
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| Hide until real quotes exist | Attributed speech cannot use labeled placeholders |
+| Marquee only at 3+ items | **Superseded 2026-08-15:** operator locked v2 layout — marquee at ≥1; looping one person is accepted |
+| Null CMS also hides | Avoids dumping a full collection or inventing quotes |
+| Same `--bg-secondary` as awards | One trust chapter (laurels then kind words), then services |
+
+**Consequences:**
+
+- Plan: `.claude/plans/home-testimonials-marquee.plan.md`
+- Hosted Studio must redeploy for the new type. Operators attach real refs on Home before `/#home-testimonials` appears.
+
+### Visual restyle (2026-08-15)
+
+Operator locked 21st.dev `testimonial-v2` **LAYOUT**, not demo data. CMS / hide / no-seed / no-placeholder rules above stay.
+
+- Centered pill `Testimonials` + heading `Kind words` + optional summary only
+- Cards stay `--bg-surface` (not v2 white/neutral)
+- Columns: chunk of 3; hide col2 until md, col3 until lg
+- Marquee at ≥1 quote; empty still hides
+- `motion/react` `translateY` loop (not framer-motion, not Unsplash, no dark toggle)
+- Plan: `.claude/plans/home-testimonials-v2-restyle.plan.md`
+
+### Visual restyle — 3D CSS marquee (2026-08-15)
+
+Operator replaced the v2 `motion/react` column loop with a 21st.dev 3D testimonials marquee. CMS / hide / no-seed / no-placeholder / no-Unsplash rules above stay.
+
+- Primitive: `components/ui/3d-testimonials` `Marquee` (CSS `animate-marquee` / `animate-marquee-vertical`) plus shadcn `card` / `avatar`
+- Home visual: `testimonial-marquee` maps CMS items (quote, name, role, allowlisted R2 photo or initials) into four perspective columns; extra columns hide until md/lg
+- Cards stay `--bg-surface`; scene edge fades use `--bg-secondary`
+- Reduced motion: static unique cards, no 3D scene, no clones
+- Do not ship the demo Cascade / randomuser quotes
+- Full-bleed scene (no `Container` / max-width box). Header overlays the section and stays centered. Testimonials is its own `--bg-primary` band after awards — not a shared trust-chapter surface.
+
+---
+
+## ADR-032 — Lean portfolio case-study model + Eclipse original IP (2026-08-15)
+
+**Status:** Accepted
+
+**Context:** Original IP had nowhere honest to live after ADR-017 archived `product` / `caseStudy`. The active `portfolio` type only modeled a client Challenge → Solution → Impact spine. Eclipse is a real Kamiyon original IP (GGJ 2026 → present) and needs those optional depth fields without turning every client branding entry into a 20-section wiki.
+
+**Decision:**
+
+- Keep original IP on **`portfolio`** with required `projectType`: `original-ip` | `client-work`. Do **not** revive archived `product` or `caseStudy`.
+- Keep field key `clientName`; Studio title is **Client / Owner**. Sidebar labels original IP as **Studio**, never **Client**.
+- Required spine stays: `shortDescription`, `challenge`, `solution`, `impact`, `serviceType`, `seo`, plus existing listing flags (`featured`, `isPlaceholder`, `coverImage`/`gallery` via `r2Asset`).
+- Eclipse-depth groups are **optional** and hidden on the page when empty: `status`, `developmentPeriod`, `positioning`, `gameplay`, `narrative`, `technicalDevelopment`, `creativeDirection`, `process`, `credits[]`, `recognition[]`, `videos[]`, `externalLinks[]`.
+- Credits are inline `{ name, role, person? }`. `person` may reference existing `teamMember` (Sherwin only). Project role lives on the credit; About roster role is unchanged (CEO). Do not add jam collaborators to the About roster.
+- Project `recognition[]` is not the home `award` document. CIIT Most Fun Award is seeded on Eclipse only — not on home laurels.
+- Seed `portfolio-eclipse` (`isPlaceholder: false`, `featured: true`) alongside the existing sample client placeholder (`client-work`). No invented engine, PGDX, metrics, trailers, or gallery images.
+
+**Consequences:**
+
+- `/portfolio/eclipse` is the original-IP case study. `/portfolio/sample-client-project-placeholder` stays a sparse client entry (no empty Gameplay/Technical blocks).
+- Hosted Studio must redeploy for the new fields. Operators re-seed the dataset (`pnpm sanity:seed`) so Eclipse exists in Sanity, not only in fallbacks.
+- Home `portfolioItems[]` refs follow the fallback list (Eclipse + placeholder). CIIT is not a home laurel unless a later task says so.
+
+---
+
+## ADR-033 — Home hero parallax v2: motion plates + earth underlay (2026-08-15)
+
+**Status:** Accepted
+
+**Context:** ADR-029 shipped four still WebP plates at `site/hero/parallax/v1` (1024×682, black-keyed JPEGs). New art is 1920×1080 with real alpha, two looping videos (sky + ocean), and an earth cross-section meant to sit permanently behind the stack. The browser plays **one** of WebM or MP4; the WebP is the freeze-frame until (or instead of) the video — not a third movie. The wordmark stays a motion layer, not a file.
+
+**Decision:**
+
+- Bump the key prefix to `site/hero/parallax/v2/` (immutable cache bust). Leave v1 objects in place.
+- Eight CDN stack files: `layer-1.webp|webm|mp4`, `layer-2.webp`, `layer-3.webp|webm|mp4`, `layer-4.webp`. Plus `background.webp` as a **static** underlay behind the plates (not a fifth parallax layer). PNG originals archived under `v2/source/`.
+- Intrinsic plate size is 1920×1080. Ready-made WebP is published as-is (no black-key, no re-encode). The black-key pass remains for JPEG-over-black exports.
+- Motion plates render `<img>` (next/image, priority) under `<video autoplay muted loop playsinline>` with `<source>` order WebM then MP4. `prefers-reduced-motion: reduce` hides the video (`motion-reduce:hidden`); the freeze-frame stays.
+- Scroll/GSAP stack, brand slot (`yPercent` 25), and `HeroOpening` fallback are unchanged. `/assets/background.avif` stays the static-hero scenic plate and other-section placeholder — the new earth art is the parallax underlay only.
+- `pnpm media:hero-parallax -- --source <dir> --apply` still publishes to staging + production R2.
+
+**Accepted tradeoffs:**
+
+| Tradeoff | Rationale |
+| --- | --- |
+| Dual video sources, not Cloudflare Stream | Matches the supplied files; R2 already serves the stills; one of WebM/MP4 is enough per browser |
+| CSS-hide videos under reduced motion rather than omitting them from the DOM | Avoids a hydration mismatch (ADR-029 / ui-context: markup that depends on the preference must not fork SSR vs client) |
+| Earth underlay is static | Operator asked to replace the background underneath the hero, not to add a fifth scrubbed plate |
+
+**Consequences:**
+
+- `HeroParallaxOpening` plates are wrappers (`data-parallax-layer` on the wrapper so still + video travel together).
+- Republish remains an operator step (`context/deploy-runbook.md`). A Worker rebuild is required before production HTML points at v2.
+
+**Amendment (same day):** Earth `background.webp` is the **Recent Projects** section backdrop (`#home-projects`), not a hero underlay. `/assets/background.avif` is unchanged. Motion videos are CSS-masked with the WebP alpha so black backing cannot cover sky/mountains. Foreground plate travel is `yPercent: 0` so its ground line can meet the projects earth plate. Hero bottom charcoal scrim is omitted on the parallax stage for that join.
+
+**Amendment (v3, same day):** Operator replaced the four-plate v2 pack with a two-layer stack. Prefix bumps to `site/hero/parallax/v3/` (v1 and v2 objects stay). Landscape is an opaque `homepage.mp4` with `fallback.avif` as the freeze-frame — no WebM, no CSS alpha mask. Foreground is `foreground.avif` (real alpha, planted at `yPercent` 0). Earth plate is `ground.avif` on `#home-projects`. `/assets/background.avif` stays the static-hero / other-page plate. Pipeline passthroughs AVIF; MP4-only plates are valid.
+
+---
+
+## ADR-034 — Hide WhoWeAreBand on /about (2026-08-15)
+
+**Status:** Accepted
+
+**Context:** ADR-030 surfaced Mission/Vision/Motto/Values/Culture/Team intro in a WhoWeAreBand between story and timeline. The operator asked to hide that band on `/about` again.
+
+**Decision:**
+
+- Do **not** mount `WhoWeAreBand` on `/about`. Order is AboutHero → OurStory → StoryTimeline → TeamGrid.
+- Keep `WhoWeAreBand` in-repo. Keep CMS fields (`mission`, `vision`, `motto`, `values`, `cultureSummary`, `teamIntro`), GROQ, mappers, fallbacks, and seed.
+- Do **not** restore archived VisionBand / ValuesGrid / CultureClosing.
+
+**Consequences:**
+
+- ADR-030 About display clause (WhoWeAreBand between story and timeline) is superseded for the live page. CMS keep clauses from ADR-027 / ADR-030 still apply.
+- `ui-context.md` About row and essential CMS map updated.
+
+---
+
+## ADR-035 — Hide TestimonialsMarquee on Home (2026-08-15)
+
+**Status:** Accepted
+
+**Context:** ADR-031 mounted a 3D testimonials marquee after Recognition Awards. Preview quotes used team-roster names so `/#home-testimonials` could be reviewed. The operator asked to hide that band on Home.
+
+**Decision:**
+
+- Do **not** mount `TestimonialsMarquee` on Home. Order is Hero → Projects → Recognition → Services → Contact.
+- Drop `home-testimonials` from `HOME_SECTION_NAV`.
+- Keep `TestimonialsMarquee`, `testimonial-marquee`, and `3d-testimonials` in-repo. Keep CMS type `testimonial`, `homePage.testimonials[]`, GROQ, mappers, fallbacks, and seed.
+
+**Consequences:**
+
+- ADR-031 display clause (section after awards, nav anchor) is superseded for the live page. CMS keep clauses from ADR-031 still apply.
+- `ui-context.md` Home row and essential CMS map updated.
+
+---
+
+## ADR-036 — Home partners is a standalone section between projects and recognition (2026-08-15)
+
+**Status:** Accepted
+
+**Context:** ADR-023 combined partners into the hero opening as a lower band. The operator asked to restore partners as its own homepage section and place it between Recent Projects and Recognition.
+
+**Decision:**
+
+- Do **not** mount `PartnersMarquee` inside `Hero` / `HeroOpening` / `HeroParallaxOpening`.
+- Home order is Hero → Projects → Partners → Recognition → Services → Contact.
+- Mount `<PartnersMarquee eyebrow="Trusted by" partners={…} />` with default `layout="section"` when `partners.length > 0`. Empty CMS refs still render nothing (ADR-030).
+- Keep `#home-partners` and move it in `HOME_SECTION_NAV` to sit after `#home-projects`.
+- Section chrome: `--bg-secondary`, `py-16 md:py-24`, `data-nav-theme="dark"` (matches neighboring homepage sections).
+- Keep `layout="band"` on `PartnersMarquee` unused; do not delete the API in this pass.
+
+**Consequences:**
+
+- ADR-023 combined-opening clause (partners band in the hero) is superseded for the live page. CMS partner docs, marquee engine (ADR-026), and empty-ref rules (ADR-030) still apply.
+- `ui-context.md` Home row, essential CMS map, and progress tracker updated.
 

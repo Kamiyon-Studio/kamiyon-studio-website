@@ -5,6 +5,7 @@ const staticRoutes = ["/", "/about", "/services", "/portfolio", "/blog", "/conta
 const dynamicRoutes = [
   "/services/game-development",
   "/portfolio/sample-client-project-placeholder",
+  "/portfolio/eclipse",
 ];
 
 const redirectedRoutes = ["/products", "/products/eclipse", "/community"];
@@ -55,6 +56,7 @@ test("About page renders cinematic hero, story, timeline, and team", async ({
 
   await page.locator("#our-story").scrollIntoViewIfNeeded();
   await expect(page.getByRole("heading", { level: 2, name: "OUR STORY" })).toBeVisible();
+  await expect(page.locator("#who-we-are")).toHaveCount(0);
 
   await page.locator("#timeline").scrollIntoViewIfNeeded();
   await expect(page.locator("#timeline")).toBeVisible();

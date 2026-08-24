@@ -42,12 +42,12 @@ export function PartnersMarquee({
   return (
     <section
       id="home-partners"
-      data-nav-theme={isBand ? "dark" : "light"}
+      data-nav-theme="dark"
       className={cn(
         "scroll-mt-4",
         isBand
           ? "bg-transparent py-4 md:py-6"
-          : "bg-[var(--bg-secondary)] py-12 md:py-16",
+          : "bg-[var(--bg-secondary)] py-16 md:py-24",
       )}
       aria-label={sectionLabel}
     >

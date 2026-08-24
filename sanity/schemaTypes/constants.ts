@@ -13,6 +13,7 @@ export const SANITY_DOCUMENT_TYPES = [
   "communityItem",
   "partner",
   "award",
+  "testimonial",
   "mediaAsset",
   "author",
   "category",
@@ -80,8 +81,6 @@ export const SANITY_ARCHIVED_TYPES = [
   "mediaAsset",
 ] as const satisfies readonly SanityDocumentType[];
 
-export type SanityArchivedType = (typeof SANITY_ARCHIVED_TYPES)[number];
-
 /** Expected Sanity object type names used in schemas. */
 export const SANITY_OBJECT_TYPES = [
   "r2Asset",
@@ -96,12 +95,6 @@ export const SANITY_OBJECT_TYPES = [
   "contactChannel",
   "faqItem",
   "productMedia",
-  "homeHighlight",
-  "hero",
-  "mission",
-  "featuredWork",
-  "highlights",
-  "ctaBanner",
 ] as const;
 
 type SanityObjectType = (typeof SANITY_OBJECT_TYPES)[number];

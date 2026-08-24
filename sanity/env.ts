@@ -8,10 +8,10 @@
  */
 
 /** Public project id — safe to ship in Studio/client bundles. */
-export const DEFAULT_PROJECT_ID = "c6ej1xoj";
+const DEFAULT_PROJECT_ID = "c6ej1xoj";
 
 /** Default dataset for this site (staging + Studio). */
-export const DEFAULT_DATASET = "kamiyon";
+const DEFAULT_DATASET = "kamiyon";
 
 // Keep each process.env.* as a static identifier so Vite/Sanity can inline it.
 const studioProjectId = process.env.SANITY_STUDIO_PROJECT_ID;

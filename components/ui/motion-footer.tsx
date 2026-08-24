@@ -19,7 +19,15 @@ import {
 } from "@/lib/gsap";
 import { SCROLL_SCRUB_SMOOTH } from "@/lib/motion/constants";
 import { prefersReducedMotion } from "@/lib/motion/reduced-motion";
-import { STUDIO_LOCATION } from "@/lib/seo/constants";
+import {
+  DEFAULT_FOOTER_COPYRIGHT_SUFFIX,
+  DEFAULT_FOOTER_CTA_HEADING,
+  DEFAULT_FOOTER_LOCATION,
+  DEFAULT_FOOTER_LOCATION_PREFIX,
+  DEFAULT_FOOTER_MARQUEE_KEYWORDS,
+  DEFAULT_FOOTER_SECONDARY_CTA_HREF,
+  DEFAULT_FOOTER_SECONDARY_CTA_LABEL,
+} from "@/lib/cms/fallbacks/site-settings";
 import { cn } from "@/lib/utils";
 
 /** Full-viewport footer travel needs softer lag than SCROLL_SCRUB_UI. */
@@ -27,23 +35,22 @@ const FOOTER_SCROLL_SCRUB = SCROLL_SCRUB_SMOOTH;
 
 const currentYear = new Date().getFullYear();
 
-const MARQUEE_KEYWORDS = [
-  "Games",
-  "EdTech",
-  "Portfolio",
-  "Interactive Experiences",
-  "Contact",
-] as const;
-
 export type CinematicFooterProps = {
   siteName: string;
   footerMotto: string;
   navItems: readonly NavItem[];
   socialLinks: readonly NavSocialLink[];
   contactCta: NavItem;
+  footerMarqueeKeywords?: readonly string[];
+  footerCtaHeading?: string;
+  footerSecondaryCtaLabel?: string;
+  footerSecondaryCtaHref?: string;
+  footerCopyrightSuffix?: string;
+  footerLocationPrefix?: string;
+  footerLocation?: string;
 };
 
-export type MagneticButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
+type MagneticButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
   React.AnchorHTMLAttributes<HTMLAnchorElement> & {
     as?: React.ElementType;
   };
@@ -150,17 +157,18 @@ MagneticButton.displayName = "MagneticButton";
 
 type MarqueeItemProps = {
   motto: string;
+  keywords: readonly string[];
 };
 
-function MarqueeItem({ motto }: MarqueeItemProps) {
+function MarqueeItem({ motto, keywords }: MarqueeItemProps) {
   return (
     <div className="flex items-center space-x-12 px-6">
       <span>{motto}</span>
       <span className="text-primary/60" aria-hidden="true">
         ✦
       </span>
-      {MARQUEE_KEYWORDS.map((keyword, index) => (
-        <React.Fragment key={keyword}>
+      {keywords.map((keyword, index) => (
+        <React.Fragment key={`${keyword}-${index}`}>
           <span>{keyword}</span>
           <span
             className={
@@ -182,6 +190,13 @@ export function CinematicFooter({
   navItems,
   socialLinks,
   contactCta,
+  footerMarqueeKeywords = DEFAULT_FOOTER_MARQUEE_KEYWORDS,
+  footerCtaHeading = DEFAULT_FOOTER_CTA_HEADING,
+  footerSecondaryCtaLabel = DEFAULT_FOOTER_SECONDARY_CTA_LABEL,
+  footerSecondaryCtaHref = DEFAULT_FOOTER_SECONDARY_CTA_HREF,
+  footerCopyrightSuffix = DEFAULT_FOOTER_COPYRIGHT_SUFFIX,
+  footerLocationPrefix = DEFAULT_FOOTER_LOCATION_PREFIX,
+  footerLocation = DEFAULT_FOOTER_LOCATION,
 }: CinematicFooterProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const giantTextRef = useRef<HTMLDivElement>(null);
@@ -299,8 +314,8 @@ export function CinematicFooter({
           aria-hidden="true"
         >
           <div className="animate-footer-scroll-marquee flex w-max text-xs font-bold tracking-[0.3em] text-muted-foreground uppercase md:text-sm">
-            <MarqueeItem motto={footerMotto} />
-            <MarqueeItem motto={footerMotto} />
+            <MarqueeItem motto={footerMotto} keywords={footerMarqueeKeywords} />
+            <MarqueeItem motto={footerMotto} keywords={footerMarqueeKeywords} />
           </div>
         </div>
 
@@ -309,7 +324,7 @@ export function CinematicFooter({
             ref={headingRef}
             className="footer-text-glow mb-4 text-center font-display text-5xl font-black tracking-tighter md:text-8xl"
           >
-            Ready to begin?
+            {footerCtaHeading}
           </h2>
           <p className="mb-12 max-w-md text-center text-sm text-muted-foreground md:text-base">
             {footerMotto}
@@ -330,10 +345,10 @@ export function CinematicFooter({
 
               <MagneticButton
                 as={SameRouteLink}
-                href="/portfolio"
+                href={footerSecondaryCtaHref}
                 className="footer-text-link text-sm font-bold md:text-base"
               >
-                View portfolio
+                {footerSecondaryCtaLabel}
               </MagneticButton>
             </div>
 
@@ -424,9 +439,12 @@ export function CinematicFooter({
         <div className="relative z-20 flex w-full flex-col items-center justify-between gap-6 px-6 pb-8 md:flex-row md:px-12">
           <div className="order-2 space-y-1 text-center text-[10px] font-semibold tracking-widest text-muted-foreground uppercase md:order-1 md:text-left md:text-xs">
             <p>
-              © {currentYear} {siteName}. All rights reserved.
+              © {currentYear} {siteName}. {footerCopyrightSuffix}
             </p>
-            <p>Based in {STUDIO_LOCATION}</p>
+            <p>
+              {footerLocationPrefix}
+              {footerLocation}
+            </p>
           </div>
 
           <MagneticButton

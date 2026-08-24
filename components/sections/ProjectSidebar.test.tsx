@@ -8,12 +8,18 @@ const baseCaseStudy: CaseStudy = {
   _type: "portfolio",
   title: "Sample Client Project — Placeholder",
   slug: { current: "sample-client-project-placeholder" },
+  projectType: "client-work",
   clientName: "TBD",
   industry: "Education",
   serviceType: "game-development",
+  shortDescription: "",
   challenge: "",
   solution: "",
   impact: "",
+  credits: [],
+  recognition: [],
+  videos: [],
+  externalLinks: [],
   gallery: [],
   featured: false,
   isPlaceholder: true,
@@ -77,5 +83,41 @@ describe("ProjectSidebar", () => {
     const cta = screen.getByRole("link", { name: "Discuss a similar project" });
     expect(cta).toHaveAttribute("href", expect.stringContaining("docs.google.com/forms"));
     expect(cta).toHaveAttribute("target", "_blank");
+  });
+
+  it("labels original IP as Studio, never Client, and uses a quieter CTA", () => {
+    render(
+      <ProjectSidebar
+        caseStudy={{
+          ...baseCaseStudy,
+          projectType: "original-ip",
+          clientName: "Kamiyon Studio",
+          status: "in-development",
+          developmentPeriod: "Global Game Jam 2026 → Present",
+        }}
+      />
+    );
+
+    expect(screen.getByText("Studio")).toBeInTheDocument();
+    expect(screen.queryByText("Client")).not.toBeInTheDocument();
+    expect(screen.getByText("Kamiyon Studio")).toBeInTheDocument();
+    expect(screen.getByText("Original IP")).toBeInTheDocument();
+    expect(screen.getByText("In development")).toBeInTheDocument();
+    expect(screen.getByText("Global Game Jam 2026 → Present")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Get in touch" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Discuss a similar project" })).not.toBeInTheDocument();
+  });
+
+  it("hides empty status and period rows", () => {
+    render(<ProjectSidebar caseStudy={baseCaseStudy} />);
+
+    expect(screen.queryByText("Status")).not.toBeInTheDocument();
+    expect(screen.queryByText("Period")).not.toBeInTheDocument();
+  });
+
+  it("hides the industry row when industry is empty", () => {
+    render(<ProjectSidebar caseStudy={{ ...baseCaseStudy, industry: "" }} />);
+
+    expect(screen.queryByText("Industry")).not.toBeInTheDocument();
   });
 });

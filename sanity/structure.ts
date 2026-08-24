@@ -19,6 +19,7 @@ const COLLECTION_TYPES = [
   "portfolio",
   "partner",
   "award",
+  "testimonial",
   "post",
 ] as const;
 
@@ -38,7 +39,11 @@ export const structure: StructureResolver = (S) =>
         S.listItem()
           .title(SINGLETON_TITLES[type])
           .id(type)
-          .child(S.document().schemaType(type).documentId(type)),
+          .child(
+            // homePage field order comes from schema: title → Partners →
+            // Portfolio → Awards → Testimonials → Services → Contact CTA → SEO
+            S.document().schemaType(type).documentId(type),
+          ),
       ),
       S.divider(),
       S.listItem()

@@ -1,6 +1,6 @@
 /**
  * Pure blog seed builders: postsFallback → Sanity createOrReplace docs.
- * Authors reference teamMember; categories/tags are string taxonomy values.
+ * Authors reference teamMember. Categories/tags/readingTime/relatedPosts omitted (RFC §1.5).
  */
 
 import { postsFallback } from "@/lib/cms/fallbacks/posts";
@@ -52,20 +52,15 @@ export function buildBlogPostDocument(
     title: post.title,
     slug: toSlug(post.slug.current),
     authors: [toReference(teamMemberId(authorName), "author-team-member")],
-    categories: post.categories.map((category) => category.slug.current),
-    tags: post.tags.map((tag) => tag.slug.current),
     body,
     seo: toSeo(post.seo),
-    ...(typeof post.readingTimeMinutes === "number"
-      ? { readingTimeMinutes: post.readingTimeMinutes }
-      : {}),
     publishedAt: post.publishedAt,
     ...(post.updatedAt ? { updatedAt: post.updatedAt } : {}),
   };
 }
 
 /**
- * Ordered blog upsert list: posts only (taxonomy strings + teamMember author).
+ * Ordered blog upsert list: posts only (teamMember author).
  * Archived author/category/tag docs are not seeded.
  */
 export function buildBlogSeedDocuments(

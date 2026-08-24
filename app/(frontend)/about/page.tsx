@@ -108,6 +108,7 @@ export default async function AboutPage() {
       <AnimatedSection as="div" distance={28}>
         <OurStory storySections={storySections} />
       </AnimatedSection>
+      {/* WhoWeAreBand kept in-repo; hidden on /about (ADR-034). */}
       {/* Scroll timeline owns its own GSAP ScrollTrigger — no outer AnimatedSection. */}
       <StoryTimeline
         heading={timelineHeading}

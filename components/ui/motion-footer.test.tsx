@@ -427,4 +427,86 @@ describe("CinematicFooter", () => {
       screen.getByRole("navigation", { name: "Connect" }),
     ).toBeInTheDocument();
   });
+
+  it("defaults match current hardcoded footer marketing copy", () => {
+    render(
+      <CinematicFooter
+        siteName={testShellProps.siteName}
+        footerMotto={testShellProps.footerMotto}
+        navItems={testShellProps.navItems}
+        socialLinks={testShellProps.socialLinks}
+        contactCta={testShellProps.contactCta}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "Ready to begin?" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "View portfolio" }),
+    ).toHaveAttribute("href", "/portfolio");
+    expect(
+      screen.getByText(
+        new RegExp(
+          `© ${new Date().getFullYear()} Kamiyon Studio\\. All rights reserved\\.`,
+        ),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Based in Biñan City, Laguna, Philippines"),
+    ).toBeInTheDocument();
+
+    for (const keyword of [
+      "Games",
+      "EdTech",
+      "Portfolio",
+      "Interactive Experiences",
+      "Contact",
+    ]) {
+      expect(screen.getAllByText(keyword).length).toBeGreaterThan(0);
+    }
+  });
+
+  it("renders CMS footer strings when provided", () => {
+    render(
+      <CinematicFooter
+        siteName={testShellProps.siteName}
+        footerMotto={testShellProps.footerMotto}
+        navItems={testShellProps.navItems}
+        socialLinks={testShellProps.socialLinks}
+        contactCta={testShellProps.contactCta}
+        footerMarqueeKeywords={["Alpha", "Beta"]}
+        footerCtaHeading="Let's ship?"
+        footerSecondaryCtaLabel="See work"
+        footerSecondaryCtaHref="/work"
+        footerCopyrightSuffix="Rights retained."
+        footerLocationPrefix="Studio in "
+        footerLocation="Manila, Philippines"
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "Let's ship?" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "See work" })).toHaveAttribute(
+      "href",
+      "/work",
+    );
+    expect(
+      screen.getByText(
+        new RegExp(
+          `© ${new Date().getFullYear()} Kamiyon Studio\\. Rights retained\\.`,
+        ),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Studio in Manila, Philippines"),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("Alpha").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Beta").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Ready to begin?")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "View portfolio" }),
+    ).not.toBeInTheDocument();
+  });
 });

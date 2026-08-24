@@ -5,15 +5,45 @@ import { buildMediaPublicUrl } from "@/lib/cms/media";
  * R2 key prefix for the hero parallax plates. The version segment lets a new
  * set of plates ship without waiting out CDN caches on the old keys.
  */
-export const HERO_PARALLAX_KEY_PREFIX = "site/hero/parallax/v1";
+export const HERO_PARALLAX_KEY_PREFIX = "site/hero/parallax/v3";
 
 /**
- * Intrinsic size of every plate. All four share one size on purpose: the layers
- * are cropped identically by `object-cover`, so a mismatch would slide them out
- * of register with each other.
+ * Intrinsic size of the stack. Foreground and ground share this; the video
+ * freeze-frame is the same aspect and is cropped by the shared `object-cover`.
  */
-export const HERO_PARALLAX_LAYER_WIDTH = 1024;
-export const HERO_PARALLAX_LAYER_HEIGHT = 682;
+export const HERO_PARALLAX_LAYER_WIDTH = 1920;
+export const HERO_PARALLAX_LAYER_HEIGHT = 1080;
+
+/** Earth plate used as the Recent Projects section backdrop. */
+export const HERO_PARALLAX_BACKGROUND_FILE = "ground.avif";
+
+/** Shared crop so stills and video stay in register. Pin the sky to the viewport top. */
+export const HERO_PARALLAX_OBJECT_POSITION = "center top";
+
+/**
+ * How far the planted cliff hangs into Recent Projects, in `svh`.
+ * Hero padding, the charcoal dissolve, and the projects pull-up stay in lockstep
+ * so the fade never washes the first viewport (Trusted By, grass ridge).
+ */
+export const HERO_PROJECTS_SEAM_SVH = 18;
+
+export type HeroProjectsSeamOverlayStyle = {
+  height: string;
+  backgroundImage: string;
+};
+
+/** Overlay that paints only the hanging soil into `--color-charcoal`. */
+export function heroProjectsSeamOverlayStyle(): HeroProjectsSeamOverlayStyle {
+  return {
+    height: `${HERO_PROJECTS_SEAM_SVH}svh`,
+    backgroundImage: `linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--color-charcoal) 55%, transparent) 45%, var(--color-charcoal) 100%)`,
+  };
+}
+
+export type HeroParallaxVideoFiles = {
+  webm?: string;
+  mp4: string;
+};
 
 export type HeroParallaxLayer = {
   /** Depth index, 1 = furthest from the viewer. */
@@ -29,25 +59,99 @@ export type HeroParallaxLayer = {
    * further away.
    */
   yPercent: number;
+  /**
+   * Optional motion plate. The still is the freeze-frame until (or instead of)
+   * the video — never a second movie.
+   */
+  video?: HeroParallaxVideoFiles;
 };
 
+/**
+ * Live stack is landscape-only for now (foreground plate parked).
+ * Re-add `foreground.avif` at depth 2 / yPercent 0 when previewing the cliff again.
+ */
 export const HERO_PARALLAX_LAYERS: readonly HeroParallaxLayer[] = [
-  { depth: 1, file: "layer-1.webp", subject: "Sunset sky and far range", yPercent: 70 },
-  { depth: 2, file: "layer-2.webp", subject: "Lit ridge and lake", yPercent: 55 },
-  { depth: 3, file: "layer-3.webp", subject: "Pagoda hillside", yPercent: 40 },
-  { depth: 4, file: "layer-4.webp", subject: "Foreground rocks and foliage", yPercent: 10 },
+  {
+    depth: 1,
+    file: "fallback.avif",
+    subject: "Sunset landscape video freeze-frame",
+    yPercent: 70,
+    video: { mp4: "homepage.mp4" },
+  },
 ];
 
 /**
- * Travel for the wordmark plate. Sits between the pagoda hillside and the
- * foreground rocks so the rocks rise over the wordmark as the hero exits.
+ * Travel for the wordmark plate. Kept below the landscape travel so the brand
+ * stays in front of the video plate while scrolling.
  */
 export const HERO_PARALLAX_BRAND_Y_PERCENT = 25;
 
-export type ResolvedHeroParallaxLayer = HeroParallaxLayer & { src: string };
+export type ResolvedHeroParallaxLayer = HeroParallaxLayer & {
+  src: string;
+  webmSrc?: string;
+  mp4Src?: string;
+};
 
 export function buildHeroParallaxLayerKey(file: string): string {
   return `${HERO_PARALLAX_KEY_PREFIX}/${file}`;
+}
+
+export type HeroParallaxVideoMaskStyle = {
+  maskImage: string;
+  WebkitMaskImage: string;
+  maskMode: "alpha";
+  maskSize: string;
+  WebkitMaskSize: string;
+  maskPosition: string;
+  WebkitMaskPosition: string;
+  maskRepeat: string;
+  WebkitMaskRepeat: string;
+};
+
+/**
+ * CSS mask that keeps a motion plate's transparent regions empty.
+ *
+ * Kept for plates whose video is composited over black. The v3 homepage video
+ * is a full opaque scene, so the hero does not apply this mask.
+ */
+export function heroParallaxVideoMaskStyle(stillSrc: string): HeroParallaxVideoMaskStyle {
+  const mask = `url("${stillSrc}")`;
+
+  return {
+    maskImage: mask,
+    WebkitMaskImage: mask,
+    maskMode: "alpha",
+    maskSize: "cover",
+    WebkitMaskSize: "cover",
+    maskPosition: HERO_PARALLAX_OBJECT_POSITION,
+    WebkitMaskPosition: HERO_PARALLAX_OBJECT_POSITION,
+    maskRepeat: "no-repeat",
+    WebkitMaskRepeat: "no-repeat",
+  };
+}
+
+function resolveParallaxFileUrl(file: string): string | null {
+  return buildMediaPublicUrl(buildHeroParallaxLayerKey(file));
+}
+
+function resolveVideoUrls(
+  video: HeroParallaxVideoFiles | undefined,
+): Pick<ResolvedHeroParallaxLayer, "webmSrc" | "mp4Src"> {
+  if (!video) {
+    return {};
+  }
+
+  const mp4Src = resolveParallaxFileUrl(video.mp4);
+  if (!mp4Src) {
+    return {};
+  }
+
+  const webmSrc = video.webm ? resolveParallaxFileUrl(video.webm) ?? undefined : undefined;
+
+  return {
+    mp4Src,
+    ...(webmSrc ? { webmSrc } : {}),
+  };
 }
 
 /**
@@ -61,15 +165,28 @@ export function resolveHeroParallaxLayers(): ResolvedHeroParallaxLayer[] | null 
   const resolved: ResolvedHeroParallaxLayer[] = [];
 
   for (const layer of HERO_PARALLAX_LAYERS) {
-    const src = buildMediaPublicUrl(buildHeroParallaxLayerKey(layer.file));
+    const src = resolveParallaxFileUrl(layer.file);
     if (!src || !isAllowedNextImageSrc(src)) {
       return null;
     }
 
-    resolved.push({ ...layer, src });
+    resolved.push({ ...layer, src, ...resolveVideoUrls(layer.video) });
   }
 
   return resolved;
+}
+
+/**
+ * Earth plate for the Recent Projects section. Same host gate as the stills so
+ * `next/image` never points at a host it would reject.
+ */
+export function resolveHomeProjectsBackground(): string | null {
+  const src = resolveParallaxFileUrl(HERO_PARALLAX_BACKGROUND_FILE);
+  if (!src || !isAllowedNextImageSrc(src)) {
+    return null;
+  }
+
+  return src;
 }
 
 /**

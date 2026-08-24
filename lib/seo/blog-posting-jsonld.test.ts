@@ -19,15 +19,12 @@ const basePost: Post = {
       isPlaceholder: true,
     },
   ],
-  categories: [],
-  tags: [],
   body: [],
   seo: {
     title: "Studio notes",
     description: "July studio update.",
   },
   publishedAt: "2026-07-24T10:00:00.000Z",
-  relatedPostSlugs: [],
 };
 
 describe("getBlogPostingJsonLd", () => {

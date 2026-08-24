@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { HomeHero } from "@/lib/cms/types";
-import type { PartnerPlaceholder } from "@/lib/home/partner-placeholders";
 import { SITE_MOTTO } from "@/lib/seo/constants";
 import { HeroOpening } from "./HeroOpening";
 
@@ -43,34 +42,6 @@ vi.mock("@/components/ui/SplitText", () => ({
   }) => <Tag className={className}>{text}</Tag>,
 }));
 
-const partnersMarqueeMock = vi.fn(
-  ({
-    layout,
-    tone,
-    partners,
-  }: {
-    layout?: string;
-    tone?: string;
-    partners?: PartnerPlaceholder[];
-  }) => (
-    <div
-      data-testid="partners-marquee-mock"
-      data-layout={layout}
-      data-tone={tone}
-      data-partner-count={partners?.length ?? 0}
-    />
-  ),
-);
-
-vi.mock("@/components/sections/PartnersMarquee", () => ({
-  PartnersMarquee: (props: {
-    layout?: string;
-    tone?: string;
-    eyebrow?: string;
-    partners?: PartnerPlaceholder[];
-  }) => partnersMarqueeMock(props),
-}));
-
 const baseHero: HomeHero = {
   _type: "hero",
   headline: "Meaningful interactive experiences, built with purpose.",
@@ -79,14 +50,9 @@ const baseHero: HomeHero = {
   ctaHref: "/services",
 };
 
-const samplePartners: PartnerPlaceholder[] = [
-  { id: "partner-1", label: "Partner placeholder" },
-  { id: "partner-2", label: "Partner placeholder" },
-];
-
 describe("HeroOpening", () => {
   it("renders centered KAMIYON STUDIO brand and motto without CMS copy, CTA, or featured list", () => {
-    render(<HeroOpening hero={baseHero} partners={samplePartners} />);
+    render(<HeroOpening hero={baseHero} />);
 
     expect(
       screen.getByRole("heading", { level: 1, name: "KAMIYON STUDIO" }),
@@ -107,7 +73,7 @@ describe("HeroOpening", () => {
 
   it("includes a full-bleed stage, curtain layer, and parallax background wrapper", () => {
     const { container } = render(
-      <HeroOpening hero={baseHero} partners={samplePartners} />,
+      <HeroOpening hero={baseHero} />,
     );
 
     const section = container.querySelector("section");
@@ -129,31 +95,24 @@ describe("HeroOpening", () => {
   });
 
   it("mounts the hero scroll helper tip", () => {
-    render(<HeroOpening hero={baseHero} partners={samplePartners} />);
+    render(<HeroOpening hero={baseHero} />);
 
     expect(screen.getByTestId("hero-scroll-helper")).toBeInTheDocument();
     expect(screen.getByText("Scroll down")).toBeInTheDocument();
   });
 
-  it("mounts PartnersMarquee with layout=band, tone=onDark, and Trusted by eyebrow when partners are provided", () => {
-    partnersMarqueeMock.mockClear();
+  it("does not mount a partners band in the opening stage", () => {
+    const { container } = render(<HeroOpening hero={baseHero} />);
 
-    render(<HeroOpening hero={baseHero} partners={samplePartners} />);
-
-    expect(screen.getByTestId("partners-marquee-mock")).toBeInTheDocument();
-    expect(partnersMarqueeMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        layout: "band",
-        tone: "onDark",
-        eyebrow: "Trusted by",
-        partners: samplePartners,
-      }),
-    );
+    expect(
+      container.querySelector("[data-testid='hero-partners-zone']"),
+    ).not.toBeInTheDocument();
+    expect(container.querySelector("#home-partners")).not.toBeInTheDocument();
   });
 
   it("does not fade the hero into --bg-secondary via hero-partners-blend", () => {
     const { container } = render(
-      <HeroOpening hero={baseHero} partners={samplePartners} />,
+      <HeroOpening hero={baseHero} />,
     );
 
     expect(
@@ -168,7 +127,7 @@ describe("HeroOpening", () => {
 
   it("keeps a soft bottom scrim for logo legibility", () => {
     const { container } = render(
-      <HeroOpening hero={baseHero} partners={samplePartners} />,
+      <HeroOpening hero={baseHero} />,
     );
 
     expect(
@@ -176,9 +135,9 @@ describe("HeroOpening", () => {
     ).toBeInTheDocument();
   });
 
-  it("anchors brand in the upper zone and partners in the lower zone", () => {
+  it("anchors brand in the centered opening zone", () => {
     const { container } = render(
-      <HeroOpening hero={baseHero} partners={samplePartners} />,
+      <HeroOpening hero={baseHero} />,
     );
 
     const layout = container.querySelector("[data-testid='hero-opening-layout']");
@@ -190,13 +149,8 @@ describe("HeroOpening", () => {
       screen.getByRole("heading", { level: 1, name: "KAMIYON STUDIO" }),
     );
     expect(brandZone).toContainElement(screen.getByText(SITE_MOTTO));
-
-    const partnersZone = container.querySelector(
-      "[data-testid='hero-partners-zone']",
-    );
-    expect(partnersZone).toBeInTheDocument();
-    expect(partnersZone).toContainElement(
-      screen.getByTestId("partners-marquee-mock"),
-    );
+    expect(
+      container.querySelector("[data-testid='hero-partners-zone']"),
+    ).not.toBeInTheDocument();
   });
 });

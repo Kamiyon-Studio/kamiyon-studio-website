@@ -1,111 +1,70 @@
-import { homePageFallback } from "@/lib/cms/fallbacks/home";
-import type {
-  HomeBlock,
-  HomeCtaBanner,
-  HomeFeaturedWork,
-  HomeHero,
-  HomeHighlights,
-  HomeMission,
-  HomePage,
-} from "@/lib/cms/types";
+/**
+ * RFC — Sanity ↔ Frontend Align §4
+ * Home seed emits named refs (partners, portfolio, awards, testimonials,
+ * services) + contactCta. Testimonials are team-roster preview quotes so the
+ * Home marquee can be reviewed; replace with consented quotes (ADR-031).
+ * No hero / blocks.
+ */
+
+import { awardsFallback } from "@/lib/cms/fallbacks/awards";
+import {
+  homePageFallback,
+  type HomePageFallbackShape,
+} from "@/lib/cms/fallbacks/home";
+import { portfolioItemsFallback } from "@/lib/cms/fallbacks/portfolio";
+import { servicesFallback } from "@/lib/cms/fallbacks/services";
+import { testimonialsFallback } from "@/lib/cms/fallbacks/testimonials";
+import { PARTNER_PLACEHOLDERS } from "@/lib/home/partner-placeholders";
 
 import { arrayKey, toReference, toSeo } from "../helpers";
-import { portfolioId, productId, SINGLETON_IDS } from "../ids";
+import {
+  awardId,
+  partnerId,
+  portfolioId,
+  serviceId,
+  SINGLETON_IDS,
+  slugifyName,
+  testimonialId,
+} from "../ids";
 import type { SeedDocument } from "../types";
 
-function mapHero(block: HomeHero, index: number) {
-  // Skip media: hero.image intentionally omitted.
+function mapContactCta(source: HomePageFallbackShape["contactCta"]) {
   return {
-    _type: "hero" as const,
-    _key: arrayKey("block", index),
-    headline: block.headline,
-    subheadline: block.subheadline,
-    ctaLabel: block.ctaLabel,
-    ctaHref: block.ctaHref,
-  };
-}
-
-function mapMission(block: HomeMission, index: number) {
-  return {
-    _type: "mission" as const,
-    _key: arrayKey("block", index),
-    title: block.title,
-    body: block.body,
+    title: source.title,
+    body: source.body,
+    ctaLabel: source.ctaLabel,
+    ctaHref: source.ctaHref,
   };
 }
 
 /**
- * Fallback stores slug arrays; Sanity schema expects references.
- * `featuredProductSlugs` → `featuredProducts`, `featuredCaseStudySlugs` → `featuredCaseStudies`.
+ * Pre-fill Home refs with what the site shows today (partners, portfolio,
+ * award slots, team-roster testimonials, five Gate 0 services).
+ * title / contactCta / seo come from source.
  */
-function mapFeaturedWork(block: HomeFeaturedWork, index: number) {
-  return {
-    _type: "featuredWork" as const,
-    _key: arrayKey("block", index),
-    title: block.title,
-    body: block.body,
-    featuredProducts: block.featuredProductSlugs.map((slug, i) =>
-      toReference(productId(slug), arrayKey("featured-product", i))
-    ),
-    featuredCaseStudies: block.featuredCaseStudySlugs.map((slug, i) =>
-      toReference(portfolioId(slug), arrayKey("featured-portfolio", i))
-    ),
-  };
-}
-
-function mapHighlights(block: HomeHighlights, index: number) {
-  return {
-    _type: "highlights" as const,
-    _key: arrayKey("block", index),
-    title: block.title,
-    items: block.items.map((item, itemIndex) => ({
-      _type: "homeHighlight",
-      _key: arrayKey("highlight", itemIndex),
-      title: item.title,
-      description: item.description,
-      ...(item.icon ? { icon: item.icon } : {}),
-    })),
-  };
-}
-
-function mapCtaBanner(block: HomeCtaBanner, index: number) {
-  return {
-    _type: "ctaBanner" as const,
-    _key: arrayKey("block", index),
-    title: block.title,
-    body: block.body,
-    ctaLabel: block.ctaLabel,
-    ctaHref: block.ctaHref,
-  };
-}
-
-function mapBlock(block: HomeBlock, index: number) {
-  switch (block._type) {
-    case "hero":
-      return mapHero(block, index);
-    case "mission":
-      return mapMission(block, index);
-    case "featuredWork":
-      return mapFeaturedWork(block, index);
-    case "highlights":
-      return mapHighlights(block, index);
-    case "ctaBanner":
-      return mapCtaBanner(block, index);
-    default: {
-      const _exhaustive: never = block;
-      return _exhaustive;
-    }
-  }
-}
-
 export function buildHomePageDocument(
-  source: HomePage = homePageFallback
+  source: HomePageFallbackShape = homePageFallback,
 ): SeedDocument {
   return {
     _id: SINGLETON_IDS.homePage,
     _type: "homePage",
     title: source.title,
-    blocks: source.blocks.map(mapBlock),
+    partners: PARTNER_PLACEHOLDERS.map((placeholder, i) =>
+      toReference(partnerId(placeholder.id), arrayKey("partner", i)),
+    ),
+    portfolioItems: portfolioItemsFallback.map((item, i) =>
+      toReference(portfolioId(item.slug.current), arrayKey("portfolio", i)),
+    ),
+    awards: awardsFallback.map((_, i) =>
+      toReference(awardId(`slot-${i + 1}`), arrayKey("award", i)),
+    ),
+    testimonials: testimonialsFallback.map((item, i) =>
+      toReference(testimonialId(slugifyName(item.name)), arrayKey("testimonial", i)),
+    ),
+    services: servicesFallback.map((service, i) =>
+      toReference(serviceId(service.slug.current), arrayKey("service", i)),
+    ),
+    contactCta: mapContactCta(source.contactCta),
     seo: toSeo(source.seo),
   };
 }

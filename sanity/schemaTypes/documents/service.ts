@@ -64,23 +64,6 @@ export const service = defineType({
       validation: (r) => r.required().min(1),
     }),
     defineField({
-      name: "relatedIndustries",
-      title: "Related industries",
-      type: "array",
-      description: "Optional. Prefer Capabilities for public copy; industries band may be unused.",
-      of: [defineArrayMember({ type: "string" })],
-      deprecated: {
-        reason: "Not in the Gate 0 brief — omit from new content; prefer capabilities.",
-      },
-      hidden: ({ value }) => value === undefined,
-    }),
-    defineField({
-      name: "icon",
-      title: "Icon",
-      type: "string",
-      description: "Optional UI glyph key for cards (not required by the brief).",
-    }),
-    defineField({
       name: "order",
       title: "Order",
       type: "number",

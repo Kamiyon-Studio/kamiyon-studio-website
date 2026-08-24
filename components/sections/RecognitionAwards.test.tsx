@@ -64,7 +64,7 @@ describe("RecognitionAwards", () => {
     expect(screen.getByText("Best Student Game")).toBeInTheDocument();
   });
 
-  it("orders badges by the CMS order field, not array position", () => {
+  it("preserves homePage.awards array order (does not re-sort by document.order)", () => {
     render(
       <RecognitionAwards
         awards={[
@@ -79,9 +79,9 @@ describe("RecognitionAwards", () => {
       .getAllByRole("listitem")
       .map((item) => item.textContent);
 
-    expect(titles[0]).toContain("First");
-    expect(titles[1]).toContain("Second");
-    expect(titles[2]).toContain("Third");
+    expect(titles[0]).toContain("Third");
+    expect(titles[1]).toContain("First");
+    expect(titles[2]).toContain("Second");
   });
 
   it("renders nothing when there are no awards", () => {
@@ -124,11 +124,37 @@ describe("RecognitionAwards", () => {
   it("marks placeholder slots so they never read as real accolades", () => {
     render(
       <RecognitionAwards
-        awards={[makeAward({ id: "slot", title: "Award slot", isPlaceholder: true })]}
+        awards={[
+          makeAward({
+            id: "slot",
+            title: "Award slot",
+            isPlaceholder: true,
+            year: undefined,
+          }),
+        ]}
       />,
     );
 
     expect(screen.getByText("Placeholder")).toBeInTheDocument();
+  });
+
+  it("passes CMS placeholderLabel through to LaurelBadge when no year is set", () => {
+    render(
+      <RecognitionAwards
+        awards={[
+          makeAward({
+            id: "slot",
+            title: "Award slot",
+            isPlaceholder: true,
+            year: undefined,
+            placeholderLabel: "TBD",
+          }),
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("TBD")).toBeInTheDocument();
+    expect(screen.queryByText("Placeholder")).not.toBeInTheDocument();
   });
 
   it("accepts custom eyebrow, heading, and summary copy", () => {

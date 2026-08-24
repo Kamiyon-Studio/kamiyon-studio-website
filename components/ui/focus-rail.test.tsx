@@ -93,6 +93,43 @@ describe("FocusRail", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  it("keeps the rail transparent instead of a grey fill", () => {
+    render(<FocusRail items={ITEMS} />);
+    const rail = screen.getByTestId("focus-rail");
+
+    expect(rail.className).not.toMatch(/bg-neutral-950/);
+    expect(rail.className).not.toMatch(/bg-neutral-900/);
+  });
+
+  it("does not paint a pink atmosphere behind the cards", () => {
+    render(<FocusRail items={ITEMS} />);
+
+    expect(
+      screen.queryByTestId("focus-rail-atmosphere-tint"),
+    ).not.toBeInTheDocument();
+
+    const atmosphere = screen.getByTestId("focus-rail-atmosphere");
+    expect(atmosphere.innerHTML).not.toMatch(/--color-primary/);
+    expect(atmosphere.innerHTML).not.toMatch(/mix-blend-color/);
+  });
+
+  it("frames every visible card at the same 9:16 portrait size", () => {
+    const { container } = render(<FocusRail items={ITEMS} />);
+    const cards = container.querySelectorAll('[data-testid="focus-rail-card"]');
+
+    expect(cards.length).toBe(5);
+    cards.forEach((card) => {
+      expect(card.className).toMatch(/aspect-\[9\/16\]/);
+    });
+  });
+
+  it("wraps each visible card in the hover-only glowing stroke", () => {
+    const { container } = render(<FocusRail items={ITEMS} />);
+    const strokes = container.querySelectorAll(".glowing-shadow--card");
+
+    expect(strokes.length).toBe(5);
+  });
+
   it("loops from last to first when loop is enabled", async () => {
     const user = userEvent.setup();
     render(<FocusRail items={ITEMS} initialIndex={2} loop />);

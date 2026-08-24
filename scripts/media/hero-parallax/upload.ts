@@ -23,6 +23,26 @@ export function isMediaTarget(value: string): value is MediaTarget {
  */
 export const IMMUTABLE_CACHE_CONTROL = "public, max-age=31536000, immutable";
 
+const CONTENT_TYPES: Record<string, string> = {
+  ".avif": "image/avif",
+  ".webp": "image/webp",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".webm": "video/webm",
+  ".mp4": "video/mp4",
+};
+
+export function contentTypeForFile(fileName: string): string {
+  const extension = path.extname(fileName).toLowerCase();
+  const contentType = CONTENT_TYPES[extension];
+  if (!contentType) {
+    throw new Error(`Unsupported media extension: ${extension || "(none)"}`);
+  }
+
+  return contentType;
+}
+
 export type PutObjectRequest = {
   bucket: string;
   key: string;

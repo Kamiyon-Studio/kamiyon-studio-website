@@ -153,12 +153,9 @@ function runOfflineChecks() {
       title: "Example post",
       slug: { current: "example-post" },
       authors: [],
-      categories: [],
-      tags: [],
       body: [],
       seo: { title: "Example", description: "Example description." },
       publishedAt: "2026-07-24T10:00:00.000Z",
-      relatedPostSlugs: [],
     }),
   );
 

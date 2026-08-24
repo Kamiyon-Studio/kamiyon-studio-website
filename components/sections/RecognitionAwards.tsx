@@ -32,7 +32,9 @@ export function RecognitionAwards({
     return null;
   }
 
-  const ordered = [...awards].sort((a, b) => a.order - b.order);
+  // Home shows `homePage.awards` in array order (RFC §1.1). Do not re-sort by document.order.
+  const ordered = awards;
+
 
   return (
     <section
@@ -76,6 +78,7 @@ export function RecognitionAwards({
                   organization={award.organization}
                   year={award.year}
                   isPlaceholder={award.isPlaceholder}
+                  placeholderLabel={award.placeholderLabel}
                 />
               </li>
             ))}

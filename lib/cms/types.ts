@@ -81,10 +81,19 @@ export type SiteSettings = {
   defaultSeo: SeoMetadata;
   globalCtas: Cta[];
   footerText?: string;
+  footerMarqueeKeywords?: string[];
+  footerCtaHeading?: string;
+  footerSecondaryCtaLabel?: string;
+  footerSecondaryCtaHref?: string;
+  footerCopyrightSuffix?: string;
+  footerLocationPrefix?: string;
+  footerLocation?: string;
 };
 
-/** Spec 03 — homePage blocks */
-
+/**
+ * @deprecated Legacy home block shapes — UI may still import until HomeWire (L3).
+ * Home singleton no longer stores blocks; see HomePage named fields.
+ */
 export type HomeHero = {
   _type: "hero";
   headline: string;
@@ -94,13 +103,14 @@ export type HomeHero = {
   image?: CmsImage;
 };
 
+/** @deprecated See HomeHero. */
 export type HomeMission = {
   _type: "mission";
   title: string;
   body: string;
 };
 
-/** GROQ projects featuredProducts/featuredCaseStudies refs → slug arrays */
+/** @deprecated See HomeHero. */
 export type HomeFeaturedWork = {
   _type: "featuredWork";
   title: string;
@@ -109,6 +119,7 @@ export type HomeFeaturedWork = {
   featuredCaseStudySlugs: string[];
 };
 
+/** @deprecated See HomeHero. */
 export type HomeHighlight = {
   _key?: string;
   title: string;
@@ -116,12 +127,14 @@ export type HomeHighlight = {
   icon?: string;
 };
 
+/** @deprecated See HomeHero. */
 export type HomeHighlights = {
   _type: "highlights";
   title: string;
   items: HomeHighlight[];
 };
 
+/** @deprecated Prefer HomeContactCta on HomePage. */
 export type HomeCtaBanner = {
   _type: "ctaBanner";
   title: string;
@@ -130,6 +143,7 @@ export type HomeCtaBanner = {
   ctaHref: string;
 };
 
+/** @deprecated HomePage no longer uses a block array. */
 export type HomeBlock =
   | HomeHero
   | HomeMission
@@ -137,10 +151,24 @@ export type HomeBlock =
   | HomeHighlights
   | HomeCtaBanner;
 
+/** Home contact CTA (former ctaBanner fields). */
+export type HomeContactCta = {
+  title: string;
+  body: string;
+  ctaLabel: string;
+  ctaHref: string;
+};
+
+/** Spec 03 — homePage named fields (not a block renderer) */
 export type HomePage = {
   _type: "homePage";
   title: string;
-  blocks: HomeBlock[];
+  partners: Partner[];
+  portfolioItems: Portfolio[];
+  awards: Award[];
+  testimonials: Testimonial[];
+  services: Service[];
+  contactCta: HomeContactCta;
   seo: SeoMetadata;
 };
 
@@ -260,7 +288,6 @@ export type Service = {
   summary: string;
   body: PortableTextBlock[];
   capabilities: string[];
-  icon?: string;
   order: number;
   isPlaceholder: boolean;
   seo: SeoMetadata;
@@ -305,18 +332,114 @@ export type Product = {
 
 /** Spec 05 — portfolio (replaces caseStudy) */
 
+export type PortfolioProjectType = "original-ip" | "client-work";
+
+export type PortfolioStatus =
+  | "prototype"
+  | "in-development"
+  | "released"
+  | "archived";
+
+export type PortfolioLinkKind =
+  | "website"
+  | "trailer"
+  | "store"
+  | "press"
+  | "source"
+  | "other";
+
+export type PortfolioCredit = {
+  _key?: string;
+  name: string;
+  role: string;
+  /** Optional About-roster person. Project role lives on this credit, not on teamMember. */
+  person?: {
+    id: string;
+    name: string;
+  };
+};
+
+export type PortfolioRecognition = {
+  _key?: string;
+  title: string;
+  organization: string;
+  year: string;
+  url?: string;
+  note?: string;
+};
+
+export type PortfolioGameplayDualStateRow = {
+  _key?: string;
+  aspect: string;
+  left: string;
+  right: string;
+};
+
+export type PortfolioGameplay = {
+  mechanics?: PortableTextBlock[];
+  dualStateTable?: {
+    leftLabel: string;
+    rightLabel: string;
+    rows: PortfolioGameplayDualStateRow[];
+  };
+  controls: Array<{
+    _key?: string;
+    input: string;
+    action: string;
+  }>;
+};
+
+export type PortfolioTechnicalDevelopment = {
+  engine?: string;
+  platforms?: string;
+  input?: string;
+  origin?: string;
+  systems: string[];
+  body?: PortableTextBlock[];
+};
+
+export type PortfolioVideo = {
+  _key?: string;
+  url: string;
+  title?: string;
+};
+
+export type PortfolioExternalLink = {
+  _key?: string;
+  label: string;
+  url: string;
+  kind: PortfolioLinkKind;
+};
+
 export type Portfolio = {
   _type: "portfolio";
   title: string;
   slug: Slug;
+  /** Required. Mapper defaults missing docs to `client-work`. */
+  projectType: PortfolioProjectType;
   clientName: string;
   industry: string;
   /** Service category value from SERVICE_CATEGORIES. */
   serviceType: string;
+  status?: PortfolioStatus;
+  developmentPeriod?: string;
+  /** Required for cards/listing. Mapper falls back to `challenge` when missing. */
+  shortDescription: string;
+  /** Optional case-study hero one-liner. */
+  positioning?: string;
   challenge: string;
   solution: string;
   impact: string;
   lessonsLearned?: string;
+  creativeDirection?: PortableTextBlock[];
+  process?: PortableTextBlock[];
+  narrative?: PortableTextBlock[];
+  technicalDevelopment?: PortfolioTechnicalDevelopment;
+  gameplay?: PortfolioGameplay;
+  credits: PortfolioCredit[];
+  recognition: PortfolioRecognition[];
+  videos: PortfolioVideo[];
+  externalLinks: PortfolioExternalLink[];
   coverImage?: CmsImage;
   gallery: CmsImage[];
   featured: boolean;
@@ -342,6 +465,19 @@ export type Partner = {
   isPlaceholder: boolean;
 };
 
+/** testimonial — home social-proof marquee */
+
+export type Testimonial = {
+  _type: "testimonial";
+  /** Marquee key: document `_id`, else a name-derived slug. */
+  id: string;
+  quote: string;
+  name: string;
+  role?: string;
+  photo?: CmsImage;
+  order: number;
+};
+
 /** award — home recognition laurels */
 
 export type Award = {
@@ -356,6 +492,8 @@ export type Award = {
   year?: string;
   order: number;
   isPlaceholder: boolean;
+  /** Badge copy when `isPlaceholder` — CMS field, default "Placeholder". */
+  placeholderLabel?: string;
 };
 
 /** Spec 05 — communityItem */
@@ -412,13 +550,9 @@ export type Post = {
   title: string;
   slug: Slug;
   authors: TeamMember[];
-  categories: BlogCategory[];
-  tags: BlogTag[];
   featuredImage?: CmsImage;
   body: BlogBodyBlock[];
   seo: SeoMetadata;
-  readingTimeMinutes?: number;
   publishedAt: string;
   updatedAt?: string;
-  relatedPostSlugs: string[];
 };
