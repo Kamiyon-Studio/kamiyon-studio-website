@@ -51,6 +51,13 @@
   border-radius: var(--radius-card);
 }
 
+/* Focus rail cards must fill their fixed 9/16 frame — the base `position: relative`
+   here would otherwise override the Tailwind `absolute` utility (import order). */
+.focus-rail-card > .glowing-shadow--card {
+  position: absolute;
+  inset: 0;
+}
+
 .glowing-shadow--card .glowing-shadow__surface {
   display: block;
   width: 100%;
