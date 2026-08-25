@@ -27,7 +27,8 @@
     "sanity:dev": "sanity dev",
     "sanity:deploy": "sanity deploy",
     "sanity:schema": "sanity schema extract",
-    "sanity:seed": "tsx scripts/sanity/seed/index.ts"
+    "sanity:seed": "tsx scripts/sanity/seed/index.ts",
+    "sanity:seed:portfolio": "tsx scripts/sanity/seed/portfolio-only.ts"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.3.1",

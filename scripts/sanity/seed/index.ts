@@ -4,7 +4,10 @@
  *
  * Usage:
  *   pnpm sanity:seed --dry-run   # print planned _id / _type (no mutations)
- *   pnpm sanity:seed             # createOrReplace (requires SANITY_API_WRITE_TOKEN)
+ *   pnpm sanity:seed             # createOrReplace ALL seed docs (destructive on live CMS)
+ *
+ * To add portfolio case studies without wiping homePage, Eclipse, blog, etc.:
+ *   pnpm sanity:seed:portfolio
  *
  * Loads `.env` / `.env.local` when present. Never seeds media.
  */
