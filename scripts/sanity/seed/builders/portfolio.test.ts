@@ -6,15 +6,22 @@ import { buildPortfolioDocuments } from "./portfolio";
 import { buildTeamMemberDocuments } from "./team";
 
 describe("portfolio seed builder", () => {
-  it("emits deterministic ids for Eclipse and the client placeholder", () => {
+  it("emits deterministic ids for seeded portfolio entries", () => {
     expect(buildPortfolioDocuments().map((doc) => doc._id)).toEqual([
       "portfolio-eclipse",
+      "portfolio-vocabu-wildlife-edition",
+      "portfolio-debug-log",
+      "portfolio-flappy-awie",
       "portfolio-sample-client-project-placeholder",
     ]);
   });
 
   it("marks Eclipse as a published original IP and keeps the placeholder as client-work", () => {
-    const [eclipse, placeholder] = buildPortfolioDocuments();
+    const docs = buildPortfolioDocuments();
+    const eclipse = docs.find((doc) => doc._id === "portfolio-eclipse");
+    const placeholder = docs.find(
+      (doc) => doc._id === "portfolio-sample-client-project-placeholder",
+    );
 
     expect(eclipse).toMatchObject({
       _id: "portfolio-eclipse",
@@ -29,6 +36,14 @@ describe("portfolio seed builder", () => {
     expect(eclipse?.technicalDevelopment).not.toHaveProperty("engine");
     expect(eclipse).not.toHaveProperty("videos");
     expect(eclipse).not.toHaveProperty("externalLinks");
+    expect(eclipse?.gallery).toEqual([]);
+
+    const vocabu = docs.find((doc) => doc._id === "portfolio-vocabu-wildlife-edition");
+    expect(vocabu?.coverImage).toMatchObject({
+      _type: "r2Asset",
+      key: "portfolio/vocabu-wildlife-edition/cover.jpg",
+    });
+    expect(vocabu?.gallery).toHaveLength(3);
 
     expect(placeholder).toMatchObject({
       _id: "portfolio-sample-client-project-placeholder",
@@ -62,11 +77,13 @@ describe("portfolio seed builder", () => {
     ]);
   });
 
-  it("does not invent engine, PGDX, storefronts, or metrics", () => {
-    const serialized = JSON.stringify(buildPortfolioDocuments());
+  it("does not invent engine, PGDX, storefronts, or metrics on Eclipse", () => {
+    const eclipse = buildPortfolioDocuments().find((doc) => doc._id === "portfolio-eclipse");
+    const serialized = JSON.stringify(eclipse);
     expect(serialized).not.toMatch(
       /PGDX|\bSteam\b|itch\.io|\bUnity\b|\bGodot\b|player count|downloads/i,
     );
+    expect(eclipse?.technicalDevelopment).not.toHaveProperty("engine");
   });
 
   it("emits optional portable groups, engine, and recognition urls when present", () => {

@@ -41,6 +41,9 @@ describe("WS8b core seed builders", () => {
     ]);
     expect(buildCaseStudyDocuments().map((d) => d._id)).toEqual([
       "portfolio-eclipse",
+      "portfolio-vocabu-wildlife-edition",
+      "portfolio-debug-log",
+      "portfolio-flappy-awie",
       "portfolio-sample-client-project-placeholder",
     ]);
     expect(buildTeamMemberDocuments().map((d) => d._id)).toEqual([
@@ -69,10 +72,10 @@ describe("WS8b core seed builders", () => {
       expect(doc.isPlaceholder).toBe(true);
     }
     for (const doc of buildCaseStudyDocuments()) {
-      if (doc._id === "portfolio-eclipse") {
-        expect(doc.isPlaceholder).toBe(false);
-      } else {
+      if (doc._id === "portfolio-sample-client-project-placeholder") {
         expect(doc.isPlaceholder).toBe(true);
+      } else {
+        expect(doc.isPlaceholder).toBe(false);
       }
     }
     for (const doc of buildTeamMemberDocuments()) {
@@ -150,8 +153,14 @@ describe("WS8b core seed builders", () => {
       expect(doc.media).toEqual([]);
     }
     for (const doc of buildCaseStudyDocuments()) {
-      expect(doc.gallery).toEqual([]);
-      expect(doc).not.toHaveProperty("coverImage");
+      expect(doc.gallery).toBeDefined();
+      if (doc._id === "portfolio-eclipse" || doc._id === "portfolio-sample-client-project-placeholder") {
+        expect(doc.gallery).toEqual([]);
+        expect(doc).not.toHaveProperty("coverImage");
+      } else {
+        expect(doc).toHaveProperty("coverImage");
+        expect((doc.gallery as unknown[]).length).toBeGreaterThan(0);
+      }
     }
     for (const doc of buildTeamMemberDocuments()) {
       expect(doc).not.toHaveProperty("photo");
@@ -183,8 +192,8 @@ describe("WS8b core seed builders", () => {
 
   it("buildCoreSeedDocuments gathers expected counts and unique IDs", () => {
     const docs = buildCoreSeedDocuments();
-    // site + 5 services + 2 portfolio + 6 team + 6 testimonials + about + contact + home = 23
-    expect(docs).toHaveLength(23);
+    // site + 5 services + 5 portfolio + 6 team + 6 testimonials + about + contact + home = 26
+    expect(docs).toHaveLength(26);
 
     const ids = docs.map((d) => d._id);
     expect(new Set(ids).size).toBe(ids.length);

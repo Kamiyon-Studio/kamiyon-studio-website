@@ -66,6 +66,51 @@ describe("portfolio fallbacks", () => {
     );
   });
 
+  it("includes VOCABU portfolio media on cover and gallery", () => {
+    const vocabu = portfolioItemsFallback.find(
+      (item) => item.slug.current === "vocabu-wildlife-edition",
+    );
+
+    expect(vocabu?.coverImage?.key).toBe("portfolio/vocabu-wildlife-edition/cover.jpg");
+    expect(vocabu?.gallery).toHaveLength(3);
+    expect(vocabu?.gallery[0]?.url).toMatch(/^https:\/\/media\.kamiyonstudio\.com\//);
+  });
+
+  it("includes VOCABU and Debug.Log as published original-IP case studies", () => {
+    const vocabu = portfolioItemsFallback.find(
+      (item) => item.slug.current === "vocabu-wildlife-edition",
+    );
+    const debugLog = portfolioItemsFallback.find((item) => item.slug.current === "debug-log");
+
+    expect(vocabu).toMatchObject({
+      projectType: "original-ip",
+      status: "prototype",
+      isPlaceholder: false,
+      featured: true,
+      technicalDevelopment: { engine: "Unity" },
+    });
+    expect(debugLog).toMatchObject({
+      projectType: "original-ip",
+      status: "prototype",
+      isPlaceholder: false,
+      featured: true,
+      technicalDevelopment: { engine: "Unity" },
+    });
+  });
+
+  it("includes Flappy Awie as published client-work without home featuring", () => {
+    const flappyAwie = portfolioItemsFallback.find((item) => item.slug.current === "flappy-awie");
+
+    expect(flappyAwie).toMatchObject({
+      projectType: "client-work",
+      clientName: "AWS Student Builder Group - UPHSL",
+      status: "prototype",
+      isPlaceholder: false,
+      featured: false,
+      technicalDevelopment: { engine: "Godot" },
+    });
+  });
+
   it("seeds only the confirmed CIIT award on Eclipse, not on home awards", () => {
     const eclipse = portfolioItemsFallback.find((item) => item.slug.current === "eclipse");
     const serialized = JSON.stringify(eclipse);

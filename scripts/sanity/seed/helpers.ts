@@ -1,4 +1,4 @@
-import type { PortableTextBlock, SeoMetadata } from "@/lib/cms/types";
+import type { CmsImage, PortableTextBlock, SeoMetadata } from "@/lib/cms/types";
 
 import type {
   SanityPortableBlock,
@@ -15,6 +15,31 @@ export function arrayKey(prefix: string, index: number): string {
 
 export function toSlug(current: string): SanitySlug {
   return { _type: "slug", current };
+}
+
+/** Map a fallback `CmsImage` into a Sanity `r2Asset` object for seed upserts. */
+export function toR2Asset(image: CmsImage, key?: string): Record<string, unknown> {
+  const asset: Record<string, unknown> = {
+    _type: "r2Asset",
+  };
+
+  if (key) {
+    asset._key = key;
+  }
+  if (image.key) {
+    asset.key = image.key;
+  }
+  if (image.url) {
+    asset.url = image.url;
+  }
+  if (image.alt != null && image.alt !== "") {
+    asset.alt = image.alt;
+  }
+  if (image.caption != null && image.caption !== "") {
+    asset.caption = image.caption;
+  }
+
+  return asset;
 }
 
 export function toReference(ref: string, key?: string): SanityReference {

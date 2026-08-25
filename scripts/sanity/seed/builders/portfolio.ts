@@ -1,7 +1,7 @@
 import { portfolioItemsFallback } from "@/lib/cms/fallbacks/portfolio";
 import type { Portfolio } from "@/lib/cms/types";
 
-import { arrayKey, toPortableBody, toReference, toSeo, toSlug } from "../helpers";
+import { arrayKey, toPortableBody, toR2Asset, toReference, toSeo, toSlug } from "../helpers";
 import { portfolioId } from "../ids";
 import type { SeedDocument } from "../types";
 
@@ -12,7 +12,6 @@ function omitEmpty<T extends Record<string, unknown>>(value: T): T {
 }
 
 export function buildPortfolioDocument(item: Portfolio): SeedDocument {
-  // Skip media: coverImage omitted; gallery left empty.
   return omitEmpty({
     _id: portfolioId(item.slug.current),
     _type: "portfolio",
@@ -119,7 +118,8 @@ export function buildPortfolioDocument(item: Portfolio): SeedDocument {
           ),
         }
       : {}),
-    gallery: [],
+    ...(item.coverImage ? { coverImage: toR2Asset(item.coverImage) } : {}),
+    gallery: item.gallery.map((image, index) => toR2Asset(image, arrayKey("gallery", index))),
     featured: item.featured,
     isPlaceholder: item.isPlaceholder,
     ...(item.publishedAt ? { publishedAt: item.publishedAt } : {}),

@@ -61,8 +61,8 @@ export function buildCoreSeedDocuments(): SeedDocument[] {
   return [
     buildSiteSettingsDocument(),
     ...buildServiceDocuments(),
-    ...buildPortfolioDocuments(),
     ...buildTeamMemberDocuments(),
+    ...buildPortfolioDocuments(),
     ...buildTestimonialDocuments(),
     buildAboutPageDocument(),
     buildContactPageDocument(),
@@ -77,14 +77,14 @@ export function listCoreSeedDocumentIds(): string[] {
 
 /**
  * Full seed set in mutation order:
- * services → portfolio → team → singletons → partners → awards →
+ * services → team → portfolio → singletons → partners → awards →
  * testimonials → blog → home LAST.
  */
 export function buildAllSeedDocuments(): SeedDocument[] {
   return [
     ...buildServiceDocuments(),
-    ...buildPortfolioDocuments(),
     ...buildTeamMemberDocuments(),
+    ...buildPortfolioDocuments(),
     buildAboutPageDocument(),
     buildContactPageDocument(),
     buildSiteSettingsDocument(),
