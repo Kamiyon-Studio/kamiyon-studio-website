@@ -9,6 +9,9 @@
  * To add portfolio case studies without wiping homePage, Eclipse, blog, etc.:
  *   pnpm sanity:seed:portfolio
  *
+ * To restore home Trusted by partner refs without touching other homePage fields:
+ *   pnpm sanity:seed:partners
+ *
  * Loads `.env` / `.env.local` when present. Never seeds media.
  */
 
