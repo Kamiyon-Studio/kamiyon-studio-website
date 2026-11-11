@@ -7,7 +7,7 @@ import {
   partitionBentoLayout,
 } from "./bento-layout";
 
-function makeCaseStudy(overrides: Partial<CaseStudy> & { slug: string }): CaseStudy {
+function makeCaseStudy(overrides: Omit<Partial<CaseStudy>, "slug"> & { slug: string }): CaseStudy {
   const { slug, ...rest } = overrides;
 
   return {

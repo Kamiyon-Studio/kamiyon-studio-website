@@ -17,6 +17,7 @@ pnpm build
 pnpm test:e2e
 ```
 
+Development uses webpack, matching the production build and its font/asset handling.
 The development server uses port 3000; browser smoke tests use port 3100.
 Use the existing .env.example as the configuration reference and keep secrets out of version control.
 For a hermetic local demo, explicitly set APP_ENV=local and CMS_DEMO_CONTENT=true.
