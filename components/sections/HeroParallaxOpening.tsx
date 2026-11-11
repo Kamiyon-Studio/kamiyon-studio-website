@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 import { HeroBrand } from "@/components/sections/HeroBrand";
 import { HeroScrollHelper } from "@/components/sections/HeroScrollHelper";
@@ -49,8 +51,43 @@ function muteHeroParallaxVideo(video: HTMLVideoElement | null): void {
   video.defaultMuted = true;
 }
 
-function ParallaxPlate({ layer }: { layer: ResolvedHeroParallaxLayer }) {
-  const hasVideo = Boolean(layer.mp4Src);
+const subscribeHydration = () => () => {};
+
+function ParallaxPlate({
+  layer,
+  paused,
+}: {
+  layer: ResolvedHeroParallaxLayer;
+  paused: boolean;
+}) {
+  const hydrated = useSyncExternalStore(
+    subscribeHydration,
+    () => true,
+    () => false,
+  );
+  const reduceMotion = useReducedMotion();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const hasVideo = hydrated && !reduceMotion && Boolean(layer.mp4Src);
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    let visible = true;
+    const sync = () => {
+      if (paused || document.hidden || !visible) video.pause();
+      else void video.play().catch(() => {});
+    };
+    sync();
+    document.addEventListener("visibilitychange", sync);
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      sync();
+    });
+    observer.observe(video);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", sync);
+    };
+  }, [hasVideo, paused]);
 
   return (
     <div
@@ -75,12 +112,17 @@ function ParallaxPlate({ layer }: { layer: ResolvedHeroParallaxLayer }) {
           muted
           loop
           playsInline
-          preload="auto"
+          preload="none"
           aria-hidden="true"
           disablePictureInPicture
-          ref={muteHeroParallaxVideo}
+          ref={(video) => {
+            videoRef.current = video;
+            muteHeroParallaxVideo(video);
+          }}
         >
-          {layer.webmSrc ? <source src={layer.webmSrc} type="video/webm" /> : null}
+          {layer.webmSrc ? (
+            <source src={layer.webmSrc} type="video/webm" />
+          ) : null}
           <source src={layer.mp4Src} type="video/mp4" />
         </video>
       ) : null}
@@ -93,14 +135,17 @@ function ParallaxPlate({ layer }: { layer: ResolvedHeroParallaxLayer }) {
  * scroll. Content matches the static opening: wordmark + motto. Bottom padding
  * keeps the handoff into Recent Projects (earth plate) aligned.
  */
-export function HeroParallaxOpening({
-  layers,
-}: HeroParallaxOpeningProps) {
+export function HeroParallaxOpening({ layers }: HeroParallaxOpeningProps) {
   const rootRef = useOpeningAnimation<HTMLElement>();
+  const [paused, setPaused] = useState(false);
+  const reduceMotion = useReducedMotion();
   const { behindBrand, inFrontOfBrand } = splitHeroParallaxLayers(layers);
 
   const layerMotions: ParallaxLayerMotion[] = [
-    ...layers.map(({ depth, yPercent }) => ({ layer: String(depth), yPercent })),
+    ...layers.map(({ depth, yPercent }) => ({
+      layer: String(depth),
+      yPercent,
+    })),
     { layer: BRAND_LAYER, yPercent: HERO_PARALLAX_BRAND_Y_PERCENT },
   ];
   const stageRef = useLayeredParallax<HTMLDivElement>(layerMotions);
@@ -122,7 +167,7 @@ export function HeroParallaxOpening({
         className="absolute inset-0"
       >
         {behindBrand.map((layer) => (
-          <ParallaxPlate key={layer.depth} layer={layer} />
+          <ParallaxPlate key={layer.depth} layer={layer} paused={paused} />
         ))}
 
         {/* Under the wordmark on purpose: darkens the sky, never the text. */}
@@ -141,7 +186,7 @@ export function HeroParallaxOpening({
         </div>
 
         {inFrontOfBrand.map((layer) => (
-          <ParallaxPlate key={layer.depth} layer={layer} />
+          <ParallaxPlate key={layer.depth} layer={layer} paused={paused} />
         ))}
 
         <div
@@ -163,6 +208,18 @@ export function HeroParallaxOpening({
         className="pointer-events-none relative z-10 flex min-h-[100svh] flex-col"
       >
         <HeroScrollHelper />
+        {!reduceMotion && layers.some((layer) => layer.mp4Src) ? (
+          <button
+            type="button"
+            className="pointer-events-auto absolute bottom-6 left-6 min-h-11 rounded border border-white/50 bg-black/60 px-4 py-2 text-sm text-white"
+            aria-pressed={paused}
+            onClick={() => setPaused(!paused)}
+          >
+            {paused
+              ? "Resume background animation"
+              : "Pause background animation"}
+          </button>
+        ) : null}
       </div>
     </section>
   );

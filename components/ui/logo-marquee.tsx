@@ -1,11 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import {
-  type CSSProperties,
-  useEffect,
-  useState,
-} from "react";
+import { type CSSProperties, useEffect, useState } from "react";
 
 import { isAllowedNextImageSrc } from "@/lib/cms/image";
 import { cn } from "@/lib/utils";
@@ -52,8 +48,7 @@ function LogoCell({
   interactive?: boolean;
 }) {
   const rawSrc = logo.src?.trim() || "";
-  const logoUrl =
-    rawSrc && isAllowedNextImageSrc(rawSrc) ? rawSrc : null;
+  const logoUrl = rawSrc && isAllowedNextImageSrc(rawSrc) ? rawSrc : null;
 
   return (
     <div
@@ -78,7 +73,6 @@ function LogoCell({
           {logo.label}
         </span>
       )}
-
     </div>
   );
 }
@@ -114,6 +108,7 @@ export function LogoMarquee({
   logoImageClassName,
 }: LogoMarqueeProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
+  const [paused, setPaused] = useState(false);
 
   if (logos.length === 0) {
     return null;
@@ -157,7 +152,10 @@ export function LogoMarquee({
         } as CSSProperties
       }
     >
-      <div className={trackClassName}>
+      <div
+        className={trackClassName}
+        style={{ animationPlayState: paused ? "paused" : undefined }}
+      >
         <LogoRow logos={logos} logoImageClassName={logoImageClassName} />
         <div aria-hidden="true">
           <LogoRow
@@ -170,6 +168,14 @@ export function LogoMarquee({
           />
         </div>
       </div>
+      <button
+        type="button"
+        className="mx-auto mt-3 block min-h-11 rounded border px-4 py-2 text-sm"
+        aria-pressed={paused}
+        onClick={() => setPaused(!paused)}
+      >
+        {paused ? "Resume partner logos" : "Pause partner logos"}
+      </button>
     </div>
   );
 }
