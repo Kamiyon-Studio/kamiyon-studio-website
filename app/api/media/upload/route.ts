@@ -1,4 +1,6 @@
-import { createHash, timingSafeEqual } from "node:crypto";
+import { matchesImageType } from "@/lib/cms/media-signature";
+import { BodyTooLargeError, readBoundedBody } from "@/lib/http/read-bounded-body";
+import { authorizeMediaUpload } from "@/lib/cms/media-upload-auth";
 
 import { NextResponse } from "next/server";
 
@@ -10,6 +12,7 @@ import {
   type MediaUploadResult,
 } from "@/lib/cms/media";
 import {
+  MAX_UPLOAD_BYTES,
   isAllowedUploadMimeType,
   isWithinUploadSizeLimit,
   normalizeMimeType,
@@ -85,13 +88,7 @@ function jsonEnvelope<T>(
   return withCors(request, NextResponse.json(body, { status }));
 }
 
-function secretsMatch(provided: string, expected: string): boolean {
-  const left = createHash("sha256").update(provided).digest();
-  const right = createHash("sha256").update(expected).digest();
-  return timingSafeEqual(left, right);
-}
-
-function extractBearerSecret(request: Request): string | null {
+function extractBearerToken(request: Request): string | null {
   const auth = request.headers.get("authorization");
   if (!auth?.startsWith("Bearer ")) {
     return null;
@@ -109,8 +106,10 @@ async function extractUploadFile(request: Request): Promise<File | null> {
 
   let form: FormData;
   try {
-    form = await request.formData();
-  } catch {
+    const bytes = await readBoundedBody(request, MAX_UPLOAD_BYTES + 64 * 1024);
+    form = await new Request(request.url, { method: "POST", headers: { "content-type": contentType }, body: bytes as BodyInit }).formData();
+  } catch (error) {
+    if (error instanceof BodyTooLargeError) throw error;
     return null;
   }
 
@@ -140,28 +139,22 @@ export async function OPTIONS(request: Request): Promise<NextResponse> {
 export async function POST(
   request: Request,
 ): Promise<NextResponse<ApiEnvelope<MediaUploadResult>>> {
-  const expected = process.env.MEDIA_UPLOAD_SECRET?.trim();
-  if (!expected) {
-    return jsonEnvelope<MediaUploadResult>(request, 503, {
-      success: false,
-      data: null,
-      error: "Media upload is not configured",
+  if (process.env.APP_ENV === "staging" && process.env.CMS_CONTENT_MODE === "read-only") {
+    return jsonEnvelope<MediaUploadResult>(request, 403, { success: false, data: null, error: "Staging content is read-only" });
+  }
+  const provided = extractBearerToken(request);
+  const authorization = provided ? await authorizeMediaUpload(provided) : "denied";
+  if (authorization !== "allowed") {
+    const unavailable = authorization === "unavailable";
+    return jsonEnvelope<MediaUploadResult>(request, unavailable ? 503 : 401, {
+      success: false, data: null,
+      error: unavailable ? "Editor authorization is temporarily unavailable" : "Unauthorized",
     });
   }
-
-  const provided = extractBearerSecret(request);
-  if (!provided || !secretsMatch(provided, expected)) {
-    return jsonEnvelope<MediaUploadResult>(request, 401, {
-      success: false,
-      data: null,
-      error: "Unauthorized",
-    });
-  }
-
   const contentLength = parseContentLength(
     request.headers.get("content-length"),
   );
-  if (contentLength != null && !isWithinUploadSizeLimit(contentLength)) {
+  if (contentLength != null && contentLength > MAX_UPLOAD_BYTES + 64 * 1024) {
     return jsonEnvelope<MediaUploadResult>(request, 413, {
       success: false,
       data: null,
@@ -169,7 +162,13 @@ export async function POST(
     });
   }
 
-  const file = await extractUploadFile(request);
+  let file: File | null;
+  try {
+    file = await extractUploadFile(request);
+  } catch (error) {
+    if (!(error instanceof BodyTooLargeError)) throw error;
+    return jsonEnvelope<MediaUploadResult>(request, 413, { success: false, data: null, error: "File too large" });
+  }
   if (!file) {
     return jsonEnvelope<MediaUploadResult>(request, 400, {
       success: false,
@@ -197,7 +196,10 @@ export async function POST(
 
   const key = createMediaObjectKey(file.name || "upload.bin");
   const bytes = new Uint8Array(await file.arrayBuffer());
-  const dimensions = readImageDimensions(bytes, mimeType);
+  if (!matchesImageType(bytes, mimeType)) {
+    return jsonEnvelope<MediaUploadResult>(request, 415, { success: false, data: null, error: "File content does not match an allowed image type" });
+  }
+  const dimensions = readImageDimensions(bytes);
   const url = buildMediaPublicUrl(key);
 
   if (!url) {

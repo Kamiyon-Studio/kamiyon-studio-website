@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { type ObjectInputProps, PatchEvent, set, unset } from "sanity";
+import { useClient, type ObjectInputProps, PatchEvent, set, unset } from "sanity";
 
 import { getMediaUploadUrl } from "../studio-url";
 
@@ -52,30 +52,23 @@ const errorStyle: CSSProperties = {
   color: "var(--card-badge-critical-fg-color, #b00020)",
 };
 
-function studioUploadSecret(): string {
-  return (
-    process.env.SANITY_STUDIO_MEDIA_UPLOAD_SECRET?.trim() ||
-    process.env.NEXT_PUBLIC_MEDIA_UPLOAD_SECRET?.trim() ||
-    ""
-  );
-}
-
 /**
  * Minimal R2 upload control for `r2Asset` fields.
  * Posts multipart `file` to `/api/media/upload` with Bearer auth, then patches key/url/meta.
  */
 export function R2AssetInput(props: ObjectInputProps<R2AssetValue>) {
   const { value, onChange, readOnly, renderDefault } = props;
+  const client = useClient({ apiVersion: "2026-07-21" });
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const onUpload = useCallback(
     async (file: File) => {
-      const secret = studioUploadSecret();
-      if (!secret) {
+      const token = client.config().token;
+      if (!token) {
         setError(
-          "Set SANITY_STUDIO_MEDIA_UPLOAD_SECRET (or NEXT_PUBLIC_MEDIA_UPLOAD_SECRET) for Studio uploads.",
+          "Sign in again to upload using your editor account.",
         );
         return;
       }
@@ -89,7 +82,7 @@ export function R2AssetInput(props: ObjectInputProps<R2AssetValue>) {
 
         const response = await fetch(getMediaUploadUrl(), {
           method: "POST",
-          headers: { Authorization: `Bearer ${secret}` },
+          headers: { Authorization: `Bearer ${token}` },
           body,
         });
 
@@ -114,7 +107,7 @@ export function R2AssetInput(props: ObjectInputProps<R2AssetValue>) {
         setUploading(false);
       }
     },
-    [onChange],
+    [client, onChange],
   );
 
   let defaultFields: ReactNode = null;
@@ -128,14 +121,14 @@ export function R2AssetInput(props: ObjectInputProps<R2AssetValue>) {
     <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
       <div style={panelStyle}>
         <p style={{ ...mutedStyle, margin: 0 }}>
-          Upload to Cloudflare R2. Sanity stores only the object key and public URL — no binary.
+          Upload PNG, JPEG, WebP, GIF, or AVIF images up to 10 MiB to Cloudflare R2.
         </p>
         <div style={rowStyle}>
           <input
             ref={inputRef}
             type="file"
             hidden
-            accept="image/*,video/*,audio/*,application/pdf"
+            accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
             disabled={readOnly || uploading}
             onChange={(event) => {
               const file = event.currentTarget.files?.[0];
