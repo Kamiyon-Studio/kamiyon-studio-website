@@ -41,7 +41,7 @@ export function PortfolioListing({ caseStudies }: PortfolioListingProps) {
           </p>
         </div>
 
-        {availableServices.length > 0 ? (
+        {availableServices.length > 1 ? (
           <div className="mt-8">
             <ServiceFilter
               services={availableServices}
