@@ -3,7 +3,8 @@ import {
   SocialPlatformIcon,
   SOCIAL_PLATFORM_LABELS,
 } from "@/components/ui/social-platform-icons";
-import { TiltedCard, marketingCardTiltProps } from "@/components/ui/TiltedCard";
+import { TiltedCard } from "@/components/ui/TiltedCard";
+import { marketingCardTiltProps } from "@/lib/ui/marketing-card-tilt";
 import type { ContactChannel } from "@/lib/cms/types";
 
 const CHANNEL_LABELS: Record<ContactChannel["type"], string> =

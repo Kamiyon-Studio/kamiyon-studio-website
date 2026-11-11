@@ -123,11 +123,12 @@ export function LogoMarquee({
         data-testid="logo-marquee"
         className={cn(
           "flex flex-wrap items-center justify-center",
-          edgeFadeClassName,
           className,
         )}
       >
-        <LogoRow logos={logos} logoImageClassName={logoImageClassName} />
+        {logos.map((logo) => (
+          <LogoCell key={logo.id} logo={logo} logoImageClassName={logoImageClassName} />
+        ))}
       </div>
     );
   }

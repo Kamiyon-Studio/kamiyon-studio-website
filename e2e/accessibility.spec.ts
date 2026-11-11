@@ -1,5 +1,18 @@
 import { expect, test } from "@playwright/test";
 
+test("mobile contact cards receive their server-safe marketing settings", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/contact");
+  const methods = page.locator("#methods");
+  await methods.scrollIntoViewIfNeeded();
+  await expect(page.getByText("This effect is not optimized for mobile.", { exact: false })).toHaveCount(0);
+  const cards = methods.locator(".tilted-card-figure");
+  expect(await cards.count()).toBeGreaterThan(0);
+  for (const card of await cards.all()) {
+    await expect(card).toHaveAttribute("style", /height:\s*100%/);
+  }
+});
+
 test("navigation contains keyboard focus and restores the trigger", async ({
   page,
 }) => {
@@ -23,6 +36,7 @@ test("navigation contains keyboard focus and restores the trigger", async ({
 test("reduced motion does not request hero video and keeps inquiry links usable", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   const videoRequests: string[] = [];
   page.on("request", (request) => {
@@ -38,6 +52,10 @@ test("reduced motion does not request hero video and keeps inquiry links usable"
     page.getByRole("link", { name: "Discuss a project" }),
   ).toBeVisible();
   expect(videoRequests).toEqual([]);
+  const logos = page.getByTestId("logo-marquee");
+  await logos.scrollIntoViewIfNeeded();
+  await expect(logos).toHaveClass(/flex-wrap/);
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
 });
 
 test("hero artwork stays static when scrolling", async ({ page }) => {
