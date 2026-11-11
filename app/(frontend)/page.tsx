@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { Hero } from "@/components/sections/Hero";
+import { Hero, selectHeroProject } from "@/components/sections/Hero";
 import { HomeContact } from "@/components/sections/HomeContact";
 import { HomeScrollMarker } from "@/components/sections/HomeScrollMarker";
 import { PartnersMarquee } from "@/components/sections/PartnersMarquee";
@@ -105,13 +105,15 @@ export default async function Home() {
   const { home, portfolioItems, serviceHoverItems, services, partners, awards } =
     await getHomePageContent();
 
+  const heroProject = selectHeroProject(portfolioItems);
+
   const contact = home.contactCta ?? homePageFallback.contactCta;
   const serviceSlides = toServiceStackSlides(services, serviceHoverItems);
 
   return (
     <>
       <HomeScrollMarker />
-      <Hero />
+      <Hero project={heroProject} />
       {portfolioItems.length > 0 ? (
         <ProjectsBento
           caseStudies={portfolioItems}
