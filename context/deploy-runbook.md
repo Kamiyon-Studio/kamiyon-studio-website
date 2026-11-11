@@ -1,3 +1,5 @@
+> Upload authorization update (2026-11-11): historical shared-upload-secret instructions below are superseded. The API now verifies the signed-in human Sanity editor on every upload. Deploy the updated Studio and Worker together; remove legacy upload-secret variables from build settings and revoke/remove previously deployed shared credentials. Supported built-in roles are administrator, editor, and developer. Viewer, robot, nonmember, and expired sessions are denied. Provider failures return 503. No upload credential is baked into the Studio bundle.
+
 # Deploy runbook (Phase E / OpenNext)
 
 > Cloudflare OpenNext + R2 + webhooks. Staging and prod Workers are live on `*.workers.dev`. Apex DNS cutover (WS4b) is operator-led — see **WS4b** below and [`dns-cutover-guide.md`](./dns-cutover-guide.md). Secrets are never committed.
@@ -219,12 +221,11 @@ pnpm sanity:dev
 
 ### Hosted Studio → R2 (staging bake-in)
 
-`SANITY_STUDIO_*` is inlined at `sanity deploy` time (ADR-009). Redeploy whenever origin or upload secret changes:
+`SANITY_STUDIO_*` is inlined at `sanity deploy` time (ADR-009). Redeploy whenever the public API origin changes; never embed upload credentials:
 
 ```bash
 # PowerShell — values must match staging Worker
 $env:SANITY_STUDIO_API_ORIGIN = "https://kamiyon-studio-website-staging.limosnerosherwin.workers.dev"
-$env:SANITY_STUDIO_MEDIA_UPLOAD_SECRET = "<same as Worker MEDIA_UPLOAD_SECRET>"
 $env:SANITY_STUDIO_PROJECT_ID = "c6ej1xoj"
 $env:SANITY_STUDIO_DATASET = "kamiyon"
 pnpm exec sanity deploy -y
@@ -356,7 +357,6 @@ Confirm the upload stays under the Workers Free **3 MiB** gzip limit (staging wa
 
 ```powershell
 pnpm exec wrangler secret put SANITY_REVALIDATE_SECRET --env production
-pnpm exec wrangler secret put MEDIA_UPLOAD_SECRET --env production
 pnpm exec wrangler secret list --env production   # names only
 ```
 
@@ -387,7 +387,6 @@ Expect `200` for pages, `307` → `https://kamiyon.sanity.studio/` for `/studio`
 
 ```powershell
 $env:SANITY_STUDIO_API_ORIGIN = "https://kamiyonstudio.com"
-$env:SANITY_STUDIO_MEDIA_UPLOAD_SECRET = "<same as prod Worker MEDIA_UPLOAD_SECRET>"
 $env:SANITY_STUDIO_PROJECT_ID = "c6ej1xoj"
 $env:SANITY_STUDIO_DATASET = "kamiyon"
 pnpm exec sanity deploy -y
