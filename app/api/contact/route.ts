@@ -1,3 +1,4 @@
+import { BodyTooLargeError, readBoundedBody } from "@/lib/http/read-bounded-body";
 import { Resend } from "resend";
 import { NextResponse } from "next/server";
 
@@ -55,8 +56,11 @@ export async function POST(
 
   let payload: unknown;
   try {
-    payload = await request.json();
-  } catch {
+    payload = JSON.parse(new TextDecoder().decode(await readBoundedBody(request, 32 * 1024)));
+  } catch (error) {
+    if (error instanceof BodyTooLargeError) {
+      return jsonEnvelope<ContactSuccess>(413, { success: false, data: null, error: "Request body is too large" });
+    }
     return jsonEnvelope<ContactSuccess>(400, {
       success: false,
       data: null,

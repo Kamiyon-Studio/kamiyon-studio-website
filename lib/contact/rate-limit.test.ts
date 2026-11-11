@@ -33,3 +33,14 @@ describe("createContactRateLimiter", () => {
     expect(limiter.check("1.1.1.1").allowed).toBe(true);
   });
 });
+
+it("bounds unique clients without evicting active limits and frees expired slots", () => {
+  let now = 0;
+  const limiter = createContactRateLimiter({ limit: 1, windowMs: 1000, maxBuckets: 2, now: () => now });
+  expect(limiter.check("a").allowed).toBe(true);
+  expect(limiter.check("b").allowed).toBe(true);
+  expect(limiter.check("c").allowed).toBe(false);
+  expect(limiter.check("a").allowed).toBe(false);
+  now = 1001;
+  expect(limiter.check("c").allowed).toBe(true);
+});
