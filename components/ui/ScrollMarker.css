@@ -14,6 +14,8 @@
   justify-content: center;
   margin: 0;
   padding: 0.1rem;
+  min-width: 44px;
+  min-height: 44px;
   border: 0;
   background: transparent;
   cursor: pointer;

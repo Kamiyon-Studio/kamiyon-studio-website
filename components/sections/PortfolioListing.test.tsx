@@ -141,3 +141,8 @@ describe("PortfolioListing", () => {
     expect(screen.getByRole("link", { name: /Brand Only/ })).toBeInTheDocument();
   });
 });
+
+it("hides redundant filters for a single populated service", () => {
+  render(<PortfolioListing caseStudies={[caseStudy]} />);
+  expect(screen.queryByRole("button", { name: "All" })).not.toBeInTheDocument();
+});
