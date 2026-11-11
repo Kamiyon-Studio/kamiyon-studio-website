@@ -352,7 +352,7 @@ export function FocusRail({
               const isCenter = offset === 0;
               const dist = Math.abs(offset);
 
-              const xOffset = offset * 270;
+              const xOffset = offset * 310;
               const zOffset = -dist * 140;
               const scale = 1;
               const rotateY = offset * -8;
@@ -365,7 +365,7 @@ export function FocusRail({
                 <motion.div
                   key={absIndex}
                   className={cn(
-                    "focus-rail-card absolute aspect-[9/16] w-[220px] md:w-[250px]",
+                    "focus-rail-card absolute aspect-[5/8] w-[240px] md:w-[268px]",
                     isCenter ? "z-20 cursor-pointer" : "z-10 cursor-pointer",
                   )}
                   data-testid="focus-rail-card"
