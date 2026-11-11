@@ -1,3 +1,4 @@
+import { serializeJsonLd } from "@/lib/seo/serialize-jsonld";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -64,7 +65,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
       />
       <ServiceDetail service={service} />
     </>

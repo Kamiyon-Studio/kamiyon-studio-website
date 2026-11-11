@@ -1,3 +1,4 @@
+import { serializeJsonLd } from "@/lib/seo/serialize-jsonld";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -66,7 +67,7 @@ export default async function PortfolioItemPage({ params }: PortfolioItemPagePro
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
       />
       <CaseStudy caseStudy={item} />
     </>
