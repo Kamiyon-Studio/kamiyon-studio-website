@@ -4,11 +4,21 @@ const staticRoutes = ["/", "/about", "/services", "/portfolio", "/blog", "/conta
 
 const dynamicRoutes = [
   "/services/game-development",
-  "/portfolio/sample-client-project-placeholder",
   "/portfolio/eclipse",
 ];
 
 const redirectedRoutes = ["/products", "/products/eclipse", "/community"];
+
+test("renders a project linked from the portfolio", async ({ page }) => {
+  await page.goto("/portfolio");
+  const project = page.locator('main a[href^="/portfolio/"]').first();
+  await expect(project).toBeVisible();
+  const href = await project.getAttribute("href");
+  expect(href).toMatch(/^\/portfolio\/[^/]+$/);
+  const response = await page.goto(href!);
+  expect(response?.status()).toBe(200);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+});
 
 for (const route of staticRoutes) {
   test(`renders ${route} without error`, async ({ page }) => {
