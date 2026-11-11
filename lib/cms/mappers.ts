@@ -993,10 +993,10 @@ export function mapCollection<T>(
   rows: unknown,
   mapItem: (doc: unknown) => T | null,
 ): T[] | null {
-  if (!Array.isArray(rows) || rows.length === 0) {
+  if (!Array.isArray(rows)) {
     return null;
   }
 
   const mapped = rows.map(mapItem).filter((item): item is T => item !== null);
-  return mapped.length > 0 ? mapped : null;
+  return mapped;
 }
