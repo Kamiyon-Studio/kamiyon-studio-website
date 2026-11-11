@@ -1,26 +1,17 @@
-/* Static image and copy use the same surface and type rhythm as project cards. */
 .service-banner {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-  min-height: 15rem;
-  overflow: hidden;
-  background: var(--bg-surface);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: 2rem;
+  padding: clamp(1.75rem, 4vw, 3rem) 0;
+  border-bottom: 1px solid var(--border-default);
   color: var(--text-primary);
   text-decoration: none;
 }
 .service-banner:focus-visible {
   outline: 2px solid var(--color-sakura-ink);
-  outline-offset: 4px;
+  outline-offset: 6px;
 }
-.service-banner__media { position: relative; min-height: 12rem; }
-.service-banner__overlay { display: flex; align-items: center; }
-.service-banner__copy {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: clamp(1.5rem, 4vw, 3rem);
-}
+.service-banner__copy { display: flex; flex-direction: column; align-items: flex-start; gap: 1.25rem; }
 .service-banner__title {
   margin: 0;
   font-family: var(--font-display), sans-serif;
@@ -29,28 +20,12 @@
   line-height: 1.15;
   letter-spacing: -0.025em;
   text-wrap: balance;
+  transition: color 160ms ease;
 }
-.service-banner__description {
-  margin: 0;
-  max-width: 55ch;
-  font-size: 1rem;
-  line-height: 1.7;
-  color: var(--text-secondary);
-}
-.service-banner__cta {
-  margin-top: 0.5rem;
-  font-family: var(--font-display), sans-serif;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  color: var(--color-sakura-ink);
-  text-underline-offset: 0.25em;
-}
+.service-banner:hover .service-banner__title { color: var(--color-sakura-ink); }
+.service-banner__description { margin: 0; max-width: 55ch; font-size: 1rem; line-height: 1.7; color: var(--text-secondary); }
+.service-banner__capabilities { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; padding: 0; list-style: none; font-size: 0.8125rem; color: var(--color-gold); }
+.service-banner__cta { display: inline-flex; align-items: center; gap: 0.75rem; font-family: var(--font-display), sans-serif; font-size: 0.9375rem; font-weight: 500; color: var(--color-sakura-ink); text-underline-offset: 0.25em; }
 .service-banner:hover .service-banner__cta { text-decoration: underline; }
-@media (max-width: 639px) {
-  .service-banner { grid-template-columns: minmax(0, 1fr); }
-  .service-banner__media { min-height: 9rem; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .service-banner__media img { transition: none; }
-  .service-banner:hover .service-banner__media img { transform: none; }
-}
+@media (max-width: 639px) { .service-banner { grid-template-columns: minmax(0, 1fr); gap: 1rem; } }
+@media (prefers-reduced-motion: reduce) { .service-banner__title { transition: none; } }

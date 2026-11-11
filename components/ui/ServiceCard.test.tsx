@@ -1,36 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import type { Service } from "@/lib/cms/types";
 import { ServiceCard } from "./ServiceCard";
-
-vi.mock("next/image", () => ({
-  default: ({
-    alt,
-    src,
-    fill: _fill,
-    priority,
-    sizes: _sizes,
-    className,
-    ...rest
-  }: {
-    alt: string;
-    src: string;
-    fill?: boolean;
-    priority?: boolean;
-    sizes?: string;
-    className?: string;
-  }) => (
-    // eslint-disable-next-line @next/next/no-img-element -- test mock
-    <img
-      alt={alt}
-      src={src}
-      className={className}
-      data-priority={priority ? "true" : undefined}
-      {...rest}
-    />
-  ),
-}));
 
 const baseService: Service = {
   _type: "service",
@@ -52,10 +24,11 @@ describe("ServiceCard", () => {
     expect(screen.getByRole("link")).toHaveAttribute("href", "/services/game-development");
   });
 
-  it("renders a full-bleed placeholder background image", () => {
+  it("shows service capabilities without decorative placeholder imagery", () => {
     const { container } = render(<ServiceCard service={baseService} />);
 
-    expect(container.querySelector('img[src="/assets/background.avif"]')).toBeInTheDocument();
+    expect(container.querySelector("img")).toBeNull();
+    expect(screen.getByRole("list", { name: "Capabilities" })).toHaveTextContent("Full-cycle game development");
   });
 
   it("shows a Placeholder badge only when isPlaceholder is true", () => {
@@ -93,15 +66,8 @@ describe("ServiceCard", () => {
     expect(screen.getByText(/view service/i)).toBeInTheDocument();
   });
 
-  it("marks the first banner image as priority when requested", () => {
-    const { container, rerender } = render(
-      <ServiceCard service={baseService} priority />,
-    );
-
-    expect(container.querySelector("img")).toHaveAttribute("data-priority", "true");
-
-    rerender(<ServiceCard service={baseService} />);
-
-    expect(container.querySelector("img")).not.toHaveAttribute("data-priority");
+  it("omits an empty capabilities list", () => {
+    render(<ServiceCard service={{ ...baseService, capabilities: [] }} />);
+    expect(screen.queryByRole("list")).not.toBeInTheDocument();
   });
 });
