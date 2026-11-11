@@ -50,10 +50,34 @@ function AmbientShapes() {
   return (
     <div className="ambient-background-shapes" aria-hidden="true">
       <svg className="bg-shape bg-shape-1" viewBox="0 0 400 400" fill="none">
-        <circle className="shape-element" cx="80" cy="120" r="40" fill="rgba(255,121,152,0.18)" />
-        <circle className="shape-element" cx="300" cy="80" r="60" fill="rgba(233,192,128,0.16)" />
-        <circle className="shape-element" cx="200" cy="300" r="80" fill="rgba(255,121,152,0.12)" />
-        <circle className="shape-element" cx="350" cy="280" r="30" fill="rgba(233,192,128,0.18)" />
+        <circle
+          className="shape-element"
+          cx="80"
+          cy="120"
+          r="40"
+          fill="rgba(255,121,152,0.18)"
+        />
+        <circle
+          className="shape-element"
+          cx="300"
+          cy="80"
+          r="60"
+          fill="rgba(233,192,128,0.16)"
+        />
+        <circle
+          className="shape-element"
+          cx="200"
+          cy="300"
+          r="80"
+          fill="rgba(255,121,152,0.12)"
+        />
+        <circle
+          className="shape-element"
+          cx="350"
+          cy="280"
+          r="30"
+          fill="rgba(233,192,128,0.18)"
+        />
       </svg>
       <svg className="bg-shape bg-shape-2" viewBox="0 0 400 400" fill="none">
         <path
@@ -72,17 +96,83 @@ function AmbientShapes() {
         />
       </svg>
       <svg className="bg-shape bg-shape-3" viewBox="0 0 400 400" fill="none">
-        <circle className="shape-element" cx="50" cy="50" r="8" fill="rgba(255,121,152,0.3)" />
-        <circle className="shape-element" cx="150" cy="50" r="8" fill="rgba(233,192,128,0.3)" />
-        <circle className="shape-element" cx="250" cy="50" r="8" fill="rgba(255,121,152,0.28)" />
-        <circle className="shape-element" cx="350" cy="50" r="8" fill="rgba(233,192,128,0.28)" />
-        <circle className="shape-element" cx="100" cy="150" r="12" fill="rgba(255,121,152,0.25)" />
-        <circle className="shape-element" cx="200" cy="150" r="12" fill="rgba(233,192,128,0.25)" />
-        <circle className="shape-element" cx="300" cy="150" r="12" fill="rgba(255,121,152,0.25)" />
-        <circle className="shape-element" cx="50" cy="250" r="10" fill="rgba(233,192,128,0.3)" />
-        <circle className="shape-element" cx="150" cy="250" r="10" fill="rgba(255,121,152,0.3)" />
-        <circle className="shape-element" cx="250" cy="250" r="10" fill="rgba(233,192,128,0.3)" />
-        <circle className="shape-element" cx="350" cy="250" r="10" fill="rgba(255,121,152,0.3)" />
+        <circle
+          className="shape-element"
+          cx="50"
+          cy="50"
+          r="8"
+          fill="rgba(255,121,152,0.3)"
+        />
+        <circle
+          className="shape-element"
+          cx="150"
+          cy="50"
+          r="8"
+          fill="rgba(233,192,128,0.3)"
+        />
+        <circle
+          className="shape-element"
+          cx="250"
+          cy="50"
+          r="8"
+          fill="rgba(255,121,152,0.28)"
+        />
+        <circle
+          className="shape-element"
+          cx="350"
+          cy="50"
+          r="8"
+          fill="rgba(233,192,128,0.28)"
+        />
+        <circle
+          className="shape-element"
+          cx="100"
+          cy="150"
+          r="12"
+          fill="rgba(255,121,152,0.25)"
+        />
+        <circle
+          className="shape-element"
+          cx="200"
+          cy="150"
+          r="12"
+          fill="rgba(233,192,128,0.25)"
+        />
+        <circle
+          className="shape-element"
+          cx="300"
+          cy="150"
+          r="12"
+          fill="rgba(255,121,152,0.25)"
+        />
+        <circle
+          className="shape-element"
+          cx="50"
+          cy="250"
+          r="10"
+          fill="rgba(233,192,128,0.3)"
+        />
+        <circle
+          className="shape-element"
+          cx="150"
+          cy="250"
+          r="10"
+          fill="rgba(255,121,152,0.3)"
+        />
+        <circle
+          className="shape-element"
+          cx="250"
+          cy="250"
+          r="10"
+          fill="rgba(233,192,128,0.3)"
+        />
+        <circle
+          className="shape-element"
+          cx="350"
+          cy="250"
+          r="10"
+          fill="rgba(255,121,152,0.3)"
+        />
       </svg>
       <svg className="bg-shape bg-shape-4" viewBox="0 0 400 400" fill="none">
         <path
@@ -297,7 +387,13 @@ export function SterlingGateKineticNavigation({
           tl.fromTo(
             fadeTargets,
             { autoAlpha: 0, yPercent: 100 },
-            { autoAlpha: 1, yPercent: 0, stagger: 0.04, duration: 0.4, clearProps: "all" },
+            {
+              autoAlpha: 1,
+              yPercent: 0,
+              stagger: 0.04,
+              duration: 0.4,
+              clearProps: "all",
+            },
             "<+=0.1",
           );
         }
@@ -342,7 +438,11 @@ export function SterlingGateKineticNavigation({
           overflow: "hidden",
           autoAlpha: open ? 1 : 0,
         });
-        gsap.set(links, { clearProps: "transform", autoAlpha: open ? 1 : 0, y: 0 });
+        gsap.set(links, {
+          clearProps: "transform",
+          autoAlpha: open ? 1 : 0,
+          y: 0,
+        });
         return;
       }
 
@@ -419,9 +519,68 @@ export function SterlingGateKineticNavigation({
   }, [isMenuOpen]);
 
   useEffect(() => {
-    document.body.style.overflow = isMenuOpen ? "hidden" : "";
+    const root = containerRef.current;
+    if (!isMenuOpen || !root) return;
+    const previousFocus =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    const previousOverflow = document.body.style.overflow;
+    const covered: Array<{ element: HTMLElement; inert: boolean }> = [];
+    let branch: HTMLElement = root;
+    while (branch.parentElement) {
+      for (const sibling of branch.parentElement.children) {
+        if (sibling !== branch && sibling instanceof HTMLElement) {
+          covered.push({ element: sibling, inert: sibling.hasAttribute("inert") });
+          sibling.setAttribute("inert", "");
+        }
+      }
+      branch = branch.parentElement;
+      if (branch === document.body) break;
+    }
+    const trigger = root.querySelector<HTMLButtonElement>(".nav-close-btn");
+    trigger?.focus();
+    document.body.style.overflow = "hidden";
+    const focusable = () =>
+      Array.from(
+        root.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex="0"]',
+        ),
+      ).filter(
+        (element) =>
+          element.tabIndex >= 0 &&
+          !element.closest('[aria-hidden="true"], [inert]'),
+      );
+    const handleTab = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const items = focusable();
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (!first || !last) return;
+      if (
+        event.shiftKey &&
+        (document.activeElement === first ||
+          !root.contains(document.activeElement))
+      ) {
+        event.preventDefault();
+        last.focus();
+      } else if (
+        !event.shiftKey &&
+        (document.activeElement === last ||
+          !root.contains(document.activeElement))
+      ) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", handleTab);
     return () => {
-      document.body.style.overflow = "";
+      document.removeEventListener("keydown", handleTab);
+      document.body.style.overflow = previousOverflow;
+      covered.forEach(({ element, inert }) => {
+        element.toggleAttribute("inert", inert);
+      });
+      if (previousFocus?.isConnected) previousFocus.focus();
     };
   }, [isMenuOpen]);
 
@@ -443,7 +602,14 @@ export function SterlingGateKineticNavigation({
   };
 
   return (
-    <div className="sterling-gate" ref={containerRef} data-nav-theme={navTheme}>
+    <div
+      className="sterling-gate"
+      ref={containerRef}
+      data-nav-theme={navTheme}
+      role={isMenuOpen ? "dialog" : undefined}
+      aria-modal={isMenuOpen ? true : undefined}
+      aria-label={isMenuOpen ? "Site navigation" : undefined}
+    >
       <div className="site-header-wrapper">
         <header className="header">
           <div className="container is--full">
@@ -498,7 +664,9 @@ export function SterlingGateKineticNavigation({
             <div className="menu-content-wrapper">
               <ul className="menu-list">
                 {navItems.map((item, index) => {
-                  const hasChildren = Boolean(item.children && item.children.length > 0);
+                  const hasChildren = Boolean(
+                    item.children && item.children.length > 0,
+                  );
                   const isDropdownOpen = openDropdownHref === item.href;
                   const sublistId = `${menuId}-sub-${index}`;
 
@@ -517,7 +685,10 @@ export function SterlingGateKineticNavigation({
                           <p className="nav-link-text" data-menu-fade="">
                             {item.label}
                           </p>
-                          <div className="nav-link-hover-bg" aria-hidden="true" />
+                          <div
+                            className="nav-link-hover-bg"
+                            aria-hidden="true"
+                          />
                         </SameRouteLink>
                         {hasChildren ? (
                           <button

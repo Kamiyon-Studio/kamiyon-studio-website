@@ -112,7 +112,9 @@ function fireIntersection(
 }
 
 function observedTarget(id: string): Element {
-  const match = observeMock.mock.calls.find(([target]) => (target as Element).id === id);
+  const match = observeMock.mock.calls.find(
+    ([target]) => (target as Element).id === id,
+  );
   if (!match) {
     throw new Error(`Expected IntersectionObserver to observe #${id}`);
   }
@@ -164,7 +166,10 @@ describe("SterlingGateKineticNavigation", () => {
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
 
-    expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "/about");
+    expect(screen.getByRole("link", { name: "About" })).toHaveAttribute(
+      "href",
+      "/about",
+    );
     expect(screen.getByRole("link", { name: "Services" })).toHaveAttribute(
       "href",
       "/services",
@@ -175,10 +180,39 @@ describe("SterlingGateKineticNavigation", () => {
     );
   });
 
+  it("contains focus and restores covered content when closed", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <SterlingGateKineticNavigation
+          navItems={navItems}
+          siteName="Kamiyon Studio"
+          contactCta={{ label: "Get in touch", href: "/contact" }}
+        />
+        <main>
+          <a href="#form">Covered link</a>
+        </main>
+      </>,
+    );
+    const trigger = screen.getByRole("button", { name: "Open menu" });
+    await user.click(trigger);
+    expect(document.querySelector("main")!.hasAttribute("inert")).toBe(true);
+    screen.getByRole("link", { name: "Get in touch" }).focus();
+    await user.tab();
+    expect(screen.getByRole("dialog")).toContainElement(
+      document.activeElement as HTMLElement,
+    );
+    await user.keyboard("{Escape}");
+    expect(document.querySelector("main")!.hasAttribute("inert")).not.toBe(true);
+    expect(trigger).toHaveFocus();
+  });
   it("closes on Escape", async () => {
     const user = userEvent.setup();
     render(
-      <SterlingGateKineticNavigation navItems={navItems} siteName="Kamiyon Studio" />,
+      <SterlingGateKineticNavigation
+        navItems={navItems}
+        siteName="Kamiyon Studio"
+      />,
     );
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
@@ -212,28 +246,36 @@ describe("SterlingGateKineticNavigation", () => {
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
     await user.click(screen.getByRole("button", { name: "Expand Services" }));
-    expect(screen.getByRole("button", { name: "Collapse Services" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Collapse Services" }),
+    ).toBeInTheDocument();
 
     await user.keyboard("{Escape}");
     await user.click(screen.getByRole("button", { name: "Open menu" }));
 
-    expect(screen.getByRole("button", { name: "Expand Services" })).toHaveAttribute(
-      "aria-expanded",
-      "false",
-    );
-    expect(screen.queryByRole("link", { name: "Game Development" })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Expand Services" }),
+    ).toHaveAttribute("aria-expanded", "false");
+    expect(
+      screen.queryByRole("link", { name: "Game Development" }),
+    ).not.toBeInTheDocument();
   });
 
   it("does not throw under prefers-reduced-motion", async () => {
     const user = userEvent.setup();
     expect(() =>
       render(
-        <SterlingGateKineticNavigation navItems={navItems} siteName="Kamiyon Studio" />,
+        <SterlingGateKineticNavigation
+          navItems={navItems}
+          siteName="Kamiyon Studio"
+        />,
       ),
     ).not.toThrow();
 
     await user.click(screen.getByRole("button", { name: "Open menu" }));
-    expect(screen.getByRole("button", { name: "Close menu" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Close menu" }),
+    ).toBeInTheDocument();
   });
 
   it("keeps the home logo link available while the menu is open", async () => {
@@ -256,7 +298,10 @@ describe("SterlingGateKineticNavigation", () => {
 
   it("renders a three-line hamburger icon without Menu/Close text labels", () => {
     const { container } = render(
-      <SterlingGateKineticNavigation navItems={navItems} siteName="Kamiyon Studio" />,
+      <SterlingGateKineticNavigation
+        navItems={navItems}
+        siteName="Kamiyon Studio"
+      />,
     );
 
     const lines = container.querySelectorAll(".nav-hamburger-line");
@@ -268,7 +313,10 @@ describe("SterlingGateKineticNavigation", () => {
   it("adds open class to morph the hamburger into an X", async () => {
     const user = userEvent.setup();
     render(
-      <SterlingGateKineticNavigation navItems={navItems} siteName="Kamiyon Studio" />,
+      <SterlingGateKineticNavigation
+        navItems={navItems}
+        siteName="Kamiyon Studio"
+      />,
     );
 
     const toggle = screen.getByRole("button", { name: "Open menu" });
@@ -276,7 +324,9 @@ describe("SterlingGateKineticNavigation", () => {
 
     await user.click(toggle);
 
-    expect(screen.getByRole("button", { name: "Close menu" })).toHaveClass("open");
+    expect(screen.getByRole("button", { name: "Close menu" })).toHaveClass(
+      "open",
+    );
   });
 
   it("uses transparent chrome without frosted surfaces on logo row and menu button", () => {
@@ -304,7 +354,10 @@ describe("SterlingGateKineticNavigation", () => {
 
   it("flips data-nav-theme from dark to light by competing intersection ratios", async () => {
     const { container } = render(
-      <SterlingGateKineticNavigation navItems={navItems} siteName="Kamiyon Studio" />,
+      <SterlingGateKineticNavigation
+        navItems={navItems}
+        siteName="Kamiyon Studio"
+      />,
     );
 
     const root = container.querySelector(".sterling-gate");
@@ -335,7 +388,10 @@ describe("SterlingGateKineticNavigation", () => {
 
   it("stays dark when partners wins intersection inside the opening", async () => {
     const { container } = render(
-      <SterlingGateKineticNavigation navItems={navItems} siteName="Kamiyon Studio" />,
+      <SterlingGateKineticNavigation
+        navItems={navItems}
+        siteName="Kamiyon Studio"
+      />,
     );
 
     const root = container.querySelector(".sterling-gate");
@@ -355,12 +411,17 @@ describe("SterlingGateKineticNavigation", () => {
     const user = userEvent.setup();
 
     const { container } = render(
-      <SterlingGateKineticNavigation navItems={navItems} siteName="Kamiyon Studio" />,
+      <SterlingGateKineticNavigation
+        navItems={navItems}
+        siteName="Kamiyon Studio"
+      />,
     );
 
     const root = container.querySelector(".sterling-gate");
 
-    fireIntersection([{ target: observedTarget("home-hero"), intersectionRatio: 0.9 }]);
+    fireIntersection([
+      { target: observedTarget("home-hero"), intersectionRatio: 0.9 },
+    ]);
 
     await waitFor(() => {
       expect(root).toHaveAttribute("data-nav-theme", "dark");
@@ -403,20 +464,22 @@ describe("SterlingGateKineticNavigation", () => {
       screen.queryByRole("button", { name: "Expand Portfolio" }),
     ).not.toBeInTheDocument();
 
-    const expandServices = screen.getByRole("button", { name: "Expand Services" });
+    const expandServices = screen.getByRole("button", {
+      name: "Expand Services",
+    });
     expect(expandServices).toHaveAttribute("aria-expanded", "false");
-    expect(screen.queryByRole("link", { name: "Game Development" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Game Development" }),
+    ).not.toBeInTheDocument();
 
     await user.click(expandServices);
 
-    expect(screen.getByRole("button", { name: "Collapse Services" })).toHaveAttribute(
-      "aria-expanded",
-      "true",
-    );
-    expect(screen.getByRole("link", { name: "Game Development" })).toHaveAttribute(
-      "href",
-      "/services/game-development",
-    );
+    expect(
+      screen.getByRole("button", { name: "Collapse Services" }),
+    ).toHaveAttribute("aria-expanded", "true");
+    expect(
+      screen.getByRole("link", { name: "Game Development" }),
+    ).toHaveAttribute("href", "/services/game-development");
     expect(screen.getByRole("link", { name: "Branding" })).toHaveAttribute(
       "href",
       "/services/branding",
@@ -428,10 +491,9 @@ describe("SterlingGateKineticNavigation", () => {
 
     await user.click(screen.getByRole("button", { name: "Collapse Services" }));
 
-    expect(screen.getByRole("button", { name: "Expand Services" })).toHaveAttribute(
-      "aria-expanded",
-      "false",
-    );
+    expect(
+      screen.getByRole("button", { name: "Expand Services" }),
+    ).toHaveAttribute("aria-expanded", "false");
     expect(panel).not.toHaveClass("is-open");
     expect(panel).toHaveAttribute("aria-hidden", "true");
   });
