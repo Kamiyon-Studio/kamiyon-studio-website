@@ -68,7 +68,10 @@ test("hero artwork stays static when scrolling", async ({ page }) => {
   await page.evaluate(() => window.scrollTo(0, 300));
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
   await expect(artwork).toHaveCSS("transform", "none");
-  await expect(artwork.locator("img")).toHaveCSS("transform", "none");
+  await expect(artwork.getByRole("heading", { level: 2 })).toBeVisible();
+  for (const image of await artwork.locator("img").all()) {
+    await expect(image).toHaveCSS("transform", "none");
+  }
   await expect(hero.getByRole("button", { name: /background animation/ })).toHaveCount(0);
 });
 
