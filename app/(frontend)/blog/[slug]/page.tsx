@@ -4,7 +4,11 @@ import { notFound } from "next/navigation";
 
 import { Container } from "@/components/ui/Container";
 import { PortableText } from "@/components/ui/PortableText";
-import { postsFallback, resolveWithFallback } from "@/lib/cms/fallbacks";
+import {
+  canUseDemoContent,
+  postsFallback,
+  resolveWithFallback,
+} from "@/lib/cms/fallbacks";
 import { getPostBySlug, getPosts } from "@/lib/cms/queries";
 import type { Post } from "@/lib/cms/types";
 import { getBlogPostingJsonLd } from "@/lib/seo/blog-posting-jsonld";
@@ -20,7 +24,9 @@ function resolvePost(slug: string, cmsPost: Post | null): Post | null {
     return cmsPost;
   }
 
-  return postsFallback.find((post) => post.slug.current === slug) ?? null;
+  return canUseDemoContent()
+    ? (postsFallback.find((post) => post.slug.current === slug) ?? null)
+    : null;
 }
 
 function formatPublishedAt(publishedAt: string): string | null {

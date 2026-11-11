@@ -47,7 +47,7 @@ async function getHomePageContent() {
   ]);
 
   if (homeCms === null) {
-    // CMS unreachable → keep existing resolveWithFallback placeholders.
+    // Missing singleton follows the explicit demo/production fallback policy.
     const [services, partners, awards] = await Promise.all([
       getServices(),
       getPartners(),
@@ -60,7 +60,7 @@ async function getHomePageContent() {
     );
 
     return {
-      home: homePageFallback as HomePage,
+      home: resolveWithFallback(homeCms, homePageFallback) as HomePage,
       portfolioItems,
       serviceHoverItems: portfolioItems,
       services: resolveWithFallback(services, servicesFallback),
