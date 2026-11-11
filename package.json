@@ -9,7 +9,7 @@
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy:staging": "opennextjs-cloudflare build && opennextjs-cloudflare deploy --env staging",
     "deploy:prod": "opennextjs-cloudflare build && opennextjs-cloudflare deploy --env production",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts --strict-vars=false",
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -27,7 +27,8 @@
     "sanity:dev": "sanity dev",
     "sanity:deploy": "sanity deploy",
     "sanity:schema": "sanity schema extract",
-    "sanity:seed": "tsx scripts/sanity/seed/index.ts"
+    "sanity:seed": "tsx scripts/sanity/seed/index.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.3.1",
@@ -79,6 +80,10 @@
     "tsx": "^4.23.1",
     "typescript": "^5.9.3",
     "vitest": "^4.1.10",
-    "wrangler": "^4.113.0"
+    "wrangler": "^4.160.1"
+  },
+  "packageManager": "pnpm@10.33.2",
+  "engines": {
+    "node": "22.x"
   }
 }
