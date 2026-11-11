@@ -54,11 +54,14 @@ const baseHero: HomeHero = {
 const ORIGINAL_BASE_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL;
 
 beforeEach(() => {
+  vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue(undefined);
+  vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
   // The static opening is the fallback, so tests below start with no media CDN.
   vi.stubEnv("NEXT_PUBLIC_R2_PUBLIC_BASE_URL", undefined);
 });
 
 afterEach(() => {
+  vi.restoreAllMocks();
   if (ORIGINAL_BASE_URL === undefined) {
     vi.stubEnv("NEXT_PUBLIC_R2_PUBLIC_BASE_URL", undefined);
     return;
