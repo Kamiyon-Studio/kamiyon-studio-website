@@ -106,7 +106,7 @@ describe("servicesFallback (Gate 0 five-service taxonomy)", () => {
       expect(actual.summary).toBe(expected.summary);
       expect(actual.capabilities).toEqual([...expected.capabilities]);
       expect(actual.order).toBe(expected.order);
-      expect(actual.isPlaceholder).toBe(true);
+      expect(actual.isPlaceholder).toBe(false);
     }
   });
 
@@ -122,14 +122,12 @@ describe("servicesFallback (Gate 0 five-service taxonomy)", () => {
     }
   });
 
-  it("seeds body as one portable block from the same description text", () => {
+  it("adds useful scope guidance without repeating the summary", () => {
     for (const service of servicesFallback) {
-      expect(service.body).toHaveLength(1);
-      const block = service.body[0]!;
-      expect(block._type).toBe("block");
-      expect(block.style).toBe("normal");
-      const text = block.children.map((c) => c.text).join("");
-      expect(text).toBe(service.summary);
+      const paragraphs = service.body.map(block => block.children.map(child => child.text).join(""));
+      expect(paragraphs).not.toContain(service.summary);
+      expect(paragraphs).toContain("Start with your project brief");
+      for (const capability of service.capabilities) expect(paragraphs).toContain(capability);
     }
   });
 

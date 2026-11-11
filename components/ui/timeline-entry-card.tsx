@@ -57,7 +57,9 @@ export function TimelineEntryCard({
           <div
             className={cn(
               "hidden xl:block",
-              side === "left" ? "md:float-right md:ml-4" : "md:float-left md:mr-4",
+              side === "left"
+                ? "md:float-right md:ml-4"
+                : "md:float-left md:mr-4",
             )}
           >
             <p className="timeline-date-vertical font-display text-xs font-semibold uppercase text-[var(--color-ivory)]/45">
@@ -73,6 +75,11 @@ export function TimelineEntryCard({
             )}
           </p>
 
+          {entry.planned ? (
+            <p className="mt-2 text-sm font-semibold text-[var(--color-sakura)]">
+              Planned milestone
+            </p>
+          ) : null}
           {isJoin && entry.rosterMember?.role ? (
             <p
               className="mt-2 text-xs font-semibold tracking-[0.14em] text-[var(--color-sakura)] uppercase"
