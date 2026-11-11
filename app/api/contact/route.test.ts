@@ -49,7 +49,7 @@ describe("POST /api/contact", () => {
         "Content-Type": "application/json",
         ...headers,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ submissionId: "11111111-1111-4111-8111-111111111111", ...(body as Record<string, unknown>) }),
     });
     return POST(request);
   }
