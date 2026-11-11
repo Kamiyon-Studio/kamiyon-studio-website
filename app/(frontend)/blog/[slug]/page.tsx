@@ -1,3 +1,4 @@
+import { serializeJsonLd } from "@/lib/seo/serialize-jsonld";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -86,11 +87,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(blogPostingJsonLd) }}
       />
       <article className="bg-[var(--bg-primary)] py-16 md:py-24">
         <Container>

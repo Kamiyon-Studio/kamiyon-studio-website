@@ -1,3 +1,4 @@
+import { serializeJsonLd } from "@/lib/seo/serialize-jsonld";
 import type { Metadata } from "next";
 import { Geologica, Montserrat } from "next/font/google";
 import { CloudflareWebAnalytics } from "@/components/analytics/CloudflareWebAnalytics";
@@ -62,13 +63,13 @@ export default async function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(organizationJsonLd),
+            __html: serializeJsonLd(organizationJsonLd),
           }}
         />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(websiteJsonLd),
+            __html: serializeJsonLd(websiteJsonLd),
           }}
         />
         <AnimationProviders>
