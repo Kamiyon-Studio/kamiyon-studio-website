@@ -1,8 +1,13 @@
+import { serializeJsonLd } from "@/lib/seo/serialize-jsonld";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { ProductDetail } from "@/components/sections/ProductDetail";
-import { productsFallback } from "@/lib/cms/fallbacks";
+import {
+  canUseDemoContent,
+  resolveWithFallback,
+  productsFallback,
+} from "@/lib/cms/fallbacks";
 import { getProductBySlug, getProducts } from "@/lib/cms/queries";
 import { getBreadcrumbJsonLd } from "@/lib/seo/breadcrumb-jsonld";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -18,11 +23,14 @@ async function getProductContent(slug: string) {
     return cmsProduct;
   }
 
-  return productsFallback.find((product) => product.slug.current === slug) ?? null;
+  return canUseDemoContent()
+    ? (productsFallback.find((product) => product.slug.current === slug) ??
+        null)
+    : null;
 }
 
 export async function generateStaticParams() {
-  const products = (await getProducts()) ?? productsFallback;
+  const products = resolveWithFallback(await getProducts(), productsFallback);
 
   return products.map((product) => ({ slug: product.slug.current }));
 }
@@ -46,7 +54,9 @@ export async function generateMetadata({
   });
 }
 
-export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
+export default async function ProductDetailPage({
+  params,
+}: ProductDetailPageProps) {
   const { slug } = await params;
   const product = await getProductContent(slug);
 
@@ -64,7 +74,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
       />
       <ProductDetail product={product} />
     </>

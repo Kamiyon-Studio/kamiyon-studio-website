@@ -1,5 +1,6 @@
 import { isSanityConfigured } from "@/sanity/env";
 import { client } from "@/sanity/lib/client";
+import { canUseDemoContent } from "./fallbacks/resolve";
 
 type FetchParams = Record<string, string | number | boolean | undefined>;
 
@@ -11,15 +12,17 @@ export type SanityFetchOptions = {
 };
 
 /**
- * Safe Sanity fetch: returns null when unset, empty, or on error so fallbacks stay green.
+ * Missing documents remain null; transport failures must not resurrect fixtures.
  */
 export async function safeSanityFetch<T>(
   query: string,
   params: FetchParams = {},
   options: SanityFetchOptions = {},
 ): Promise<T | null> {
+  if (process.env.CMS_DEMO_CONTENT === "true" && canUseDemoContent()) return null;
   if (!isSanityConfigured()) {
-    return null;
+    if (canUseDemoContent()) return null;
+    throw new Error("Website content is not configured.");
   }
 
   const { tags = ["sanity"], revalidate = 60 } = options;
@@ -29,10 +32,11 @@ export async function safeSanityFetch<T>(
       next: { tags, revalidate },
     });
     return result ?? null;
-  } catch (error) {
+  } catch {
     console.error("[cms] Sanity fetch failed", {
-      message: error instanceof Error ? error.message : "unknown error",
+      event: "cms_fetch_failed",
+      tags,
     });
-    return null;
+    throw new Error("Website content is temporarily unavailable.");
   }
 }

@@ -1,11 +1,8 @@
 "use client";
 
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
-
-import {
-  SpecularButton,
-  type SpecularButtonProps,
-} from "@/components/ui/SpecularButton";
+import Link from "next/link";
+import type { ComponentPropsWithoutRef, MouseEventHandler, ReactNode } from "react";
+import { isExternalHref } from "@/lib/navigation/same-route-scroll";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";
 
@@ -13,7 +10,7 @@ type ButtonBaseProps = {
   children: ReactNode;
   variant?: ButtonVariant;
   className?: string;
-  size?: SpecularButtonProps["size"];
+  size?: "sm" | "md" | "lg";
   disabled?: boolean;
 };
 
@@ -30,69 +27,6 @@ type ButtonAsLink = ButtonBaseProps & {
 
 export type ButtonProps = ButtonAsButton | ButtonAsLink;
 
-/** Brand-tuned SpecularButton presets — the project-standard CTA look. */
-const variantPresets: Record<
-  ButtonVariant,
-  Pick<
-    SpecularButtonProps,
-    | "tint"
-    | "tintOpacity"
-    | "blur"
-    | "textColor"
-    | "lineColor"
-    | "baseColor"
-    | "intensity"
-    | "shineSize"
-    | "shineFade"
-    | "thickness"
-    | "radius"
-  >
-> = {
-  primary: {
-    tint: "#FF7998",
-    tintOpacity: 0.94,
-    blur: 0,
-    textColor: "#201013",
-    lineColor: "#ffffff",
-    baseColor: "#c24a66",
-    intensity: 1.1,
-    shineSize: 10,
-    shineFade: 40,
-    thickness: 1,
-    radius: 16,
-  },
-  secondary: {
-    tint: "#f8f8f8",
-    tintOpacity: 0.12,
-    blur: 8,
-    textColor: "#f8f8f8",
-    lineColor: "#e9c080",
-    baseColor: "#c4a882",
-    intensity: 0.9,
-    shineSize: 12,
-    shineFade: 36,
-    thickness: 1,
-    radius: 16,
-  },
-  ghost: {
-    tint: "#f8f8f8",
-    tintOpacity: 0.06,
-    blur: 0,
-    textColor: "#f8f8f8",
-    lineColor: "#ff7998",
-    baseColor: "#c24a66",
-    intensity: 0.75,
-    shineSize: 12,
-    shineFade: 40,
-    thickness: 1,
-    radius: 16,
-  },
-};
-
-/**
- * Project-standard button. SpecularButton (React Bits) with Kamiyon brand presets.
- * Supports native button and link (`href`) modes.
- */
 export function Button({
   children,
   variant = "primary",
@@ -101,41 +35,43 @@ export function Button({
   disabled = false,
   ...props
 }: ButtonProps) {
-  const preset = variantPresets[variant];
-  const classes =
-    `specular-button--skin-${variant}${className ? ` ${className}` : ""}`.trim();
+  const classes = `studio-button studio-button--${variant} studio-button--${size} ${className}`.trim();
 
   if ("href" in props && props.href) {
-    return (
-      <SpecularButton
-        href={props.href}
-        onClick={props.onClick}
-        size={size}
-        disabled={disabled}
-        className={classes}
-        followMouse
-        autoAnimate={false}
-        {...preset}
-      >
-        {children}
-      </SpecularButton>
-    );
+    const guardClick: MouseEventHandler<HTMLAnchorElement> = (event) => {
+      if (disabled) {
+        event.preventDefault();
+        return;
+      }
+      props.onClick?.(event);
+    };
+    const linkProps = {
+      href: props.href,
+      className: classes,
+      "aria-disabled": disabled || undefined,
+      tabIndex: disabled ? -1 : undefined,
+      onClick: guardClick,
+    };
+    if (isExternalHref(props.href)) {
+      const newTab = !/^(mailto:|tel:)/i.test(props.href);
+      return (
+        <a {...linkProps} {...(newTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+          {children}
+        </a>
+      );
+    }
+    return <Link {...linkProps}>{children}</Link>;
   }
 
   const buttonProps = props as ButtonAsButton;
-
   return (
-    <SpecularButton
+    <button
       type={buttonProps.type ?? "button"}
-      onClick={buttonProps.onClick}
-      size={size}
       disabled={disabled}
+      onClick={buttonProps.onClick}
       className={classes}
-      followMouse
-      autoAnimate={false}
-      {...preset}
     >
       {children}
-    </SpecularButton>
+    </button>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import Link from "next/link";
+import { useRef, useState, type FormEvent } from "react";
 
 import { Button } from "@/components/ui/Button";
 
@@ -26,15 +27,24 @@ export function ContactForm() {
   const [company, setCompany] = useState("");
   const [status, setStatus] = useState<FormStatus>({ kind: "idle" });
 
+  const pending = useRef(false);
+  const submission = useRef<{ body: string; id: string } | null>(null);
+
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setStatus({ kind: "submitting" });
-
+    if (pending.current) return;
     try {
+      const fields = JSON.stringify({ name, email, message, company });
+      if (submission.current?.body !== fields) {
+        submission.current = { body: fields, id: crypto.randomUUID() };
+      }
+      setStatus({ kind: "submitting" });
+
+      pending.current = true;
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, message, company }),
+        body: JSON.stringify({ name, email, message, company, submissionId: submission.current.id }),
       });
 
       const body = (await response.json()) as ApiEnvelope;
@@ -49,6 +59,7 @@ export function ContactForm() {
         return;
       }
 
+      submission.current = null;
       setName("");
       setEmail("");
       setMessage("");
@@ -60,6 +71,8 @@ export function ContactForm() {
         message:
           "Something went wrong. Please try again or email us directly.",
       });
+    } finally {
+      pending.current = false;
     }
   }
 
@@ -160,8 +173,11 @@ export function ContactForm() {
         />
       </div>
 
+      <p className="text-sm text-[var(--text-secondary)]">
+        We use your name, email, and message to respond to your inquiry. <Link href="/privacy" className="underline">How your contact information is handled</Link>.
+      </p>
       <div className="flex flex-wrap items-center gap-4">
-        <Button type="submit" variant="primary">
+        <Button type="submit" variant="primary" disabled={status.kind === "submitting"}>
           {status.kind === "submitting" ? "Sending…" : "Send message"}
         </Button>
       </div>

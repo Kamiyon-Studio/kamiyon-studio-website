@@ -2,15 +2,14 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const mockDismiss = vi.fn();
-
-const mockUseHeroScrollBounce = vi.fn(() => ({
-  visible: true,
-  dismiss: mockDismiss,
-}));
+const { mockDismiss, mockUseHeroScrollBounce } = vi.hoisted(() => {
+  const mockDismiss = vi.fn();
+  const mockUseHeroScrollBounce = vi.fn(() => ({ visible: true, dismiss: mockDismiss }));
+  return { mockDismiss, mockUseHeroScrollBounce };
+});
 
 vi.mock("@/hooks/useHeroScrollBounce", () => ({
-  useHeroScrollBounce: (...args: unknown[]) => mockUseHeroScrollBounce(...args),
+  useHeroScrollBounce: mockUseHeroScrollBounce,
 }));
 
 import { HeroScrollHelper } from "./HeroScrollHelper";

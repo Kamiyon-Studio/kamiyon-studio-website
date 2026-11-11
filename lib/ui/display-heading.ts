@@ -1,6 +1,3 @@
-/**
- * Same classes as CinematicFooter “Ready to begin?” (minus layout: mb-4 text-center).
- * Spacing / alignment stay at the call site.
- */
+/** Shared section scale; spacing and alignment belong to the section. */
 export const DISPLAY_HEADING_CLASS =
-  "footer-text-glow font-display text-5xl font-black tracking-tighter md:text-8xl";
+  "font-display text-[clamp(2rem,4.5vw,4rem)] font-semibold tracking-[-0.03em] leading-[1.12] text-balance";

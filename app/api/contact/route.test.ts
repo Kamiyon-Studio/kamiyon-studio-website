@@ -49,7 +49,7 @@ describe("POST /api/contact", () => {
         "Content-Type": "application/json",
         ...headers,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ submissionId: "11111111-1111-4111-8111-111111111111", ...(body as Record<string, unknown>) }),
     });
     return POST(request);
   }
@@ -68,6 +68,12 @@ describe("POST /api/contact", () => {
       data: null,
       error: "Contact form is not configured",
     });
+    expect(sendMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects oversized bytes despite an inaccurate small Content-Length", async () => {
+    const response = await post({ message: "x".repeat(33 * 1024) }, { "Content-Length": "1" });
+    expect(response.status).toBe(413);
     expect(sendMock).not.toHaveBeenCalled();
   });
 

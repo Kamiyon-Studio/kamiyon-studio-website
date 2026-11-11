@@ -16,11 +16,25 @@ describe("POST /api/revalidate", () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     if (originalSecret === undefined) {
       delete process.env.SANITY_REVALIDATE_SECRET;
     } else {
       process.env.SANITY_REVALIDATE_SECRET = originalSecret;
     }
+  });
+
+  it("logs revalidation tags without credentials or request contents", async () => {
+    const log = vi.spyOn(console, "info").mockImplementation(() => undefined);
+    await post({
+      headers: { Authorization: "Bearer test-revalidate-secret", "Content-Type": "application/json" },
+      body: JSON.stringify({ _type: "post", slug: { current: "launch" }, privateNote: "do not log" }),
+    });
+    expect(log).toHaveBeenCalledWith("[cms] Revalidation requested", {
+      event: "cms_revalidation_requested", tags: ["sanity", "post", "post:launch"],
+    });
+    expect(JSON.stringify(log.mock.calls)).not.toContain("test-revalidate-secret");
+    expect(JSON.stringify(log.mock.calls)).not.toContain("do not log");
   });
 
   async function post(
@@ -80,7 +94,7 @@ describe("POST /api/revalidate", () => {
     });
 
     expect(response.status).toBe(200);
-    const json = await response.json();
+    const json = await response.json() as { data: { now: number; revalidated: string[] } };
     expect(json).toMatchObject({
       success: true,
       error: null,
@@ -103,7 +117,7 @@ describe("POST /api/revalidate", () => {
     });
 
     expect(response.status).toBe(200);
-    const json = await response.json();
+    const json = await response.json() as { data: { now: number; revalidated: string[] } };
     expect(json.data.revalidated).toEqual(["sanity", "siteSettings"]);
   });
 

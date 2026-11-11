@@ -8,7 +8,7 @@ const {
   splitTextCtor,
   prefersReducedMotionMock,
 } = vi.hoisted(() => {
-  const fromToMock = vi.fn(() => ({ kill: vi.fn() }));
+  const fromToMock = vi.fn<(...args: [unknown, Record<string, unknown>, Record<string, unknown>]) => unknown>(() => ({ kill: vi.fn() }));
   const setMock = vi.fn();
   const registerPluginMock = vi.fn();
   const prefersReducedMotionMock = vi.fn(() => false);

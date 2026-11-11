@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Container } from "@/components/ui/Container";
-import { TiltedCard, marketingCardTiltProps } from "@/components/ui/TiltedCard";
+import { TiltedCard } from "@/components/ui/TiltedCard";
+import { marketingCardTiltProps } from "@/lib/ui/marketing-card-tilt";
 import type { CaseStudy, HomeFeaturedWork, Product } from "@/lib/cms/types";
 
 type FeaturedCard = {

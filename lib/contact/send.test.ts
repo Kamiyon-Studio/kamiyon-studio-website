@@ -28,6 +28,7 @@ describe("contact send helpers", () => {
 
     const result = await sendContactEmails(
       {
+        submissionId: "11111111-1111-4111-8111-111111111111",
         apiKey: "re_test",
         fromEmail: "Kamiyon Studio <noreply@send.kamiyonstudio.com>",
         toEmail: PUBLIC_EMAIL,
@@ -55,6 +56,7 @@ describe("contact send helpers", () => {
       .mockResolvedValue({ data: null, error: { message: "boom" } });
     const result = await sendContactEmails(
       {
+        submissionId: "11111111-1111-4111-8111-111111111111",
         apiKey: "re_test",
         fromEmail: "Kamiyon Studio <noreply@send.kamiyonstudio.com>",
         toEmail: PUBLIC_EMAIL,
@@ -72,6 +74,7 @@ describe("contact send helpers", () => {
 
     await sendContactEmails(
       {
+        submissionId: "11111111-1111-4111-8111-111111111111",
         apiKey: "re_test",
         fromEmail: "Kamiyon Studio <noreply@send.kamiyonstudio.com>",
         toEmail: PUBLIC_EMAIL,
@@ -101,6 +104,7 @@ describe("contact send helpers", () => {
 
     await sendContactEmails(
       {
+        submissionId: "11111111-1111-4111-8111-111111111111",
         apiKey: "re_test",
         fromEmail: "Kamiyon Studio <noreply@send.kamiyonstudio.com>",
         toEmail: PUBLIC_EMAIL,
@@ -118,3 +122,20 @@ describe("contact send helpers", () => {
     expect(studioArgs.replyTo).not.toMatch(/[\r\n]/);
   });
 });
+
+it.each(["error", "throw"])("accepts inquiry when confirmation fails by %s", async (mode) => {
+  const send = vi.fn().mockResolvedValueOnce({ data: { id: "accepted" }, error: null });
+  if (mode === "throw") send.mockRejectedValueOnce(new Error("offline"));
+  else send.mockResolvedValueOnce({ data: null, error: { message: "rejected" } });
+  const result = await sendContactEmails({ submissionId: "test-request", apiKey: "test", fromEmail: "a@example.com", toEmail: "b@example.com", fields }, () => ({ emails: { send } }));
+  expect(result).toEqual({ ok: true });
+  expect(send.mock.calls[0][1]).toEqual({ idempotencyKey: "contact/test-request/studio" });
+  expect(send.mock.calls[1][1]).toEqual({ idempotencyKey: "contact/test-request/confirmation" });
+});
+
+it("returns a controlled failure for a studio transport rejection", async () => {
+  const send = vi.fn().mockRejectedValue(new Error("offline"));
+  expect(await sendContactEmails({ submissionId: "test-request", apiKey: "test", fromEmail: "a@example.com", toEmail: "b@example.com", fields }, () => ({ emails: { send } }))).toEqual({ ok: false, error: "Failed to deliver message." });
+  expect(send).toHaveBeenCalledTimes(1);
+});
+

@@ -2,7 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/Badge";
-import { TiltedCard, marketingCardTiltProps } from "@/components/ui/TiltedCard";
+import { TiltedCard } from "@/components/ui/TiltedCard";
+import { marketingCardTiltProps } from "@/lib/ui/marketing-card-tilt";
 import { getCmsImageUrl } from "@/lib/cms/image";
 import type { CaseStudy } from "@/lib/cms/types";
 

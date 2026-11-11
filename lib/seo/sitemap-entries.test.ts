@@ -30,7 +30,6 @@ describe("isSitemapServiceSlug", () => {
   });
 });
 
-
 describe("buildPublicSitemapEntries", () => {
   const siteUrl = "https://kamiyonstudio.com";
 
@@ -40,7 +39,7 @@ describe("buildPublicSitemapEntries", () => {
         siteUrl: "http://localhost:3000",
         services: [],
         portfolioItems: [],
-      })
+      }),
     ).toEqual([]);
   });
 
@@ -51,7 +50,7 @@ describe("buildPublicSitemapEntries", () => {
         services: [{ slug: { current: "should-not-appear" }, seo: {} }],
         portfolioItems: [],
         appEnv: "preview",
-      })
+      }),
     ).toEqual([]);
   });
 
@@ -62,7 +61,7 @@ describe("buildPublicSitemapEntries", () => {
         services: [],
         portfolioItems: [],
         appEnv: "development",
-      })
+      }),
     ).toEqual([]);
   });
 
@@ -83,15 +82,15 @@ describe("buildPublicSitemapEntries", () => {
         "https://kamiyonstudio.com/portfolio",
         "https://kamiyonstudio.com/contact",
         "https://kamiyonstudio.com/blog",
-      ])
+      ]),
     );
     expect(urls).not.toContain("https://kamiyonstudio.com/products");
     expect(urls).not.toContain("https://kamiyonstudio.com/community");
     expect(urls).not.toContain("https://kamiyonstudio.com/motion-lab");
     expect(urls).not.toContain("https://kamiyonstudio.com/admin");
-    expect(urls.every((url) => url.startsWith("https://kamiyonstudio.com"))).toBe(
-      true
-    );
+    expect(
+      urls.every((url) => url.startsWith("https://kamiyonstudio.com")),
+    ).toBe(true);
   });
 
   it("includes entries when APP_ENV is unset and SITE_URL is canonical (local)", () => {
@@ -103,7 +102,7 @@ describe("buildPublicSitemapEntries", () => {
 
     expect(entries.length).toBeGreaterThan(0);
     expect(entries.map((entry) => entry.url)).toContain(
-      "https://kamiyonstudio.com"
+      "https://kamiyonstudio.com",
     );
   });
 
@@ -142,7 +141,7 @@ describe("buildPublicSitemapEntries", () => {
     });
     const urls = entries.map((entry) => entry.url);
     const serviceUrls = urls.filter((url) =>
-      url.startsWith("https://kamiyonstudio.com/services/")
+      url.startsWith("https://kamiyonstudio.com/services/"),
     );
 
     expect(serviceUrls).toEqual([
@@ -158,23 +157,24 @@ describe("buildPublicSitemapEntries", () => {
     );
     expect(urls).not.toContain("https://kamiyonstudio.com/blog/draft-hidden");
     expect(urls).not.toContain(
-      "https://kamiyonstudio.com/services/mvp-development"
+      "https://kamiyonstudio.com/services/mvp-development",
     );
     expect(urls).not.toContain(
-      "https://kamiyonstudio.com/services/ui-ux-design"
+      "https://kamiyonstudio.com/services/ui-ux-design",
     );
     expect(urls).not.toContain(
-      "https://kamiyonstudio.com/services/hidden-service"
+      "https://kamiyonstudio.com/services/hidden-service",
     );
     expect(urls).not.toContain(
-      "https://kamiyonstudio.com/products/visible-product"
+      "https://kamiyonstudio.com/products/visible-product",
     );
 
     const portfolioEntry = entries.find(
-      (entry) => entry.url === "https://kamiyonstudio.com/portfolio/visible-case"
+      (entry) =>
+        entry.url === "https://kamiyonstudio.com/portfolio/visible-case",
     );
     expect(portfolioEntry?.lastModified).toEqual(
-      new Date("2024-06-01T00:00:00.000Z")
+      new Date("2024-06-01T00:00:00.000Z"),
     );
   });
 
@@ -186,10 +186,29 @@ describe("buildPublicSitemapEntries", () => {
       appEnv: "production",
     });
     const serviceEntry = entries.find(
-      (entry) => entry.url === "https://kamiyonstudio.com/services/branding"
+      (entry) => entry.url === "https://kamiyonstudio.com/services/branding",
     );
 
     expect(serviceEntry).toBeDefined();
     expect(serviceEntry).not.toHaveProperty("lastModified");
   });
+});
+
+it("uses the last update date for edited posts", () => {
+  const entries = buildPublicSitemapEntries({
+    siteUrl: "https://kamiyonstudio.com",
+    appEnv: "production",
+    services: [],
+    portfolioItems: [],
+    posts: [
+      {
+        slug: { current: "edited" },
+        publishedAt: "2026-01-01",
+        updatedAt: "2026-11-11",
+      },
+    ],
+  });
+  expect(
+    entries.find((entry) => entry.url.endsWith("/blog/edited"))?.lastModified,
+  ).toEqual(new Date("2026-11-11"));
 });

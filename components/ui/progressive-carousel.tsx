@@ -10,13 +10,20 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useTransform,
+  type MotionValue,
+} from "motion/react";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 import { cn } from "@/lib/utils";
 
 interface ProgressSliderContextType {
   active: string;
-  progress: number;
+  progress: MotionValue<number>;
   handleButtonClick: (value: string) => void;
   vertical: boolean;
 }
@@ -68,9 +75,7 @@ export const useProgressSliderContext = (): ProgressSliderContextType => {
 };
 
 function wrapperValuesFromChildren(children: ReactNode): string[] {
-  const content = (
-    Array.isArray(children) ? children : [children]
-  ).find(
+  const content = (Array.isArray(children) ? children : [children]).find(
     (child) =>
       child !== null &&
       typeof child === "object" &&
@@ -111,7 +116,24 @@ export const ProgressSlider: FC<ProgressSliderProps> = ({
   className,
 }) => {
   const [active, setActive] = useState<string>(activeSlider);
-  const [progress, setProgress] = useState<number>(0);
+  const progress = useMotionValue(0);
+  const reduceMotion = useReducedMotion();
+  const [paused, setPaused] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(true);
+  const [documentVisible, setDocumentVisible] = useState(true);
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) =>
+      setVisible(entry.isIntersecting),
+    );
+    if (rootRef.current) observer.observe(rootRef.current);
+    const sync = () => setDocumentVisible(!document.hidden);
+    document.addEventListener("visibilitychange", sync);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", sync);
+    };
+  }, []);
   const [isFastForward, setIsFastForward] = useState<boolean>(false);
   const frame = useRef<number>(0);
   const firstFrameTime = useRef<number>(0);
@@ -121,7 +143,13 @@ export const ProgressSlider: FC<ProgressSliderProps> = ({
 
   useEffect(() => {
     const sliderValues = valuesKey ? valuesKey.split("\0") : [];
-    if (sliderValues.length === 0) {
+    if (
+      sliderValues.length < 2 ||
+      paused ||
+      reduceMotion ||
+      !visible ||
+      !documentVisible
+    ) {
       return;
     }
 
@@ -135,10 +163,9 @@ export const ProgressSlider: FC<ProgressSliderProps> = ({
 
       if (timeFraction <= 1) {
         const next = isFastForward
-          ? startProgress.current +
-            (100 - startProgress.current) * timeFraction
+          ? startProgress.current + (100 - startProgress.current) * timeFraction
           : timeFraction * 100;
-        setProgress(next);
+        progress.set(next);
         frame.current = requestAnimationFrame(animate);
         return;
       }
@@ -155,7 +182,7 @@ export const ProgressSlider: FC<ProgressSliderProps> = ({
         setActive(sliderValues[nextIndex] ?? sliderValues[0] ?? active);
       }
 
-      setProgress(0);
+      progress.set(0);
       startProgress.current = 0;
     };
 
@@ -164,16 +191,34 @@ export const ProgressSlider: FC<ProgressSliderProps> = ({
     return () => {
       cancelAnimationFrame(frame.current);
     };
-  }, [valuesKey, active, isFastForward, duration, fastDuration]);
+  }, [
+    valuesKey,
+    active,
+    isFastForward,
+    duration,
+    fastDuration,
+    paused,
+    reduceMotion,
+    progress,
+    visible,
+    documentVisible,
+  ]);
 
   const handleButtonClick = (value: string) => {
     if (value === active) {
       return;
     }
 
+    if (paused || reduceMotion) {
+      setIsFastForward(false);
+      targetValue.current = null;
+      setActive(value);
+      progress.set(0);
+      return;
+    }
     const elapsedTime = performance.now() - firstFrameTime.current;
     startProgress.current = Math.min((elapsedTime / duration) * 100, 100);
-    setProgress(startProgress.current);
+    progress.set(startProgress.current);
     targetValue.current = value;
     setIsFastForward(true);
     firstFrameTime.current = performance.now();
@@ -183,7 +228,19 @@ export const ProgressSlider: FC<ProgressSliderProps> = ({
     <ProgressSliderContext.Provider
       value={{ active, progress, handleButtonClick, vertical }}
     >
-      <div className={cn("relative", className)}>{children}</div>
+      <div ref={rootRef} className={cn("relative", className)}>
+        {children}
+        {valuesKey.includes("\0") && !reduceMotion ? (
+          <button
+            type="button"
+            className="relative z-10 mt-3 min-h-11 rounded border px-4 py-2 text-sm"
+            onClick={() => setPaused(!paused)}
+            aria-pressed={paused}
+          >
+            {paused ? "Resume slideshow" : "Pause slideshow"}
+          </button>
+        ) : null}
+      </div>
     </ProgressSliderContext.Provider>
   );
 };
@@ -201,15 +258,17 @@ export const SliderWrapper: FC<SliderWrapperProps> = ({
   className,
 }) => {
   const { active } = useProgressSliderContext();
+  const reduceMotion = useReducedMotion();
 
   return (
     <AnimatePresence mode="popLayout">
       {active === value && (
         <motion.div
           key={value}
-          initial={{ opacity: 0 }}
+          initial={reduceMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={reduceMotion ? { duration: 0 } : undefined}
           className={cn("", className)}
         >
           {children}
@@ -234,6 +293,7 @@ export const SliderBtn: FC<SliderBtnProps> = ({
 }) => {
   const { active, progress, handleButtonClick, vertical } =
     useProgressSliderContext();
+  const progressSize = useTransform(progress, (value) => `${value}%`);
 
   return (
     <button
@@ -247,14 +307,13 @@ export const SliderBtn: FC<SliderBtnProps> = ({
       {children}
       <div
         className="absolute inset-0 -z-10 max-h-full max-w-full overflow-hidden"
-        role="progressbar"
-        aria-valuenow={active === value ? progress : 0}
+        aria-hidden="true"
       >
-        <span
+        <motion.span
           className={cn("absolute left-0", progressBarClass)}
           style={{
             [vertical ? "height" : "width"]:
-              active === value ? `${progress}%` : "0%",
+              active === value ? progressSize : "0%",
           }}
         />
       </div>

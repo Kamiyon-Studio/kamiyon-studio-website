@@ -77,7 +77,7 @@ describe("GsapScrollProvider", () => {
     );
 
     const scrollCall = addSpy.mock.calls.find(
-      ([type]) => type === "scroll",
+      ([type]) => String(type) === "scroll",
     );
     expect(scrollCall).toBeDefined();
     expect(scrollCall?.[2]).toEqual({ passive: true });

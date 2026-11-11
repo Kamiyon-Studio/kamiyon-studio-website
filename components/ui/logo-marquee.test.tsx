@@ -92,7 +92,7 @@ describe("LogoMarquee", () => {
     expect(animated?.className).toMatch(/motion-reduce:animate-none/);
   });
 
-  it("renders a static single row when prefers-reduced-motion matches", () => {
+  it("renders static logos as direct wrapping children when reduced motion matches", () => {
     mockMatchMedia(true);
     render(<LogoMarquee logos={logos} />);
 
@@ -100,6 +100,9 @@ describe("LogoMarquee", () => {
     expect(root.querySelector(".animate-marquee-horizontal")).toBeNull();
     expect(root.querySelector('[aria-hidden="true"]')).toBeNull();
     expect(screen.getAllByRole("img", { name: "Acme logo" })).toHaveLength(1);
+    expect(root.children).toHaveLength(logos.length);
+    expect(root).toHaveClass("flex-wrap");
+    expect(root.className).not.toContain("mask-image");
   });
 
   it("accepts custom logo image size classes", () => {

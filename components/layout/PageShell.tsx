@@ -33,10 +33,6 @@ export async function PageShell({ children }: PageShellProps) {
       >
         Skip to content
       </a>
-      <div
-        className="site-bg-grid pointer-events-none fixed inset-0 z-[20]"
-        aria-hidden="true"
-      />
       <SiteHeader
         navItems={navItems}
         contactCta={shellProps.contactCta}

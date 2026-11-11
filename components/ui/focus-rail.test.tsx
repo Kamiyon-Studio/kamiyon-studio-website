@@ -113,13 +113,13 @@ describe("FocusRail", () => {
     expect(atmosphere.innerHTML).not.toMatch(/mix-blend-color/);
   });
 
-  it("frames every visible card at the same 9:16 portrait size", () => {
+  it("frames every visible card at the same 5:8 portrait size", () => {
     const { container } = render(<FocusRail items={ITEMS} />);
     const cards = container.querySelectorAll('[data-testid="focus-rail-card"]');
 
     expect(cards.length).toBe(5);
     cards.forEach((card) => {
-      expect(card.className).toMatch(/aspect-\[9\/16\]/);
+      expect(card.className).toMatch(/aspect-\[5\/8\]/);
     });
   });
 

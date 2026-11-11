@@ -1034,8 +1034,12 @@ describe("mapPartnerToMarqueeItem", () => {
 });
 
 describe("mapCollection", () => {
-  it("returns null for empty arrays", () => {
-    expect(mapCollection([], (row) => row)).toBeNull();
+  it("preserves intentionally empty arrays", () => {
+    expect(mapCollection([], (row) => row)).toEqual([]);
+  });
+
+  it("does not replace a collection of invalid documents with fixtures", () => {
+    expect(mapCollection([{}], () => null)).toEqual([]);
   });
 
   it("maps non-empty collections", () => {

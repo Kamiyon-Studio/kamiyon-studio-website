@@ -13,6 +13,7 @@ const baseMember: TeamMember = {
   name: "Jane Dela Cruz",
   role: "Founder",
   bio: "Bio coming soon.",
+  socialLinks: [],
   order: 1,
   isPlaceholder: true,
 };

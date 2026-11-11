@@ -64,7 +64,7 @@ describe("WS8b core seed builders", () => {
     ]);
   });
 
-  it("preserves isPlaceholder: true from fallbacks", () => {
+  it("preserves placeholder flags from fallbacks", () => {
     for (const doc of buildProductDocuments()) {
       expect(doc.isPlaceholder).toBe(true);
     }
@@ -78,9 +78,9 @@ describe("WS8b core seed builders", () => {
     for (const doc of buildTeamMemberDocuments()) {
       expect(doc.isPlaceholder).toBe(true);
     }
-    for (const doc of buildServiceDocuments()) {
-      expect(doc.isPlaceholder).toBe(true);
-    }
+    expect(buildServiceDocuments().map((doc) => doc.isPlaceholder)).toEqual(
+      servicesFallback.map((service) => service.isPlaceholder),
+    );
     for (const doc of buildCommunityItemDocuments()) {
       expect(doc.isPlaceholder).toBe(true);
     }
@@ -92,7 +92,7 @@ describe("WS8b core seed builders", () => {
       true,
     );
     expect(teamMembersFallback.every((m) => m.isPlaceholder === true)).toBe(true);
-    expect(servicesFallback.every((s) => s.isPlaceholder === true)).toBe(true);
+    expect(servicesFallback.every((s) => s.isPlaceholder === false)).toBe(true);
     expect(communityItemsFallback.every((c) => c.isPlaceholder === true)).toBe(
       true
     );

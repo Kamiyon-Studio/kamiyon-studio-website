@@ -75,6 +75,8 @@ function layerOrder(container: HTMLElement): string[] {
 
 beforeEach(() => {
   layeredParallaxMock.mockClear();
+  vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
+  vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
 });
 
 describe("HeroParallaxOpening", () => {

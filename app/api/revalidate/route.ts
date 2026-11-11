@@ -94,6 +94,10 @@ export async function POST(request: Request): Promise<NextResponse<ApiEnvelope<R
   for (const tag of tags) {
     revalidateTag(tag, { expire: 0 });
   }
+  console.info("[cms] Revalidation requested", {
+    event: "cms_revalidation_requested",
+    tags,
+  });
 
   return jsonEnvelope(200, {
     success: true,

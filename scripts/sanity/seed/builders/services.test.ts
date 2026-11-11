@@ -39,7 +39,7 @@ describe("buildServiceDocuments (Gate 0 flat shape)", () => {
       expect(doc.summary).toBe(source.summary);
       expect(doc.capabilities).toEqual([...source.capabilities]);
       expect(doc.order).toBe(source.order);
-      expect(doc.isPlaceholder).toBe(true);
+      expect(doc.isPlaceholder).toBe(source.isPlaceholder);
       expect(doc.seo).toMatchObject({
         title: source.seo.title,
         description: source.seo.description,

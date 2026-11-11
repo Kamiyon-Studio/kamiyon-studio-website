@@ -185,6 +185,17 @@ function readJpegDimensions(bytes: Uint8Array): { width: number; height: number 
 }
 
 function readWebpDimensions(bytes: Uint8Array): { width: number; height: number } | null {
+  // VP8L packs width and height into the low 28 bits after its 0x2f signature.
+  if (
+    bytes.byteLength >= 25 &&
+    bytes[12] === 0x56 && bytes[13] === 0x50 &&
+    bytes[14] === 0x38 && bytes[15] === 0x4c && bytes[20] === 0x2f
+  ) {
+    const bits = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(21, true);
+    if ((bits >>> 29) !== 0) return null;
+    return { width: 1 + (bits & 0x3fff), height: 1 + ((bits >>> 14) & 0x3fff) };
+  }
+
   // VP8X extended header
   if (
     bytes.byteLength >= 30 &&

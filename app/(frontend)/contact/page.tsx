@@ -1,3 +1,4 @@
+import { serializeJsonLd } from "@/lib/seo/serialize-jsonld";
 import type { Metadata } from "next";
 
 import { ContactFAQ } from "@/components/sections/ContactFAQ";
@@ -39,7 +40,7 @@ export default async function ContactPage() {
       {faqJsonLd ? (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }}
         />
       ) : null}
       <ContactHero contactPage={contactPage} />

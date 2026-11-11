@@ -1,0 +1,85 @@
+import { expect, test } from "@playwright/test";
+
+test("mobile contact cards receive their server-safe marketing settings", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/contact");
+  const methods = page.locator("#methods");
+  await methods.scrollIntoViewIfNeeded();
+  await expect(page.getByText("This effect is not optimized for mobile.", { exact: false })).toHaveCount(0);
+  const cards = methods.locator(".tilted-card-figure");
+  expect(await cards.count()).toBeGreaterThan(0);
+  for (const card of await cards.all()) {
+    await expect(card).toHaveAttribute("style", /height:\s*100%/);
+  }
+});
+
+test("navigation contains keyboard focus and restores the trigger", async ({
+  page,
+}) => {
+  await page.goto("/contact");
+  const trigger = page.getByRole("button", { name: "Open menu" });
+  await trigger.click();
+  const dialog = page.getByRole("dialog", { name: "Site navigation" });
+  await dialog.getByRole("link", { name: "Get in touch" }).focus();
+  await page.keyboard.press("Tab");
+  await expect
+    .poll(() => dialog.evaluate((el) => el.contains(document.activeElement)))
+    .toBe(true);
+  await page.keyboard.press("Shift+Tab");
+  await expect
+    .poll(() => dialog.evaluate((el) => el.contains(document.activeElement)))
+    .toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(trigger).toBeFocused();
+});
+
+test("reduced motion does not request hero video and keeps inquiry links usable", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const videoRequests: string[] = [];
+  page.on("request", (request) => {
+    if (/\.(mp4|webm)(\?|$)/.test(request.url()))
+      videoRequests.push(request.url());
+  });
+  await page.goto("/");
+  await expect(page.locator("#home-hero video")).toHaveCount(0);
+  await expect(
+    page.getByRole("link", { name: "View our work", exact: true }).first(),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Discuss a project" }),
+  ).toBeVisible();
+  expect(videoRequests).toEqual([]);
+  const logos = page.getByTestId("logo-marquee");
+  await logos.scrollIntoViewIfNeeded();
+  await expect(logos).toHaveClass(/flex-wrap/);
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+});
+
+test("hero artwork stays static when scrolling", async ({ page }) => {
+  await page.goto("/");
+  const hero = page.locator("#home-hero");
+  const artwork = hero.getByTestId("hero-artwork");
+  await expect(artwork).toBeVisible();
+  await expect(hero.locator("video")).toHaveCount(0);
+  await expect(artwork).toHaveCSS("transform", "none");
+  await page.evaluate(() => window.scrollTo(0, 300));
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  await expect(artwork).toHaveCSS("transform", "none");
+  await expect(artwork.getByRole("heading", { level: 2 })).toBeVisible();
+  for (const image of await artwork.locator("img").all()) {
+    await expect(image).toHaveCSS("transform", "none");
+  }
+  await expect(hero.getByRole("button", { name: /background animation/ })).toHaveCount(0);
+});
+
+test("service and partner animation can stay paused", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Pause service animation" }).click();
+  await expect(page.getByRole("button", { name: "Resume service animation" })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Pause partner logos" }).click();
+  await expect(page.getByRole("button", { name: "Resume partner logos" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator('[data-testid="logo-marquee"] .animate-marquee-horizontal')).toHaveCSS("animation-play-state", "paused");
+});
