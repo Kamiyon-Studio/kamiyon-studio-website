@@ -1,9 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { ParallaxLayerMotion } from "@/hooks/useLayeredParallax";
 import {
-  HERO_PARALLAX_BRAND_Y_PERCENT,
   HERO_PARALLAX_KEY_PREFIX,
   HERO_PARALLAX_LAYERS,
   HERO_PROJECTS_SEAM_SVH,
@@ -16,13 +14,10 @@ vi.mock("@/hooks/useOpeningAnimation", () => ({
   useOpeningAnimation: () => ({ current: null }),
 }));
 
-const layeredParallaxMock = vi.fn((_layers: readonly ParallaxLayerMotion[]) => ({
-  current: null,
-}));
+const layeredParallaxMock = vi.fn();
 
 vi.mock("@/hooks/useLayeredParallax", () => ({
-  useLayeredParallax: (layers: readonly ParallaxLayerMotion[]) =>
-    layeredParallaxMock(layers),
+  useLayeredParallax: (...args: unknown[]) => layeredParallaxMock(...args),
 }));
 
 vi.mock("@/components/sections/HeroScrollHelper", () => ({
@@ -66,13 +61,6 @@ function renderHero() {
   );
 }
 
-/** DOM order of every parallax layer, which is what sets stacking order. */
-function layerOrder(container: HTMLElement): string[] {
-  return Array.from(container.querySelectorAll("[data-parallax-layer]")).map(
-    (node) => node.getAttribute("data-parallax-layer") ?? "",
-  );
-}
-
 beforeEach(() => {
   layeredParallaxMock.mockClear();
   vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
@@ -90,7 +78,7 @@ describe("HeroParallaxOpening", () => {
     expect(container.querySelector("[data-opening-curtain]")).toBeInTheDocument();
   });
 
-  it("pins every plate to the viewport top so the sky is not cropped", () => {
+  it("anchors every plate to the section top so the sky is not cropped", () => {
     const { container } = renderHero();
 
     const plates = Array.from(
@@ -204,15 +192,20 @@ describe("HeroParallaxOpening", () => {
   });
 
   it("stacks the wordmark in front of the landscape plate", () => {
-    const { container } = renderHero();
+    renderHero();
 
-    expect(layerOrder(container)).toEqual(["1", "brand"]);
+    const stage = screen.getByTestId("hero-parallax-stage");
+    const plate = screen.getByTestId("hero-parallax-plate-1");
+    const brand = screen.getByTestId("hero-brand-zone");
+    expect(Array.from(stage.children).indexOf(plate)).toBeLessThan(
+      Array.from(stage.children).indexOf(brand),
+    );
   });
 
   it("renders the wordmark and motto inside the wordmark plate", () => {
     const { container } = renderHero();
 
-    const brandLayer = container.querySelector("[data-parallax-layer='brand']");
+    const brandLayer = container.querySelector("[data-testid='hero-brand-zone']");
     expect(brandLayer).toHaveAttribute("data-testid", "hero-brand-zone");
     expect(brandLayer).toContainElement(
       screen.getByRole("heading", { level: 1, name: "KAMIYON STUDIO" }),
@@ -226,14 +219,18 @@ describe("HeroParallaxOpening", () => {
     expect(container.querySelector("[data-testid='hero-brand-scrim']")).toBeNull();
   });
 
-  it("drives every plate plus the wordmark from the layered parallax hook", () => {
-    renderHero();
+  it("keeps the video stage in document flow without parallax targets or transforms", () => {
+    const { container } = renderHero();
 
-    expect(layeredParallaxMock).toHaveBeenCalledTimes(1);
-    expect(layeredParallaxMock.mock.calls[0]?.[0]).toEqual([
-      { layer: "1", yPercent: 70 },
-      { layer: "brand", yPercent: HERO_PARALLAX_BRAND_Y_PERCENT },
-    ]);
+    expect(layeredParallaxMock).not.toHaveBeenCalled();
+    expect(container.querySelector("[data-parallax-layer], [data-parallax-layers]")).toBeNull();
+    const section = screen.getByTestId("hero-parallax-opening");
+    expect(section).toHaveClass("relative");
+    expect(section).not.toHaveClass("fixed", "sticky");
+    for (const target of container.querySelectorAll("[data-testid^='hero-parallax-plate-'], [data-testid='hero-brand-zone']")) {
+      expect(target).not.toHaveClass("will-change-transform", "fixed", "sticky");
+      expect(target).not.toHaveAttribute("style");
+    }
   });
 
   it("keeps the scrim below the wordmark so it never dims the text", () => {
@@ -245,7 +242,7 @@ describe("HeroParallaxOpening", () => {
       (node) => node.getAttribute("data-testid") === "hero-parallax-scrim",
     );
     const brandIndex = children.findIndex(
-      (node) => node.getAttribute("data-parallax-layer") === "brand",
+      (node) => node.getAttribute("data-testid") === "hero-brand-zone",
     );
 
     expect(scrimIndex).toBeGreaterThanOrEqual(0);

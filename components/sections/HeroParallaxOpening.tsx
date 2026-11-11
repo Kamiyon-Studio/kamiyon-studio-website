@@ -6,13 +6,8 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 import { HeroBrand } from "@/components/sections/HeroBrand";
 import { HeroScrollHelper } from "@/components/sections/HeroScrollHelper";
-import {
-  useLayeredParallax,
-  type ParallaxLayerMotion,
-} from "@/hooks/useLayeredParallax";
 import { useOpeningAnimation } from "@/hooks/useOpeningAnimation";
 import {
-  HERO_PARALLAX_BRAND_Y_PERCENT,
   HERO_PARALLAX_LAYER_HEIGHT,
   HERO_PARALLAX_LAYER_WIDTH,
   HERO_PROJECTS_SEAM_SVH,
@@ -25,16 +20,9 @@ type HeroParallaxOpeningProps = {
   layers: ResolvedHeroParallaxLayer[];
 };
 
-/** `data-parallax-layer` value for the wordmark plate. */
-const BRAND_LAYER = "brand";
-
-/**
- * Plates fill the stage from the top so the sky sits on the viewport edge.
- * Extra height for parallax travel is not applied upward — that was cropping
- * the top of the landscape.
- */
+/** Keep the media anchored to the section without scroll-linked transforms. */
 const PLATE_CLASS =
-  "pointer-events-none absolute inset-x-0 top-0 h-full w-full max-w-none will-change-transform";
+  "pointer-events-none absolute inset-x-0 top-0 h-full w-full max-w-none";
 
 const PLATE_MEDIA_CLASS =
   "absolute inset-0 h-full w-full max-w-none object-cover object-top";
@@ -91,7 +79,6 @@ function ParallaxPlate({
 
   return (
     <div
-      data-parallax-layer={String(layer.depth)}
       data-testid={`hero-parallax-plate-${layer.depth}`}
       className={PLATE_CLASS}
     >
@@ -130,25 +117,12 @@ function ParallaxPlate({
   );
 }
 
-/**
- * Full-bleed opening stage built from stacked R2 plates that drift apart on
- * scroll. Content matches the static opening: wordmark + motto. Bottom padding
- * keeps the handoff into Recent Projects (earth plate) aligned.
- */
+/** Full-bleed video opening that scrolls with normal document flow. */
 export function HeroParallaxOpening({ layers }: HeroParallaxOpeningProps) {
   const rootRef = useOpeningAnimation<HTMLElement>();
   const [paused, setPaused] = useState(false);
   const reduceMotion = useReducedMotion();
   const { behindBrand, inFrontOfBrand } = splitHeroParallaxLayers(layers);
-
-  const layerMotions: ParallaxLayerMotion[] = [
-    ...layers.map(({ depth, yPercent }) => ({
-      layer: String(depth),
-      yPercent,
-    })),
-    { layer: BRAND_LAYER, yPercent: HERO_PARALLAX_BRAND_Y_PERCENT },
-  ];
-  const stageRef = useLayeredParallax<HTMLDivElement>(layerMotions);
 
   return (
     <section
@@ -161,8 +135,6 @@ export function HeroParallaxOpening({ layers }: HeroParallaxOpeningProps) {
       aria-label="Studio opening"
     >
       <div
-        ref={stageRef}
-        data-parallax-layers
         data-testid="hero-parallax-stage"
         className="absolute inset-0"
       >
@@ -178,9 +150,8 @@ export function HeroParallaxOpening({ layers }: HeroParallaxOpeningProps) {
         />
 
         <div
-          data-parallax-layer={BRAND_LAYER}
           data-testid="hero-brand-zone"
-          className="absolute inset-x-0 top-0 flex h-[100svh] flex-col items-center justify-center px-6 pb-[22vh] text-center will-change-transform"
+          className="absolute inset-x-0 top-0 flex h-[100svh] flex-col items-center justify-center px-6 pb-[22vh] text-center"
         >
           <HeroBrand />
         </div>
