@@ -38,12 +38,32 @@
       "bucket_name": "kamiyon-next-cache-prod",
     },
   ],
+  "durable_objects": {
+
+    "bindings": [
+
+      { "name": "NEXT_CACHE_DO_QUEUE", "class_name": "DOQueueHandler" },
+
+      { "name": "NEXT_TAG_CACHE_DO_SHARDED", "class_name": "DOShardedTagCache" }
+
+    ]
+
+  },
+  "migrations": [{ "tag": "v1-cache", "new_sqlite_classes": ["DOQueueHandler", "DOShardedTagCache"] }],
+  "observability": { "enabled": true },
   "env": {
     "staging": {
       "name": "kamiyon-studio-website-staging",
+      "durable_objects": {
+        "bindings": [
+          { "name": "NEXT_CACHE_DO_QUEUE", "class_name": "DOQueueHandler" },
+          { "name": "NEXT_TAG_CACHE_DO_SHARDED", "class_name": "DOShardedTagCache" }
+        ]
+      },
       "workers_dev": true,
       "vars": {
         "APP_ENV": "staging",
+        "CMS_CONTENT_MODE": "read-only",
         "NEXT_PUBLIC_SITE_URL": "https://kamiyon-studio-website-staging.limosnerosherwin.workers.dev",
         "NEXT_PUBLIC_R2_PUBLIC_BASE_URL": "https://media-staging.kamiyonstudio.com",
         "NEXT_PUBLIC_SANITY_PROJECT_ID": "c6ej1xoj",
@@ -74,6 +94,13 @@
       ],
     },
     "production": {
+      "durable_objects": {
+        "bindings": [
+          { "name": "NEXT_CACHE_DO_QUEUE", "class_name": "DOQueueHandler" },
+          { "name": "NEXT_TAG_CACHE_DO_SHARDED", "class_name": "DOShardedTagCache" }
+        ]
+      },
+
       "name": "kamiyon-studio-website",
       "workers_dev": true,
       "vars": {
