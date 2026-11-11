@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState, type FormEvent } from "react";
 
 import { Button } from "@/components/ui/Button";
@@ -173,7 +174,7 @@ export function ContactForm() {
       </div>
 
       <p className="text-sm text-[var(--text-secondary)]">
-        We use your name, email, and message to respond to your inquiry. <a href="/privacy" className="underline">How your contact information is handled</a>.
+        We use your name, email, and message to respond to your inquiry. <Link href="/privacy" className="underline">How your contact information is handled</Link>.
       </p>
       <div className="flex flex-wrap items-center gap-4">
         <Button type="submit" variant="primary" disabled={status.kind === "submitting"}>
