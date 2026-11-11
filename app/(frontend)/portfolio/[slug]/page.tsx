@@ -3,7 +3,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { CaseStudy } from "@/components/sections/CaseStudy";
-import { portfolioItemsFallback } from "@/lib/cms/fallbacks";
+import {
+  canUseDemoContent,
+  resolveWithFallback,
+  portfolioItemsFallback,
+} from "@/lib/cms/fallbacks";
 import { getPortfolioItemBySlug, getPortfolioItems } from "@/lib/cms/queries";
 import { getBreadcrumbJsonLd } from "@/lib/seo/breadcrumb-jsonld";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -19,13 +23,17 @@ async function getPortfolioContent(slug: string) {
     return cmsItem;
   }
 
-  return (
-    portfolioItemsFallback.find((item) => item.slug.current === slug) ?? null
-  );
+  return !canUseDemoContent()
+    ? null
+    : (portfolioItemsFallback.find((item) => item.slug.current === slug) ??
+        null);
 }
 
 export async function generateStaticParams() {
-  const items = (await getPortfolioItems()) ?? portfolioItemsFallback;
+  const items = resolveWithFallback(
+    await getPortfolioItems(),
+    portfolioItemsFallback,
+  );
 
   return items.map((item) => ({ slug: item.slug.current }));
 }
@@ -49,7 +57,9 @@ export async function generateMetadata({
   });
 }
 
-export default async function PortfolioItemPage({ params }: PortfolioItemPageProps) {
+export default async function PortfolioItemPage({
+  params,
+}: PortfolioItemPageProps) {
   const { slug } = await params;
   const item = await getPortfolioContent(slug);
 

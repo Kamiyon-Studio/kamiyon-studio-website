@@ -3,7 +3,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { ServiceDetail } from "@/components/sections/ServiceDetail";
-import { servicesFallback } from "@/lib/cms/fallbacks";
+import {
+  canUseDemoContent,
+  resolveWithFallback,
+  servicesFallback,
+} from "@/lib/cms/fallbacks";
 import { getServiceBySlug, getServices } from "@/lib/cms/queries";
 import { getBreadcrumbJsonLd } from "@/lib/seo/breadcrumb-jsonld";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -19,11 +23,14 @@ async function getServiceContent(slug: string) {
     return cmsService;
   }
 
-  return servicesFallback.find((service) => service.slug.current === slug) ?? null;
+  return canUseDemoContent()
+    ? (servicesFallback.find((service) => service.slug.current === slug) ??
+        null)
+    : null;
 }
 
 export async function generateStaticParams() {
-  const services = (await getServices()) ?? servicesFallback;
+  const services = resolveWithFallback(await getServices(), servicesFallback);
 
   return services.map((service) => ({ slug: service.slug.current }));
 }
@@ -47,7 +54,9 @@ export async function generateMetadata({
   });
 }
 
-export default async function ServiceDetailPage({ params }: ServiceDetailPageProps) {
+export default async function ServiceDetailPage({
+  params,
+}: ServiceDetailPageProps) {
   const { slug } = await params;
   const service = await getServiceContent(slug);
 
