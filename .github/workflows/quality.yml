@@ -12,7 +12,7 @@ permissions:
 jobs:
   verify:
     name: Verify website
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
       APP_ENV: local
@@ -33,7 +33,7 @@ jobs:
       - run: pnpm test --maxWorkers=2
         env:
           CMS_DEMO_CONTENT: "false"
-      - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm test:e2e --workers=2
       - name: Build Cloudflare adapter on Linux
         run: pnpm exec opennextjs-cloudflare build
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e --workers=2
