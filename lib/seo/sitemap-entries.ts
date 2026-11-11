@@ -25,6 +25,7 @@ type SitemapSlugDoc = {
   slug: { current: string };
   seo?: SitemapSeo;
   publishedAt?: string;
+  updatedAt?: string;
 };
 
 export type BuildPublicSitemapEntriesInput = {
@@ -55,7 +56,7 @@ function toAbsoluteUrl(path: string): string {
 function entryForSlug(
   pathPrefix: string,
   doc: SitemapSlugDoc,
-  options?: { requireCanonicalServiceSlug?: boolean }
+  options?: { requireCanonicalServiceSlug?: boolean },
 ): MetadataRoute.Sitemap[number] | null {
   if (!isSitemapIndexable(doc) || !doc.slug.current) {
     return null;
@@ -72,8 +73,9 @@ function entryForSlug(
     url: toAbsoluteUrl(`${pathPrefix}/${doc.slug.current}`),
   };
 
-  if (doc.publishedAt) {
-    entry.lastModified = new Date(doc.publishedAt);
+  const lastModified = doc.updatedAt ?? doc.publishedAt;
+  if (lastModified && !Number.isNaN(Date.parse(lastModified))) {
+    entry.lastModified = new Date(lastModified);
   }
 
   return entry;
@@ -86,11 +88,9 @@ function entryForSlug(
  * Service detail URLs are limited to the Gate 0 five slugs (ADR-016).
  */
 export function buildPublicSitemapEntries(
-  input: BuildPublicSitemapEntriesInput
+  input: BuildPublicSitemapEntriesInput,
 ): MetadataRoute.Sitemap {
-  if (
-    !isCrawlableProduction(normalizeSiteUrl(input.siteUrl), input.appEnv)
-  ) {
+  if (!isCrawlableProduction(normalizeSiteUrl(input.siteUrl), input.appEnv)) {
     return [];
   }
 
@@ -100,7 +100,7 @@ export function buildPublicSitemapEntries(
 
   const serviceEntries = input.services
     .map((service) =>
-      entryForSlug("/services", service, { requireCanonicalServiceSlug: true })
+      entryForSlug("/services", service, { requireCanonicalServiceSlug: true }),
     )
     .filter((entry): entry is MetadataRoute.Sitemap[number] => entry !== null);
 

@@ -67,6 +67,7 @@ export async function generateMetadata({
     path: `/blog/${post.slug.current}`,
     ogImage: post.seo.ogImage ?? post.featuredImage,
     noIndex: post.seo.noIndex,
+    type: "article",
   });
 }
 
