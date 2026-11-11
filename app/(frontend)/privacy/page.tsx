@@ -10,10 +10,12 @@ export const metadata = buildPageMetadata({
 
 export default function PrivacyPage() {
   return (
-    <section className="py-16 md:py-24">
+    <section className="pb-16 md:pb-24">
       <Container>
         <article className="mx-auto max-w-2xl space-y-6 text-[var(--text-secondary)]">
-          <h1 className="font-display text-4xl font-bold text-[var(--text-primary)]">Contact privacy</h1>
+          <header className="studio-page-intro">
+            <h1 className="studio-page-title">Contact privacy</h1>
+          </header>
           <p>The contact form asks for your name, email address, and message so Kamiyon Studio can receive and respond to your inquiry. Please avoid including sensitive personal information in your message.</p>
           <h2 className="font-display text-2xl font-semibold">How your message reaches us</h2>
           <p>The website runs on Cloudflare. Form submissions are sent through Resend to the studio inbox, and a confirmation email is sent to the address you provide. Delivery logs may include request and email delivery identifiers.</p>
