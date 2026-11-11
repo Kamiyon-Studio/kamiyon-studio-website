@@ -23,6 +23,7 @@ export type TimelineEntryV2 = {
   year: string; // YYYY — powers the rail
   dateLabel: string; // "March 2024"
   date?: string; // ISO, for <time dateTime>
+  planned?: boolean;
   title: string;
   body: string;
   /** Always at least one entry; >1 activates the carousel. */

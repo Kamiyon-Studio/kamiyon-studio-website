@@ -23,6 +23,7 @@ async function getAboutPageContent() {
   ]);
 
   return {
+    asOf: Date.now(),
     aboutPage: resolveWithFallback(aboutPage, aboutPageFallback),
     teamMembers: resolveWithFallback(teamMembers, teamMembersFallback),
   };
@@ -42,7 +43,7 @@ function toTimelineImage(
   };
 }
 
-function toTimelineEntries(entries: StoryTimelineEntry[]): TimelineEntryV2[] {
+function toTimelineEntries(entries: StoryTimelineEntry[], asOf: number): TimelineEntryV2[] {
   return entries.flatMap((entry) => {
     const images = entry.images
       .map((image) => toTimelineImage(image, entry.title))
@@ -67,6 +68,7 @@ function toTimelineEntries(entries: StoryTimelineEntry[]): TimelineEntryV2[] {
         entryType: entry.entryType,
         year: entry.year,
         dateLabel: entry.dateLabel,
+        planned: Boolean(entry.date && Date.parse(entry.date) > asOf),
         ...(entry.date ? { date: entry.date } : {}),
         title: entry.title,
         body: entry.body,
@@ -90,8 +92,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AboutPage() {
-  const { aboutPage, teamMembers } = await getAboutPageContent();
-  const timelineEntries = toTimelineEntries(aboutPage.timelineEntries);
+  const { aboutPage, teamMembers, asOf } = await getAboutPageContent();
+  const timelineEntries = toTimelineEntries(aboutPage.timelineEntries, asOf);
   const timelineHeading =
     aboutPage.timelineHeading.trim() || aboutPageFallback.timelineHeading;
   const timelineSummary =

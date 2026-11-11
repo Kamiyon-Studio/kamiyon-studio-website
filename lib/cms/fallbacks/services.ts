@@ -11,7 +11,7 @@ function span(text: string, marks?: string[]): SpanInput {
 
 function block(
   style: "normal" | "h2" | "h3",
-  children: SpanInput[]
+  children: SpanInput[],
 ): PortableTextBlock {
   return {
     _type: "block",
@@ -30,16 +30,11 @@ function serviceBody(blocks: PortableTextBlock[]): PortableTextBlock[] {
   return blocks;
 }
 
-/** Single-block body from description text (Gate 0). */
-function descriptionBody(text: string): PortableTextBlock[] {
-  return serviceBody([block("normal", [span(text)])]);
-}
-
 /**
  * Gate 0 five-service taxonomy (ADR-016).
  * Source: context/gate0-services-taxonomy.md — do not invent beyond that matrix.
  */
-export const servicesFallback: Service[] = [
+export const servicesFallback: Service[] = ([
   {
     _type: "service",
     title: "Game Development",
@@ -47,9 +42,7 @@ export const servicesFallback: Service[] = [
     tagline: "Build immersive games that inspire, educate, and entertain.",
     summary:
       "We partner with studios, startups, organizations, and businesses to create engaging game experiences—from rapid prototypes to polished commercial titles. Whether it's entertainment, education, or gamified learning, we focus on delivering meaningful interactive experiences.",
-    body: descriptionBody(
-      "We partner with studios, startups, organizations, and businesses to create engaging game experiences—from rapid prototypes to polished commercial titles. Whether it's entertainment, education, or gamified learning, we focus on delivering meaningful interactive experiences.",
-    ),
+    body: [],
     capabilities: [
       "Full-cycle game development",
       "Game prototyping",
@@ -60,7 +53,7 @@ export const servicesFallback: Service[] = [
     ],
 
     order: 1,
-    isPlaceholder: true,
+    isPlaceholder: false,
     seo: {
       title: "Game Development",
       description:
@@ -74,9 +67,7 @@ export const servicesFallback: Service[] = [
     tagline: "Transform ideas into modern digital products.",
     summary:
       "We design and build digital products that solve real-world problems. From startup MVPs to internal platforms, we help organizations launch products that are functional, scalable, and user-focused.",
-    body: descriptionBody(
-      "We design and build digital products that solve real-world problems. From startup MVPs to internal platforms, we help organizations launch products that are functional, scalable, and user-focused.",
-    ),
+    body: [],
     capabilities: [
       "MVP development",
       "Web applications",
@@ -85,7 +76,7 @@ export const servicesFallback: Service[] = [
     ],
 
     order: 2,
-    isPlaceholder: true,
+    isPlaceholder: false,
     seo: {
       title: "Product Development",
       description:
@@ -99,9 +90,7 @@ export const servicesFallback: Service[] = [
     tagline: "Design experiences people love to use.",
     summary:
       "We create intuitive interfaces and visually compelling assets that elevate products, games, and brands through thoughtful design and user-centered experiences.",
-    body: descriptionBody(
-      "We create intuitive interfaces and visually compelling assets that elevate products, games, and brands through thoughtful design and user-centered experiences.",
-    ),
+    body: [],
     capabilities: [
       "UI/UX design",
       "Product interface design",
@@ -111,7 +100,7 @@ export const servicesFallback: Service[] = [
     ],
 
     order: 3,
-    isPlaceholder: true,
+    isPlaceholder: false,
     seo: {
       title: "UI & Design",
       description:
@@ -125,9 +114,7 @@ export const servicesFallback: Service[] = [
     tagline: "Build memorable brands with purpose.",
     summary:
       "A strong brand is more than a logo. We help organizations create cohesive visual identities that communicate their story consistently across every touchpoint.",
-    body: descriptionBody(
-      "A strong brand is more than a logo. We help organizations create cohesive visual identities that communicate their story consistently across every touchpoint.",
-    ),
+    body: [],
     capabilities: [
       "Brand identity",
       "Logo design",
@@ -137,7 +124,7 @@ export const servicesFallback: Service[] = [
     ],
 
     order: 4,
-    isPlaceholder: true,
+    isPlaceholder: false,
     seo: {
       title: "Branding",
       description:
@@ -151,9 +138,7 @@ export const servicesFallback: Service[] = [
     tagline: "Grow communities through meaningful experiences.",
     summary:
       "We help organizations foster thriving developer, gaming, and technology communities through engaging programs and collaborative events that create lasting impact.",
-    body: descriptionBody(
-      "We help organizations foster thriving developer, gaming, and technology communities through engaging programs and collaborative events that create lasting impact.",
-    ),
+    body: [],
     capabilities: [
       "Community building",
       "Community management",
@@ -167,11 +152,31 @@ export const servicesFallback: Service[] = [
     ],
 
     order: 5,
-    isPlaceholder: true,
+    isPlaceholder: false,
     seo: {
       title: "Community & Events",
       description:
         "Grow communities through meaningful experiences — community and events from Kamiyon Studio.",
     },
   },
-];
+] satisfies Service[]).map((service) => ({
+  ...service,
+  body: serviceBody([
+    block("h2", [span("What we can help with")]),
+    ...service.capabilities.map((capability) =>
+      block("normal", [span(capability)]),
+    ),
+    block("h2", [span("Start with your project brief")]),
+    block("normal", [
+      span(
+        "Tell us who the work is for, what you want to achieve, and any existing materials or constraints. Include your target platform, timeline, and budget range if you have them.",
+      ),
+    ]),
+    block("h2", [span("Define the scope together")]),
+    block("normal", [
+      span(
+        "Use the initial conversation to agree the deliverables, review points, and handover requirements for your project. The scope depends on the work you need; the capabilities listed here are a starting point for that discussion.",
+      ),
+    ]),
+  ]),
+}));

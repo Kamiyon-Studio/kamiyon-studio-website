@@ -34,8 +34,7 @@ export function BlogListing({ posts }: BlogListingProps) {
             Blog
           </h1>
           <p className="mt-4 text-base text-[var(--text-secondary)] md:text-lg">
-            Studio updates, announcements, and notes from Kamiyon — including
-            placeholder entries while the full editorial calendar fills in.
+            Studio updates, announcements, and notes from Kamiyon Studio.
           </p>
         </div>
 
