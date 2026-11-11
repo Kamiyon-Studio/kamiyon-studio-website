@@ -16,9 +16,9 @@ colors:
 typography:
   display:
     fontFamily: "Geologica, sans-serif"
-    fontSize: "clamp(3.25rem, 7.5vw, 6rem)"
+    fontSize: "clamp(2.75rem, 5.4vw, 4.5rem)"
     fontWeight: 600
-    lineHeight: 1.02
+    lineHeight: 1.06
     letterSpacing: "-0.035em"
   page-title:
     fontFamily: "Geologica, sans-serif"
@@ -142,14 +142,16 @@ The shared container is centered at a maximum width of eighty rem, with mobile, 
 Interior openings share top clearance of `clamp(7rem, 12vw, 10rem)`, three rem of bottom space, and a subtle bottom divider.
 Supporting text sits below the title, and content sections continue in the same container alignment.
 
-The homepage separates copy and static artwork into two columns at the large breakpoint and stacks them on smaller screens.
-Services use a static image-and-copy grid, stacked on mobile.
+The homepage pairs a capabilities-led heading with real published project evidence in two columns, stacking them on smaller screens.
+The project panel uses ivory with charcoal text and preserves the full composition of available project artwork.
+When a real project has no artwork, its actual positioning and gameplay details provide the evidence instead.
+Services use divided title-and-capability rows, stacked on mobile, without decorative placeholder images.
 Portfolio cards and article lists preserve their distinct content formats instead of forcing every page into an identical card layout.
 
 ## Elevation & Depth
 
 The updated project cards use a tinted surface and border without a hover shadow or tilt.
-Service banners use a static surface; their listing retains the existing small ambient shadow.
+Service rows use a single dividing border, without a surrounding card or shadow.
 Other legacy components still consume the global small, medium, and large shadow tokens.
 This is a restrained shared treatment, not a claim that every component is shadow-free.
 
@@ -157,7 +159,7 @@ This is a restrained shared treatment, not a claim that every component is shado
 
 Buttons, form fields, and cards use gently rounded sixteen-pixel corners.
 Pill shapes remain for compact badges and existing navigation actions.
-The service banner no longer uses a slanted clipped copy panel.
+Service rows use open spacing and a stable two-column layout rather than clipped copy panels.
 
 ## Components
 
@@ -172,7 +174,8 @@ Disabled buttons and links are visibly dimmed and cannot activate.
 ### Cards and lists
 
 Project cards lead with an image or a typographic project-title fallback and retain project metadata and case-study links.
-Service banners pair a static image with the existing title, description, and service link.
+Service rows pair the existing title with its description, up to three capabilities, and the service link.
+Capabilities use the existing gold accent for secondary emphasis.
 Blog entries use a divided list with dates rather than decorative card wrappers.
 
 ### Inputs and badges
