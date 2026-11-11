@@ -87,14 +87,11 @@ describe("matchPlateSources", () => {
     const sources = matchPlateSources(V3_EXPORTS, "/exports");
 
     expect(sources).toHaveLength(HERO_PARALLAX_LAYERS.length);
-    expect(sources.map(({ layer }) => layer.depth)).toEqual([1, 2]);
+    expect(sources.map(({ layer }) => layer.depth)).toEqual([1]);
     expect(sources[0]?.sourcePath).toBe(path.join("/exports", "fallback.avif"));
     expect(sources[0]?.pngPath).toBe(path.join("/exports", "fallback.png"));
     expect(sources[0]?.mp4Path).toBe(path.join("/exports", "homepage.mp4"));
     expect(sources[0]?.webmPath).toBeUndefined();
-    expect(sources[1]?.sourcePath).toBe(path.join("/exports", "foreground.avif"));
-    expect(sources[1]?.pngPath).toBe(path.join("/exports", "foreground.png"));
-    expect(sources[1]?.mp4Path).toBeUndefined();
   });
 
   it("still matches a leftover layer-N pack for the configured depths", () => {
@@ -102,12 +99,11 @@ describe("matchPlateSources", () => {
 
     expect(sources).toHaveLength(HERO_PARALLAX_LAYERS.length);
     expect(sources[0]?.sourcePath).toContain(LEGACY_EXPORTS[0]);
-    expect(sources[1]?.sourcePath).toContain(LEGACY_EXPORTS[1]);
   });
 
   it("names the missing depth so the operator knows what to export", () => {
-    expect(() => matchPlateSources(["fallback.avif"], "/exports")).toThrow(
-      /No source image for layer 2 .* in \/exports/,
+    expect(() => matchPlateSources([], "/exports")).toThrow(
+      /No source image for layer 1 .* in \/exports/,
     );
   });
 });

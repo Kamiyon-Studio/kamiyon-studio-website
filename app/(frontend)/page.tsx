@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { Hero } from "@/components/sections/Hero";
+import { Hero, selectHeroProject } from "@/components/sections/Hero";
 import { HomeContact } from "@/components/sections/HomeContact";
 import { HomeScrollMarker } from "@/components/sections/HomeScrollMarker";
 import { PartnersMarquee } from "@/components/sections/PartnersMarquee";
@@ -25,20 +25,10 @@ import {
   getPortfolioItems,
   getServices,
 } from "@/lib/cms/queries";
-import { resolveHomeProjectsBackground } from "@/lib/home/hero-parallax-layers";
 import { PARTNER_PLACEHOLDERS } from "@/lib/home/partner-placeholders";
 import { pickServiceHoverImages } from "@/lib/portfolio/service-hover-images";
 import { buildPageMetadata } from "@/lib/seo/metadata";
-import type { HomeHero, HomePage, Portfolio, Service } from "@/lib/cms/types";
-
-/** Static-path stub — parallax Hero ignores these fields. */
-const HERO_STUB: HomeHero = {
-  _type: "hero",
-  headline: "",
-  subheadline: "",
-  ctaLabel: "",
-  ctaHref: "",
-};
+import type { HomePage, Portfolio, Service } from "@/lib/cms/types";
 
 async function getHomePageContent() {
   const [homeCms, allPortfolioItems] = await Promise.all([
@@ -47,7 +37,7 @@ async function getHomePageContent() {
   ]);
 
   if (homeCms === null) {
-    // CMS unreachable → keep existing resolveWithFallback placeholders.
+    // Missing singleton follows the explicit demo/production fallback policy.
     const [services, partners, awards] = await Promise.all([
       getServices(),
       getPartners(),
@@ -60,7 +50,7 @@ async function getHomePageContent() {
     );
 
     return {
-      home: homePageFallback as HomePage,
+      home: resolveWithFallback(homeCms, homePageFallback) as HomePage,
       portfolioItems,
       serviceHoverItems: portfolioItems,
       services: resolveWithFallback(services, servicesFallback),
@@ -115,17 +105,18 @@ export default async function Home() {
   const { home, portfolioItems, serviceHoverItems, services, partners, awards } =
     await getHomePageContent();
 
+  const heroProject = selectHeroProject(portfolioItems);
+
   const contact = home.contactCta ?? homePageFallback.contactCta;
   const serviceSlides = toServiceStackSlides(services, serviceHoverItems);
 
   return (
     <>
       <HomeScrollMarker />
-      <Hero hero={HERO_STUB} />
+      <Hero project={heroProject} />
       {portfolioItems.length > 0 ? (
         <ProjectsBento
           caseStudies={portfolioItems}
-          backgroundSrc={resolveHomeProjectsBackground()}
         />
       ) : null}
       {partners.length > 0 ? (

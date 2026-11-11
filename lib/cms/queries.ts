@@ -51,7 +51,7 @@ import type {
 
 /**
  * CMS query layer — Sanity + GROQ with typed fallbacks.
- * Returns null when Sanity is unset, empty, or errors so pages keep using resolveWithFallback().
+ * Missing documents remain null, empty collections remain empty, and outages reject.
  */
 
 export async function getSiteSettings(): Promise<SiteSettings | null> {

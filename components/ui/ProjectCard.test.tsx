@@ -40,13 +40,14 @@ describe("ProjectCard", () => {
     );
   });
 
-  it("renders the emoji placeholder when there is no resolvable cover image", async () => {
+  it("renders the project title when there is no resolvable cover image", async () => {
     const { getCmsImageUrl } = await import("@/lib/cms/image");
     vi.mocked(getCmsImageUrl).mockReturnValue(null);
 
     render(<ProjectCard caseStudy={baseCaseStudy} />);
 
-    expect(screen.getByText("🌸")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: baseCaseStudy.title })).toBeInTheDocument();
+    expect(screen.getAllByText(baseCaseStudy.title)).toHaveLength(2);
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
   });
 

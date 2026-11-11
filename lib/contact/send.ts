@@ -4,6 +4,7 @@ import type { ContactFormFields } from "./validate";
 
 export type SendContactEmailsInput = {
   apiKey: string;
+  submissionId: string;
   fromEmail: string;
   toEmail: string;
   fields: ContactFormFields;
@@ -25,6 +26,7 @@ export type ResendLike = {
   emails: {
     send: (
       args: ResendSendArgs,
+      options?: { idempotencyKey: string },
     ) => Promise<{ data: { id: string } | null; error: { message: string } | null }>;
   };
 };
@@ -69,29 +71,36 @@ export async function sendContactEmails(
   const subject = sanitizeHeaderValue(`Contact: ${input.fields.name}`);
   const replyTo = sanitizeHeaderValue(input.fields.email);
 
-  const studio = await client.emails.send({
-    from: input.fromEmail,
-    to: [input.toEmail],
-    subject,
-    text: buildStudioNotificationText(input.fields),
-    replyTo,
-  });
-
-  if (studio.error) {
+  const submissionId = input.submissionId;
+  try {
+    const studio = await client.emails.send({
+      from: input.fromEmail,
+      to: [input.toEmail],
+      subject,
+      text: buildStudioNotificationText(input.fields),
+      replyTo,
+    }, { idempotencyKey: `contact/${submissionId}/studio` });
+    if (studio.error || !studio.data?.id) {
+      return { ok: false, error: "Failed to deliver message." };
+    }
+    console.info("[contact] accepted", { submissionId, messageId: studio.data.id });
+  } catch {
     return { ok: false, error: "Failed to deliver message." };
   }
-
-  const visitor = await client.emails.send({
-    from: input.fromEmail,
-    to: [input.fields.email],
-    subject: "We received your message — Kamiyon Studio",
-    text: buildVisitorConfirmationText(input.fields),
-    replyTo: PUBLIC_EMAIL,
-  });
-
-  if (visitor.error) {
-    return { ok: false, error: "Failed to deliver message." };
+  try {
+    const visitor = await client.emails.send({
+      from: input.fromEmail,
+      to: [input.fields.email],
+      subject: "We received your message - Kamiyon Studio",
+      text: buildVisitorConfirmationText(input.fields),
+      replyTo: PUBLIC_EMAIL,
+    }, { idempotencyKey: `contact/${submissionId}/confirmation` });
+    if (visitor.error || !visitor.data?.id) {
+      console.warn("[contact] confirmation failed", { submissionId });
+    }
+  } catch {
+    console.warn("[contact] confirmation failed", { submissionId });
   }
-
   return { ok: true };
 }
+

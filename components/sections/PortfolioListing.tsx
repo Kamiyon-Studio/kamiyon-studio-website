@@ -29,19 +29,19 @@ export function PortfolioListing({ caseStudies }: PortfolioListingProps) {
   );
 
   return (
-    <section className="bg-[var(--bg-primary)] py-16 md:py-24">
+    <section className="bg-[var(--bg-primary)] pb-16 md:pb-24">
       <Container>
-        <div className="max-w-[680px]">
-          <h1 className="font-display text-3xl font-bold text-[var(--text-primary)] md:text-4xl">
+        <header className="studio-page-intro">
+          <h1 className="studio-page-title">
             Portfolio
           </h1>
-          <p className="mt-4 text-base text-[var(--text-secondary)] md:text-lg">
+          <p className="studio-lead mt-6">
             A look at client work and original IP — the challenge each project
             presented, the solution we built, and the impact it had.
           </p>
-        </div>
+        </header>
 
-        {availableServices.length > 0 ? (
+        {availableServices.length > 1 ? (
           <div className="mt-8">
             <ServiceFilter
               services={availableServices}

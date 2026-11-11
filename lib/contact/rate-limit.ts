@@ -6,6 +6,7 @@ export type RateLimiterOptions = {
   limit: number;
   windowMs: number;
   now?: () => number;
+  maxBuckets?: number;
 };
 
 type Bucket = {
@@ -14,7 +15,7 @@ type Bucket = {
 };
 
 /**
- * Simple in-memory sliding-window limiter (per isolate).
+ * Simple in-memory fixed-window limiter (per isolate).
  * Enough to blunt casual abuse on Workers Free; not a distributed quota.
  */
 export function createContactRateLimiter(options: RateLimiterOptions) {
@@ -23,7 +24,15 @@ export function createContactRateLimiter(options: RateLimiterOptions) {
 
   function check(key: string): RateLimitResult {
     const now = nowFn();
+    // Fixed windows preserve insertion order, so expired buckets form a prefix.
+    for (const [bucketKey, bucket] of buckets) {
+      if (now < bucket.resetAt) break;
+      buckets.delete(bucketKey);
+    }
     const existing = buckets.get(key);
+    if (!existing && buckets.size >= (options.maxBuckets ?? 10_000)) {
+      return { allowed: false, retryAfterSec: Math.ceil(options.windowMs / 1000) };
+    }
 
     if (!existing || now >= existing.resetAt) {
       buckets.set(key, { count: 1, resetAt: now + options.windowMs });

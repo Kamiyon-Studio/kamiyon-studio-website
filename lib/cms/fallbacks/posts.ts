@@ -17,7 +17,7 @@ function postBody(...paragraphs: string[]): BlogBodyBlock[] {
 }
 
 /**
- * Placeholder blog posts for `/blog` when Sanity is empty or unreachable.
+ * Demo-only blog fixtures, excluded from indexing and production fallback.
  * Dates are intentionally staggered so listing order and datetime UI can be verified.
  */
 export const postsFallback: Post[] = [
@@ -34,7 +34,7 @@ export const postsFallback: Post[] = [
       title: "Studio notes — July update | Kamiyon Studio",
       description:
         "Placeholder July studio update from Kamiyon Studio. Content coming soon.",
-      noIndex: false,
+      noIndex: true,
     },
     publishedAt: "2026-07-24T10:00:00.000Z",
   },
@@ -49,7 +49,7 @@ export const postsFallback: Post[] = [
     seo: {
       title: "Behind the build | Kamiyon Studio",
       description: "Placeholder process post for Kamiyon Studio.",
-      noIndex: false,
+      noIndex: true,
     },
     publishedAt: "2026-06-18T14:30:00.000Z",
   },
@@ -64,7 +64,7 @@ export const postsFallback: Post[] = [
     seo: {
       title: "Community spotlight | Kamiyon Studio",
       description: "Placeholder community spotlight for Kamiyon Studio.",
-      noIndex: false,
+      noIndex: true,
     },
     publishedAt: "2026-05-09T09:15:00.000Z",
   },
@@ -79,7 +79,7 @@ export const postsFallback: Post[] = [
     seo: {
       title: "Design craft notes | Kamiyon Studio",
       description: "Placeholder design craft post for Kamiyon Studio.",
-      noIndex: false,
+      noIndex: true,
     },
     publishedAt: "2026-04-22T16:45:00.000Z",
   },
@@ -94,7 +94,7 @@ export const postsFallback: Post[] = [
     seo: {
       title: "Game jam reflections | Kamiyon Studio",
       description: "Placeholder game jam reflections for Kamiyon Studio.",
-      noIndex: false,
+      noIndex: true,
     },
     publishedAt: "2026-03-11T11:00:00.000Z",
   },
@@ -109,7 +109,7 @@ export const postsFallback: Post[] = [
     seo: {
       title: "Education track | Kamiyon Studio",
       description: "Placeholder education update for Kamiyon Studio.",
-      noIndex: false,
+      noIndex: true,
     },
     publishedAt: "2026-02-27T08:20:00.000Z",
   },
@@ -124,7 +124,7 @@ export const postsFallback: Post[] = [
     seo: {
       title: "Product development diary | Kamiyon Studio",
       description: "Placeholder product diary for Kamiyon Studio.",
-      noIndex: false,
+      noIndex: true,
     },
     publishedAt: "2026-01-30T13:10:00.000Z",
   },
@@ -139,7 +139,7 @@ export const postsFallback: Post[] = [
     seo: {
       title: "Brand system notes | Kamiyon Studio",
       description: "Placeholder brand notes for Kamiyon Studio.",
-      noIndex: false,
+      noIndex: true,
     },
     publishedAt: "2025-12-12T17:00:00.000Z",
   },
@@ -154,7 +154,7 @@ export const postsFallback: Post[] = [
     seo: {
       title: "Partnerships desk | Kamiyon Studio",
       description: "Placeholder partnerships brief for Kamiyon Studio.",
-      noIndex: false,
+      noIndex: true,
     },
     publishedAt: "2025-11-05T07:40:00.000Z",
   },
@@ -172,7 +172,7 @@ export const postsFallback: Post[] = [
       title: "Coming Soon | Kamiyon Studio Blog",
       description:
         "The Kamiyon Studio blog is launching soon. Check back for studio updates, announcements, and behind-the-scenes notes.",
-      noIndex: false,
+      noIndex: true,
     },
     publishedAt: "2025-09-18T12:00:00.000Z",
   },

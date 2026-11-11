@@ -163,7 +163,9 @@ function VerticalMarquee({
     lastYRef.current = event.clientY;
     offsetRef.current += deltaY;
 
-    if (Math.abs(event.clientY - startYRef.current) >= DRAG_CLICK_THRESHOLD_PX) {
+    if (
+      Math.abs(event.clientY - startYRef.current) >= DRAG_CLICK_THRESHOLD_PX
+    ) {
       didDragRef.current = true;
     }
 
@@ -194,8 +196,16 @@ function VerticalMarquee({
         hoveringRef.current = false;
       }}
     >
-      <div ref={trackRef} data-testid="vertical-marquee-track" className="flex flex-col will-change-transform">
-        <div ref={firstLaneRef} data-testid="vertical-marquee-items" className="flex shrink-0 flex-col">
+      <div
+        ref={trackRef}
+        data-testid="vertical-marquee-track"
+        className="flex flex-col will-change-transform"
+      >
+        <div
+          ref={firstLaneRef}
+          data-testid="vertical-marquee-items"
+          className="flex shrink-0 flex-col"
+        >
           {children}
         </div>
         <div
@@ -264,10 +274,11 @@ export default function CTAWithVerticalMarquee({
   headingId,
 }: CTAWithVerticalMarqueeProps) {
   const marqueeRef = useRef<HTMLDivElement>(null);
+  const [paused, setPaused] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
-    if (prefersReducedMotion) {
+    if (prefersReducedMotion || paused) {
       return;
     }
 
@@ -302,7 +313,7 @@ export default function CTAWithVerticalMarquee({
     frameId = requestAnimationFrame(tick);
 
     return () => cancelAnimationFrame(frameId);
-  }, [prefersReducedMotion, items]);
+  }, [prefersReducedMotion, paused, items]);
 
   if (items.length === 0) {
     return null;
@@ -372,6 +383,18 @@ export default function CTAWithVerticalMarquee({
             <p className="animate-fade-in-up text-lg leading-relaxed text-muted-foreground [animation-delay:400ms] md:text-xl">
               {body}
             </p>
+            {!prefersReducedMotion ? (
+              <button
+                type="button"
+                className="min-h-11 rounded border px-4 py-2 text-sm"
+                aria-pressed={paused}
+                onClick={() => setPaused(!paused)}
+              >
+                {paused
+                  ? "Resume service animation"
+                  : "Pause service animation"}
+              </button>
+            ) : null}
             <div className="flex flex-wrap gap-4 animate-fade-in-up [animation-delay:600ms]">
               <Button href={primaryCta.href} variant="primary" size="lg">
                 {primaryCta.label}
@@ -387,7 +410,7 @@ export default function CTAWithVerticalMarquee({
             className="relative flex h-[600px] items-center justify-center animate-fade-in-up [animation-delay:400ms] lg:h-[700px]"
           >
             <div className="relative h-full w-full">
-              {prefersReducedMotion ? (
+              {prefersReducedMotion || paused ? (
                 <ul className="flex h-full flex-col justify-center gap-2 overflow-y-auto py-8">
                   {items.map((item) => (
                     <li key={item.id}>

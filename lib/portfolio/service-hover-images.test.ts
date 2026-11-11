@@ -12,10 +12,8 @@ function makeItem(
   return {
     _type: "portfolio",
     title: overrides.title ?? `${overrides.serviceType} project`,
-    slug: overrides.slug,
     clientName: "TBD",
     industry: "Games",
-    serviceType: overrides.serviceType,
     projectType: "client-work",
     shortDescription: "",
     challenge: "",

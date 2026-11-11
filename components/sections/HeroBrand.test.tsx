@@ -40,3 +40,9 @@ describe("HeroBrand", () => {
     expect(heading.className).not.toMatch(/drop-shadow/);
   });
 });
+
+it("offers direct paths to work and project inquiries", () => {
+  render(<HeroBrand />);
+  expect(screen.getByRole("link", { name: "View our work" })).toHaveAttribute("href", "/portfolio");
+  expect(screen.getByRole("link", { name: "Discuss a project" })).toHaveAttribute("href", "/contact");
+});

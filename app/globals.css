@@ -55,7 +55,7 @@
   --radius-pill:    9999px; /* Buttons (pill), badges, chips */
   --radius-button:  16px;   /* Buttons (rounded), inputs */
   --radius-card:    16px;   /* Cards */
-  --radius-card-lg: 24px;   /* Large cards */
+  --radius-card-lg: 16px;   /* Large cards */
   --radius-band:    32px;   /* Large hero bands */
 
   /* Hero cinematic motions — disabled via motion-reduce:animate-none in Hero */
@@ -95,7 +95,7 @@
   /* -- Text — light ink on dark surfaces -------------------------------- */
   --text-primary:   var(--color-ivory);
   --text-secondary: #c4b4b8; /* Captions, meta */
-  --text-muted:     #9a888c; /* Placeholders */
+  --text-muted:     #b9a3aa; /* Placeholders */
 
   /* -- Accents ----------------------------------------------------------- */
   --accent-primary: var(--color-sakura); /* Sakura Pink — confirmed */
@@ -147,6 +147,86 @@ body {
   color: var(--text-primary);
   /* Reassert Kamiyon body after Skeleton @base typography */
   font-family: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+}
+
+::selection {
+  background: var(--color-sakura);
+  color: var(--color-charcoal);
+}
+
+html {
+  scrollbar-color: var(--color-sakura) var(--bg-primary);
+}
+
+input, textarea {
+  caret-color: var(--color-sakura);
+}
+
+.studio-page-intro {
+  padding-top: clamp(7rem, 12vw, 10rem);
+  padding-bottom: 3rem;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.studio-page-title {
+  max-width: 18ch;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(2.5rem, 6vw, 4.75rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+  color: var(--text-primary);
+}
+
+.studio-lead {
+  max-width: 60ch;
+  font-size: clamp(1rem, 1.5vw, 1.125rem);
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+.studio-button {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-button);
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-display), sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+.studio-button--primary {
+  background: var(--color-sakura);
+  color: var(--text-on-accent);
+}
+.studio-button--primary:hover { background: var(--color-sakura-ink); }
+.studio-button--secondary {
+  border-color: var(--border-default);
+  background: transparent;
+  color: var(--text-primary);
+}
+.studio-button--secondary:hover, .studio-button--ghost:hover {
+  border-color: var(--color-sakura);
+  background: var(--bg-accent);
+}
+.studio-button--ghost { color: var(--color-sakura-ink); }
+.studio-button--sm { min-height: 2.75rem; padding: 0.625rem 1rem; font-size: 0.875rem; }
+.studio-button--lg { min-height: 3.5rem; padding: 1rem 1.75rem; }
+.studio-button:disabled, .studio-button[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+@media (prefers-reduced-motion: reduce) {
+  .studio-button { transition: none; }
 }
 
 /* Accessibility — focus visible on all interactive elements.
@@ -337,22 +417,6 @@ body {
     black 70%,
     transparent
   );
-}
-
-/* Site-wide cross-hatch — same pattern as footer, much lower contrast. */
-.site-bg-grid {
-  background-size: 60px 60px;
-  background-image:
-    linear-gradient(
-      to right,
-      color-mix(in oklch, var(--foreground) 1%, transparent) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      to bottom,
-      color-mix(in oklch, var(--foreground) 1%, transparent) 1px,
-      transparent 1px
-    );
 }
 
 .footer-aurora {

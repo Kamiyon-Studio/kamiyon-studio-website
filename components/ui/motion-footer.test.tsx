@@ -34,18 +34,21 @@ vi.mock("@/components/ui/social-platform-icons", () => ({
 }));
 
 const { createAllowMotionMatchMedia } = vi.hoisted(() => {
-  function createAllowMotionMatchMedia() {
-    return {
+  function createAllowMotionMatchMedia(): gsap.MatchMedia {
+    const media: gsap.MatchMedia = {
+      contexts: [],
+      kill: vi.fn(),
       add: vi.fn(
-        (query: string, callback: () => void | (() => void)) => {
-          if (query.includes("no-preference")) {
-            return callback();
+        (query: string | object, callback: gsap.ContextFunc) => {
+          if (typeof query === "string" && query.includes("no-preference")) {
+            callback({} as gsap.Context);
           }
-          return undefined;
+          return media;
         },
       ),
       revert: vi.fn(),
     };
+    return media;
   }
   return { createAllowMotionMatchMedia };
 });
@@ -374,10 +377,11 @@ describe("CinematicFooter", () => {
 
   it("sets final footer transforms under reduced-motion without scrub", async () => {
     const { gsap, GSAP_REDUCE_MOTION } = await import("@/lib/gsap");
-    const addSpy = vi.fn(() => undefined);
+    const media = createAllowMotionMatchMedia();
+    const addSpy = vi.fn<(query: string | object, callback: gsap.ContextFunc) => gsap.MatchMedia>(() => media);
     vi.mocked(gsap.matchMedia).mockImplementation(() => ({
+      ...media,
       add: addSpy,
-      revert: vi.fn(),
     }));
 
     render(

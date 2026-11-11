@@ -1,79 +1,96 @@
-"use client";
-
 import Image from "next/image";
+import Link from "next/link";
 
-import { HeroBrand } from "@/components/sections/HeroBrand";
-import { HeroScrollHelper } from "@/components/sections/HeroScrollHelper";
+import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
-import { useOpeningAnimation } from "@/hooks/useOpeningAnimation";
-import { useParallax } from "@/hooks/useParallax";
-import type { HomeHero } from "@/lib/cms/types";
+import { getCmsImageUrl } from "@/lib/cms/image";
+import type { Portfolio } from "@/lib/cms/types";
+import { SITE_MOTTO } from "@/lib/seo/constants";
 
-type HeroOpeningProps = {
-  hero: HomeHero;
-};
-
-const HERO_BACKGROUND = "/assets/background.avif";
-
-/**
- * Full-bleed opening stage: brand + motto.
- * CMS headline/subheadline/CTA stay on the hero prop for typing — not rendered.
- */
-export function HeroOpening({ hero: _hero }: HeroOpeningProps) {
-  const rootRef = useOpeningAnimation<HTMLElement>();
-  const parallaxRef = useParallax<HTMLDivElement>({ speed: 100 });
+export function HeroOpening({ project }: { project?: Portfolio }) {
+  const preview = project && [project.coverImage, ...project.gallery].find((image) => getCmsImageUrl(image));
+  const previewSrc = getCmsImageUrl(preview);
+  const comparison = project?.gameplay?.dualStateTable;
 
   return (
     <section
       id="home-hero"
-      ref={rootRef}
       data-nav-theme="dark"
-      className="relative min-h-[100svh] scroll-mt-0 overflow-hidden bg-[var(--color-charcoal)]"
+      className="bg-[var(--bg-primary)] pb-12 pt-28 md:pb-20 md:pt-36"
       aria-label="Studio opening"
     >
-      <div className="absolute inset-0" aria-hidden="true">
-        <div
-          ref={parallaxRef}
-          className="absolute inset-[-20%] will-change-transform"
-        >
-          <Image
-            src={HERO_BACKGROUND}
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-[center_40%] opacity-90"
-          />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-charcoal)]/75 via-[var(--color-charcoal)]/45 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-charcoal)]/55 via-transparent to-[var(--color-charcoal)]/40" />
-        {/* Soft bottom scrim — logo legibility only, not a section handoff */}
-        <div
-          data-testid="hero-bottom-scrim"
-          className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[var(--color-charcoal)]/70 via-[var(--color-charcoal)]/25 to-transparent md:h-44"
-        />
-      </div>
-
-      <div
-        data-opening-curtain
-        className="pointer-events-none absolute inset-0 z-30 -translate-y-full bg-[var(--color-charcoal)] motion-reduce:hidden"
-        aria-hidden="true"
-      />
-
-      <div
-        data-testid="hero-opening-layout"
-        className="relative z-10 flex min-h-[100svh] flex-col"
-      >
-        <HeroScrollHelper />
-        <Container className="relative flex flex-1 flex-col py-10 md:py-14">
-          <div
-            data-testid="hero-brand-zone"
-            className="flex flex-1 flex-col items-center justify-center text-center"
-          >
-            <HeroBrand />
+      <Container>
+        <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-16">
+          <div>
+            <p className="mb-6 font-display text-lg font-medium text-sakura">Kamiyon Studio</p>
+            <h1 className="max-w-[13ch] font-display text-[clamp(2.75rem,5.4vw,4.5rem)] leading-[1.06] font-semibold tracking-[-0.035em] text-balance text-[var(--text-primary)]">
+              Games, digital products, and design.
+            </h1>
+            <p className="mt-6 max-w-md text-base leading-relaxed text-[var(--text-secondary)] md:text-lg">
+              An independent Philippine studio. {SITE_MOTTO}
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button href="/portfolio">View our work</Button>
+              <Button href="/contact" variant="secondary">Discuss a project</Button>
+            </div>
           </div>
-        </Container>
-      </div>
+          {project ? (
+            <article
+              data-testid="hero-artwork"
+              className="overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-ivory)] text-[var(--color-charcoal)]"
+              aria-labelledby="hero-project-title"
+            >
+              {previewSrc ? (
+                <div className="relative aspect-[16/10] bg-[var(--color-charcoal)]">
+                  <Image
+                    src={previewSrc}
+                    alt={preview?.alt || `${project.title} project preview`}
+                    fill
+                    priority
+                    sizes="(min-width: 1024px) 45vw, 100vw"
+                    className="object-contain"
+                  />
+                </div>
+              ) : null}
+              <div className="p-6 md:p-8">
+                <p className="mb-3 text-sm font-medium text-[var(--color-charcoal)]/75">
+                  {project.projectType === "original-ip" ? "Original IP" : "Client work"}
+                </p>
+                <h2 id="hero-project-title" className="font-display text-3xl leading-tight font-semibold tracking-[-0.025em] md:text-4xl">
+                  {project.title}
+                </h2>
+                <p className="mt-3 text-base leading-relaxed text-[var(--color-charcoal)]/80">
+                  {project.positioning || project.shortDescription}
+                </p>
+                {!previewSrc && comparison && comparison.rows.length > 0 ? (
+                  <table className="mt-6 w-full table-fixed border-collapse text-left text-sm">
+                    <caption className="sr-only">{project.title} gameplay comparison</caption>
+                    <thead>
+                      <tr className="border-b border-[var(--color-charcoal)]/20">
+                        <th className="pb-3 pr-2"><span className="sr-only">Aspect</span></th>
+                        <th className="pb-3 pr-2">{comparison.leftLabel}</th>
+                        <th className="pb-3">{comparison.rightLabel}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {comparison.rows.slice(0, 3).map((row) => (
+                        <tr key={row._key || row.aspect} className="border-b border-[var(--color-charcoal)]/15 align-top">
+                          <th className="py-3 pr-2 font-medium">{row.aspect}</th>
+                          <td className="py-3 pr-2 break-words">{row.left}</td>
+                          <td className="py-3 break-words">{row.right}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : null}
+                <Link href={`/portfolio/${project.slug.current}`} className="mt-5 inline-flex min-h-11 items-center font-display font-medium text-[var(--color-charcoal)] underline decoration-[var(--color-sakura)] decoration-2 underline-offset-8 hover:decoration-[var(--color-charcoal)] focus-visible:outline-[var(--color-charcoal)]">
+                  Read the {project.title} case study
+                </Link>
+              </div>
+            </article>
+          ) : null}
+        </div>
+      </Container>
     </section>
   );
 }

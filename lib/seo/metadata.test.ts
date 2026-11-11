@@ -10,7 +10,7 @@ describe("buildPageMetadata", () => {
       path: "/services",
     });
 
-    expect(metadata.title).toBe("Services | Kamiyon Studio");
+    expect(metadata.title).toEqual({ absolute: "Services | Kamiyon Studio" });
     expect(metadata.description).toBe("Our service categories.");
     expect(metadata.alternates).toEqual({ canonical: "/services" });
     expect(metadata.robots).toBeUndefined();
@@ -28,15 +28,15 @@ describe("buildPageMetadata", () => {
     });
   });
 
-  it("omits images when no CMS ogImage is set so Next injects the generated hashed OG route", () => {
+  it("provides a stable generated sharing image when CMS has none", () => {
     const metadata = buildPageMetadata({
       title: "Home",
       description: "Home page.",
       path: "/",
     });
 
-    expect(metadata.openGraph?.images).toBeUndefined();
-    expect(metadata.twitter?.images).toBeUndefined();
+    expect(metadata.openGraph?.images).toEqual([{ url: "/social-image" }]);
+    expect(metadata.twitter?.images).toEqual(["/social-image"]);
   });
 
   it("sets robots noindex when noIndex is true (e.g. the 404 page)", () => {
@@ -58,7 +58,23 @@ describe("buildPageMetadata", () => {
       ogImage: { url: "/api/media/file/og.png" },
     });
 
-    expect(metadata.openGraph?.images).toEqual([{ url: "/api/media/file/og.png" }]);
+    expect(metadata.openGraph?.images).toEqual([
+      { url: "/api/media/file/og.png" },
+    ]);
     expect(metadata.twitter?.images).toEqual(["/api/media/file/og.png"]);
+  });
+});
+
+it("brands an unbranded title once and identifies articles", () => {
+  const metadata = buildPageMetadata({
+    title: "A post",
+    description: "News",
+    path: "/blog/post",
+    type: "article",
+  });
+  expect(metadata.title).toEqual({ absolute: "A post | Kamiyon Studio" });
+  expect(metadata.openGraph).toMatchObject({
+    type: "article",
+    title: "A post | Kamiyon Studio",
   });
 });

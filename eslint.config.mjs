@@ -15,6 +15,9 @@ const eslintConfig = defineConfig([
     // Cursor/Claude editor tooling — not website source
     ".cursor/**",
     ".claude/**",
+    ".agents/**",
+    "**/.wrangler/**",
+    "**/.cache/**",
     // Generated test output — not website source
     "coverage/**",
     "playwright-report/**",

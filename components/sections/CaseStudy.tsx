@@ -148,43 +148,38 @@ export function CaseStudy({ caseStudy }: CaseStudyProps) {
 
   return (
     <>
-      <div className="relative aspect-[16/7] w-full bg-[var(--bg-accent)]">
+      <Container className="pb-16 md:pb-24">
+        <header className="studio-page-intro">
+          {caseStudy.isPlaceholder ? (
+            <Badge variant="placeholder" className="mb-4">
+              Placeholder case study
+            </Badge>
+          ) : null}
+          <h1 className="studio-page-title">
+            {caseStudy.title}
+          </h1>
+          {caseStudy.positioning ? (
+            <p className="mt-3 text-lg text-[var(--text-primary)]">{caseStudy.positioning}</p>
+          ) : null}
+          {description ? (
+            <p className="studio-lead mt-6">
+              {description}
+            </p>
+          ) : null}
+
+        </header>
         {coverImageUrl ? (
-          <Image
-            src={coverImageUrl}
-            alt={caseStudy.coverImage?.alt ?? caseStudy.title}
-            fill
-            priority
-            className="object-cover"
-          />
-        ) : (
-          <div
-            className="flex h-full w-full items-center justify-center text-6xl"
-            aria-hidden="true"
-          >
-            🌸
+          <div className="relative mt-10 aspect-[16/9] overflow-hidden rounded-[var(--radius-card)] bg-[var(--bg-accent)] md:aspect-[16/7]">
+            <Image
+              src={coverImageUrl}
+              alt={caseStudy.coverImage?.alt ?? caseStudy.title}
+              fill
+              priority
+              sizes="(max-width: 1280px) 100vw, 1280px"
+              className="object-cover"
+            />
           </div>
-        )}
-      </div>
-
-      <Container className="py-12 md:py-16">
-        {caseStudy.isPlaceholder ? (
-          <Badge variant="placeholder" className="mb-4">
-            Placeholder case study
-          </Badge>
         ) : null}
-        <h1 className="font-display text-3xl font-bold text-[var(--text-primary)] md:text-4xl">
-          {caseStudy.title}
-        </h1>
-        {caseStudy.positioning ? (
-          <p className="mt-3 text-lg text-[var(--text-primary)]">{caseStudy.positioning}</p>
-        ) : null}
-        {description ? (
-          <p className="mt-4 max-w-[68ch] text-base text-[var(--text-secondary)]">
-            {description}
-          </p>
-        ) : null}
-
         <div className="mt-10 grid gap-10 lg:grid-cols-[2fr_1fr]">
           <div className="space-y-10">
             <ProseSection heading="Challenge" body={caseStudy.challenge} />

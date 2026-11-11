@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { matchMediaAddMock, setMock, fromToMock } = vi.hoisted(() => {
-  const fromToMock = vi.fn(() => ({ play: vi.fn(), kill: vi.fn() }));
+  const fromToMock = vi.fn<(...args: [unknown, Record<string, unknown>, Record<string, unknown>]) => unknown>(() => ({ play: vi.fn(), kill: vi.fn() }));
   const setMock = vi.fn();
   const matchMediaAddMock = vi.fn();
   return { matchMediaAddMock, setMock, fromToMock };
@@ -83,16 +83,13 @@ describe("WordPullUp", () => {
     expect(heading).toHaveClass("mt-3");
   });
 
-  it("applies the cinematic display heading treatment by default", () => {
+  it("applies the shared balanced heading treatment by default", () => {
     render(<WordPullUp as="h2" words="Recent Projects" />);
 
     const heading = screen.getByRole("heading", { level: 2 });
-    expect(heading).toHaveClass("footer-text-glow");
+    expect(heading).not.toHaveClass("footer-text-glow");
     expect(heading).toHaveClass("font-display");
-    expect(heading).toHaveClass("text-5xl");
-    expect(heading).toHaveClass("font-black");
-    expect(heading).toHaveClass("tracking-tighter");
-    expect(heading).toHaveClass("md:text-8xl");
+    expect(heading).toHaveClass("font-semibold", "text-balance");
   });
 
   it("forwards id for aria-labelledby targets", () => {

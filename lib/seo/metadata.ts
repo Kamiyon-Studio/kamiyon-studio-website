@@ -11,46 +11,41 @@ type BuildPageMetadataOptions = {
   path: string;
   ogImage?: CmsImage | null;
   noIndex?: boolean;
+  type?: "website" | "article";
 };
 
-/**
- * Shared per-route metadata builder — every `generateMetadata`/`metadata`
- * export in `app/**` should go through this so canonical URLs and
- * OpenGraph/Twitter fields stay consistent across the site (Phase 9).
- *
- * With no CMS `seo.ogImage`, `images` is omitted: the generated
- * `opengraph-image.tsx` / `twitter-image.tsx` routes are served at a hashed
- * path (`/opengraph-image-<hash>`), so hardcoding the unhashed path here only
- * emits a 404 URL. Next injects the hashed URL for `/` itself; nested routes
- * currently ship no image until they carry a CMS `ogImage`.
- */
+/** Shared canonical, title, and sharing metadata for public pages. */
 export function buildPageMetadata({
   title,
   description,
   path,
   ogImage,
   noIndex,
+  type = "website",
 }: BuildPageMetadataOptions): Metadata {
-  const cmsOgImageUrl = getCmsImageUrl(ogImage);
+  const cmsOgImageUrl = getCmsImageUrl(ogImage) ?? "/social-image";
+  const suffix = ` | ${SITE_NAME}`;
+  const pageTitle =
+    title.endsWith(suffix) || title === SITE_NAME ? title : `${title}${suffix}`;
 
   return {
-    title,
+    title: { absolute: pageTitle },
     description,
     alternates: { canonical: path },
     robots: noIndex ? { index: false, follow: false } : undefined,
     openGraph: {
-      title,
+      title: pageTitle,
       description,
       url: path,
       siteName: SITE_NAME,
-      type: "website",
-      ...(cmsOgImageUrl ? { images: [{ url: cmsOgImageUrl }] } : {}),
+      type,
+      images: [{ url: cmsOgImageUrl }],
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: pageTitle,
       description,
-      ...(cmsOgImageUrl ? { images: [cmsOgImageUrl] } : {}),
+      images: [cmsOgImageUrl],
     },
   };
 }

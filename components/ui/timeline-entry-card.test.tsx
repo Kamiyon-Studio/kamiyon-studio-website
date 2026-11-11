@@ -123,3 +123,8 @@ describe("TimelineEntryCard", () => {
     expect(container.querySelector("article")?.className).toMatch(/timeline-zone-gutter-right/);
   });
 });
+
+it("labels a planned milestone explicitly", () => {
+  render(<ol><TimelineEntryCard entry={{ ...newsEntry, planned: true }} side="left" /></ol>);
+  expect(screen.getByText("Planned milestone")).toBeVisible();
+});

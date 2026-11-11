@@ -1,5 +1,6 @@
 import { Container } from "@/components/ui/Container";
-import { TiltedCard, marketingCardTiltProps } from "@/components/ui/TiltedCard";
+import { TiltedCard } from "@/components/ui/TiltedCard";
+import { marketingCardTiltProps } from "@/lib/ui/marketing-card-tilt";
 import type { HomeHighlights } from "@/lib/cms/types";
 
 type HighlightsProps = {

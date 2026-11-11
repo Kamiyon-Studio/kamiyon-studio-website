@@ -39,7 +39,7 @@ It intentionally **excludes** company-wide material that is not needed to build 
 2. Showcase services, products, portfolio, community, and blog as production surfaces.
 3. Let non-dev editors publish text, structured content, and media safely — **without a new deployment** (ISR + webhook revalidation).
 4. Hit strict performance / a11y / SEO budgets (see §9).
-5. Keep motion tasteful and GSAP-only on the main site; Motion Lab remains a public noindex showcase.
+5. Keep motion restrained and accessible. GSAP owns scroll choreography; existing Motion components own local transitions. Motion Lab remains a public noindex showcase.
 
 ### Out of scope (unless explicitly reopened)
 
@@ -68,7 +68,7 @@ It intentionally **excludes** company-wide material that is not needed to build 
 | Contact | **Chrome CTA:** Google Form (retained); **`/contact`:** in-app form via **Resend** (T8/ADR-018; env-gated) + external channels |
 | Blog | Authors, categories, tags, featured image, SEO, Portable Text, reading time, published/updated dates, related posts |
 | Primary nav | Home, About, Services, Portfolio, Blog, Contact (+ separate “Get in touch” CTA) |
-| Motion (main site) | **GSAP only** (remove Framer Motion + Lenis from production routes) |
+| Motion (main site) | **GSAP for scroll; existing Motion for local transitions.** Reuse the current owner; do not add a competing animation engine. |
 | Motion Lab | Keep `/motion-lab` in production; **`noindex`**; public animation showcase |
 | Brand colors | Primary `#FF7998` · Secondary `#E9C080` · Black `#201013` · White `#F8F8F8` |
 | Fonts | **Geologica** (display/UI) · **Montserrat** (body/supporting) via Google Fonts / `next/font` |
@@ -105,7 +105,7 @@ Contact (T8) ──► API route / Worker ──► Resend ──► studio inbo
 | Email | **Resend** (T8); interim Google Form | Contact delivery |
 | Analytics | **Cloudflare Web Analytics** | Privacy-friendly traffic |
 | SEO | `lib/seo/*` + Sanity SEO fields | Metadata, JSON-LD, sitemap, robots |
-| Motion | **GSAP + ScrollTrigger** only (main site) | Tasteful animation |
+| Motion | **GSAP + ScrollTrigger** for scroll; existing Motion for local transitions | Tasteful animation |
 | Tests | Vitest + Playwright | Unit/component + critical E2E |
 | Tooling | ESLint, Knip, TypeScript strict | Quality gates |
 
@@ -118,7 +118,7 @@ Contact (T8) ──► API route / Worker ──► Resend ──► studio inbo
 | Local `/api/media` Payload uploads | R2 only |
 | Vercel as assumed host | Cloudflare OpenNext |
 | Lexical → Portable Text adapter | Native Portable Text from Sanity |
-| Framer Motion, Lenis (main site) | Remove from production routes |
+| Motion / Lenis | Keep existing Motion consumers; no Lenis or additional scroll engine |
 | Poppins, Beaufort | Geologica + Montserrat |
 
 **Keep:** `app/(frontend)/` routes, `components/` (adapt fonts/colors), `lib/cms` **public API shape**, typed fallbacks, SEO helpers, most section/UI components.
@@ -306,9 +306,9 @@ Kami-chan sparingly; never hurt LCP or clutter primary CTAs.
 
 | Surface | Policy |
 | --- | --- |
-| Main site | **GSAP + ScrollTrigger only**; tasteful, purposeful (≈2–3 intentional moments per key page) |
+| Main site | **GSAP for scroll and existing Motion for local transitions**; tasteful, purposeful (≈2–3 intentional moments per key page) |
 | `/motion-lab` | Public showcase; may use experimental patterns; **`noindex`**; isolated from SEO |
-| Framer Motion | Remove from production main-site routes |
+| Motion | Existing local transitions only; reduced-motion support and persistent pause for automatic playback |
 | Lenis | Remove; use native scroll + GSAP |
 | Reduced motion | Always honor `prefers-reduced-motion` |
 
@@ -361,7 +361,7 @@ Code-split GSAP; do not load it on pages with no animation.
 | Accessibility | | Contrast on `#FF7998`, keyboard, reduced motion |
 | SEO | | Metadata, sitemap, JSON-LD; lab/studio noindex |
 | Design system fidelity | | 4 brand colors + Geologica/Montserrat |
-| Motion restraint | | GSAP-only main site |
+| Motion restraint | | One owner per animated property; reduced-motion and pause verified |
 | Test coverage | | Unit + E2E (incl. contact form) |
 | Security | | Studio auth; Resend/R2/Sanity secrets; form rate limit |
 
@@ -498,3 +498,11 @@ Never commit secrets. Document in `.env.example` during Phase D/E.
 ---
 
 *Last updated: 2026-07-21 — Payload removed; fallbacks-first; Sanity scaffold at `/studio`.*
+
+## Motion policy reconciliation (2026-11-12)
+
+The historical T10 completion records describe an earlier implementation.
+Current production includes Motion-based carousel transitions alongside GSAP scroll effects.
+Preserve these working consumers and migrate only when a measured maintenance or performance benefit justifies the change.
+Use existing brand tokens and component APIs when changing visuals; do not introduce parallel color, spacing, or animation systems.
+New automatic motion must honor reduced motion and offer persistent pause controls.

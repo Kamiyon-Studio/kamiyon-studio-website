@@ -20,6 +20,7 @@ export default defineConfig({
   // Do not use dynamic process.env[key] — Sanity Vite will not inline those.
   projectId,
   dataset,
+  auth: { loginMethod: "token" },
   schema,
   plugins: [
     structureTool({ structure }),

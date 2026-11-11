@@ -1,11 +1,16 @@
+import { serializeJsonLd } from "@/lib/seo/serialize-jsonld";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { Container } from "@/components/ui/Container";
 import { PortableText } from "@/components/ui/PortableText";
-import { postsFallback, resolveWithFallback } from "@/lib/cms/fallbacks";
+import {
+  canUseDemoContent,
+  postsFallback,
+  resolveWithFallback,
+} from "@/lib/cms/fallbacks";
 import { getPostBySlug, getPosts } from "@/lib/cms/queries";
-import type { PortableTextBlock, Post } from "@/lib/cms/types";
+import type { Post } from "@/lib/cms/types";
 import { getBlogPostingJsonLd } from "@/lib/seo/blog-posting-jsonld";
 import { getBreadcrumbJsonLd } from "@/lib/seo/breadcrumb-jsonld";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -19,7 +24,9 @@ function resolvePost(slug: string, cmsPost: Post | null): Post | null {
     return cmsPost;
   }
 
-  return postsFallback.find((post) => post.slug.current === slug) ?? null;
+  return canUseDemoContent()
+    ? (postsFallback.find((post) => post.slug.current === slug) ?? null)
+    : null;
 }
 
 function formatPublishedAt(publishedAt: string): string | null {
@@ -60,6 +67,7 @@ export async function generateMetadata({
     path: `/blog/${post.slug.current}`,
     ogImage: post.seo.ogImage ?? post.featuredImage,
     noIndex: post.seo.noIndex,
+    type: "article",
   });
 }
 
@@ -72,9 +80,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   const dateLabel = formatPublishedAt(post.publishedAt);
-  const bodyBlocks = post.body.filter(
-    (block): block is PortableTextBlock => block._type === "block",
-  );
   const breadcrumbJsonLd = getBreadcrumbJsonLd([
     { name: "Home", href: "/" },
     { name: "Blog", href: "/blog" },
@@ -86,33 +91,34 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(blogPostingJsonLd) }}
       />
-      <article className="bg-[var(--bg-primary)] py-16 md:py-24">
+      <article className="bg-[var(--bg-primary)] pb-16 md:pb-24">
         <Container>
-          <div className="mx-auto max-w-[680px]">
-            {dateLabel ? (
-              <time
-                dateTime={post.publishedAt}
-                className="text-sm text-[var(--text-muted)]"
-              >
-                {dateLabel}
-              </time>
-            ) : null}
-            <h1 className="mt-3 font-display text-3xl font-bold text-[var(--text-primary)] md:text-4xl">
-              {post.title}
-            </h1>
-            {post.authors[0]?.name ? (
-              <p className="mt-3 text-sm text-[var(--text-secondary)]">
-                {post.authors[0].name}
-              </p>
-            ) : null}
+          <div className="mx-auto max-w-[72ch]">
+            <header className="studio-page-intro">
+              <h1 className="studio-page-title">{post.title}</h1>
+              {dateLabel ? (
+                <time
+                  dateTime={post.publishedAt}
+                  className="mt-6 block text-sm text-[var(--text-muted)]"
+                >
+                  {dateLabel}
+                </time>
+              ) : null}
+
+              {post.authors[0]?.name ? (
+                <p className="mt-3 text-sm text-[var(--text-secondary)]">
+                  {post.authors[0].name}
+                </p>
+              ) : null}
+            </header>
             <div className="mt-10">
-              <PortableText blocks={bodyBlocks} />
+              <PortableText blocks={post.body} />
             </div>
           </div>
         </Container>

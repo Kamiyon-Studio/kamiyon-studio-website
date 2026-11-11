@@ -19,7 +19,7 @@ describe("Button", () => {
 
     const link = screen.getByRole("link", { name: "Get in touch" });
     expect(link).toHaveAttribute("href", "/contact");
-    expect(link).toHaveClass("specular-button");
+    expect(link).toHaveClass("studio-button");
   });
 
   it("renders external contact CTAs as new-tab anchors", () => {
@@ -59,25 +59,23 @@ describe("Button", () => {
   });
 
   it.each([["primary"], ["secondary"], ["ghost"]] as const)(
-    "renders the %s SpecularButton skin without crashing",
+    "renders the %s button variant without crashing",
     (variant) => {
       render(<Button variant={variant}>{variant}</Button>);
       const button = screen.getByRole("button", { name: variant });
-      expect(button).toHaveClass("specular-button");
-      expect(button).toHaveClass(`specular-button--skin-${variant}`);
+      expect(button).toHaveClass("studio-button");
+      expect(button).toHaveClass(`studio-button--${variant}`);
     },
   );
 
-  it("uses SpecularButton as the standard primary CTA shell", () => {
+  it("renders a lightweight primary CTA without decorative canvas", () => {
     render(<Button variant="primary">Get in touch</Button>);
 
     const button = screen.getByRole("button", { name: "Get in touch" });
-    expect(button).toHaveClass("specular-button");
-    expect(button).toHaveClass("specular-button--skin-primary");
-    expect(button.querySelector(".specular-button__fx")).toBeInTheDocument();
-    expect(button.querySelector(".specular-button__label")).toHaveTextContent(
-      "Get in touch",
-    );
+    expect(button).toHaveClass("studio-button");
+    expect(button).toHaveClass("studio-button--primary");
+    expect(button.querySelector("canvas")).not.toBeInTheDocument();
+    expect(button).toHaveTextContent("Get in touch");
   });
 
   it("does not apply primary skin classes to secondary or ghost", () => {
@@ -85,15 +83,15 @@ describe("Button", () => {
       <Button variant="secondary">Learn more</Button>,
     );
     expect(screen.getByRole("button", { name: "Learn more" })).toHaveClass(
-      "specular-button--skin-secondary",
+      "studio-button--secondary",
     );
     expect(screen.getByRole("button", { name: "Learn more" })).not.toHaveClass(
-      "specular-button--skin-primary",
+      "studio-button--primary",
     );
 
     rerender(<Button variant="ghost">Skip</Button>);
     expect(screen.getByRole("button", { name: "Skip" })).toHaveClass(
-      "specular-button--skin-ghost",
+      "studio-button--ghost",
     );
   });
 
@@ -125,16 +123,16 @@ describe("Button", () => {
     expect(link).toHaveAttribute("tabIndex", "-1");
   });
 
-  it("applies primary brand CSS custom properties", () => {
-    render(<Button variant="primary">Get in touch</Button>);
-
-    expect(screen.getByRole("button", { name: "Get in touch" })).toHaveStyle({
-      "--sb-tint": "#FF7998",
-      "--sb-text-color": "#201013",
-    });
+  it("prevents disabled links from navigating or invoking handlers", () => {
+    const onClick = vi.fn();
+    render(<Button href="/contact" disabled onClick={onClick}>Contact</Button>);
+    const event = new MouseEvent("click", { bubbles: true, cancelable: true });
+    screen.getByRole("link", { name: "Contact" }).dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
+    expect(onClick).not.toHaveBeenCalled();
   });
 
-  it("forwards size presets to SpecularButton", () => {
+  it("supports large controls", () => {
     render(
       <Button size="lg" href="/services">
         View services
@@ -142,7 +140,7 @@ describe("Button", () => {
     );
 
     expect(screen.getByRole("link", { name: "View services" })).toHaveClass(
-      "specular-button--lg",
+      "studio-button--lg",
     );
   });
 });
