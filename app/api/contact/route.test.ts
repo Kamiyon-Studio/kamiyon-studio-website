@@ -71,6 +71,12 @@ describe("POST /api/contact", () => {
     expect(sendMock).not.toHaveBeenCalled();
   });
 
+  it("rejects oversized bytes despite an inaccurate small Content-Length", async () => {
+    const response = await post({ message: "x".repeat(33 * 1024) }, { "Content-Length": "1" });
+    expect(response.status).toBe(413);
+    expect(sendMock).not.toHaveBeenCalled();
+  });
+
   it("returns 400 for invalid payloads", async () => {
     const response = await post({
       name: "Ada",
