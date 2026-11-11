@@ -39,9 +39,11 @@ describe("blog seed builders (teamMember authors; unused fields omitted)", () =>
       publishedAt: comingSoon.publishedAt,
       seo: {
         title: comingSoon.seo.title,
-        noIndex: false,
+        noIndex: comingSoon.seo.noIndex,
       },
     });
+
+    expect(comingSoon.seo.noIndex).toBe(true);
 
     expect(refsOf(post.authors).map((ref) => ref._ref)).toEqual([authorId]);
     expect(Array.isArray(post.body)).toBe(true);
