@@ -40,24 +40,18 @@ test("reduced motion does not request hero video and keeps inquiry links usable"
   expect(videoRequests).toEqual([]);
 });
 
-test("background pause persists after focus moves", async ({ page }) => {
+test("hero artwork stays static when scrolling", async ({ page }) => {
   await page.goto("/");
-  await page
-    .getByRole("button", { name: "Pause background animation" })
-    .click();
-  await page.getByRole("link", { name: "Discuss a project" }).focus();
-  await expect(
-    page.getByRole("button", { name: "Resume background animation" }),
-  ).toHaveAttribute("aria-pressed", "true");
-  await expect
-    .poll(() =>
-      page
-        .locator("#home-hero video")
-        .evaluateAll((videos) =>
-          videos.every((video) => (video as HTMLVideoElement).paused),
-        ),
-    )
-    .toBe(true);
+  const hero = page.locator("#home-hero");
+  const artwork = hero.getByTestId("hero-artwork");
+  await expect(artwork).toBeVisible();
+  await expect(hero.locator("video")).toHaveCount(0);
+  await expect(artwork).toHaveCSS("transform", "none");
+  await page.evaluate(() => window.scrollTo(0, 300));
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  await expect(artwork).toHaveCSS("transform", "none");
+  await expect(artwork.locator("img")).toHaveCSS("transform", "none");
+  await expect(hero.getByRole("button", { name: /background animation/ })).toHaveCount(0);
 });
 
 test("service and partner animation can stay paused", async ({ page }) => {

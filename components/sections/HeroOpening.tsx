@@ -1,79 +1,52 @@
-"use client";
-
 import Image from "next/image";
 
-import { HeroBrand } from "@/components/sections/HeroBrand";
-import { HeroScrollHelper } from "@/components/sections/HeroScrollHelper";
+import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
-import { useOpeningAnimation } from "@/hooks/useOpeningAnimation";
-import { useParallax } from "@/hooks/useParallax";
-import type { HomeHero } from "@/lib/cms/types";
+import { SITE_MOTTO } from "@/lib/seo/constants";
 
-type HeroOpeningProps = {
-  hero: HomeHero;
-};
-
-const HERO_BACKGROUND = "/assets/background.avif";
-
-/**
- * Full-bleed opening stage: brand + motto.
- * CMS headline/subheadline/CTA stay on the hero prop for typing — not rendered.
- */
-export function HeroOpening({ hero: _hero }: HeroOpeningProps) {
-  const rootRef = useOpeningAnimation<HTMLElement>();
-  const parallaxRef = useParallax<HTMLDivElement>({ speed: 100 });
-
+export function HeroOpening() {
   return (
     <section
       id="home-hero"
-      ref={rootRef}
       data-nav-theme="dark"
-      className="relative min-h-[100svh] scroll-mt-0 overflow-hidden bg-[var(--color-charcoal)]"
+      className="bg-[var(--bg-primary)] pb-12 pt-32 md:pb-20 md:pt-40"
       aria-label="Studio opening"
     >
-      <div className="absolute inset-0" aria-hidden="true">
-        <div
-          ref={parallaxRef}
-          className="absolute inset-[-20%] will-change-transform"
-        >
-          <Image
-            src={HERO_BACKGROUND}
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-[center_40%] opacity-90"
-          />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-charcoal)]/75 via-[var(--color-charcoal)]/45 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-charcoal)]/55 via-transparent to-[var(--color-charcoal)]/40" />
-        {/* Soft bottom scrim — logo legibility only, not a section handoff */}
-        <div
-          data-testid="hero-bottom-scrim"
-          className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[var(--color-charcoal)]/70 via-[var(--color-charcoal)]/25 to-transparent md:h-44"
-        />
-      </div>
-
-      <div
-        data-opening-curtain
-        className="pointer-events-none absolute inset-0 z-30 -translate-y-full bg-[var(--color-charcoal)] motion-reduce:hidden"
-        aria-hidden="true"
-      />
-
-      <div
-        data-testid="hero-opening-layout"
-        className="relative z-10 flex min-h-[100svh] flex-col"
-      >
-        <HeroScrollHelper />
-        <Container className="relative flex flex-1 flex-col py-10 md:py-14">
-          <div
-            data-testid="hero-brand-zone"
-            className="flex flex-1 flex-col items-center justify-center text-center"
-          >
-            <HeroBrand />
+      <Container>
+        <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
+          <div>
+            <h1 className="font-display text-[clamp(3.25rem,7.5vw,6rem)] leading-[1.02] font-semibold tracking-[-0.035em] text-[var(--text-primary)]">
+              Kamiyon <span className="block text-sakura">Studio</span>
+            </h1>
+            <p className="mt-6 font-display text-lg font-medium text-[var(--text-primary)] md:text-xl">
+              {SITE_MOTTO}
+            </p>
+            <p className="mt-4 max-w-lg text-base leading-relaxed text-[var(--text-secondary)] md:text-lg">
+              Games, digital products, and design from an independent Philippine
+              studio.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button href="/portfolio">View our work</Button>
+              <Button href="/contact" variant="secondary">
+                Discuss a project
+              </Button>
+            </div>
           </div>
-        </Container>
-      </div>
+          <div
+            data-testid="hero-artwork"
+            className="relative aspect-[4/3] overflow-hidden rounded-[var(--radius-card)] lg:aspect-[4/5]"
+          >
+            <Image
+              src="/assets/background.avif"
+              alt=""
+              fill
+              priority
+              sizes="(min-width: 1024px) 45vw, 100vw"
+              className="object-cover object-center"
+            />
+          </div>
+        </div>
+      </Container>
     </section>
   );
 }

@@ -1,156 +1,27 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import type { HomeHero } from "@/lib/cms/types";
 import { SITE_MOTTO } from "@/lib/seo/constants";
 import { HeroOpening } from "./HeroOpening";
 
-vi.mock("@/hooks/useOpeningAnimation", () => ({
-  useOpeningAnimation: () => ({ current: null }),
-}));
-
-vi.mock("@/hooks/useParallax", () => ({
-  useParallax: () => ({ current: null }),
-}));
-
-vi.mock("@/components/sections/HeroScrollHelper", () => ({
-  HeroScrollHelper: () => (
-    <div role="status" data-testid="hero-scroll-helper">
-      Scroll down
-    </div>
-  ),
-}));
-
-vi.mock("@/components/ui/SplitText", () => ({
-  SplitText: ({
-    text,
-    tag: Tag = "p",
-    className,
-  }: {
-    text: string;
-    tag?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p";
-    className?: string;
-  }) => <Tag className={className}>{text}</Tag>,
-  default: ({
-    text,
-    tag: Tag = "p",
-    className,
-  }: {
-    text: string;
-    tag?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p";
-    className?: string;
-  }) => <Tag className={className}>{text}</Tag>,
-}));
-
-const baseHero: HomeHero = {
-  _type: "hero",
-  headline: "Meaningful interactive experiences, built with purpose.",
-  subheadline: "A multidisciplinary interactive experience studio.",
-  ctaLabel: "Explore our services",
-  ctaHref: "/services",
-};
-
 describe("HeroOpening", () => {
-  it("renders centered KAMIYON STUDIO brand and motto without CMS copy, CTA, or featured list", () => {
-    render(<HeroOpening hero={baseHero} />);
+  it("explains the studio and keeps both direct actions", () => {
+    render(<HeroOpening />);
 
-    expect(
-      screen.getByRole("heading", { level: 1, name: "KAMIYON STUDIO" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Kamiyon Studio" })).toBeInTheDocument();
     expect(screen.getByText(SITE_MOTTO)).toBeInTheDocument();
-
-    expect(screen.queryByText("Kamiyon")).not.toBeInTheDocument();
-    expect(screen.queryByText(baseHero.headline)).not.toBeInTheDocument();
-    expect(screen.queryByText(baseHero.subheadline)).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("link", { name: "Explore our services" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("navigation", { name: "Featured work" }),
-    ).not.toBeInTheDocument();
-    expect(screen.queryByText("Eclipse")).not.toBeInTheDocument();
+    expect(screen.getByText(/Games, digital products, and design from an independent Philippine studio\./)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View our work" })).toHaveAttribute("href", "/portfolio");
+    expect(screen.getByRole("link", { name: "Discuss a project" })).toHaveAttribute("href", "/contact");
   });
 
-  it("includes a full-bleed stage, curtain layer, and parallax background wrapper", () => {
-    const { container } = render(
-      <HeroOpening hero={baseHero} />,
-    );
-
-    const section = container.querySelector("section");
-    expect(section).toHaveAttribute("id", "home-hero");
-    expect(section).toHaveAttribute("data-nav-theme", "dark");
-    expect(section).toHaveClass("min-h-[100svh]");
-    expect(container.querySelector("[data-opening-curtain]")).toBeInTheDocument();
-
-    const stage = container.querySelector('img[src*="background.avif"]');
-    expect(stage).toBeInTheDocument();
-    expect(stage?.className).not.toMatch(/animate-hero-ken-burns/);
-
-    const parallaxWrapper = stage?.parentElement;
-    expect(parallaxWrapper).toHaveClass("will-change-transform");
-    expect(parallaxWrapper?.className).toMatch(/inset-\[-20%\]/);
-
-    const bleed = stage?.closest("[aria-hidden='true']");
-    expect(bleed).toHaveClass("absolute", "inset-0");
-  });
-
-  it("mounts the hero scroll helper tip", () => {
-    render(<HeroOpening hero={baseHero} />);
-
-    expect(screen.getByTestId("hero-scroll-helper")).toBeInTheDocument();
-    expect(screen.getByText("Scroll down")).toBeInTheDocument();
-  });
-
-  it("does not mount a partners band in the opening stage", () => {
-    const { container } = render(<HeroOpening hero={baseHero} />);
-
-    expect(
-      container.querySelector("[data-testid='hero-partners-zone']"),
-    ).not.toBeInTheDocument();
-    expect(container.querySelector("#home-partners")).not.toBeInTheDocument();
-  });
-
-  it("does not fade the hero into --bg-secondary via hero-partners-blend", () => {
-    const { container } = render(
-      <HeroOpening hero={baseHero} />,
-    );
-
-    expect(
-      container.querySelector("[data-testid='hero-partners-blend']"),
-    ).not.toBeInTheDocument();
-
-    const secondaryFade = Array.from(container.querySelectorAll("div")).find(
-      (el) => el.className.includes("to-[var(--bg-secondary)]"),
-    );
-    expect(secondaryFade).toBeUndefined();
-  });
-
-  it("keeps a soft bottom scrim for logo legibility", () => {
-    const { container } = render(
-      <HeroOpening hero={baseHero} />,
-    );
-
-    expect(
-      container.querySelector("[data-testid='hero-bottom-scrim']"),
-    ).toBeInTheDocument();
-  });
-
-  it("anchors brand in the centered opening zone", () => {
-    const { container } = render(
-      <HeroOpening hero={baseHero} />,
-    );
-
-    const layout = container.querySelector("[data-testid='hero-opening-layout']");
-    expect(layout).toHaveClass("flex", "min-h-[100svh]", "flex-col");
-
-    const brandZone = container.querySelector("[data-testid='hero-brand-zone']");
-    expect(brandZone).toBeInTheDocument();
-    expect(brandZone).toContainElement(
-      screen.getByRole("heading", { level: 1, name: "KAMIYON STUDIO" }),
-    );
-    expect(brandZone).toContainElement(screen.getByText(SITE_MOTTO));
-    expect(
-      container.querySelector("[data-testid='hero-partners-zone']"),
-    ).not.toBeInTheDocument();
+  it("keeps the illustration separate from readable copy with no scroll effect", () => {
+    const { container } = render(<HeroOpening />);
+    const artwork = screen.getByTestId("hero-artwork");
+    expect(artwork.querySelector("img")).toHaveAttribute("alt", "");
+    expect(artwork).not.toContainElement(screen.getByRole("heading", { level: 1 }));
+    expect(container.querySelector("[data-opening-curtain]")).toBeNull();
+    expect(container.querySelector('[data-testid="hero-scroll-helper"]')).toBeNull();
+    expect(artwork).not.toHaveClass("will-change-transform");
   });
 });
