@@ -55,12 +55,12 @@ const ORIGINAL_BASE_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL;
 
 beforeEach(() => {
   // The static opening is the fallback, so tests below start with no media CDN.
-  delete process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL;
+  vi.stubEnv("NEXT_PUBLIC_R2_PUBLIC_BASE_URL", undefined);
 });
 
 afterEach(() => {
   if (ORIGINAL_BASE_URL === undefined) {
-    delete process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL;
+    vi.stubEnv("NEXT_PUBLIC_R2_PUBLIC_BASE_URL", undefined);
     return;
   }
   process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL = ORIGINAL_BASE_URL;
@@ -102,7 +102,7 @@ describe("Hero stage selection", () => {
       if (baseUrl) {
         process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL = baseUrl;
       } else {
-        delete process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL;
+        vi.stubEnv("NEXT_PUBLIC_R2_PUBLIC_BASE_URL", undefined);
       }
 
       const { container, unmount } = render(<Hero hero={baseHero} />);

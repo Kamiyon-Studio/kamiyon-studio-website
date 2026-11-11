@@ -18,7 +18,7 @@ export type SeedWriteClientOptions = {
 
 /** Resolve write token from env (trimmed). Empty / whitespace → undefined. */
 export function resolveWriteToken(
-  env: NodeJS.ProcessEnv = process.env,
+  env: Record<string, string | undefined> = process.env,
 ): string | undefined {
   const raw = env[WRITE_TOKEN_ENV];
   const trimmed = typeof raw === "string" ? raw.trim() : "";
@@ -32,6 +32,9 @@ export function resolveWriteToken(
 export function createSeedWriteClient(
   options: SeedWriteClientOptions = {},
 ): SanityClient {
+  if (process.env.CMS_CONTENT_MODE === "read-only") {
+    throw new Error("Content writes are disabled for this read-only environment.");
+  }
   const token = options.token ?? resolveWriteToken();
   if (!token) {
     throw new Error(

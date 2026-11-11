@@ -51,7 +51,11 @@ permissions:
   contents: read
 
 jobs:
+  quality:
+    uses: ./.github/workflows/quality.yml
+
   deploy-staging:
+    needs: quality
     name: Deploy (staging)
     if: >-
       (github.event_name == 'push' && github.ref_name == 'staging') ||
@@ -95,6 +99,7 @@ jobs:
           NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN: ${{ vars.NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN_STAGING }}
 
   deploy-production:
+    needs: quality
     name: Deploy (production)
     if: >-
       (github.event_name == 'push' && github.ref_name == 'main') ||

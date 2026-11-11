@@ -90,3 +90,10 @@ describe("mapR2AssetToCmsImage", () => {
     });
   });
 });
+
+it.each([{ width: 2, height: 2 }, { width: 257, height: 129 }])("reads standalone VP8L lossless WebP dimensions %o", async ({ width, height }) => {
+  const sharp = (await import("sharp")).default;
+  const bytes = new Uint8Array(await sharp({ create: { width, height, channels: 3, background: "red" } }).webp({ lossless: true }).toBuffer());
+  expect(new TextDecoder().decode(bytes.slice(12, 16))).toBe("VP8L");
+  expect(readImageDimensions(bytes)).toEqual({ width, height });
+});

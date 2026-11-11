@@ -43,7 +43,7 @@ export function ServiceDetail({ service }: ServiceDetailProps) {
             <section className="mt-10" aria-label="Related work">
               <h2 className="text-xl font-semibold">Explore our work</h2>
               <p className="mt-3">
-                See the projects behind our studio's capabilities.
+                See the projects behind our studio&apos;s capabilities.
               </p>
               <Link
                 href={

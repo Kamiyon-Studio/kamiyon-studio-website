@@ -1,6 +1,10 @@
 /** @vitest-environment node */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@/lib/cms/media-upload-auth", () => ({
+  authorizeMediaUpload: vi.fn(async (token: string) => token === "test-media-upload-secret" ? "allowed" : "denied"),
+}));
+
 /** Minimal 1×1 PNG (valid IHDR). */
 const PNG_1X1 = Uint8Array.from(
   Buffer.from(
@@ -37,11 +41,11 @@ describe("POST /api/media/upload", () => {
       process.env.MEDIA_UPLOAD_SECRET = originalSecret;
     }
     if (originalBase === undefined) {
-      delete process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL;
+      vi.stubEnv("NEXT_PUBLIC_R2_PUBLIC_BASE_URL", undefined);
     } else {
       process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL = originalBase;
     }
-    delete process.env.NEXT_PUBLIC_SANITY_STUDIO_URL;
+    vi.stubEnv("NEXT_PUBLIC_SANITY_STUDIO_URL", undefined);
   });
 
   async function post(init: { headers?: HeadersInit; body?: BodyInit } = {}) {
@@ -111,7 +115,7 @@ describe("POST /api/media/upload", () => {
     });
 
     expect(response.status).toBe(200);
-    const json = await response.json();
+    const json = await response.json() as { data: { key: string; url: string; mimeType: string; width: number; height: number } };
 
     expect(json).toMatchObject({
       success: true,
@@ -211,6 +215,24 @@ describe("POST /api/media/upload", () => {
     expect(putMock).not.toHaveBeenCalled();
   });
 
+  it("rejects text bytes disguised as PNG regardless of caller role claims", async () => {
+    const response = await post({
+      headers: { Authorization: "Bearer test-media-upload-secret" },
+      body: formWithFile(new File(["not an image".repeat(10)], "fake.png", { type: "image/png" })),
+    });
+    expect(response.status).toBe(415);
+    expect(putMock).not.toHaveBeenCalled();
+  });
+
+  it("bounds multipart bytes without Content-Length", async () => {
+    const response = await post({
+      headers: { Authorization: "Bearer test-media-upload-secret", "Content-Type": "multipart/form-data; boundary=test" },
+      body: new Uint8Array(11 * 1024 * 1024),
+    });
+    expect(response.status).toBe(413);
+    expect(putMock).not.toHaveBeenCalled();
+  });
+
   it("returns 415 for HTML uploads", async () => {
     const html = new File(["<html></html>"], "page.html", {
       type: "text/html",
@@ -234,7 +256,7 @@ describe("POST /api/media/upload", () => {
     const response = await post({
       headers: {
         Authorization: "Bearer test-media-upload-secret",
-        "Content-Length": String(MAX_UPLOAD_BYTES + 1),
+        "Content-Length": String(MAX_UPLOAD_BYTES + 64 * 1024 + 1),
         "Content-Type": "multipart/form-data; boundary=----x",
       },
       body: formWithFile(
@@ -290,7 +312,7 @@ describe("POST /api/media/upload", () => {
     const response = await post({
       headers: {
         Authorization: "Bearer wrong-secret",
-        "Content-Length": String(MAX_UPLOAD_BYTES + 1),
+        "Content-Length": String(MAX_UPLOAD_BYTES + 64 * 1024 + 1),
       },
       body: formWithFile(
         new File(["<svg></svg>"], "evil.svg", { type: "image/svg+xml" }),

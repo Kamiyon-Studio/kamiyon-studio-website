@@ -56,6 +56,6 @@ describe("aboutPage schema (Who we are band)", () => {
 
     expect(culture?.type).toBe("text");
     expect(values?.type).toBe("array");
-    expect(values?.of).toEqual([{ type: "coreValue" }]);
+    expect(values && "of" in values ? values.of : undefined).toEqual([{ type: "coreValue" }]);
   });
 });

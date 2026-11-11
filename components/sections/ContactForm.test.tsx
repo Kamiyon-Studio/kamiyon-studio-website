@@ -1,8 +1,13 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ContactForm } from "./ContactForm";
+
+const browserIntersectionObserver = globalThis.IntersectionObserver;
+beforeEach(() => {
+  vi.stubGlobal("IntersectionObserver", browserIntersectionObserver);
+});
 
 describe("ContactForm", () => {
   afterEach(() => {
@@ -87,4 +92,36 @@ describe("ContactForm", () => {
       ).toBeInTheDocument();
     });
   });
+});
+
+it("reuses the submission identifier after a failed request", async () => {
+  const user = userEvent.setup();
+  const fetchMock = vi.fn().mockRejectedValue(new Error("network"));
+  vi.stubGlobal("fetch", fetchMock);
+  render(<ContactForm />);
+  await user.type(screen.getByLabelText(/^name$/i), "Ada");
+  await user.type(screen.getByLabelText(/^email$/i), "ada@example.com");
+  await user.type(screen.getByLabelText(/^message$/i), "A valid inquiry message.");
+  await user.click(screen.getByRole("button", { name: /send message/i }));
+  await screen.findByText(/something went wrong/i);
+  await user.click(screen.getByRole("button", { name: /send message/i }));
+  expect(JSON.parse(fetchMock.mock.calls[0][1].body).submissionId).toBe(JSON.parse(fetchMock.mock.calls[1][1].body).submissionId);
+  vi.unstubAllGlobals();
+});
+
+it("disables submission while the request is pending", async () => {
+  const user = userEvent.setup();
+  const fetchMock = vi.fn().mockReturnValue(new Promise(() => {}));
+  vi.stubGlobal("fetch", fetchMock);
+  render(<ContactForm />);
+  await user.click(screen.getByRole("button", { name: /send message/i }));
+  expect(screen.getByRole("button", { name: /sending/i })).toBeDisabled();
+  await user.click(screen.getByRole("button", { name: /sending/i }));
+  expect(fetchMock).toHaveBeenCalledTimes(1);
+  vi.unstubAllGlobals();
+});
+
+it("links its data-use explanation to contact privacy", () => {
+  render(<ContactForm />);
+  expect(screen.getByRole("link", { name: /how your contact information is handled/i })).toHaveAttribute("href", "/privacy");
 });

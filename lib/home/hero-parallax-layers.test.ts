@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   buildHeroParallaxLayerKey,
@@ -21,7 +21,7 @@ const ORIGINAL_BASE_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL;
 
 function setBaseUrl(value: string | undefined): void {
   if (value === undefined) {
-    delete process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL;
+    vi.stubEnv("NEXT_PUBLIC_R2_PUBLIC_BASE_URL", undefined);
     return;
   }
   process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL = value;
