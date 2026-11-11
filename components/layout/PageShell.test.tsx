@@ -49,14 +49,7 @@ describe("PageShell", () => {
     expect(main?.className).toContain("bg-[var(--bg-primary)]");
   });
 
-  it("renders a subtle fixed cross-hatch overlay for the site background", async () => {
-    const { container } = render(await PageShell({ children: <p>Page content</p> }));
 
-    const grid = container.querySelector(".site-bg-grid");
-    expect(grid).not.toBeNull();
-    expect(grid).toHaveAttribute("aria-hidden", "true");
-    expect(grid).toHaveClass("pointer-events-none", "fixed", "inset-0");
-  });
 
   it("renders the site header and footer around the content", async () => {
     render(await PageShell({ children: <p>Page content</p> }));

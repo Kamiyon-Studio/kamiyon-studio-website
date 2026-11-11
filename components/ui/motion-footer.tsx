@@ -29,6 +29,7 @@ import {
   DEFAULT_FOOTER_SECONDARY_CTA_LABEL,
 } from "@/lib/cms/fallbacks/site-settings";
 import { cn } from "@/lib/utils";
+import { DISPLAY_HEADING_CLASS } from "@/lib/ui/display-heading";
 
 /** Full-viewport footer travel needs softer lag than SCROLL_SCRUB_UI. */
 const FOOTER_SCROLL_SCRUB = SCROLL_SCRUB_SMOOTH;
@@ -322,7 +323,7 @@ export function CinematicFooter({
         <div className="relative z-10 mx-auto mt-20 flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-6">
           <h2
             ref={headingRef}
-            className="footer-text-glow mb-4 text-center font-display text-5xl font-black tracking-tighter md:text-8xl"
+            className={cn(DISPLAY_HEADING_CLASS, "mb-4 text-center")}
           >
             {footerCtaHeading}
           </h2>
