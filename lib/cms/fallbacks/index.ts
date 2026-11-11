@@ -6,7 +6,7 @@ export { contactPageFallback } from "./contact";
 export { homePageFallback } from "./home";
 export { postsFallback } from "./posts";
 export { productsFallback } from "./products";
-export { resolveWithFallback } from "./resolve";
+export { canUseDemoContent, resolveWithFallback } from "./resolve";
 export { servicesFallback } from "./services";
 export { siteSettingsFallback } from "./site-settings";
 export {
