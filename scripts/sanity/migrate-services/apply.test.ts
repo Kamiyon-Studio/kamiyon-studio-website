@@ -122,7 +122,7 @@ describe("applyMigrationPlan", () => {
       getDocument: vi.fn(async () => ({
         _id: "caseStudy-acme",
         service: { _type: "reference", _ref: serviceDocId("web-development") },
-      })),
+      })) as unknown as SanityClient["getDocument"],
       patch: patch as SanityClient["patch"],
     });
 

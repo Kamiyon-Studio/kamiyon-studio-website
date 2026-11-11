@@ -41,7 +41,7 @@ vi.mock("@/components/animation/AnimatedSection", () => ({
 
 import { ProjectsBento } from "./ProjectsBento";
 
-function makeCaseStudy(overrides: Partial<CaseStudy> & { slug: string }): CaseStudy {
+function makeCaseStudy(overrides: Omit<Partial<CaseStudy>, "slug"> & { slug: string }): CaseStudy {
   const { slug, ...rest } = overrides;
 
   return {

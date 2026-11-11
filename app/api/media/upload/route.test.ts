@@ -37,11 +37,11 @@ describe("POST /api/media/upload", () => {
       process.env.MEDIA_UPLOAD_SECRET = originalSecret;
     }
     if (originalBase === undefined) {
-      delete process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL;
+      vi.stubEnv("NEXT_PUBLIC_R2_PUBLIC_BASE_URL", undefined);
     } else {
       process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL = originalBase;
     }
-    delete process.env.NEXT_PUBLIC_SANITY_STUDIO_URL;
+    vi.stubEnv("NEXT_PUBLIC_SANITY_STUDIO_URL", undefined);
   });
 
   async function post(init: { headers?: HeadersInit; body?: BodyInit } = {}) {
@@ -111,7 +111,7 @@ describe("POST /api/media/upload", () => {
     });
 
     expect(response.status).toBe(200);
-    const json = await response.json();
+    const json = await response.json() as { data: { key: string; url: string; mimeType: string; width: number; height: number } };
 
     expect(json).toMatchObject({
       success: true,

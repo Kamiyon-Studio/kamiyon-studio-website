@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { matchMediaAddMock, setMock, fromToMock } = vi.hoisted(() => {
-  const fromToMock = vi.fn(() => ({ play: vi.fn(), kill: vi.fn() }));
+  const fromToMock = vi.fn<(...args: [unknown, Record<string, unknown>, Record<string, unknown>]) => unknown>(() => ({ play: vi.fn(), kill: vi.fn() }));
   const setMock = vi.fn();
   const matchMediaAddMock = vi.fn();
   return { matchMediaAddMock, setMock, fromToMock };

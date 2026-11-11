@@ -3,7 +3,7 @@ import { DOQueueHandler } from "@opennextjs/cloudflare/durable-objects/queue";
 
 export { DOShardedTagCache, DOQueueHandler };
 
-export default {
+const worker = {
   async fetch(request, env) {
     const url = new URL(request.url);
     const run = url.searchParams.get("run");
@@ -29,3 +29,5 @@ export default {
     return Response.json(await tags.getTagData(["publish-proof", marker]));
   },
 };
+
+export default worker;
