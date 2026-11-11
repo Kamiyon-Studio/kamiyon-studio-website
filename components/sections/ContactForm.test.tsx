@@ -115,3 +115,8 @@ it("disables submission while the request is pending", async () => {
   expect(fetchMock).toHaveBeenCalledTimes(1);
   vi.unstubAllGlobals();
 });
+
+it("links its data-use explanation to contact privacy", () => {
+  render(<ContactForm />);
+  expect(screen.getByRole("link", { name: /how your contact information is handled/i })).toHaveAttribute("href", "/privacy");
+});

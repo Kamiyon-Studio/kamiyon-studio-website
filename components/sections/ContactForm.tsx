@@ -172,6 +172,9 @@ export function ContactForm() {
         />
       </div>
 
+      <p className="text-sm text-[var(--text-secondary)]">
+        We use your name, email, and message to respond to your inquiry. <a href="/privacy" className="underline">How your contact information is handled</a>.
+      </p>
       <div className="flex flex-wrap items-center gap-4">
         <Button type="submit" variant="primary" disabled={status.kind === "submitting"}>
           {status.kind === "submitting" ? "Sending…" : "Send message"}
@@ -192,5 +195,3 @@ export function ContactForm() {
     </form>
   );
 }
-
-
