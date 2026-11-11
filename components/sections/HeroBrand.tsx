@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
 import { SplitText } from "@/components/ui/SplitText";
 import { SITE_MOTTO } from "@/lib/seo/constants";
 
@@ -30,6 +31,16 @@ export function HeroBrand() {
       <p className="mt-4 font-sans text-sm tracking-[0.22em] text-[var(--color-ivory)]/70 uppercase md:mt-5 md:text-base">
         {SITE_MOTTO}
       </p>
+      <p className="mt-5 max-w-xl text-base text-[var(--color-ivory)] md:text-lg">
+        Games, digital products, and design from an independent Philippine
+        studio.
+      </p>
+      <div className="pointer-events-auto mt-6 flex flex-wrap justify-center gap-3">
+        <Button href="/portfolio">View our work</Button>
+        <Button href="/contact" variant="secondary">
+          Discuss a project
+        </Button>
+      </div>
     </>
   );
 }
