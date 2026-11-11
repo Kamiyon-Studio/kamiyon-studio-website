@@ -88,3 +88,30 @@ describe("ContactForm", () => {
     });
   });
 });
+
+it("reuses the submission identifier after a failed request", async () => {
+  const user = userEvent.setup();
+  const fetchMock = vi.fn().mockRejectedValue(new Error("network"));
+  vi.stubGlobal("fetch", fetchMock);
+  render(<ContactForm />);
+  await user.type(screen.getByLabelText(/^name$/i), "Ada");
+  await user.type(screen.getByLabelText(/^email$/i), "ada@example.com");
+  await user.type(screen.getByLabelText(/^message$/i), "A valid inquiry message.");
+  await user.click(screen.getByRole("button", { name: /send message/i }));
+  await screen.findByText(/something went wrong/i);
+  await user.click(screen.getByRole("button", { name: /send message/i }));
+  expect(JSON.parse(fetchMock.mock.calls[0][1].body).submissionId).toBe(JSON.parse(fetchMock.mock.calls[1][1].body).submissionId);
+  vi.unstubAllGlobals();
+});
+
+it("disables submission while the request is pending", async () => {
+  const user = userEvent.setup();
+  const fetchMock = vi.fn().mockReturnValue(new Promise(() => {}));
+  vi.stubGlobal("fetch", fetchMock);
+  render(<ContactForm />);
+  await user.click(screen.getByRole("button", { name: /send message/i }));
+  expect(screen.getByRole("button", { name: /sending/i })).toBeDisabled();
+  await user.click(screen.getByRole("button", { name: /sending/i }));
+  expect(fetchMock).toHaveBeenCalledTimes(1);
+  vi.unstubAllGlobals();
+});
