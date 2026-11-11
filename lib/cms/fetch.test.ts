@@ -37,13 +37,13 @@ describe("safeSanityFetch", () => {
     });
   });
 
-  it("returns null and does not throw when fetch fails", async () => {
+  it("rejects an outage instead of converting it to missing content", async () => {
     isConfiguredMock.mockReturnValue(true);
     fetchMock.mockRejectedValue(new Error("network down"));
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const { safeSanityFetch } = await import("./fetch");
 
-    await expect(safeSanityFetch("*[_type == 'homePage'][0]")).resolves.toBeNull();
+    await expect(safeSanityFetch("*[_type == 'homePage'][0]")).rejects.toThrow("temporarily unavailable");
     expect(errorSpy).toHaveBeenCalled();
     errorSpy.mockRestore();
   });
