@@ -25,20 +25,10 @@ import {
   getPortfolioItems,
   getServices,
 } from "@/lib/cms/queries";
-import { resolveHomeProjectsBackground } from "@/lib/home/hero-parallax-layers";
 import { PARTNER_PLACEHOLDERS } from "@/lib/home/partner-placeholders";
 import { pickServiceHoverImages } from "@/lib/portfolio/service-hover-images";
 import { buildPageMetadata } from "@/lib/seo/metadata";
-import type { HomeHero, HomePage, Portfolio, Service } from "@/lib/cms/types";
-
-/** Static-path stub — parallax Hero ignores these fields. */
-const HERO_STUB: HomeHero = {
-  _type: "hero",
-  headline: "",
-  subheadline: "",
-  ctaLabel: "",
-  ctaHref: "",
-};
+import type { HomePage, Portfolio, Service } from "@/lib/cms/types";
 
 async function getHomePageContent() {
   const [homeCms, allPortfolioItems] = await Promise.all([
@@ -121,11 +111,10 @@ export default async function Home() {
   return (
     <>
       <HomeScrollMarker />
-      <Hero hero={HERO_STUB} />
+      <Hero />
       {portfolioItems.length > 0 ? (
         <ProjectsBento
           caseStudies={portfolioItems}
-          backgroundSrc={resolveHomeProjectsBackground()}
         />
       ) : null}
       {partners.length > 0 ? (
