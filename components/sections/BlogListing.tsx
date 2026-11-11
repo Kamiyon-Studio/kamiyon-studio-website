@@ -27,16 +27,16 @@ export function BlogListing({ posts }: BlogListingProps) {
   );
 
   return (
-    <section className="bg-[var(--bg-primary)] py-16 md:py-24">
+    <section className="bg-[var(--bg-primary)] pb-16 md:pb-24">
       <Container>
-        <div className="max-w-[680px]">
-          <h1 className="font-display text-3xl font-bold text-[var(--text-primary)] md:text-4xl">
+        <header className="studio-page-intro">
+          <h1 className="studio-page-title">
             Blog
           </h1>
-          <p className="mt-4 text-base text-[var(--text-secondary)] md:text-lg">
+          <p className="studio-lead mt-6">
             Studio updates, announcements, and notes from Kamiyon Studio.
           </p>
-        </div>
+        </header>
 
         {ordered.length > 0 ? (
           <ol className="mt-12 divide-y divide-[var(--border-default)] border-y border-[var(--border-default)]">

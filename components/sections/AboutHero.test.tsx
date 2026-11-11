@@ -1,37 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import { createElement, type ElementType } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import type { AboutPage } from "@/lib/cms/types";
-
-vi.mock("next/image", () => ({
-  default: ({
-    fill: _fill,
-    priority: _priority,
-    ...props
-  }: React.ComponentProps<"img"> & { fill?: boolean; priority?: boolean }) =>
-    createElement("img", props),
-}));
-
-vi.mock("@/hooks/useOpeningAnimation", () => ({
-  useOpeningAnimation: () => ({ current: null }),
-}));
-
-vi.mock("@/hooks/useParallax", () => ({
-  useParallax: () => ({ current: null }),
-}));
-
-vi.mock("@/components/ui/SplitText", () => ({
-  SplitText: ({
-    tag = "p",
-    text,
-    className,
-  }: {
-    tag?: ElementType;
-    text: string;
-    className?: string;
-  }) => createElement(tag, { className }, text),
-}));
 
 import { AboutHero } from "./AboutHero";
 
@@ -51,14 +21,14 @@ const baseAboutPage: AboutPage = {
 };
 
 describe("AboutHero", () => {
-  it("renders ABOUT US as the only hero message", () => {
+  it("renders the About title and CMS mission", () => {
     render(<AboutHero aboutPage={baseAboutPage} />);
 
     const heading = screen.getByRole("heading", { level: 1, name: "ABOUT US" });
     const hero = heading.closest("section");
 
     expect(hero).toHaveAttribute("data-nav-theme", "dark");
-    expect(screen.queryByText(baseAboutPage.mission)).not.toBeInTheDocument();
+    expect(screen.getByText(baseAboutPage.mission)).toBeInTheDocument();
     expect(screen.queryByText(baseAboutPage.motto)).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Our values" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Meet the team" })).not.toBeInTheDocument();

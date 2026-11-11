@@ -97,25 +97,26 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(blogPostingJsonLd) }}
       />
-      <article className="bg-[var(--bg-primary)] py-16 md:py-24">
+      <article className="bg-[var(--bg-primary)] pb-16 md:pb-24">
         <Container>
-          <div className="mx-auto max-w-[680px]">
-            {dateLabel ? (
-              <time
-                dateTime={post.publishedAt}
-                className="text-sm text-[var(--text-muted)]"
-              >
-                {dateLabel}
-              </time>
-            ) : null}
-            <h1 className="mt-3 font-display text-3xl font-bold text-[var(--text-primary)] md:text-4xl">
-              {post.title}
-            </h1>
-            {post.authors[0]?.name ? (
-              <p className="mt-3 text-sm text-[var(--text-secondary)]">
-                {post.authors[0].name}
-              </p>
-            ) : null}
+          <div className="mx-auto max-w-[72ch]">
+            <header className="studio-page-intro">
+              <h1 className="studio-page-title">{post.title}</h1>
+              {dateLabel ? (
+                <time
+                  dateTime={post.publishedAt}
+                  className="mt-6 block text-sm text-[var(--text-muted)]"
+                >
+                  {dateLabel}
+                </time>
+              ) : null}
+
+              {post.authors[0]?.name ? (
+                <p className="mt-3 text-sm text-[var(--text-secondary)]">
+                  {post.authors[0].name}
+                </p>
+              ) : null}
+            </header>
             <div className="mt-10">
               <PortableText blocks={post.body} />
             </div>
