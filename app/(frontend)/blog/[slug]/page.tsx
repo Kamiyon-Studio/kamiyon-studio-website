@@ -6,7 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { PortableText } from "@/components/ui/PortableText";
 import { postsFallback, resolveWithFallback } from "@/lib/cms/fallbacks";
 import { getPostBySlug, getPosts } from "@/lib/cms/queries";
-import type { PortableTextBlock, Post } from "@/lib/cms/types";
+import type { Post } from "@/lib/cms/types";
 import { getBlogPostingJsonLd } from "@/lib/seo/blog-posting-jsonld";
 import { getBreadcrumbJsonLd } from "@/lib/seo/breadcrumb-jsonld";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -73,9 +73,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   const dateLabel = formatPublishedAt(post.publishedAt);
-  const bodyBlocks = post.body.filter(
-    (block): block is PortableTextBlock => block._type === "block",
-  );
   const breadcrumbJsonLd = getBreadcrumbJsonLd([
     { name: "Home", href: "/" },
     { name: "Blog", href: "/blog" },
@@ -113,7 +110,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               </p>
             ) : null}
             <div className="mt-10">
-              <PortableText blocks={bodyBlocks} />
+              <PortableText blocks={post.body} />
             </div>
           </div>
         </Container>
