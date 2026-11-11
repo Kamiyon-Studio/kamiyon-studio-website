@@ -3,7 +3,7 @@
 # Mirror the same names used in `.env.local` for Next API routes.
 
 APP_ENV=local
-# MEDIA_UPLOAD_SECRET=
+# Upload authorization uses the signed-in Sanity editor session.
 # SANITY_REVALIDATE_SECRET=
 # SANITY_API_READ_TOKEN=
 # NEXT_PUBLIC_SITE_URL=http://localhost:3000
